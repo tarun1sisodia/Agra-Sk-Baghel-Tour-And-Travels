@@ -2,6 +2,29 @@
 
 ## 2026-10-11
 
+### 2026-10-11 — Fare System Contract Normalization, Canonical Field Registry & Fail-Closed Hardening
+
+- **Master Canonical Field Registry (`docs/CANONICAL_FIELD_REGISTRY.md`)**:
+  - Authored comprehensive field registry documenting every business concept across:
+    - PostgreSQL database column (`snake_case`)
+    - TypeScript internal domain entity (`camelCase` / `snake_case`)
+    - Wire contract property (`contracts/fare-system.ts`, Zod schemas)
+    - Admin Operations Desk and Customer Frontend representation
+    - Strict data types, validation constraints, and currency units (whole INR rupees vs INR paise)
+    - Source of truth and authoritative fail-closed invariants (INV-1, INV-2, INV-3).
+- **Financial Fail-Closed Hardening (`backend/src/db/postgres.ts`)**:
+  - Eliminated fuzzy zero fallbacks (`?? 0`) and secondary alias degradation in `mapBooking` and `mapPayment`.
+  - Enforced strict fail-closed validation on canonical `total_amount`, `advance_amount`, and `balance_amount`:
+    - Rejects missing, NaN, or non-positive total amounts with `AppError("DATA_CORRUPTION", ..., 500)`.
+    - Validates advance amount is non-negative and $\le \text{total_amount}$.
+    - Validates balance amount matches `total_amount - advance_amount` (INV-3).
+  - Enforced strict fail-closed validation on `amount_paise` in `mapPayment`:
+    - Rejects missing, NaN, or non-positive payment amounts with `AppError("DATA_CORRUPTION", ..., 500)`.
+- **End-to-End Contract Verification**:
+  - Verified request validation $\to$ server quote $\to$ booking persistence $\to$ API response $\to$ checkout $\to$ Razorpay order $\to$ webhook signature verification $\to$ payment persistence $\to$ admin desk display.
+  - Client-supplied prices or distances are rejected/ignored at canonical boundaries.
+  - All test suites passing: Newman (29 requests, 50 assertions, 100% pass), Vitest (179 backend tests, 100% pass), TypeScript typecheck (0 errors across `react/`, `admin/`, `backend/`), and `npm run verify`.
+
 ### 2026-10-11 — PostgreSQL Clean Schema Alignment, Admin Desk & Customer Deep-Link Hardening
 
 - **Admin Payments Endpoint Fix (`backend/src/db/postgres.ts`)**:

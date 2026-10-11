@@ -218,9 +218,47 @@ function mapBooking(row: Record<string, unknown>): BookingRecord {
     : (typeof row.fare_breakdown === "string" ? JSON.parse(row.fare_breakdown) : {})) as Record<string, any>;
   const vehicle = breakdown.vehicle ?? {};
   const details = breakdown.details ?? {};
-  const totalAmount = num(row.total_amount ?? row.total_fare ?? breakdown.total ?? 0);
-  const advanceAmount = num(row.advance_amount ?? breakdown.advance ?? 0);
-  const balanceAmount = num(row.balance_amount ?? breakdown.balance ?? Math.max(0, totalAmount - advanceAmount));
+  // Fail-closed validation on canonical financial columns
+  let totalAmount: number;
+  if (row.total_amount !== undefined && row.total_amount !== null) {
+    totalAmount = num(row.total_amount);
+  } else if (row.total_fare !== undefined && row.total_fare !== null) {
+    totalAmount = num(row.total_fare);
+  } else if (breakdown.total !== undefined && breakdown.total !== null) {
+    totalAmount = num(breakdown.total);
+  } else {
+    throw new AppError("DATA_CORRUPTION", `Booking ${String(row.id ?? "unknown")} has missing total amount`, 500);
+  }
+
+  if (isNaN(totalAmount) || totalAmount <= 0) {
+    throw new AppError("DATA_CORRUPTION", `Booking ${String(row.id ?? "unknown")} has invalid total amount: ${totalAmount}`, 500);
+  }
+
+  let advanceAmount: number;
+  if (row.advance_amount !== undefined && row.advance_amount !== null) {
+    advanceAmount = num(row.advance_amount);
+  } else if (breakdown.advance !== undefined && breakdown.advance !== null) {
+    advanceAmount = num(breakdown.advance);
+  } else {
+    throw new AppError("DATA_CORRUPTION", `Booking ${String(row.id ?? "unknown")} has missing advance amount`, 500);
+  }
+
+  if (isNaN(advanceAmount) || advanceAmount < 0 || advanceAmount > totalAmount) {
+    throw new AppError("DATA_CORRUPTION", `Booking ${String(row.id ?? "unknown")} has invalid advance amount: ${advanceAmount}`, 500);
+  }
+
+  let balanceAmount: number;
+  if (row.balance_amount !== undefined && row.balance_amount !== null) {
+    balanceAmount = num(row.balance_amount);
+  } else if (breakdown.balance !== undefined && breakdown.balance !== null) {
+    balanceAmount = num(breakdown.balance);
+  } else {
+    balanceAmount = Math.max(0, totalAmount - advanceAmount);
+  }
+
+  if (isNaN(balanceAmount) || balanceAmount < 0 || (advanceAmount + balanceAmount !== totalAmount)) {
+    throw new AppError("DATA_CORRUPTION", `Booking ${String(row.id ?? "unknown")} balance amount violates INV-3: total=${totalAmount}, advance=${advanceAmount}, balance=${balanceAmount}`, 500);
+  }
   const distanceKm = num(row.distance_km ?? details.distance_km ?? 0);
   const tripType = (row.trip_type as BookingRecord["tripType"]) ?? (details.effective_trip_type as BookingRecord["tripType"]) ?? "one_way";
   const vehicleTier = (row.vehicle_tier as BookingRecord["vehicleTier"]) ?? (vehicle.group_code as BookingRecord["vehicleTier"]) ?? "sedan";
@@ -312,7 +350,21 @@ function mapBookingIntent(row: Record<string, unknown>): BookingIntentRecord {
 }
 
 function mapPayment(row: Record<string, unknown>): PaymentRecord {
-  const amountPaise = num(row.amount_paise ?? row.inr_amount_paise ?? row.amount_minor ?? 0);
+  // Fail-closed validation on canonical payment columns
+  let amountPaise: number;
+  if (row.amount_paise !== undefined && row.amount_paise !== null) {
+    amountPaise = num(row.amount_paise);
+  } else if (row.inr_amount_paise !== undefined && row.inr_amount_paise !== null) {
+    amountPaise = num(row.inr_amount_paise);
+  } else if (row.amount_minor !== undefined && row.amount_minor !== null) {
+    amountPaise = num(row.amount_minor);
+  } else {
+    throw new AppError("DATA_CORRUPTION", `Payment ${String(row.id ?? "unknown")} has missing amount_paise`, 500);
+  }
+
+  if (isNaN(amountPaise) || amountPaise <= 0) {
+    throw new AppError("DATA_CORRUPTION", `Payment ${String(row.id ?? "unknown")} has non-positive amount_paise: ${amountPaise}`, 500);
+  }
   const nowIso = new Date().toISOString();
   return {
     id: String(row.id),
