@@ -45,11 +45,33 @@
         "header": [],
         "url": {
           "raw": "{{baseUrl}}/health",
-          "host": ["{{baseUrl}}"],
-          "path": ["health"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
         },
         "description": "Verifies that the backend Fastify server is running and healthy."
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Health response indicates healthy or ready\", function () {",
+              "    const json = pm.response.json();",
+              "    const status = (json.data && json.data.status) || json.status;",
+              "    pm.expect(status).to.be.oneOf([\"healthy\", \"ready\", \"ok\"]);",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "02. Admin — Fleet & Vehicle Groups",
@@ -59,23 +81,60 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}", "type": "text" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}",
+                "type": "text"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/fares/vehicle-groups",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "fares", "vehicle-groups"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "fares",
+                "vehicle-groups"
+              ]
             },
             "description": "Returns the 4 vehicle groups (sedan, suv, luxury, tempo_traveller) with their driver allowances and night charges."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Returns vehicle groups array\", function () {",
+                  "    const json = pm.response.json();",
+                  "    const list = json.vehicle_groups || json;",
+                  "    pm.expect(list).to.be.an(\"array\");",
+                  "    pm.expect(list.length).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "2.2 Update Sedan Driver Allowance & Night Charges",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}", "type": "text" },
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -83,19 +142,52 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/fares/vehicle-groups/10000000-0000-0000-0001-000000000001",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "fares", "vehicle-groups", "10000000-0000-0000-0001-000000000001"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "fares",
+                "vehicle-groups",
+                "10000000-0000-0000-0001-000000000001"
+              ]
             },
             "description": "Updates driver allowance and night charges for Sedan group. Writes before/after to admin_audit_logs."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Driver allowance is updated\", function () {",
+                  "    const json = pm.response.json();",
+                  "    const group = json.vehicle_group || json;",
+                  "    pm.expect(group.driver_allowance_per_day).to.eql(550);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "2.3 Create New Vehicle Model (e.g. Maruti Ciaz)",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}", "type": "text" },
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -103,19 +195,48 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/fares/vehicle-models",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "fares", "vehicle-models"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "fares",
+                "vehicle-models"
+              ]
             },
             "description": "Creates a new vehicle model under Sedan group."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201 Created or 409 Conflict if already seeded\", function () {",
+                  "    pm.expect([200, 201, 409]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "2.4 Update Vehicle Model Capacity / Active Status",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}", "type": "text" },
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -123,11 +244,36 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/fares/vehicle-models/{{sedanModelId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "fares", "vehicle-models", "{{sedanModelId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "fares",
+                "vehicle-models",
+                "{{sedanModelId}}"
+              ]
             },
             "description": "Updates passenger capacity or active state for Maruti Dzire."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Vehicle model capacity is updated\", function () {",
+                  "    const json = pm.response.json();",
+                  "    const model = json.vehicle_model || json;",
+                  "    pm.expect(model.passenger_capacity).to.eql(4);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -139,23 +285,60 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}", "type": "text" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}",
+                "type": "text"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/fares/settings",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "fares", "settings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "fares",
+                "settings"
+              ]
             },
             "description": "Lists commercial settings keys: advance_percent (28), min_km_per_day (300), max_round_trip_days (5), night_start_hour (20), night_end_hour (6)."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Settings contain advance_percent\", function () {",
+                  "    const json = pm.response.json();",
+                  "    const list = json.settings || json;",
+                  "    const keys = list.map(s => s.key);",
+                  "    pm.expect(keys).to.include(\"advance_percent\");",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "3.2 Update Max Round-Trip Days (Requirement B)",
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}", "type": "text" },
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -163,11 +346,36 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/fares/settings/max_round_trip_days",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "fares", "settings", "max_round_trip_days"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "fares",
+                "settings",
+                "max_round_trip_days"
+              ]
             },
             "description": "Updates max_round_trip_days to 5 calendar days with audit trail."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Requirement B: Max round trip days is 5\", function () {",
+                  "    const json = pm.response.json();",
+                  "    const setting = json.setting || json;",
+                  "    pm.expect(setting.value).to.eql(5);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -179,8 +387,16 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}", "type": "text" },
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -188,19 +404,51 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/routes/calculate-distance",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "routes", "calculate-distance"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "routes",
+                "calculate-distance"
+              ]
             },
             "description": "Queries LocationIQ over HTTPS, returning distance rounded to 1 decimal km and integer duration in minutes without auto-saving."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Distance is computed and positive\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.distance_km).to.be.above(0);",
+                  "    pm.expect(json.duration_minutes).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "4.2 Set Flat Prices for Vehicles on Agra->Delhi Corridor",
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}", "type": "text" },
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -208,11 +456,31 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/routes/{{routeId}}/vehicles",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "routes", "{{routeId}}", "vehicles"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "routes",
+                "{{routeId}}",
+                "vehicles"
+              ]
             },
             "description": "Atomically sets flat vehicle pricing and inclusions/exclusions on the Agra->Delhi corridor."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -224,8 +492,16 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}", "type": "text" },
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -233,11 +509,36 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/fares/rules/{{innovaFareRuleId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "fares", "rules", "{{innovaFareRuleId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "fares",
+                "rules",
+                "{{innovaFareRuleId}}"
+              ]
             },
             "description": "Updates global outstation round-trip ₹/km rate for Innova Crysta."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Round trip rate updated\", function () {",
+                  "    const json = pm.response.json();",
+                  "    const rule = json.fare_rule || json;",
+                  "    pm.expect(rule.amount).to.eql(18);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -249,8 +550,16 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}", "type": "text" },
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -258,19 +567,48 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/fares/extra-charges",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "fares", "extra-charges"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "fares",
+                "extra-charges"
+              ]
             },
             "description": "Creates a deterministic numeric extra charge line item added into outstation quotes."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201 Created or 409 Conflict if already exists\", function () {",
+                  "    pm.expect([200, 201, 409]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "6.2 Create Policy Disclaimer Note (amount is null)",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}", "type": "text" },
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -278,11 +616,32 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/fares/extra-charges",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "fares", "extra-charges"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "fares",
+                "extra-charges"
+              ]
             },
             "description": "Creates an informational policy note returned to the customer without adding to the fare total."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 201 Created or 409 Conflict if already exists\", function () {",
+                  "    pm.expect([200, 201, 409]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -296,11 +655,34 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/catalog",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "catalog"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "catalog"
+              ]
             },
             "description": "Returns all active published products across the 4 categories with real starting_price_inr."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Catalog has products and vehicles\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.products).to.be.an(\"array\");",
+                  "    pm.expect(json.vehicles).to.be.an(\"array\");",
+                  "    pm.expect(json.groups).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "7.2 Fetch Product Detail (Outstation: Agra to Delhi)",
@@ -309,11 +691,35 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/catalog/outstation/agra-to-delhi",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "catalog", "outstation", "agra-to-delhi"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "catalog",
+                "outstation",
+                "agra-to-delhi"
+              ]
             },
             "description": "Returns detail view of Agra->Delhi with route distance, vehicle starting rates, and inclusions/exclusions."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Product detail is complete\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.category).to.eql(\"outstation\");",
+                  "    pm.expect(json.starting_price_inr).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -325,7 +731,11 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -333,18 +743,47 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/quotes/options",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "quotes", "options"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "quotes",
+                "options"
+              ]
             },
             "description": "Returns available cars grouped by the 4 vehicle groups with live line-item breakdowns."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Returns vehicle groups with vehicles\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.groups).to.be.an(\"array\");",
+                  "    pm.expect(json.groups.length).to.be.above(0);",
+                  "    const allCars = json.groups.flatMap(g => g.vehicles);",
+                  "    pm.expect(allCars.length).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "8.2 Options Request — Round-Trip (3 Days IST Calendar)",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -352,18 +791,48 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/quotes/options",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "quotes", "options"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "quotes",
+                "options"
+              ]
             },
             "description": "Calculates (17 - 15 + 1) = 3 calendar days. Multiplies 3 * 300km = 900km minimum billing + 3 days driver allowance."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Round trip options returned with 3-day IST calculation\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.groups).to.be.an(\"array\");",
+                  "    const allCars = json.groups.flatMap(g => g.vehicles);",
+                  "    allCars.forEach(c => {",
+                  "        pm.expect(c.quote.advance + c.quote.balance).to.eql(c.quote.total);",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "8.3 Authoritative Quote — Innova Crysta One-Way",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -371,11 +840,33 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/quotes",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "quotes"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "quotes"
+              ]
             },
             "description": "Generates binding server quote with 28% advance_amount and 72% balance_amount."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Invariant INV-3: Advance + Balance = Total\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.advance + json.balance).to.eql(json.total);",
+                  "    pm.expect(json.currency).to.eql(\"INR\");",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -388,22 +879,28 @@
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response.json();",
-                  "if (res.booking && res.booking.id) {",
-                  "  pm.collectionVariables.set('lastBookingId', res.booking.id);",
-                  "  pm.environment.set('lastBookingId', res.booking.id);",
-                  "  console.log('Stored bookingId:', res.booking.id);",
-                  "}"
-                ],
-                "type": "text/javascript"
+                  "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Returns booking with ticket_id\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.booking.id).to.be.a(\"string\");",
+                  "    pm.expect(json.booking.ticket_id).to.match(/^AGR-[0-9]{8}-[0-9]{4}$/);",
+                  "    pm.environment.set(\"lastBookingId\", json.booking.id);",
+                  "    pm.collectionVariables.set(\"lastBookingId\", json.booking.id);",
+                  "});"
+                ]
               }
             }
           ],
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -411,8 +908,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/bookings",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "bookings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings"
+              ]
             },
             "description": "Creates booking. Server recomputes fare: if quoted_total matches (2500 base + 150 state permit = 2650), returns 201 Created and ticket_id."
           }
@@ -422,7 +925,11 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -430,11 +937,30 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/bookings",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "bookings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings"
+              ]
             },
             "description": "Tests Concurrency Shield: Client sends tampered total (₹1200 instead of server ₹2650). Server rejects with 409 PRICE_CHANGED and returns fresh_quote."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409 Conflict PRICE_CHANGED\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "9.3 Fetch Booking Voucher by ID",
@@ -443,26 +969,80 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/bookings/{{lastBookingId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "bookings", "{{lastBookingId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{lastBookingId}}"
+              ]
             },
             "description": "Returns verified booking entity and voucher details."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Booking details returned\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.booking.ticket_id).to.be.a(\"string\");",
+                  "    const total = json.booking.total_amount || json.booking.total_fare;",
+                  "    pm.expect(total).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "9.4 Create Razorpay Advance Order",
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json", "type": "text" }
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/bookings/{{lastBookingId}}/payment",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "bookings", "{{lastBookingId}}", "payment"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "bookings",
+                "{{lastBookingId}}",
+                "payment"
+              ]
             },
             "description": "Creates idempotent Razorpay order for advance_amount in paise (e.g. ₹742 * 100 = 74200 paise)."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Returns Razorpay order ID and advance amount\", function () {",
+                  "    const json = pm.response.json();",
+                  "    const orderId = (json.payment && json.payment.provider_order_id) || json.payment_order_id;",
+                  "    const amountPaise = (json.payment && json.payment.amount_paise) || json.amount_paise;",
+                  "    pm.expect(orderId).to.be.a(\"string\");",
+                  "    pm.expect(amountPaise).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -474,30 +1054,350 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}", "type": "text" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}",
+                "type": "text"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/audit-logs",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "audit-logs"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "audit-logs"
+              ]
             },
             "description": "Inspects before-and-after JSON snapshots recorded for all rate, extra charge, and vehicle edits."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Audit log rows returned\", function () {",
+                  "    const json = pm.response.json();",
+                  "    const list = json.audit_logs || json;",
+                  "    pm.expect(list).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "10.2 Inspect Publishing Outbox Events",
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}", "type": "text" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}",
+                "type": "text"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/v1/admin/publishing/events",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "publishing", "events"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "publishing",
+                "events"
+              ]
             },
             "description": "Inspects catalog publishing outbox events that trigger site rebuilds."
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "11. Shields — Negative Boundaries & Tamper Tests",
+      "item": [
+        {
+          "name": "11.1 Requirement B Guard — Exceeded Duration (> 5 Days Round Trip)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"category\":\"outstation\",\"route_id\":\"20000000-0000-0000-0001-000000000001\",\"trip_type\":\"round_trip\",\"vehicle_model_id\":\"10000000-0000-0000-0002-000000000004\",\"passenger_count\":2,\"pickup_at\":\"2026-10-15T09:00:00+05:30\",\"return_at\":\"2026-10-23T18:00:00+05:30\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/quotes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "quotes"
+              ]
+            },
+            "description": "Enforces Requirement B: Round trip package cannot exceed 5 calendar days."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400 Bad Request TRIP_TOO_LONG\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql(\"TRIP_TOO_LONG\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11.2 Vehicle Capacity Shield — Overcrowded Passenger Count",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"category\":\"outstation\",\"route_id\":\"20000000-0000-0000-0001-000000000001\",\"trip_type\":\"one_way\",\"vehicle_model_id\":\"10000000-0000-0000-0002-000000000001\",\"passenger_count\":10,\"pickup_at\":\"2026-10-15T09:00:00+05:30\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/quotes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "quotes"
+              ]
+            },
+            "description": "Rejects quote when passenger count exceeds model seating capacity."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400 Bad Request CAPACITY_EXCEEDED\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.eql(\"CAPACITY_EXCEEDED\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11.3 LocationIQ Autocomplete Proxy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/locations/autocomplete?q=agra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "locations",
+                "autocomplete"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "agra"
+                }
+              ]
+            },
+            "description": "Verifies LocationIQ autocomplete proxy securely returns suggestions."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Returns autocomplete array or suggestions\", function () {",
+                  "    const json = pm.response.json();",
+                  "    const list = Array.isArray(json) ? json : (json.data && json.data.suggestions) ? json.data.suggestions : (json.suggestions || []);",
+                  "    pm.expect(list).to.be.an(\"array\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "12. Customer — Multi-Category Options (Local, Transfer, Tour)",
+      "item": [
+        {
+          "name": "12.1 Local Rental Package Options",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"category\":\"local_package\",\"local_package_id\":\"30000000-0000-0000-0001-000000000001\",\"passenger_count\":2,\"pickup_at\":\"2026-10-15T09:00:00+05:30\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/quotes/options",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "quotes",
+                "options"
+              ]
+            },
+            "description": "Fetches vehicle options for 8H/80KM local sightseeing package."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Returns product category local_package\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.product.category).to.eql(\"local_package\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.2 Transfer Options",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"category\":\"transfer\",\"transfer_id\":\"40000000-0000-0000-0001-000000000001\",\"passenger_count\":2,\"pickup_at\":\"2026-10-15T09:00:00+05:30\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/quotes/options",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "quotes",
+                "options"
+              ]
+            },
+            "description": "Fetches vehicle options for Agra Cantt station transfer."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Returns product category transfer\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.product.category).to.eql(\"transfer\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12.3 Tour Package Options",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"category\":\"tour_package\",\"tour_package_id\":\"50000000-0000-0000-0001-000000000001\",\"passenger_count\":2,\"pickup_at\":\"2026-10-15T09:00:00+05:30\"}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/quotes/options",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "quotes",
+                "options"
+              ]
+            },
+            "description": "Fetches multi-day tour package options."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Returns product category tour_package\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.product.category).to.eql(\"tour_package\");",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     }

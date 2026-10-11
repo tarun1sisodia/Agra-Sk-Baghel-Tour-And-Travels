@@ -15,7 +15,17 @@ import {
 } from "../contracts/fare-system.js";
 import { z } from "zod";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+function isLocalHost(hostname: string): boolean {
+  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "0.0.0.0";
+}
+
+export function getApiBaseUrl(): string {
+  const envUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim().replace(/\/+$/, "");
+  if (typeof window !== "undefined" && isLocalHost(window.location.hostname)) {
+    return envUrl || "http://localhost:4000";
+  }
+  return envUrl || "";
+}
 
 export class CleanFareApiError extends Error {
   constructor(
@@ -34,7 +44,7 @@ async function apiRequest<T>(
   options?: RequestInit,
   schema?: z.ZodType<T>
 ): Promise<T> {
-  const url = `${API_BASE}${path}`;
+  const url = `${getApiBaseUrl()}${path}`;
   const res = await fetch(url, {
     headers: {
       "Content-Type": "application/json",

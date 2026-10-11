@@ -6,7 +6,17 @@ import type {
   CreateBookingRequest,
 } from "../contracts/fare-system.js";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+function isLocalHost(hostname: string): boolean {
+  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "0.0.0.0";
+}
+
+export function getApiBaseUrl(): string {
+  const envUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim().replace(/\/+$/, "");
+  if (typeof window !== "undefined" && isLocalHost(window.location.hostname)) {
+    return envUrl || "http://localhost:4000";
+  }
+  return envUrl || "";
+}
 
 export class FareApiError extends Error {
   constructor(
@@ -21,7 +31,7 @@ export class FareApiError extends Error {
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${getApiBaseUrl()}${path}`, {
     headers: {
       "Content-Type": "application/json",
       ...(options?.headers || {}),

@@ -29,6 +29,12 @@ export default defineConfig(({ mode }) => {
       // Preview/sandbox hosts (e.g. *.e2b.app) are not localhost, so Vite's
       // host allowlist must be opened for the dev server to be reachable.
       allowedHosts: true,
+      proxy: {
+        "/api": {
+          target: "http://localhost:4000",
+          changeOrigin: true,
+        },
+      },
     },
     preview: {
       host: "0.0.0.0",

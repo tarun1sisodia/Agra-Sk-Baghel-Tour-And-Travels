@@ -234,55 +234,68 @@ export class QuotesService {
   }
 
   async options(req: OptionsRequest): Promise<OptionsResponse> {
-    const allCars = await this.repo.getVehicleModels();
-    const groups = await this.repo.getVehicleGroups();
+    const [allCars, groups, settings, extraCharges] = await Promise.all([
+      this.repo.getVehicleModels(),
+      this.repo.getVehicleGroups(),
+      this.repo.getFareSettings(),
+      this.repo.getExtraCharges(req.category),
+    ]);
 
     let productName = "";
     let productCode = "";
     let outstationRouteVehicles: any[] = [];
     let productInclusions: string[] = [];
     let productExclusions: string[] = [];
+    let route: any = null;
+    let localPkg: any = null;
+    let transferObj: any = null;
+    let tourPkg: any = null;
+    let fareRules: any[] = [];
 
     if (req.category === "outstation") {
-      const route = await this.repo.getOutstationRouteByIdOrCode(req.route_id);
+      route = await this.repo.getOutstationRouteByIdOrCode(req.route_id);
       if (!route) throw new Error("NOT_FOUND");
       if (route.status !== "published") throw new Error("PRODUCT_INACTIVE");
+      if (route.distance_km === null || route.duration_minutes === null) throw new Error("PRODUCT_INACTIVE");
       productName = `${route.origin_name} to ${route.destination_name}`;
       productCode = route.code;
       outstationRouteVehicles = await this.repo.getOutstationRouteVehicles(route.id);
 
       if (req.trip_type === "round_trip") {
         if (!req.return_at) throw new Error("VALIDATION_ERROR");
-        const settings = await this.repo.getFareSettings();
         const days = calculateIstCalendarDays(req.pickup_at, req.return_at);
         if (days > settings.max_round_trip_days) {
           throw new Error("TRIP_TOO_LONG");
         }
+        fareRules = await this.repo.getFareRules("outstation");
       }
     } else if (req.category === "local_package") {
-      const pkg = await this.repo.getLocalPackageByIdOrCode(req.local_package_id);
-      if (!pkg) throw new Error("NOT_FOUND");
-      if (pkg.status !== "published") throw new Error("PRODUCT_INACTIVE");
-      productName = pkg.name;
-      productCode = pkg.code;
-      productInclusions = pkg.inclusions;
-      productExclusions = pkg.exclusions;
+      localPkg = await this.repo.getLocalPackageByIdOrCode(req.local_package_id);
+      if (!localPkg) throw new Error("NOT_FOUND");
+      if (localPkg.status !== "published") throw new Error("PRODUCT_INACTIVE");
+      productName = localPkg.name;
+      productCode = localPkg.code;
+      productInclusions = localPkg.inclusions;
+      productExclusions = localPkg.exclusions;
+      fareRules = await this.repo.getFareRules("local_package");
     } else if (req.category === "transfer") {
-      const transfer = await this.repo.getTransferByIdOrCode(req.transfer_id);
-      if (!transfer) throw new Error("NOT_FOUND");
-      if (transfer.status !== "published") throw new Error("PRODUCT_INACTIVE");
-      productName = transfer.name;
-      productCode = transfer.code;
-      productInclusions = transfer.inclusions;
-      productExclusions = transfer.exclusions;
+      transferObj = await this.repo.getTransferByIdOrCode(req.transfer_id);
+      if (!transferObj) throw new Error("NOT_FOUND");
+      if (transferObj.status !== "published") throw new Error("PRODUCT_INACTIVE");
+      productName = transferObj.name;
+      productCode = transferObj.code;
+      productInclusions = transferObj.inclusions;
+      productExclusions = transferObj.exclusions;
+      fareRules = await this.repo.getFareRules("transfer");
     } else if (req.category === "tour_package") {
-      const pkg = await this.repo.getTourPackageByIdOrCode(req.tour_package_id);
-      if (!pkg) throw new Error("NOT_FOUND");
-      if (pkg.status !== "published") throw new Error("PRODUCT_INACTIVE");
-      productName = pkg.name;
-      productCode = pkg.code;
-      productInclusions = pkg.inclusions;
-      productExclusions = pkg.exclusions;
+      tourPkg = await this.repo.getTourPackageByIdOrCode(req.tour_package_id);
+      if (!tourPkg) throw new Error("NOT_FOUND");
+      if (tourPkg.status !== "published") throw new Error("PRODUCT_INACTIVE");
+      productName = tourPkg.name;
+      productCode = tourPkg.code;
+      productInclusions = tourPkg.inclusions;
+      productExclusions = tourPkg.exclusions;
+      fareRules = await this.repo.getFareRules("tour_package");
     }
 
     // Filter cars by capacity and active state
@@ -297,41 +310,158 @@ export class QuotesService {
 
     for (const car of eligibleCars) {
       try {
-        const quoteReq = {
-          ...req,
-          vehicle_model_id: car.id,
-        } as QuoteRequest;
+        const group = groups.find((g) => g.code === car.group_code);
+        if (!group || !group.is_active) continue;
 
-        const quote = await this.quote(quoteReq);
-
+        let quote: QuoteResponse | null = null;
         let inclusions: string[] = [];
         let exclusions: string[] = [];
 
         if (req.category === "outstation") {
           const rv = outstationRouteVehicles.find((v) => v.vehicle_model_id === car.id);
-          const terms = rv?.terms ?? {};
-          if (req.trip_type === "one_way" && terms.one_way) {
-            inclusions = terms.one_way.inclusions ?? [];
-            exclusions = terms.one_way.exclusions ?? [];
-          } else if (req.trip_type === "round_trip" && terms.round_trip) {
-            inclusions = terms.round_trip.inclusions ?? [];
-            exclusions = terms.round_trip.exclusions ?? [];
+          if (!rv || !rv.is_active) continue;
+
+          if (req.trip_type === "one_way") {
+            if (rv.one_way_amount === null || rv.one_way_amount <= 0) continue;
+            quote = calculateOneWayOutstation({
+              route: {
+                id: route.id,
+                distance_km: route.distance_km,
+                duration_minutes: route.duration_minutes,
+              },
+              vehicle: {
+                id: car.id,
+                display_name: car.display_name,
+                passenger_capacity: car.passenger_capacity,
+                group_code: car.group_code,
+              },
+              routeVehicle: {
+                one_way_amount: rv.one_way_amount,
+                is_active: rv.is_active,
+              },
+              groupSettings: group,
+              settings,
+              pickup_at: req.pickup_at,
+              extraCharges,
+            });
+
+            const terms = rv.terms ?? {};
+            if (terms.one_way) {
+              inclusions = terms.one_way.inclusions ?? [];
+              exclusions = terms.one_way.exclusions ?? [];
+            }
+          } else if (req.trip_type === "round_trip") {
+            if (!rv.round_trip_enabled || !req.return_at) continue;
+            const rule = fareRules.find((r) => r.vehicle_model_id === car.id);
+            if (!rule || rule.amount <= 0) continue;
+
+            quote = calculateRoundTripOutstation({
+              route: {
+                id: route.id,
+                distance_km: route.distance_km,
+                duration_minutes: route.duration_minutes,
+              },
+              vehicle: {
+                id: car.id,
+                display_name: car.display_name,
+                passenger_capacity: car.passenger_capacity,
+                group_code: car.group_code,
+              },
+              routeVehicle: {
+                round_trip_enabled: rv.round_trip_enabled,
+                is_active: rv.is_active,
+              },
+              ratePerKm: rule.amount,
+              groupSettings: group,
+              settings,
+              pickup_at: req.pickup_at,
+              return_at: req.return_at,
+              extraCharges,
+            });
+
+            const terms = rv.terms ?? {};
+            if (terms.round_trip) {
+              inclusions = terms.round_trip.inclusions ?? [];
+              exclusions = terms.round_trip.exclusions ?? [];
+            }
           }
-        } else {
+        } else if (req.category === "local_package" && localPkg) {
+          const rule = fareRules.find(
+            (r) => r.vehicle_model_id === car.id && r.local_package_id === localPkg.id
+          );
+          if (!rule || rule.amount <= 0) continue;
+
+          quote = calculateFixedProduct({
+            category: "local_package",
+            productId: localPkg.id,
+            vehicle: {
+              id: car.id,
+              display_name: car.display_name,
+              passenger_capacity: car.passenger_capacity,
+              group_code: car.group_code,
+            },
+            fixedAmount: rule.amount,
+            advancePercent: settings.advance_percent,
+            extraCharges,
+          });
+          inclusions = productInclusions;
+          exclusions = productExclusions;
+        } else if (req.category === "transfer" && transferObj) {
+          const rule = fareRules.find(
+            (r) => r.vehicle_model_id === car.id && r.transfer_id === transferObj.id
+          );
+          if (!rule || rule.amount <= 0) continue;
+
+          quote = calculateFixedProduct({
+            category: "transfer",
+            productId: transferObj.id,
+            vehicle: {
+              id: car.id,
+              display_name: car.display_name,
+              passenger_capacity: car.passenger_capacity,
+              group_code: car.group_code,
+            },
+            fixedAmount: rule.amount,
+            advancePercent: settings.advance_percent,
+            extraCharges,
+          });
+          inclusions = productInclusions;
+          exclusions = productExclusions;
+        } else if (req.category === "tour_package" && tourPkg) {
+          const rule = fareRules.find(
+            (r) => r.vehicle_model_id === car.id && r.tour_package_id === tourPkg.id
+          );
+          if (!rule || rule.amount <= 0) continue;
+
+          quote = calculateFixedProduct({
+            category: "tour_package",
+            productId: tourPkg.id,
+            vehicle: {
+              id: car.id,
+              display_name: car.display_name,
+              passenger_capacity: car.passenger_capacity,
+              group_code: car.group_code,
+            },
+            fixedAmount: rule.amount,
+            advancePercent: settings.advance_percent,
+            extraCharges,
+          });
           inclusions = productInclusions;
           exclusions = productExclusions;
         }
 
-        vehicleMap.get(car.group_code)?.push({
-          vehicle_model_id: car.id,
-          display_name: car.display_name,
-          passenger_capacity: car.passenger_capacity,
-          luggage_capacity: car.luggage_capacity,
-          image_url: car.image_url,
-          quote,
-          inclusions,
-          exclusions,
-        });
+        if (quote) {
+          vehicleMap.get(car.group_code)?.push({
+            vehicle_model_id: car.id,
+            display_name: car.display_name,
+            passenger_capacity: car.passenger_capacity,
+            luggage_capacity: car.luggage_capacity,
+            image_url: car.image_url,
+            quote,
+            inclusions,
+            exclusions,
+          });
+        }
       } catch {
         // Car not offered or missing price - omit cleanly per spec §4
       }
