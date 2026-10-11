@@ -35,19 +35,23 @@ const SubmissionInputSchema = z.object({
 
 export function registerReviewsRoutes(app: FastifyInstance, reviewsService: ReviewsService) {
   // Public reviews
-  app.get("/public/reviews", async (_req, reply) => {
+  const getPublicReviewsHandler = async (_req: any, reply: any) => {
     const reviews = await reviewsService.getPublicReviews();
     return reply.send({ success: true, reviews });
-  });
+  };
+  app.get("/public/reviews", getPublicReviewsHandler);
+  app.get("/api/v1/public/reviews", getPublicReviewsHandler);
 
   // Public gallery
-  app.get("/public/gallery", async (_req, reply) => {
+  const getPublicGalleryHandler = async (_req: any, reply: any) => {
     const gallery = await reviewsService.getPublicGallery();
     return reply.send({ success: true, gallery });
-  });
+  };
+  app.get("/public/gallery", getPublicGalleryHandler);
+  app.get("/api/v1/public/gallery", getPublicGalleryHandler);
 
   // Review link lookup
-  app.get("/reviews/links/:token", async (req: FastifyRequest<{ Params: { token: string } }>, reply) => {
+  const getLinkHandler = async (req: FastifyRequest<{ Params: { token: string } }>, reply: any) => {
     try {
       const res = await reviewsService.getLinkByToken(req.params.token);
       return reply.send({ success: true, ...res });
@@ -57,37 +61,38 @@ export function registerReviewsRoutes(app: FastifyInstance, reviewsService: Revi
       }
       throw err;
     }
-  });
+  };
+  app.get("/reviews/links/:token", getLinkHandler);
+  app.get("/api/v1/reviews/links/:token", getLinkHandler);
 
   // Submit review
-  app.post(
-    "/reviews/links/:token/submissions",
-    async (req: FastifyRequest<{ Params: { token: string } }>, reply) => {
-      let parsed: any;
-      try {
-        parsed = SubmissionInputSchema.parse(req.body);
-      } catch (err: any) {
-        return reply.status(400).send({
-          error: "VALIDATION_ERROR",
-          message: err.message,
-          issues: err.issues,
-        });
-      }
-
-      try {
-        const submission = await reviewsService.submitReview(req.params.token, parsed);
-        return reply.status(201).send({ success: true, submission });
-      } catch (err: any) {
-        if (err instanceof AppError) {
-          return reply.status(err.statusCode).send({ error: err.code, message: err.message });
-        }
-        throw err;
-      }
+  const submitReviewHandler = async (req: FastifyRequest<{ Params: { token: string } }>, reply: any) => {
+    let parsed: any;
+    try {
+      parsed = SubmissionInputSchema.parse(req.body);
+    } catch (err: any) {
+      return reply.status(400).send({
+        error: "VALIDATION_ERROR",
+        message: err.message,
+        issues: err.issues,
+      });
     }
-  );
+
+    try {
+      const submission = await reviewsService.submitReview(req.params.token, parsed);
+      return reply.status(201).send({ success: true, submission });
+    } catch (err: any) {
+      if (err instanceof AppError) {
+        return reply.status(err.statusCode).send({ error: err.code, message: err.message });
+      }
+      throw err;
+    }
+  };
+  app.post("/reviews/links/:token/submissions", submitReviewHandler);
+  app.post("/api/v1/reviews/links/:token/submissions", submitReviewHandler);
 
   // Admin QR link creation
-  app.post("/admin/review-links", async (req, reply) => {
+  const createQrLinkHandler = async (req: any, reply: any) => {
     const actor = getActor(req);
     if (actor.role !== "super_admin" && actor.role !== "review_moderator") {
       throw new AppError("FORBIDDEN", "Review moderator role required", 403);
@@ -95,36 +100,36 @@ export function registerReviewsRoutes(app: FastifyInstance, reviewsService: Revi
     const body = req.body as { label?: string; prefill?: Record<string, any> };
     const res = await reviewsService.createQrLink(body?.label, body?.prefill, actor.id);
     return reply.status(201).send({ success: true, ...res });
-  });
+  };
+  app.post("/admin/review-links", createQrLinkHandler);
+  app.post("/api/v1/admin/review-links", createQrLinkHandler);
 
   // Admin booking review request email
-  app.post(
-    "/admin/bookings/:id/review-request",
-    async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
-      const actor = getActor(req);
-      if (actor.role !== "super_admin" && actor.role !== "review_moderator") {
-        throw new AppError("FORBIDDEN", "Review moderator role required", 403);
-      }
-      const res = await reviewsService.createBookingLink(req.params.id, actor.id);
-      return reply.status(201).send({ success: true, ...res });
+  const createBookingLinkHandler = async (req: FastifyRequest<{ Params: { id: string } }>, reply: any) => {
+    const actor = getActor(req);
+    if (actor.role !== "super_admin" && actor.role !== "review_moderator") {
+      throw new AppError("FORBIDDEN", "Review moderator role required", 403);
     }
-  );
+    const res = await reviewsService.createBookingLink(req.params.id, actor.id);
+    return reply.status(201).send({ success: true, ...res });
+  };
+  app.post("/admin/bookings/:id/review-request", createBookingLinkHandler);
+  app.post("/api/v1/admin/bookings/:id/review-request", createBookingLinkHandler);
 
   // Admin moderation
-  app.patch(
-    "/admin/review-submissions/:id",
-    async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
-      const actor = getActor(req);
-      const action = req.body as any;
-      try {
-        const updated = await reviewsService.moderateSubmission(req.params.id, action, actor, req.id);
-        return reply.send({ success: true, submission: updated });
-      } catch (err: any) {
-        if (err instanceof AppError) {
-          return reply.status(err.statusCode).send({ error: err.code, message: err.message });
-        }
-        throw err;
+  const moderateSubmissionHandler = async (req: FastifyRequest<{ Params: { id: string } }>, reply: any) => {
+    const actor = getActor(req);
+    const action = req.body as any;
+    try {
+      const updated = await reviewsService.moderateSubmission(req.params.id, action, actor, req.id);
+      return reply.send({ success: true, submission: updated });
+    } catch (err: any) {
+      if (err instanceof AppError) {
+        return reply.status(err.statusCode).send({ error: err.code, message: err.message });
       }
+      throw err;
     }
-  );
+  };
+  app.patch("/admin/review-submissions/:id", moderateSubmissionHandler);
+  app.patch("/api/v1/admin/review-submissions/:id", moderateSubmissionHandler);
 }

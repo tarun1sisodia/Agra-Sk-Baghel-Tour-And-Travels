@@ -16,6 +16,8 @@ import { RouteDetailPage } from "../pages/RouteDetailPage";
 import { PackageDetailPage } from "../pages/PackageDetailPage";
 import { VehicleDetailPage } from "../pages/VehicleDetailPage";
 import { BookingPage } from "../features/booking/BookingPage";
+import { ProductDetailPage } from "../pages/ProductDetailPage";
+import type { CategoryCode } from "../contracts/fare-system";
 import { AuthCallbackPage } from "../pages/AuthCallbackPage";
 import { MyBookingsPage } from "../pages/MyBookingsPage";
 import { PaymentResumePage } from "../pages/PaymentResumePage";
@@ -545,11 +547,29 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
       return p.endsWith(`/${slug}`) || p.endsWith(slug) || p.endsWith(`/${item.id}`) || p.endsWith(item.id);
     });
 
+  const normalizedPath = pathname.replace(/^\/(?:en|hi)(?=\/|$)/, "").replace(/\/$/, "");
+  const cleanProductMatch = (() => {
+    const taxiMatch = normalizedPath.match(/^\/(?:taxi|taxis)\/([a-z0-9_-]+)(?:\.html)?$/i);
+    if (taxiMatch) return { category: "outstation" as CategoryCode, code: taxiMatch[1] };
+
+    const sightseeingMatch = normalizedPath.match(/^\/local-sightseeing\/([a-z0-9_-]+)(?:\.html)?$/i);
+    if (sightseeingMatch) return { category: "local_package" as CategoryCode, code: sightseeingMatch[1] };
+
+    const transferMatch = normalizedPath.match(/^\/(?:transfers|transfer)\/([a-z0-9_-]+)(?:\.html)?$/i);
+    if (transferMatch) return { category: "transfer" as CategoryCode, code: transferMatch[1] };
+
+    const tourMatch = normalizedPath.match(/^\/(?:tours|tour)\/([a-z0-9_-]+)(?:\.html)?$/i);
+    if (tourMatch) return { category: "tour_package" as CategoryCode, code: tourMatch[1] };
+
+    return null;
+  })();
+
   const isKnownRoute =
     isHome ||
     isBooking ||
     isPrivateCustomerPage ||
     isMarketingHub ||
+    Boolean(cleanProductMatch) ||
     section === "rent" ||
     cleanPath === "/rent" ||
     cleanPath === "/taxis/rent" ||
@@ -619,6 +639,8 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
           <LoginPage />
         ) : isBooking ? (
           <BookingPage />
+        ) : cleanProductMatch ? (
+          <ProductDetailPage category={cleanProductMatch.category} code={cleanProductMatch.code} />
         ) : isHome ? (
           <HomePage language={language} />
         ) : matchedRoute ? (

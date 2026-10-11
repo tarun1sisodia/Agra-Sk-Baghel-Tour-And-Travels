@@ -16,8 +16,11 @@ const SignoffPage = lazy(() => import("@/pages/SignoffPage").then((m) => ({ defa
 const ReviewsPage = lazy(() => import("@/pages/ReviewsPage").then((m) => ({ default: m.ReviewsPage })));
 const RentalRequestsPage = lazy(() => import("@/pages/RentalRequestsPage").then((m) => ({ default: m.RentalRequestsPage })));
 const InquiriesPage = lazy(() => import("@/pages/InquiriesPage").then((m) => ({ default: m.InquiriesPage })));
-const FaresPage = lazy(() => import("@/pages/FaresPage").then((m) => ({ default: m.FaresPage })));
-const PromosPage = lazy(() => import("@/pages/PromosPage").then((m) => ({ default: m.PromosPage })));
+const VehiclesPage = lazy(() => import("@/pages/VehiclesPage").then((m) => ({ default: m.VehiclesPage })));
+const FareSettingsPage = lazy(() => import("@/pages/FareSettingsPage").then((m) => ({ default: m.FareSettingsPage })));
+const RoundTripRatesPage = lazy(() => import("@/pages/RoundTripRatesPage").then((m) => ({ default: m.RoundTripRatesPage })));
+const ExtraChargesPage = lazy(() => import("@/pages/ExtraChargesPage").then((m) => ({ default: m.ExtraChargesPage })));
+const PublishingPage = lazy(() => import("@/pages/PublishingPage").then((m) => ({ default: m.PublishingPage })));
 const AuditPage = lazy(() => import("@/pages/AuditPage").then((m) => ({ default: m.AuditPage })));
 import { AUTH_EXPIRED_EVENT, clearSession, getStoredSession, saveSession, validateStoredSession } from "@/lib/auth";
 import type { AdminUser } from "@/lib/types";
@@ -92,7 +95,11 @@ function Root({ user, onLogin, onLogout }: { user: AdminUser | null; onLogin: (u
                     <Route element={<AdminLayout user={user} onLogout={onLogout} />}>
                       <Route index element={<DashboardPage />} />
                       <Route path="bookings" element={<BookingsPage user={user} />} />
-                      <Route path="finance" element={<FinancePage user={user} />} />
+                      <Route path="vehicles" element={<VehiclesPage user={user} />} />
+                      <Route path="fares/settings" element={<FareSettingsPage user={user} />} />
+                      <Route path="fares/rates" element={<RoundTripRatesPage user={user} />} />
+                      <Route path="fares/extra-charges" element={<ExtraChargesPage user={user} />} />
+                      <Route path="fares" element={<Navigate to="/fares/settings" replace />} />
                       <Route path="routes" element={<RoutesPage user={user} />} />
                       <Route path="catalog" element={<CatalogPage user={user} />} />
                       <Route path="tour-packages" element={<TourPackagesPage user={user} />} />
@@ -100,10 +107,10 @@ function Root({ user, onLogin, onLogout }: { user: AdminUser | null; onLogin: (u
                       <Route path="policies" element={<PoliciesPage user={user} />} />
                       <Route path="sign-off" element={<SignoffPage user={user} />} />
                       <Route path="reviews" element={<ReviewsPage user={user} />} />
+                      <Route path="publishing" element={<PublishingPage user={user} />} />
                       <Route path="inquiries" element={<InquiriesPage user={user} />} />
                       <Route path="rental-requests" element={<RentalRequestsPage user={user} />} />
-                      <Route path="fares" element={<FaresPage user={user} />} />
-                      <Route path="promos" element={<PromosPage user={user} />} />
+                      <Route path="finance" element={<FinancePage user={user} />} />
                       <Route path="audit" element={<AuditPage user={user} />} />
                     </Route>
                     <Route path="*" element={<Navigate to="/" replace />} />

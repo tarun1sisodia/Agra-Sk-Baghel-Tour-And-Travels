@@ -1,5 +1,12 @@
 import type pg from "pg";
-import type { CategoryCode, VehicleGroupCode } from "../../contracts/fare-system.js";
+import type {
+  CategoryCode,
+  VehicleGroupCode,
+  PublishedCatalogResponse,
+  PublishedProductDetail,
+  PublishedProductSummary,
+  ProductStatus,
+} from "../../contracts/fare-system.js";
 
 export interface VehicleGroupEntity {
   id: string;
@@ -368,4 +375,303 @@ export class FareCatalogRepository {
       gallery: Array.isArray(r.gallery) ? r.gallery : [],
     };
   }
+
+  async getPublishedCatalog(): Promise<PublishedCatalogResponse> {
+    const groupsRes = await this.pool.query(
+      `SELECT code as group_code, name, driver_allowance_per_day, one_way_night_charge, round_trip_halt_per_night, sort_order
+       FROM vehicle_groups
+       WHERE is_active = true
+       ORDER BY sort_order`
+    );
+    const groups = groupsRes.rows.map((r) => ({
+      group_code: r.group_code as VehicleGroupCode,
+      name: r.name,
+      driver_allowance_per_day: Number(r.driver_allowance_per_day),
+      one_way_night_charge: Number(r.one_way_night_charge),
+      round_trip_halt_per_night: Number(r.round_trip_halt_per_night),
+      sort_order: Number(r.sort_order),
+    }));
+
+    const vehiclesRes = await this.pool.query(
+      `SELECT vm.id, vg.code as group_code, vm.make, vm.model_name, vm.display_name,
+              vm.passenger_capacity, vm.luggage_capacity, vm.image_url
+       FROM vehicle_models vm
+       JOIN vehicle_groups vg ON vm.vehicle_group_id = vg.id
+       WHERE vm.is_active = true AND vg.is_active = true
+       ORDER BY vm.sort_order`
+    );
+    const vehicles = vehiclesRes.rows.map((r) => ({
+      id: r.id,
+      group_code: r.group_code as VehicleGroupCode,
+      make: r.make,
+      model_name: r.model_name,
+      display_name: r.display_name,
+      passenger_capacity: Number(r.passenger_capacity),
+      luggage_capacity: r.luggage_capacity !== null ? Number(r.luggage_capacity) : null,
+      image_url: r.image_url,
+    }));
+
+    const routesRes = await this.pool.query(`
+      SELECT r.id, 'outstation' as category, r.code,
+             (r.origin_name || ' to ' || r.destination_name) as name,
+             r.description, r.image_url, r.status, r.distance_km, r.duration_minutes,
+             MIN(orv.one_way_amount) as starting_price_inr
+      FROM outstation_routes r
+      LEFT JOIN outstation_route_vehicles orv ON r.id = orv.route_id AND orv.is_active = true AND orv.one_way_amount IS NOT NULL
+      WHERE r.status != 'draft'
+      GROUP BY r.id, r.code, r.origin_name, r.destination_name, r.description, r.image_url, r.status, r.distance_km, r.duration_minutes
+      ORDER BY r.code
+    `);
+
+    const localRes = await this.pool.query(`
+      SELECT lp.id, 'local_package' as category, lp.code, lp.name,
+             lp.description, lp.image_url, lp.status,
+             MIN(fr.amount) as starting_price_inr
+      FROM local_packages lp
+      LEFT JOIN fare_rules fr ON fr.local_package_id = lp.id AND fr.is_active = true
+      WHERE lp.status != 'draft'
+      GROUP BY lp.id, lp.code, lp.name, lp.description, lp.image_url, lp.status
+      ORDER BY lp.code
+    `);
+
+    const transfersRes = await this.pool.query(`
+      SELECT t.id, 'transfer' as category, t.code, t.name,
+             t.description, t.image_url, t.status,
+             MIN(fr.amount) as starting_price_inr
+      FROM transfers t
+      LEFT JOIN fare_rules fr ON fr.transfer_id = t.id AND fr.is_active = true
+      WHERE t.status != 'draft'
+      GROUP BY t.id, t.code, t.name, t.description, t.image_url, t.status
+      ORDER BY t.code
+    `);
+
+    const toursRes = await this.pool.query(`
+      SELECT tp.id, 'tour_package' as category, tp.code, tp.name,
+             tp.description, tp.image_url, tp.status,
+             MIN(fr.amount) as starting_price_inr
+      FROM tour_packages tp
+      LEFT JOIN fare_rules fr ON fr.tour_package_id = tp.id AND fr.is_active = true
+      WHERE tp.status != 'draft'
+      GROUP BY tp.id, tp.code, tp.name, tp.description, tp.image_url, tp.status
+      ORDER BY tp.code
+    `);
+
+    const products: PublishedProductSummary[] = [
+      ...routesRes.rows.map((r) => ({
+        id: r.id,
+        category: "outstation" as const,
+        code: r.code,
+        name: r.name,
+        description: r.description,
+        image_url: r.image_url,
+        starting_price_inr: r.starting_price_inr ? Number(r.starting_price_inr) : null,
+        status: r.status as ProductStatus,
+        distance_km: r.distance_km ? Number(r.distance_km) : null,
+        duration_minutes: r.duration_minutes ? Number(r.duration_minutes) : null,
+      })),
+      ...localRes.rows.map((r) => ({
+        id: r.id,
+        category: "local_package" as const,
+        code: r.code,
+        name: r.name,
+        description: r.description,
+        image_url: r.image_url,
+        starting_price_inr: r.starting_price_inr ? Number(r.starting_price_inr) : null,
+        status: r.status as ProductStatus,
+      })),
+      ...transfersRes.rows.map((r) => ({
+        id: r.id,
+        category: "transfer" as const,
+        code: r.code,
+        name: r.name,
+        description: r.description,
+        image_url: r.image_url,
+        starting_price_inr: r.starting_price_inr ? Number(r.starting_price_inr) : null,
+        status: r.status as ProductStatus,
+      })),
+      ...toursRes.rows.map((r) => ({
+        id: r.id,
+        category: "tour_package" as const,
+        code: r.code,
+        name: r.name,
+        description: r.description,
+        image_url: r.image_url,
+        starting_price_inr: r.starting_price_inr ? Number(r.starting_price_inr) : null,
+        status: r.status as ProductStatus,
+      })),
+    ];
+
+    return { products, groups, vehicles };
+  }
+
+  async getPublishedProductDetail(
+    category: CategoryCode,
+    code: string
+  ): Promise<PublishedProductDetail | null> {
+    if (category === "outstation") {
+      const res = await this.pool.query(
+        `
+        SELECT r.*, MIN(orv.one_way_amount) as starting_price_inr
+        FROM outstation_routes r
+        LEFT JOIN outstation_route_vehicles orv ON r.id = orv.route_id AND orv.is_active = true AND orv.one_way_amount IS NOT NULL
+        WHERE r.code = $1 AND r.status != 'draft'
+        GROUP BY r.id
+      `,
+        [code]
+      );
+      if (res.rows.length === 0) return null;
+      const r = res.rows[0];
+
+      // Related products in outstation
+      const relRes = await this.pool.query(
+        `SELECT id, 'outstation' as category, code, (origin_name || ' to ' || destination_name) as name,
+                description, image_url, status, distance_km, duration_minutes, NULL as starting_price_inr
+         FROM outstation_routes
+         WHERE status = 'published' AND code != $1
+         LIMIT 4`,
+        [code]
+      );
+
+      return {
+        id: r.id,
+        category: "outstation",
+        code: r.code,
+        name: `${r.origin_name} to ${r.destination_name}`,
+        description: r.description,
+        image_url: r.image_url,
+        starting_price_inr: r.starting_price_inr ? Number(r.starting_price_inr) : null,
+        status: r.status as ProductStatus,
+        distance_km: r.distance_km ? Number(r.distance_km) : null,
+        duration_minutes: r.duration_minutes ? Number(r.duration_minutes) : null,
+        origin: r.origin_name,
+        destination: r.destination_name,
+        gallery: Array.isArray(r.gallery) ? r.gallery : [],
+        inclusions: ["Toll tax included", "State tax included", "Driver allowance included for day trip"],
+        exclusions: ["Parking charges extra as per actual receipts", "Extra sightseeing beyond route"],
+        highlights: `Direct highway transit from ${r.origin_name} to ${r.destination_name}`,
+        notes: "Pick-up from your home, hotel, railway station or airport.",
+        related_products: relRes.rows.map((row) => ({
+          ...row,
+          starting_price_inr: null,
+          distance_km: row.distance_km ? Number(row.distance_km) : null,
+          duration_minutes: row.duration_minutes ? Number(row.duration_minutes) : null,
+        })),
+      };
+    }
+
+    if (category === "local_package") {
+      const pkg = await this.getLocalPackageByIdOrCode(code);
+      if (!pkg || pkg.status === "draft") return null;
+
+      const priceRes = await this.pool.query(
+        `SELECT MIN(amount) as min_price FROM fare_rules WHERE local_package_id = $1 AND is_active = true`,
+        [pkg.id]
+      );
+      const startingPrice = priceRes.rows[0]?.min_price ? Number(priceRes.rows[0].min_price) : null;
+
+      const relRes = await this.pool.query(
+        `SELECT id, 'local_package' as category, code, name, description, image_url, status, NULL as starting_price_inr
+         FROM local_packages
+         WHERE status = 'published' AND code != $1 LIMIT 4`,
+        [code]
+      );
+
+      return {
+        id: pkg.id,
+        category: "local_package",
+        code: pkg.code,
+        name: pkg.name,
+        description: pkg.description,
+        image_url: pkg.image_url,
+        starting_price_inr: startingPrice,
+        status: pkg.status as ProductStatus,
+        covers: pkg.covers,
+        duration_hours: pkg.duration_hours,
+        included_km: pkg.included_km,
+        gallery: pkg.gallery.map(String),
+        inclusions: pkg.inclusions,
+        exclusions: pkg.exclusions,
+        highlights: pkg.inclusions_highlight,
+        notes: pkg.inclusions_note,
+        related_products: relRes.rows,
+      };
+    }
+
+    if (category === "transfer") {
+      const tf = await this.getTransferByIdOrCode(code);
+      if (!tf || tf.status === "draft") return null;
+
+      const priceRes = await this.pool.query(
+        `SELECT MIN(amount) as min_price FROM fare_rules WHERE transfer_id = $1 AND is_active = true`,
+        [tf.id]
+      );
+      const startingPrice = priceRes.rows[0]?.min_price ? Number(priceRes.rows[0].min_price) : null;
+
+      const relRes = await this.pool.query(
+        `SELECT id, 'transfer' as category, code, name, description, image_url, status, NULL as starting_price_inr
+         FROM transfers
+         WHERE status = 'published' AND code != $1 LIMIT 4`,
+        [code]
+      );
+
+      return {
+        id: tf.id,
+        category: "transfer",
+        code: tf.code,
+        name: tf.name,
+        description: tf.description,
+        image_url: tf.image_url,
+        starting_price_inr: startingPrice,
+        status: tf.status as ProductStatus,
+        pickup_name: tf.pickup_name,
+        drop_name: tf.drop_name,
+        gallery: tf.gallery.map(String),
+        inclusions: tf.inclusions,
+        exclusions: tf.exclusions,
+        highlights: tf.inclusions_highlight,
+        notes: tf.inclusions_note,
+        related_products: relRes.rows,
+      };
+    }
+
+    if (category === "tour_package") {
+      const tp = await this.getTourPackageByIdOrCode(code);
+      if (!tp || tp.status === "draft") return null;
+
+      const priceRes = await this.pool.query(
+        `SELECT MIN(amount) as min_price FROM fare_rules WHERE tour_package_id = $1 AND is_active = true`,
+        [tp.id]
+      );
+      const startingPrice = priceRes.rows[0]?.min_price ? Number(priceRes.rows[0].min_price) : null;
+
+      const relRes = await this.pool.query(
+        `SELECT id, 'tour_package' as category, code, name, description, image_url, status, NULL as starting_price_inr
+         FROM tour_packages
+         WHERE status = 'published' AND code != $1 LIMIT 4`,
+        [code]
+      );
+
+      return {
+        id: tp.id,
+        category: "tour_package",
+        code: tp.code,
+        name: tp.name,
+        description: tp.description,
+        image_url: tp.image_url,
+        starting_price_inr: startingPrice,
+        status: tp.status as ProductStatus,
+        duration_minutes: tp.days * 24 * 60,
+        itinerary: tp.itinerary,
+        gallery: tp.gallery.map(String),
+        inclusions: tp.inclusions,
+        exclusions: tp.exclusions,
+        highlights: `${tp.days} Days / ${tp.nights} Nights Private Tour`,
+        notes: `Private air-conditioned car, chauffeur, fuel and interstate taxes.`,
+        related_products: relRes.rows,
+      };
+    }
+
+    return null;
+  }
 }
+

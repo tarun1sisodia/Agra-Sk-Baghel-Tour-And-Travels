@@ -19,6 +19,8 @@ const PackageDetailPage = lazy(() => import("../pages/PackageDetailPage").then((
 const DynamicPackageDetailPage = lazy(() => import("../pages/DynamicPackageDetailPage").then((m) => ({ default: m.DynamicPackageDetailPage })));
 const VehicleDetailPage = lazy(() => import("../pages/VehicleDetailPage").then((m) => ({ default: m.VehicleDetailPage })));
 const BookingPage = lazy(() => import("../features/booking/BookingPage").then((m) => ({ default: m.BookingPage })));
+const ProductDetailPage = lazy(() => import("../pages/ProductDetailPage").then((m) => ({ default: m.ProductDetailPage })));
+import type { CategoryCode } from "../contracts/fare-system";
 const MarketingPage = lazy(() => import("../pages/MarketingPage").then((m) => ({ default: m.MarketingPage })));
 const SeoLandingPage = lazy(() => import("../pages/SeoLandingPage").then((m) => ({ default: m.SeoLandingPage })));
 const AuthCallbackPage = lazy(() => import("../pages/AuthCallbackPage").then((m) => ({ default: m.AuthCallbackPage })));
@@ -273,6 +275,23 @@ export function App({ pathname: propPathname }: AppProps = {}) {
     cleanPath === "/booking" ||
     cleanPath === "/en/book";
 
+  const normalizedPath = pathname.replace(/^\/(?:en|hi)(?=\/|$)/, "").replace(/\/$/, "");
+  const cleanProductMatch = useMemo<{ category: CategoryCode; code: string } | null>(() => {
+    const taxiMatch = normalizedPath.match(/^\/(?:taxi|taxis)\/([a-z0-9_-]+)(?:\.html)?$/i);
+    if (taxiMatch) return { category: "outstation", code: taxiMatch[1] };
+
+    const sightseeingMatch = normalizedPath.match(/^\/local-sightseeing\/([a-z0-9_-]+)(?:\.html)?$/i);
+    if (sightseeingMatch) return { category: "local_package", code: sightseeingMatch[1] };
+
+    const transferMatch = normalizedPath.match(/^\/(?:transfers|transfer)\/([a-z0-9_-]+)(?:\.html)?$/i);
+    if (transferMatch) return { category: "transfer", code: transferMatch[1] };
+
+    const tourMatch = normalizedPath.match(/^\/(?:tours|tour)\/([a-z0-9_-]+)(?:\.html)?$/i);
+    if (tourMatch) return { category: "tour_package", code: tourMatch[1] };
+
+    return null;
+  }, [normalizedPath]);
+
   const [manifestRoute, setManifestRoute] = useState<Route | null>(null);
 
   const initialTourPackages = useMemo<TourPackage[]>(() => {
@@ -442,6 +461,7 @@ export function App({ pathname: propPathname }: AppProps = {}) {
     isBooking ||
     isPrivateCustomerPage ||
     isMarketingHub ||
+    Boolean(cleanProductMatch) ||
     section === "rent" ||
     section === "monuments" ||
     cleanPath === "/monuments" ||
@@ -492,6 +512,8 @@ export function App({ pathname: propPathname }: AppProps = {}) {
             <LoginPage />
           ) : isBooking ? (
             <BookingPage />
+          ) : cleanProductMatch ? (
+            <ProductDetailPage category={cleanProductMatch.category} code={cleanProductMatch.code} />
           ) : isHome ? (
             <HomePage language={language} />
           ) : activeRoute ? (

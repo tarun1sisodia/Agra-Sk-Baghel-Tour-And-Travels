@@ -3,8 +3,7 @@ import { QuoteRequest, OptionsRequest } from "../../contracts/fare-system.js";
 import type { QuotesService } from "./quotes.service.js";
 
 export function registerQuotesRoutes(fastify: FastifyInstance, quotesService: QuotesService): void {
-  // POST /quotes
-  fastify.post("/quotes", async (req, reply) => {
+  const quoteHandler = async (req: any, reply: any) => {
     const parseResult = QuoteRequest.safeParse(req.body);
     if (!parseResult.success) {
       return reply.status(400).send({
@@ -28,10 +27,9 @@ export function registerQuotesRoutes(fastify: FastifyInstance, quotesService: Qu
 
       return reply.status(500).send({ error: message });
     }
-  });
+  };
 
-  // POST /quotes/options
-  fastify.post("/quotes/options", async (req, reply) => {
+  const optionsHandler = async (req: any, reply: any) => {
     const parseResult = OptionsRequest.safeParse(req.body);
     if (!parseResult.success) {
       return reply.status(400).send({
@@ -53,5 +51,13 @@ export function registerQuotesRoutes(fastify: FastifyInstance, quotesService: Qu
 
       return reply.status(500).send({ error: message });
     }
-  });
+  };
+
+  // POST /quotes and /api/v1/quotes
+  fastify.post("/quotes", quoteHandler);
+  fastify.post("/api/v1/quotes", quoteHandler);
+
+  // POST /quotes/options and /api/v1/quotes/options
+  fastify.post("/quotes/options", optionsHandler);
+  fastify.post("/api/v1/quotes/options", optionsHandler);
 }

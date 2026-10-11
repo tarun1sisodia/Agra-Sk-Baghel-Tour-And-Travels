@@ -244,3 +244,170 @@ export const RouteCalculateResponse = z.object({
   resolved_destination: z.string(),
 });
 export type RouteCalculateResponse = z.infer<typeof RouteCalculateResponse>;
+
+// --- Booking Creation & Detail Contracts ---
+export const BookingCreateResponse = z.object({
+  booking_id: z.string().uuid(),
+  ticket_id: z.string(),
+  guest_access_token: z.string(),
+  status: z.string(),
+  total_amount: z.number().int().positive(),
+  advance_amount: z.number().int().nonnegative(),
+  balance_amount: z.number().int().nonnegative(),
+  fare_breakdown: QuoteResponse,
+});
+export type BookingCreateResponse = z.infer<typeof BookingCreateResponse>;
+
+export const BookingDetailResponse = z.object({
+  booking_id: z.string().uuid(),
+  ticket_id: z.string(),
+  status: z.string(),
+  category: CategoryCode,
+  product_code: z.string(),
+  product_name: z.string(),
+  customer_name: z.string(),
+  customer_phone: z.string(),
+  customer_email: z.string().nullable().optional(),
+  pickup_address: z.string(),
+  drop_address: z.string().nullable().optional(),
+  pickup_at: z.string(),
+  return_at: z.string().nullable().optional(),
+  passenger_count: z.number().int().positive(),
+  vehicle_model: z.object({
+    id: z.string().uuid(),
+    display_name: z.string(),
+    group_code: VehicleGroupCode,
+  }),
+  total_amount: z.number().int().positive(),
+  advance_amount: z.number().int().nonnegative(),
+  balance_amount: z.number().int().nonnegative(),
+  fare_breakdown: QuoteResponse,
+  payment_status: z.string(),
+  created_at: z.string(),
+});
+export type BookingDetailResponse = z.infer<typeof BookingDetailResponse>;
+
+// --- Payment Order Contracts ---
+export const PaymentOrderResponse = z.object({
+  payment_id: z.string().uuid(),
+  order_id: z.string(),
+  currency: z.literal("INR"),
+  amount_paise: z.number().int().positive(),
+  key_id: z.string(),
+  customer_name: z.string(),
+  customer_phone: z.string(),
+  customer_email: z.string().nullable().optional(),
+});
+export type PaymentOrderResponse = z.infer<typeof PaymentOrderResponse>;
+
+// --- Published Catalog Contracts ---
+export const ProductStatus = z.enum(["published", "archived", "draft"]);
+export type ProductStatus = z.infer<typeof ProductStatus>;
+
+export const PublishedProductSummary = z.object({
+  id: z.string().uuid(),
+  category: CategoryCode,
+  code: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  image_url: z.string().nullable(),
+  starting_price_inr: z.number().int().positive().nullable(),
+  status: ProductStatus,
+  distance_km: z.number().nullable().optional(),
+  duration_minutes: z.number().int().nullable().optional(),
+});
+export type PublishedProductSummary = z.infer<typeof PublishedProductSummary>;
+
+export const PublishedCatalogResponse = z.object({
+  products: z.array(PublishedProductSummary),
+  groups: z.array(
+    z.object({
+      group_code: VehicleGroupCode,
+      name: z.string(),
+      driver_allowance_per_day: z.number().int(),
+      one_way_night_charge: z.number().int(),
+      round_trip_halt_per_night: z.number().int(),
+      sort_order: z.number().int(),
+    })
+  ),
+  vehicles: z.array(
+    z.object({
+      id: z.string().uuid(),
+      group_code: VehicleGroupCode,
+      make: z.string(),
+      model_name: z.string(),
+      display_name: z.string(),
+      passenger_capacity: z.number().int(),
+      luggage_capacity: z.number().int().nullable(),
+      image_url: z.string().nullable(),
+    })
+  ),
+});
+export type PublishedCatalogResponse = z.infer<typeof PublishedCatalogResponse>;
+
+export const PublishedProductDetail = PublishedProductSummary.extend({
+  gallery: z.array(z.string()).default([]),
+  inclusions: z.array(z.string()).default([]),
+  exclusions: z.array(z.string()).default([]),
+  highlights: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  itinerary: z.unknown().nullable().optional(),
+  origin: z.string().nullable().optional(),
+  destination: z.string().nullable().optional(),
+  pickup_name: z.string().nullable().optional(),
+  drop_name: z.string().nullable().optional(),
+  covers: z.string().nullable().optional(),
+  duration_hours: z.number().nullable().optional(),
+  included_km: z.number().nullable().optional(),
+  related_products: z.array(PublishedProductSummary).default([]),
+});
+export type PublishedProductDetail = z.infer<typeof PublishedProductDetail>;
+
+// --- Reviews & Gallery Public Contracts ---
+export const PublicReviewItem = z.object({
+  id: z.string().uuid(),
+  author_name: z.string(),
+  rating: z.number().int().min(1).max(5).nullable(),
+  review_text: z.string(),
+  trip_summary: z.string(),
+  social_platform: z.string().nullable(),
+  social_url: z.string().nullable(),
+  submitted_at: z.string(),
+});
+export type PublicReviewItem = z.infer<typeof PublicReviewItem>;
+
+export const PublicGalleryItem = z.object({
+  id: z.string().uuid(),
+  image_url: z.string(),
+  caption: z.string().nullable(),
+  author_name: z.string(),
+});
+export type PublicGalleryItem = z.infer<typeof PublicGalleryItem>;
+
+// --- Publishing Events & Audit Logs Contracts ---
+export const PublishEventItem = z.object({
+  id: z.string().uuid(),
+  entity_type: z.string(),
+  entity_id: z.string().uuid(),
+  event_type: z.string(),
+  status: z.enum(["pending", "processing", "triggered", "succeeded", "failed"]),
+  attempt_count: z.number().int(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  error_message: z.string().nullable().optional(),
+});
+export type PublishEventItem = z.infer<typeof PublishEventItem>;
+
+export const AdminAuditLogItem = z.object({
+  id: z.string().uuid(),
+  actor_id: z.string().nullable(),
+  actor_role: z.string(),
+  action: z.string(),
+  entity_type: z.string(),
+  entity_id: z.string().nullable(),
+  before_state: z.unknown().nullable(),
+  after_state: z.unknown().nullable(),
+  created_at: z.string(),
+});
+export type AdminAuditLogItem = z.infer<typeof AdminAuditLogItem>;
+

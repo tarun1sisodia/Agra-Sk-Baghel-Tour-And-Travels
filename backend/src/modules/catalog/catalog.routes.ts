@@ -6,8 +6,8 @@ export async function registerCatalogRoutes(
   controller: ReturnType<typeof createCatalogController>,
 ): Promise<void> {
   // ── Public (customer site) ────────────────────────────────────────────────
-  // Published catalog listing — the single source of trips both frontends read.
-  app.get("/api/v1/catalog", {
+  // Legacy published catalog listing (isolated during migration)
+  app.get("/api/v1/catalog/legacy", {
     config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     handler: controller.listPublished,
   });

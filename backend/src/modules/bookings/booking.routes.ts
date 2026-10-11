@@ -12,8 +12,4 @@ export async function registerBookingRoutes(
   app.get("/api/v1/me/profile", { config: { rateLimit: { max: 30, timeWindow: "1 minute" } }, handler: controller.getMyProfile });
   app.get("/api/v1/me/bookings", { config: { rateLimit: { max: 60, timeWindow: "1 minute" } }, handler: controller.listMine });
   app.get("/api/v1/me/bookings/:bookingId", { config: { rateLimit: { max: 60, timeWindow: "1 minute" } }, handler: controller.getMine });
-  app.get("/api/v1/bookings/:ticketId", {
-    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
-    handler: controller.getBooking,
-  });
 }

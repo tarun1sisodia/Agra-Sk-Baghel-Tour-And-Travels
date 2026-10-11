@@ -65,6 +65,7 @@
 
 | Date | Change | Owner |
 |---|---|---|
+| 2026-10-11 | Completed Route & API Inventory Monorepo Migration: Clean canonical `/api/v1` routes, Customer & Admin rewired, Zero client fare math, 179/179 tests passing, `npm run verify` green | Antigravity AI |
 | 2026-10-08 | Completed Phase 2: Fleet Master Normalization (Contract C-ENUM-001 v0.1.1) across contracts, backend, admin, and react | Antigravity AI |
 | 2026-10-08 | Authored `docs/FLEET_PRICING_MASTER_IMPLEMENTATION_PLAN.md` with 8-part testing matrix, completed Phase 0 audit ingestion into Supermemory | Antigravity AI |
 | 2026-09-13 | Created the documentation baseline from the master architecture plan | Manus AI |

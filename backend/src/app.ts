@@ -95,6 +95,7 @@ import type { PaymentProviderRegistry } from "./providers/PaymentProvider.js";
 import pg from "pg";
 import { createPoolConfig } from "./db/poolConfig.js";
 import { FareCatalogRepository } from "./modules/fare-catalog/fare-catalog.repository.js";
+import { registerFareCatalogRoutes } from "./modules/fare-catalog/fare-catalog.routes.js";
 import { QuotesService } from "./modules/quotes/quotes.service.js";
 import { registerQuotesRoutes } from "./modules/quotes/quotes.routes.js";
 import { BookingsRepository } from "./modules/bookings/bookings.repository.js";
@@ -332,6 +333,7 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
     const fareCatalogRepo = new FareCatalogRepository(farePool);
     const quotesService = new QuotesService(fareCatalogRepo);
     await registerQuotesRoutes(app, quotesService);
+    await registerFareCatalogRoutes(app, fareCatalogRepo);
 
     const bookingsRepo = new BookingsRepository(farePool);
     const bookingsService = new BookingsService(bookingsRepo, quotesService);

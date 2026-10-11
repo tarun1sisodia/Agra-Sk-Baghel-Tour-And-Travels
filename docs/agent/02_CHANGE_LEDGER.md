@@ -2,6 +2,30 @@
 
 ## 2026-10-11
 
+### 2026-10-11 — Route & API Inventory Implementation (Monorepo Clean Rewire)
+
+- **Route & API Inventory Master Plan (`docs/backend/ROUTE_AND_API_INVENTORY.md`)**:
+  - Authored canonical API contract inventory defining the non-breaking rollout strategy across all 3 workspaces.
+  - Established unwrapped direct domain model envelopes for clean `/api/v1` endpoints with standard machine error codes (`VALIDATION_ERROR`, `NOT_FOUND`, `PRICE_CHANGED`, etc.).
+- **Admin Desk Clean Rewire (`admin/src/`)**:
+  - Implemented `cleanAdminApi.ts` consuming `/api/v1/admin/fares/...` with strict validation.
+  - Rebuilt `VehiclesPage.tsx` managing 4 vehicle groups and car models.
+  - Built `FareSettingsPage.tsx` with audit confirmation for commercial fare settings.
+  - Rebuilt `RoundTripRatesPage.tsx` with inline editing for per-km rates.
+  - Built `ExtraChargesPage.tsx` supporting scoped line items and policy disclaimer notes.
+  - Rebuilt `RoutesPage.tsx` with interactive LocationIQ distance calculation and per-vehicle pricing grid.
+  - Built `PublishingPage.tsx` for publishing outbox events and `AuditPage.tsx` for before/after diffs.
+- **Customer Frontend Clean Rewire (`react/src/`)**:
+  - Implemented `cleanFareApi.ts` for clean `/api/v1` quotes, bookings, reviews, and catalog queries.
+  - Created `CleanBookingPage.tsx` and rewired `BookingPage.tsx` to delegate cleanly to server-authoritative quotes without client-side fare math.
+  - Mounted `ProductDetailPage.tsx` for all 4 canonical product routes: `/taxi/:code`, `/local-sightseeing/:code`, `/transfers/:code`, `/tours/:code`.
+  - Enforced Requirement A for archived services (visible "Currently Unavailable" banner, disabled booking CTA, active related service links) and Requirement B (5 IST calendar days maximum round-trip limit).
+- **Route Conflict Resolution (`backend/src/modules/bookings/booking.routes.ts`, `booking.controller.ts`)**:
+  - Removed duplicate route `GET /api/v1/bookings/:ticketId` from `booking.routes.ts` and its unused `getBooking` handler from `booking.controller.ts`.
+  - Resolved Fastify route collision with `bookings.routes.ts` (`GET /api/v1/bookings/:id`), which handles both UUID and ticket ID lookups.
+- **Verification**:
+  - `npm run verify` passed cleanly across all workspaces (3× typecheck, vitest test suite, SEO audit, Vite + SSG customer build, admin build, backend build).
+
 ### 2026-10-11 — Full Rebuild: Clean Fare System Rebuild (`fare-system-final-spec.md`), Requirements A & B
 
 - **Contracts & Shared Schemas (`contracts/fare-system.ts`)**:

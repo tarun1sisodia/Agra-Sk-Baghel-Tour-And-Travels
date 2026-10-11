@@ -509,6 +509,50 @@ export class FareAdminService {
     return created;
   }
 
+  async patchExtraCharge(
+    id: string,
+    data: { amount?: number | null; is_active?: boolean; label?: string },
+    actor: AdminActor,
+    requestId: string
+  ) {
+    this.assertSuperAdmin(actor);
+    const prev = await this.pool.query("SELECT * FROM extra_charges WHERE id = $1", [id]);
+    if (prev.rows.length === 0) throw new AppError("NOT_FOUND", "Extra charge not found", 404);
+    const before = prev.rows[0];
+
+    if (data.amount !== undefined && data.amount !== null && (!Number.isInteger(data.amount) || data.amount <= 0)) {
+      throw new AppError("VALIDATION_ERROR", "Extra charge amount must be a positive integer", 400);
+    }
+
+    const nextAmount = data.amount !== undefined ? data.amount : before.amount;
+    const nextActive = data.is_active !== undefined ? data.is_active : before.is_active;
+    const nextLabel = data.label !== undefined ? data.label.trim() : before.label;
+
+    const res = await this.pool.query(
+      `
+      UPDATE extra_charges
+      SET amount = $1, is_active = $2, label = $3
+      WHERE id = $4
+      RETURNING *
+    `,
+      [nextAmount, nextActive, nextLabel, id]
+    );
+    const updated = res.rows[0];
+
+    await this.auditRepo.recordAudit({
+      actor_id: actor.id,
+      actor_role: actor.role,
+      resource_type: "extra_charges",
+      resource_id: id,
+      action: "update",
+      before_state: before,
+      after_state: updated,
+      request_id: requestId,
+    });
+
+    return updated;
+  }
+
   // ===== Routes & LocationIQ =====
   async calculateDistance(origin: string, destination: string) {
     if (!this.locationIqService) {
@@ -611,6 +655,105 @@ export class FareAdminService {
     }
   }
 
+  async createRoute(
+    data: {
+      code: string;
+      origin_name: string;
+      destination_name: string;
+      distance_km?: number | null;
+      duration_minutes?: number | null;
+      description?: string | null;
+      image_url?: string | null;
+    },
+    actor: AdminActor,
+    requestId: string
+  ) {
+    this.assertContentOrSuperAdmin(actor);
+    const existing = await this.pool.query(
+      "SELECT id FROM outstation_routes WHERE code = $1 OR (origin_name = $2 AND destination_name = $3)",
+      [data.code, data.origin_name, data.destination_name]
+    );
+    if (existing.rows.length > 0) {
+      throw new AppError("CONFLICT", "Route with this code or origin-destination pair already exists", 409);
+    }
+
+    const res = await this.pool.query(
+      `INSERT INTO outstation_routes (code, origin_name, destination_name, distance_km, duration_minutes, description, image_url, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'draft')
+       RETURNING *`,
+      [
+        data.code,
+        data.origin_name,
+        data.destination_name,
+        data.distance_km ?? null,
+        data.duration_minutes ?? null,
+        data.description ?? null,
+        data.image_url ?? null,
+      ]
+    );
+    const created = res.rows[0];
+
+    await this.auditRepo.recordAudit({
+      actor_id: actor.id,
+      actor_role: actor.role,
+      resource_type: "outstation_routes",
+      resource_id: created.id,
+      action: "create",
+      after_state: created,
+      request_id: requestId,
+    });
+
+    return created;
+  }
+
+  async patchRoute(
+    id: string,
+    data: {
+      origin_name?: string;
+      destination_name?: string;
+      distance_km?: number | null;
+      duration_minutes?: number | null;
+      description?: string | null;
+      image_url?: string | null;
+    },
+    actor: AdminActor,
+    requestId: string
+  ) {
+    this.assertContentOrSuperAdmin(actor);
+    const beforeRes = await this.pool.query("SELECT * FROM outstation_routes WHERE id = $1", [id]);
+    if (beforeRes.rows.length === 0) throw new AppError("NOT_FOUND", "Route not found", 404);
+    const before = beforeRes.rows[0];
+
+    const origin = data.origin_name ?? before.origin_name;
+    const dest = data.destination_name ?? before.destination_name;
+    const dist = data.distance_km !== undefined ? data.distance_km : before.distance_km;
+    const dur = data.duration_minutes !== undefined ? data.duration_minutes : before.duration_minutes;
+    const desc = data.description !== undefined ? data.description : before.description;
+    const img = data.image_url !== undefined ? data.image_url : before.image_url;
+
+    const res = await this.pool.query(
+      `UPDATE outstation_routes
+       SET origin_name = $1, destination_name = $2, distance_km = $3, duration_minutes = $4, description = $5, image_url = $6
+       WHERE id = $7
+       RETURNING *`,
+      [origin, dest, dist, dur, desc, img, id]
+    );
+    const updated = res.rows[0];
+
+    await this.auditRepo.recordAudit({
+      actor_id: actor.id,
+      actor_role: actor.role,
+      resource_type: "outstation_routes",
+      resource_id: id,
+      action: "update",
+      before_state: before,
+      after_state: updated,
+      request_id: requestId,
+    });
+
+    return updated;
+  }
+
   // ===== Status updates (Publishing Pipeline) =====
   async updateProductStatus(
     entityType: "outstation_route" | "local_package" | "transfer" | "tour_package",
@@ -687,5 +830,88 @@ export class FareAdminService {
     } finally {
       client.release();
     }
+  }
+
+  // ===== Admin Read Methods =====
+  async listVehicleGroups(_actor: AdminActor) {
+    const res = await this.pool.query("SELECT * FROM vehicle_groups ORDER BY sort_order ASC");
+    return res.rows;
+  }
+
+  async listVehicleModels(_actor: AdminActor) {
+    const res = await this.pool.query(`
+      SELECT vm.*, vg.code as group_code, vg.name as group_name
+      FROM vehicle_models vm
+      JOIN vehicle_groups vg ON vm.vehicle_group_id = vg.id
+      ORDER BY vm.sort_order ASC
+    `);
+    return res.rows;
+  }
+
+  async listFareSettings(_actor: AdminActor) {
+    const res = await this.pool.query("SELECT * FROM fare_settings ORDER BY key ASC");
+    return res.rows;
+  }
+
+  async listFareRules(_actor: AdminActor) {
+    const res = await this.pool.query(`
+      SELECT fr.*, vm.display_name as vehicle_name, vg.code as group_code,
+             r.code as route_code, lp.code as local_package_code,
+             t.code as transfer_code, tp.code as tour_package_code
+      FROM fare_rules fr
+      JOIN vehicle_models vm ON fr.vehicle_model_id = vm.id
+      JOIN vehicle_groups vg ON vm.vehicle_group_id = vg.id
+      LEFT JOIN outstation_routes r ON fr.route_id = r.id
+      LEFT JOIN local_packages lp ON fr.local_package_id = lp.id
+      LEFT JOIN transfers t ON fr.transfer_id = t.id
+      LEFT JOIN tour_packages tp ON fr.tour_package_id = tp.id
+      ORDER BY fr.category, vm.display_name
+    `);
+    return res.rows;
+  }
+
+  async listExtraCharges(_actor: AdminActor) {
+    const res = await this.pool.query(`
+      SELECT ec.*, vg.code as group_code
+      FROM extra_charges ec
+      LEFT JOIN vehicle_groups vg ON ec.vehicle_group_id = vg.id
+      ORDER BY ec.category, ec.label
+    `);
+    return res.rows;
+  }
+
+  async listRoutes(_actor: AdminActor) {
+    const res = await this.pool.query("SELECT * FROM outstation_routes ORDER BY code ASC");
+    return res.rows;
+  }
+
+  async getRouteWithVehicles(routeId: string, _actor: AdminActor) {
+    const routeRes = await this.pool.query("SELECT * FROM outstation_routes WHERE id = $1", [routeId]);
+    if (routeRes.rows.length === 0) throw new AppError("NOT_FOUND", "Route not found", 404);
+    const vehiclesRes = await this.pool.query(
+      `SELECT orv.*, vm.display_name, vm.passenger_capacity, vm.luggage_capacity, vg.code as group_code
+       FROM outstation_route_vehicles orv
+       JOIN vehicle_models vm ON orv.vehicle_model_id = vm.id
+       JOIN vehicle_groups vg ON vm.vehicle_group_id = vg.id
+       WHERE orv.route_id = $1
+       ORDER BY orv.sort_order ASC`,
+      [routeId]
+    );
+    return {
+      route: routeRes.rows[0],
+      vehicles: vehiclesRes.rows,
+    };
+  }
+
+  async listAuditLogs(_actor: AdminActor, limit = 100) {
+    return this.auditRepo.getAuditLogs(limit);
+  }
+
+  async listPublishEvents(_actor: AdminActor, limit = 50) {
+    const res = await this.pool.query(
+      "SELECT * FROM site_publish_events ORDER BY created_at DESC LIMIT $1",
+      [limit]
+    );
+    return res.rows;
   }
 }
