@@ -34,8 +34,82 @@ import {
   type CleanRouteWithVehicles,
   type CleanVehicleModel,
 } from "@/services/cleanAdminApi";
+import { fetchLocationSuggestions, type LocationSuggestion } from "@/lib/api";
 import type { AdminUser } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+function LocationInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+  required,
+}: {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+  required?: boolean;
+}) {
+  const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!value || value.trim().length < 2) {
+      setSuggestions([]);
+      setIsOpen(false);
+      return;
+    }
+
+    const handler = setTimeout(async () => {
+      try {
+        const results = await fetchLocationSuggestions(value);
+        setSuggestions(results);
+        setIsOpen(results.length > 0);
+      } catch {
+        setSuggestions([]);
+      }
+    }, 250);
+
+    return () => clearTimeout(handler);
+  }, [value]);
+
+  return (
+    <div className="relative">
+      <label className="mb-1 block text-xs font-semibold text-ink">{label}</label>
+      <Input
+        placeholder={placeholder}
+        value={value}
+        required={required}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => {
+          if (suggestions.length > 0) setIsOpen(true);
+        }}
+        onBlur={() => {
+          setTimeout(() => setIsOpen(false), 200);
+        }}
+      />
+      {isOpen && suggestions.length > 0 && (
+        <ul className="absolute z-50 left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-md border border-rule bg-surface py-1 shadow-lg text-xs">
+          {suggestions.map((item, idx) => (
+            <li
+              key={idx}
+              className="cursor-pointer px-3 py-1.5 hover:bg-gold-soft hover:text-gold-text text-ink transition-colors flex items-center justify-between"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onChange(item.displayName || item.city || value);
+                setIsOpen(false);
+              }}
+            >
+              <span className="truncate">{item.displayName || item.city}</span>
+              {item.state && <span className="text-[10px] text-muted ml-2 shrink-0">{item.state}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export function RoutesPage({ user }: { user: AdminUser }) {
   const reduce = useReducedMotion();
@@ -519,24 +593,20 @@ export function RoutesPage({ user }: { user: AdminUser }) {
           )}
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-ink">Origin City</label>
-              <Input
-                placeholder="e.g. Agra, Uttar Pradesh"
-                value={routeForm.origin_name}
-                required
-                onChange={(e) => setRouteForm((f) => ({ ...f, origin_name: e.target.value }))}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-ink">Destination City</label>
-              <Input
-                placeholder="e.g. Delhi, NCR"
-                value={routeForm.destination_name}
-                required
-                onChange={(e) => setRouteForm((f) => ({ ...f, destination_name: e.target.value }))}
-              />
-            </div>
+            <LocationInput
+              label="Origin City"
+              placeholder="e.g. Agra, Uttar Pradesh"
+              value={routeForm.origin_name}
+              required
+              onChange={(val) => setRouteForm((f) => ({ ...f, origin_name: val }))}
+            />
+            <LocationInput
+              label="Destination City"
+              placeholder="e.g. Delhi, NCR"
+              value={routeForm.destination_name}
+              required
+              onChange={(val) => setRouteForm((f) => ({ ...f, destination_name: val }))}
+            />
           </div>
 
           <div className="flex justify-end">

@@ -32,7 +32,8 @@ export class FareAdminService {
   // ===== Vehicles =====
   async createVehicleModel(
     data: {
-      vehicle_group_code: VehicleGroupCode;
+      vehicle_group_code?: VehicleGroupCode;
+      vehicle_group_id?: string;
       make: string;
       model_name: string;
       display_name: string;
@@ -40,6 +41,7 @@ export class FareAdminService {
       luggage_capacity?: number;
       image_url?: string;
       sort_order?: number;
+      is_active?: boolean;
     },
     actor: AdminActor,
     requestId: string
@@ -49,22 +51,28 @@ export class FareAdminService {
       throw new AppError("VALIDATION_ERROR", "Passenger capacity must be a positive integer", 400);
     }
 
+    const groupIdentifier = data.vehicle_group_code || data.vehicle_group_id;
+    if (!groupIdentifier) {
+      throw new AppError("VALIDATION_ERROR", "Either vehicle_group_code or vehicle_group_id is required", 400);
+    }
+
     const groupRes = await this.pool.query(
-      "SELECT id FROM vehicle_groups WHERE code = $1",
-      [data.vehicle_group_code]
+      "SELECT id FROM vehicle_groups WHERE code = $1 OR id::text = $1",
+      [groupIdentifier]
     );
     if (groupRes.rows.length === 0) {
       throw new AppError("NOT_FOUND", "Vehicle group not found", 404);
     }
     const groupId = groupRes.rows[0].id;
 
+    const isActive = data.is_active !== undefined ? Boolean(data.is_active) : true;
     const res = await this.pool.query(
       `
       INSERT INTO vehicle_models (
         vehicle_group_id, make, model_name, display_name, passenger_capacity,
         luggage_capacity, image_url, sort_order, is_active
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     `,
       [
@@ -76,6 +84,7 @@ export class FareAdminService {
         data.luggage_capacity ?? null,
         data.image_url ?? null,
         data.sort_order ?? 0,
+        isActive,
       ]
     );
     const created = res.rows[0];
@@ -411,13 +420,14 @@ export class FareAdminService {
       transfer_id?: string;
       tour_package_id?: string;
       label: string;
-      amount?: number;
+      amount?: number | null;
+      is_active?: boolean;
     },
     actor: AdminActor,
     requestId: string
   ) {
     this.assertSuperAdmin(actor);
-    if (data.amount !== undefined && (!Number.isInteger(data.amount) || data.amount <= 0)) {
+    if (data.amount !== undefined && data.amount !== null && (!Number.isInteger(data.amount) || data.amount <= 0)) {
       throw new AppError("VALIDATION_ERROR", "Extra charge amount must be a positive integer", 400);
     }
 
@@ -559,7 +569,20 @@ export class FareAdminService {
       throw new AppError("UPSTREAM_ERROR", "LocationIQ service not configured", 502);
     }
     // AA-09, AA-10: returns values, saves nothing
-    return this.locationIqService.calculateDistance(origin, destination);
+    try {
+      return await this.locationIqService.calculateDistance(origin, destination);
+    } catch (err: any) {
+      if (err.message === "SETTINGS_MISSING") {
+        throw new AppError("UPSTREAM_ERROR", "LocationIQ API key is not configured.", 502);
+      }
+      if (err.message === "GEOCODE_FAILED") {
+        throw new AppError("GEOCODE_FAILED", `Could not geocode "${origin}" or "${destination}". Please specify city and state name.`, 400);
+      }
+      if (err.message === "ROUTING_FAILED") {
+        throw new AppError("ROUTING_FAILED", "Could not calculate driving directions between these locations. You can enter km and duration manually.", 400);
+      }
+      throw new AppError("UPSTREAM_ERROR", `LocationIQ service error: ${err.message || "Request failed"}. You can enter km and duration manually.`, 502);
+    }
   }
 
   async putRouteVehicles(
@@ -677,9 +700,10 @@ export class FareAdminService {
       throw new AppError("CONFLICT", "Route with this code or origin-destination pair already exists", 409);
     }
 
+    const gallery = data.image_url ? [data.image_url] : [];
     const res = await this.pool.query(
-      `INSERT INTO outstation_routes (code, origin_name, destination_name, distance_km, duration_minutes, description, image_url, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 'draft')
+      `INSERT INTO outstation_routes (code, origin_name, destination_name, distance_km, duration_minutes, description, image_url, gallery, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'draft')
        RETURNING *`,
       [
         data.code,
@@ -689,6 +713,7 @@ export class FareAdminService {
         data.duration_minutes ?? null,
         data.description ?? null,
         data.image_url ?? null,
+        JSON.stringify(gallery),
       ]
     );
     const created = res.rows[0];
@@ -730,13 +755,14 @@ export class FareAdminService {
     const dur = data.duration_minutes !== undefined ? data.duration_minutes : before.duration_minutes;
     const desc = data.description !== undefined ? data.description : before.description;
     const img = data.image_url !== undefined ? data.image_url : before.image_url;
+    const gallery = img ? [img] : (before.gallery || []);
 
     const res = await this.pool.query(
       `UPDATE outstation_routes
-       SET origin_name = $1, destination_name = $2, distance_km = $3, duration_minutes = $4, description = $5, image_url = $6
-       WHERE id = $7
+       SET origin_name = $1, destination_name = $2, distance_km = $3, duration_minutes = $4, description = $5, image_url = $6, gallery = $7
+       WHERE id = $8
        RETURNING *`,
-      [origin, dest, dist, dur, desc, img, id]
+      [origin, dest, dist, dur, desc, img, JSON.stringify(gallery), id]
     );
     const updated = res.rows[0];
 
@@ -856,12 +882,11 @@ export class FareAdminService {
   async listFareRules(_actor: AdminActor) {
     const res = await this.pool.query(`
       SELECT fr.*, vm.display_name as vehicle_name, vg.code as group_code,
-             r.code as route_code, lp.code as local_package_code,
+             lp.code as local_package_code,
              t.code as transfer_code, tp.code as tour_package_code
       FROM fare_rules fr
       JOIN vehicle_models vm ON fr.vehicle_model_id = vm.id
       JOIN vehicle_groups vg ON vm.vehicle_group_id = vg.id
-      LEFT JOIN outstation_routes r ON fr.route_id = r.id
       LEFT JOIN local_packages lp ON fr.local_package_id = lp.id
       LEFT JOIN transfers t ON fr.transfer_id = t.id
       LEFT JOIN tour_packages tp ON fr.tour_package_id = tp.id

@@ -7,11 +7,35 @@ export interface RouteCalculateResult {
   resolved_destination: string;
 }
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export class LocationIqService {
+  private geocodeCache = new Map<string, { lat: number; lon: number; displayName: string }>();
+
   constructor(
     private apiKey?: string,
     private fetchImpl: typeof fetch = fetch
   ) {}
+
+  private async fetchWithRetry(url: string, retries = 2): Promise<Response> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const res = await this.fetchImpl(url, {
+          headers: { Accept: "application/json" },
+        });
+        if (res.status === 429 && attempt < retries) {
+          // LocationIQ free tier limits to 2 req/sec. Exponential backoff on 429.
+          await sleep(800 * (attempt + 1));
+          continue;
+        }
+        return res;
+      } catch (err) {
+        if (attempt === retries) throw err;
+        await sleep(500);
+      }
+    }
+    throw new Error("UPSTREAM_ERROR");
+  }
 
   async calculateDistance(origin: string, destination: string): Promise<RouteCalculateResult> {
     if (!this.apiKey) {
@@ -20,8 +44,15 @@ export class LocationIqService {
 
     // 1. Geocode origin
     const originGeo = await this.geocode(origin);
+
+    // 400ms buffer between LocationIQ calls to stay safely below 2 req/sec
+    await sleep(400);
+
     // 2. Geocode destination
     const destGeo = await this.geocode(destination);
+
+    // 400ms buffer
+    await sleep(400);
 
     // 3. Routing driving directions
     const routeData = await this.route(originGeo.lat, originGeo.lon, destGeo.lat, destGeo.lon);
@@ -41,6 +72,10 @@ export class LocationIqService {
   }
 
   private async geocode(query: string): Promise<{ lat: number; lon: number; displayName: string }> {
+    const key = query.trim().toLowerCase();
+    const cached = this.geocodeCache.get(key);
+    if (cached) return cached;
+
     const url = new URL("https://us1.locationiq.com/v1/search");
     url.searchParams.set("key", this.apiKey!);
     url.searchParams.set("q", query.trim());
@@ -48,14 +83,7 @@ export class LocationIqService {
     url.searchParams.set("limit", "1");
     url.searchParams.set("countrycodes", "in");
 
-    let res: Response;
-    try {
-      res = await this.fetchImpl(url.toString(), {
-        headers: { Accept: "application/json" },
-      });
-    } catch {
-      throw new Error("UPSTREAM_ERROR");
-    }
+    const res = await this.fetchWithRetry(url.toString());
 
     if (!res.ok) {
       if (res.status === 404 || res.status === 422) {
@@ -76,11 +104,13 @@ export class LocationIqService {
       throw new Error("GEOCODE_FAILED");
     }
 
-    return {
+    const result = {
       lat,
       lon,
       displayName: String(first.display_name ?? query),
     };
+    this.geocodeCache.set(key, result);
+    return result;
   }
 
   private async route(
@@ -95,14 +125,7 @@ export class LocationIqService {
     url.searchParams.set("key", this.apiKey!);
     url.searchParams.set("overview", "false");
 
-    let res: Response;
-    try {
-      res = await this.fetchImpl(url.toString(), {
-        headers: { Accept: "application/json" },
-      });
-    } catch {
-      throw new Error("UPSTREAM_ERROR");
-    }
+    const res = await this.fetchWithRetry(url.toString());
 
     if (!res.ok) {
       if (res.status === 400 || res.status === 404) {
