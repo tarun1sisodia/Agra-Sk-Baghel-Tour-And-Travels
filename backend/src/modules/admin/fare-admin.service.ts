@@ -759,7 +759,7 @@ export class FareAdminService {
 
     const res = await this.pool.query(
       `UPDATE outstation_routes
-       SET origin_name = $1, destination_name = $2, distance_km = $3, duration_minutes = $4, description = $5, image_url = $6, gallery = $7
+       SET origin_name = $1, destination_name = $2, distance_km = $3, duration_minutes = $4, description = $5, image_url = $6, gallery = $7, updated_at = NOW()
        WHERE id = $8
        RETURNING *`,
       [origin, dest, dist, dur, desc, img, JSON.stringify(gallery), id]
