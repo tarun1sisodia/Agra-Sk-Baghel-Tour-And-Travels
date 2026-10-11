@@ -5,13 +5,13 @@
 ### 2026-10-11 — Fare System Contract Normalization, Canonical Field Registry & Fail-Closed Hardening
 
 - **Master Canonical Field Registry (`docs/CANONICAL_FIELD_REGISTRY.md`)**:
-  - Authored comprehensive field registry documenting every business concept across:
-    - PostgreSQL database column (`snake_case`)
-    - TypeScript internal domain entity (`camelCase` / `snake_case`)
-    - Wire contract property (`contracts/fare-system.ts`, Zod schemas)
-    - Admin Operations Desk and Customer Frontend representation
-    - Strict data types, validation constraints, and currency units (whole INR rupees vs INR paise)
-    - Source of truth and authoritative fail-closed invariants (INV-1, INV-2, INV-3).
+  - Authored comprehensive 437-line field registry documenting every business concept across:
+    - All 14 PostgreSQL database tables (`vehicle_groups`, `vehicle_models`, `fare_settings`, `outstation_routes`, `outstation_route_vehicles`, `local_packages`, `transfers`, `tour_packages`, `fare_rules`, `extra_charges`, `bookings`, `payments`, `payment_webhook_events`, `review_links`, `review_submissions`, `review_images`, `site_publish_events`, `url_redirects`, `admin_audit_logs`).
+    - 10 authoritative mathematical invariants (`INV-1` through `INV-10`).
+    - Complete Fare Engine calculation formulas for One-Way Outstation (with 20:00–06:00 IST night window), Round-Trip Outstation (`max(2*d, 300*days)` with driver allowances per day), and Fixed Products.
+    - Deep-link URL parameters specification (`BookingEntryParams`) with input sanitization and MakeMyTrip normalization.
+    - Standard machine error code dictionary (`VALIDATION_ERROR`, `PRICE_CHANGED`, `CAPACITY_EXCEEDED`, `TRIP_TOO_LONG`, `DATA_CORRUPTION`, etc.).
+    - Cross-layer mappings across DB `snake_case`, domain `camelCase`, and wire `contracts/fare-system.ts`.
 - **Financial Fail-Closed Hardening (`backend/src/db/postgres.ts`)**:
   - Eliminated fuzzy zero fallbacks (`?? 0`) and secondary alias degradation in `mapBooking` and `mapPayment`.
   - Enforced strict fail-closed validation on canonical `total_amount`, `advance_amount`, and `balance_amount`:
