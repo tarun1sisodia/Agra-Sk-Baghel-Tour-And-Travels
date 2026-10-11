@@ -116,15 +116,15 @@ function getPublishedTourPackageEntries(): SitemapEntry[] {
       .map((item) => ({ item, slug: String(item.slug ?? item.packageCode ?? item.package_code ?? "") }))
       .filter(({ item, slug }) => {
         if (!isSitemapSafeSlug(slug)) return false;
-        if (item.status && item.status !== "published") return false;
+        if (item.status === "draft") return false;
         return true;
       })
       .map(({ item, slug }) => ({
         path: `/en/packages/${slug}/`,
         hiPath: `/hi/packages/${slug}/`,
         enPath: `/en/packages/${slug}/`,
-        priority: 0.8,
-        changefreq: "weekly" as const,
+        priority: item.status === "archived" ? 0.6 : 0.8,
+        changefreq: (item.status === "archived" ? "monthly" : "weekly") as const,
         lastmod: (item.updatedAt || item.updated_at || item.publishedAt || undefined)?.slice(0, 10),
       }));
   } catch {
@@ -148,15 +148,15 @@ function getPublishedTransferRouteEntries(): SitemapEntry[] {
       .map((item) => ({ item, slug: String(item.slug ?? item.routeCode ?? item.route_code ?? "") }))
       .filter(({ item, slug }) => {
         if (!isSitemapSafeSlug(slug)) return false;
-        if (item.status && item.status !== "published") return false;
+        if (item.status === "draft") return false;
         return true;
       })
       .map(({ item, slug }) => ({
         path: `/en/transfers/${slug}/`,
         hiPath: `/hi/transfers/${slug}/`,
         enPath: `/en/transfers/${slug}/`,
-        priority: 0.7,
-        changefreq: "weekly" as const,
+        priority: item.status === "archived" ? 0.6 : 0.7,
+        changefreq: (item.status === "archived" ? "monthly" : "weekly") as const,
         lastmod: (item.updatedAt || item.updated_at || undefined)?.slice(0, 10),
       }));
   } catch {
@@ -180,15 +180,15 @@ function getPublishedLocalPackageEntries(): SitemapEntry[] {
       .map((item) => ({ item, slug: String(item.slug ?? item.packageCode ?? item.package_code ?? "") }))
       .filter(({ item, slug }) => {
         if (!isSitemapSafeSlug(slug)) return false;
-        if (item.status && item.status !== "published") return false;
+        if (item.status === "draft") return false;
         return true;
       })
       .map(({ item, slug }) => ({
         path: `/en/local-packages/${slug}/`,
         hiPath: `/hi/local-packages/${slug}/`,
         enPath: `/en/local-packages/${slug}/`,
-        priority: 0.7,
-        changefreq: "weekly" as const,
+        priority: item.status === "archived" ? 0.6 : 0.7,
+        changefreq: (item.status === "archived" ? "monthly" : "weekly") as const,
         lastmod: (item.updatedAt || item.updated_at || undefined)?.slice(0, 10),
       }));
   } catch {

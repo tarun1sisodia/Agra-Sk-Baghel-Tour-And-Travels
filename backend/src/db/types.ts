@@ -1,3 +1,4 @@
+import type pg from "pg";
 import type { RouteCatalogRecord, RouteCatalogStatus, RouteCatalogTripType } from "./route-catalog-types.js";
 import type {
   CancellationPolicyRecord,
@@ -276,6 +277,7 @@ export type Repositories = {
     save(record: FareRuleRecord): Promise<FareRuleRecord>;
     activate(version: string): Promise<FareRuleRecord | null>;
   };
+  pool?: pg.Pool;
 };
 
 export type DeviceRegistrationRecord = {

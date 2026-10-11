@@ -1,5 +1,39 @@
 # ArenaAI Agent Change Ledger
 
+## 2026-10-11
+
+### 2026-10-11 — Full Rebuild: Clean Fare System Rebuild (`fare-system-final-spec.md`), Requirements A & B
+
+- **Contracts & Shared Schemas (`contracts/fare-system.ts`)**:
+  - Implemented strict Zod contracts and TypeScript definitions: `CategoryCode`, `VehicleGroupCode`, `QuoteRequest`, `QuoteResponse`, `OptionsRequest`, `OptionsResponse`, `CreateBookingRequest`, `BookingEntryParams`, and admin CRUD contracts (`RouteVehiclesPut`, `FareRuleCreate`, `FareSettingPatch`, `RouteCalculateRequest/Response`).
+  - Synchronized across `backend/src/contracts/`, `admin/src/contracts/`, and `react/src/contracts/`.
+- **Pure Fare Engine (`backend/src/modules/fare-engine/`)**:
+  - Implemented mathematical models for `rounding.ts` (half-up whole rupee rounding), `datetime.ts` (IST calendar dates difference `date(return) - date(pickup) + 1` and night pickup window `20:00 - 06:00`), `extra-charges.ts` (deterministic scoped addition), `finalizer.ts` (advance/balance splits), and category calculators (`calculators/one-way.ts`, `calculators/round-trip.ts`, `calculators/fixed-product.ts`).
+  - Implemented and verified 91 unit tests across all scenarios (OW, NW, RT, DL, HL, LP, TR, TP, EX, AD).
+- **Database Clean Schema Rebuild (`backend/migrations/0038_fare_system_clean_rebuild.sql`, `0039_fare_system_seeds.sql`)**:
+  - Applied complete clean rebuild to live Supabase PostgreSQL wiping legacy test tables.
+  - Created 18 strongly typed tables with check constraints, foreign keys, and RLS (`vehicle_groups`, `vehicle_models`, `outstation_routes`, `outstation_route_vehicles`, `local_packages`, `transfers`, `tour_packages`, `fare_settings`, `fare_rules`, `extra_charges`, `bookings`, `payments`, `payment_webhook_events`, `admin_audit_logs`, `review_links`, `review_submissions`, `review_images`, `site_publish_events`).
+  - Seeded approved baseline data with `max_round_trip_days = 5` and `advance_percent = 28`.
+- **Quotes, Bookings & Payments Services (`backend/src/modules/`)**:
+  - `QuotesService`: Handles `quote()` and `options()`. Hides unavailable cars, respects passenger capacity, and makes 0 external geocoding calls during quotes.
+  - `BookingsService`: Recomputes server-authoritative quotes on booking creation and rejects price changes with HTTP 409 `PRICE_CHANGED`.
+  - `PaymentsService`: Enforces idempotent order creation (`amount_paise = advance_amount * 100`), validates Razorpay webhook HMAC signatures, deduplicates events, and applies status transitions (`captured` -> `confirmed`; `needs_review` on mismatch/cancellation).
+- **Admin Operations Desk & Audit Logging (`backend/src/modules/admin/`)**:
+  - Enforced role guards for `super_admin`, `content_editor`, `review_moderator`, `dispatcher`, and `finance_operator`.
+  - Audits all successful writes with before/after state snapshots in `admin_audit_logs`.
+  - LocationIQ distance calculation rounds to 1 decimal km and integer minutes; does not persist until the route is explicitly saved.
+- **Reviews Engine (`backend/src/modules/reviews/`)**:
+  - Secure QR and single-use booking link generation with SHA-256 token hashing.
+  - XSS sanitization, EXIF scrubbing, and social media URL canonicalization.
+- **Requirement A (Archived Pages, Crawl Depth & Sitemap) & Requirement B (Round-Trip Duration)**:
+  - Updated `react/scripts/generate-sitemap.ts` to exclude drafts while retaining useful archived pages with preserved canonical URLs.
+  - Rendered "Currently Unavailable" notice and disabled booking button for archived services on the customer frontend (`react/src/pages/LivePackageDetailPage.tsx`).
+  - Increased `max_round_trip_days` to 5 calendar days in `fare_settings`, calculators, and automated test fixtures.
+- **Property & Matrix Tests (`backend/tests/unit/property-matrix.test.ts`)**:
+  - Verified PR-01 to PR-11 across every car, product, and trip duration from 1 to 5 days: integer totals, monotonicity, commutativity of extra charges, end-to-end booking/payment amounts, and quote/options agreement.
+- **Verification**:
+  - Passed `npm run verify` end-to-end: typechecks (3/3), vitest unit tests (171/171), catalog source checks (3/3), SEO lifecycle audit, and all 3 workspace builds (`react/`, `admin/`, `backend/`).
+
 ## 2026-10-10
 
 ### 2026-10-10 — Mobile PageSpeed Insights 100/100 A11y, Zero Critical Path Bottlenecks & Supabase Bundle Deferral

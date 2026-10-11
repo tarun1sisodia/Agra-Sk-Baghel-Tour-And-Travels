@@ -92,6 +92,24 @@ import {
 } from "./providers/GeocodingProvider.js";
 import { createRazorpayAdapter } from "./providers/adapters/razorpay.js";
 import type { PaymentProviderRegistry } from "./providers/PaymentProvider.js";
+import pg from "pg";
+import { createPoolConfig } from "./db/poolConfig.js";
+import { FareCatalogRepository } from "./modules/fare-catalog/fare-catalog.repository.js";
+import { QuotesService } from "./modules/quotes/quotes.service.js";
+import { registerQuotesRoutes } from "./modules/quotes/quotes.routes.js";
+import { BookingsRepository } from "./modules/bookings/bookings.repository.js";
+import { BookingsService } from "./modules/bookings/bookings.service.js";
+import { registerBookingsRoutes } from "./modules/bookings/bookings.routes.js";
+import { PaymentsRepository } from "./modules/payments/payments.repository.js";
+import { PaymentsService } from "./modules/payments/payments.service.js";
+import { registerPaymentsRoutes } from "./modules/payments/payments.routes.js";
+import { FareAdminRepository } from "./modules/admin/fare-admin.repository.js";
+import { FareAdminService } from "./modules/admin/fare-admin.service.js";
+import { registerFareAdminRoutes } from "./modules/admin/fare-admin.routes.js";
+import { LocationIqService } from "./modules/routes/locationiq.service.js";
+import { ReviewsRepository } from "./modules/reviews/reviews.repository.js";
+import { ReviewsService } from "./modules/reviews/reviews.service.js";
+import { registerReviewsRoutes } from "./modules/reviews/reviews.routes.js";
 
 export type AppOptions = {
   env: Env;
@@ -304,6 +322,48 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
   await registerRentalEnquiryRoutes(app, createRentalEnquiryController(rentalEnquiryService));
   await registerPromosRoutes(app, createPromosController(promosService));
   await registerAdminRoutes(app, createAdminController(adminService, paymentService, bookingService));
+
+  // --- Clean Fare System (fare-system-final-spec.md) Mounts ---
+  const farePool: pg.Pool | null =
+    (db.pool as pg.Pool | undefined) ??
+    (env.DATABASE_URL ? new pg.Pool(createPoolConfig(env.DATABASE_URL)) : null);
+
+  if (farePool) {
+    const fareCatalogRepo = new FareCatalogRepository(farePool);
+    const quotesService = new QuotesService(fareCatalogRepo);
+    await registerQuotesRoutes(app, quotesService);
+
+    const bookingsRepo = new BookingsRepository(farePool);
+    const bookingsService = new BookingsService(bookingsRepo, quotesService);
+    await registerBookingsRoutes(app, bookingsService);
+
+    const paymentsRepo = new PaymentsRepository(farePool);
+    const paymentsService = new PaymentsService({
+      paymentsRepo,
+      bookingsRepo,
+      razorpayKeyId: env.RAZORPAY_KEY_ID,
+      razorpayKeySecret: env.RAZORPAY_KEY_SECRET,
+      razorpayWebhookSecret: env.RAZORPAY_WEBHOOK_SECRET,
+    });
+    await registerPaymentsRoutes(app, paymentsService);
+
+    const fareAdminRepo = new FareAdminRepository(farePool);
+    const locationIqService = new LocationIqService(env.LOCATIONIQ_TOKEN);
+    const fareAdminService = new FareAdminService(farePool, fareAdminRepo, locationIqService);
+    await registerFareAdminRoutes(app, fareAdminService);
+
+    const reviewsRepo = new ReviewsRepository(farePool);
+    const reviewsService = new ReviewsService({
+      reviewsRepo,
+      bookingsRepo,
+      auditRepo: fareAdminRepo,
+      resendApiKey: env.RESEND_API_KEY,
+      emailFrom: env.EMAIL_FROM,
+    });
+    await registerReviewsRoutes(app, reviewsService);
+  } else {
+    options.logger.warn("Fare database pool not available. Skipping fare system routes registration.");
+  }
 
   app.post("/api/v1/devices/register", {
     config: { rateLimit: { max: 30, timeWindow: "1 minute" } },

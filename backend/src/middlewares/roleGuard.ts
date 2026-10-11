@@ -11,9 +11,15 @@ export function requireRole(request: FastifyRequest, roles: readonly UserRole[])
   }
 }
 
-export const ADMIN_ROLES = ["super_admin"] as const satisfies readonly UserRole[];
-export const DISPATCH_ROLES = ADMIN_ROLES;
-export const CONTENT_ROLES = ADMIN_ROLES;
-export const REVIEW_ROLES = ADMIN_ROLES;
-export const FINANCE_ROLES = ADMIN_ROLES;
-export const SUPER_ADMIN_ROLES = ADMIN_ROLES;
+export const SUPER_ADMIN_ROLES = ["super_admin"] as const satisfies readonly UserRole[];
+export const CONTENT_ROLES = ["super_admin", "content_editor"] as const satisfies readonly UserRole[];
+export const REVIEW_ROLES = ["super_admin", "review_moderator"] as const satisfies readonly UserRole[];
+export const DISPATCH_ROLES = ["super_admin", "dispatcher"] as const satisfies readonly UserRole[];
+export const FINANCE_ROLES = ["super_admin", "finance_operator"] as const satisfies readonly UserRole[];
+export const ADMIN_ROLES = [
+  "super_admin",
+  "content_editor",
+  "review_moderator",
+  "dispatcher",
+  "finance_operator",
+] as const satisfies readonly UserRole[];

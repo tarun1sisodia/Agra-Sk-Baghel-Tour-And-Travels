@@ -342,6 +342,7 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
   }
 
   const repos: Repositories = {
+    pool,
     async healthCheck() {
       try {
         const result = await pool.query("select 1 as ok");

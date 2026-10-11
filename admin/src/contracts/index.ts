@@ -6,6 +6,7 @@
  */
 // Canonical contract exports across backend, admin, and react
 export * from "./bookings.js";
+export * from "./fare-system.js";
 export * from "./fares.js";
 export * from "./local-package-keys.js";
 export * from "./local-packages.js";

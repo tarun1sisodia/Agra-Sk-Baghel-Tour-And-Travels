@@ -1,0 +1,294 @@
+import type pg from "pg";
+
+export interface ReviewLinkEntity {
+  id: string;
+  kind: "qr" | "booking";
+  token_hash: string;
+  booking_id: string | null;
+  label: string | null;
+  prefill: Record<string, any>;
+  expires_at: string | null;
+  revoked_at: string | null;
+  used_at: string | null;
+  email_sent_at: string | null;
+  email_last_error: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface ReviewSubmissionEntity {
+  id: string;
+  link_id: string;
+  booking_id: string | null;
+  display_name: string;
+  rating: number | null;
+  review_text: string;
+  tour_name: string | null;
+  route_text: string | null;
+  social_platform: "instagram" | "facebook" | "youtube" | "x" | "linkedin" | null;
+  social_username: string | null;
+  consent_public: boolean;
+  status: "pending" | "approved" | "rejected";
+  show_on_homepage: boolean;
+  show_in_gallery: boolean;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  rejection_reason: string | null;
+  created_at: string;
+}
+
+export interface ReviewImageEntity {
+  id: string;
+  submission_id: string;
+  storage_key: string;
+  width: number | null;
+  height: number | null;
+  alt_text: string | null;
+  sort_order: number;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
+}
+
+export class ReviewsRepository {
+  constructor(private pool: pg.Pool) {}
+
+  async createReviewLink(data: {
+    kind: "qr" | "booking";
+    token_hash: string;
+    booking_id?: string | null;
+    label?: string | null;
+    prefill?: Record<string, any>;
+    expires_at?: string | null;
+    created_by?: string | null;
+  }): Promise<ReviewLinkEntity> {
+    const res = await this.pool.query(
+      `
+      INSERT INTO review_links (
+        kind, token_hash, booking_id, label, prefill, expires_at, created_by
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *
+    `,
+      [
+        data.kind,
+        data.token_hash,
+        data.booking_id ?? null,
+        data.label ?? null,
+        JSON.stringify(data.prefill ?? {}),
+        data.expires_at ?? null,
+        data.created_by ?? null,
+      ]
+    );
+    const r = res.rows[0];
+    return {
+      ...r,
+      prefill: typeof r.prefill === "string" ? JSON.parse(r.prefill) : r.prefill,
+    };
+  }
+
+  async getReviewLinkByHash(tokenHash: string): Promise<ReviewLinkEntity | null> {
+    const res = await this.pool.query(
+      "SELECT * FROM review_links WHERE token_hash = $1",
+      [tokenHash]
+    );
+    if (res.rows.length === 0) return null;
+    const r = res.rows[0];
+    return {
+      ...r,
+      prefill: typeof r.prefill === "string" ? JSON.parse(r.prefill) : r.prefill,
+    };
+  }
+
+  async getReviewLinkById(id: string): Promise<ReviewLinkEntity | null> {
+    const res = await this.pool.query(
+      "SELECT * FROM review_links WHERE id = $1",
+      [id]
+    );
+    if (res.rows.length === 0) return null;
+    const r = res.rows[0];
+    return {
+      ...r,
+      prefill: typeof r.prefill === "string" ? JSON.parse(r.prefill) : r.prefill,
+    };
+  }
+
+  async markLinkUsed(id: string): Promise<void> {
+    await this.pool.query(
+      "UPDATE review_links SET used_at = NOW() WHERE id = $1",
+      [id]
+    );
+  }
+
+  async revokeLink(id: string): Promise<void> {
+    await this.pool.query(
+      "UPDATE review_links SET revoked_at = NOW() WHERE id = $1",
+      [id]
+    );
+  }
+
+  async updateLinkEmailStatus(id: string, success: boolean, error?: string): Promise<void> {
+    if (success) {
+      await this.pool.query(
+        "UPDATE review_links SET email_sent_at = NOW(), email_last_error = NULL WHERE id = $1",
+        [id]
+      );
+    } else {
+      await this.pool.query(
+        "UPDATE review_links SET email_last_error = $1 WHERE id = $2",
+        [error ?? "Failed to send email", id]
+      );
+    }
+  }
+
+  async createSubmission(data: {
+    link_id: string;
+    booking_id?: string | null;
+    display_name: string;
+    rating?: number | null;
+    review_text: string;
+    tour_name?: string | null;
+    route_text?: string | null;
+    social_platform?: "instagram" | "facebook" | "youtube" | "x" | "linkedin" | null;
+    social_username?: string | null;
+    consent_public: boolean;
+  }): Promise<ReviewSubmissionEntity> {
+    const res = await this.pool.query(
+      `
+      INSERT INTO review_submissions (
+        link_id, booking_id, display_name, rating, review_text, tour_name, route_text,
+        social_platform, social_username, consent_public, status
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending')
+      RETURNING *
+    `,
+      [
+        data.link_id,
+        data.booking_id ?? null,
+        data.display_name,
+        data.rating ?? null,
+        data.review_text,
+        data.tour_name ?? null,
+        data.route_text ?? null,
+        data.social_platform ?? null,
+        data.social_username ?? null,
+        data.consent_public,
+      ]
+    );
+    return res.rows[0];
+  }
+
+  async addReviewImage(data: {
+    submission_id: string;
+    storage_key: string;
+    width?: number | null;
+    height?: number | null;
+    alt_text?: string | null;
+    sort_order?: number;
+  }): Promise<ReviewImageEntity> {
+    const res = await this.pool.query(
+      `
+      INSERT INTO review_images (
+        submission_id, storage_key, width, height, alt_text, sort_order, status
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, 'pending')
+      RETURNING *
+    `,
+      [
+        data.submission_id,
+        data.storage_key,
+        data.width ?? null,
+        data.height ?? null,
+        data.alt_text ?? null,
+        data.sort_order ?? 0,
+      ]
+    );
+    return res.rows[0];
+  }
+
+  async getSubmissionById(id: string): Promise<ReviewSubmissionEntity | null> {
+    const res = await this.pool.query(
+      "SELECT * FROM review_submissions WHERE id = $1",
+      [id]
+    );
+    return res.rows[0] || null;
+  }
+
+  async getImagesBySubmissionId(submissionId: string): Promise<ReviewImageEntity[]> {
+    const res = await this.pool.query(
+      "SELECT * FROM review_images WHERE submission_id = $1 ORDER BY sort_order ASC",
+      [submissionId]
+    );
+    return res.rows;
+  }
+
+  async updateSubmission(
+    id: string,
+    data: {
+      status?: "pending" | "approved" | "rejected";
+      show_on_homepage?: boolean;
+      show_in_gallery?: boolean;
+      review_text?: string;
+      display_name?: string;
+      reviewed_by?: string;
+      rejection_reason?: string | null;
+    }
+  ): Promise<ReviewSubmissionEntity> {
+    const updates: string[] = [];
+    const values: any[] = [];
+    let idx = 1;
+
+    for (const [key, val] of Object.entries(data)) {
+      if (val !== undefined) {
+        updates.push(`${key} = $${idx++}`);
+        values.push(val);
+      }
+    }
+    updates.push(`reviewed_at = NOW()`);
+    values.push(id);
+
+    const res = await this.pool.query(
+      `UPDATE review_submissions SET ${updates.join(", ")} WHERE id = $${idx} RETURNING *`,
+      values
+    );
+    return res.rows[0];
+  }
+
+  async updateImageStatus(
+    id: string,
+    status: "approved" | "rejected"
+  ): Promise<ReviewImageEntity> {
+    const res = await this.pool.query(
+      "UPDATE review_images SET status = $1 WHERE id = $2 RETURNING *",
+      [status, id]
+    );
+    return res.rows[0];
+  }
+
+  async getPublicReviews(): Promise<ReviewSubmissionEntity[]> {
+    const res = await this.pool.query(`
+      SELECT * FROM review_submissions
+      WHERE status = 'approved'
+        AND consent_public = true
+        AND show_on_homepage = true
+      ORDER BY created_at DESC
+    `);
+    return res.rows;
+  }
+
+  async getPublicGallery(): Promise<Array<ReviewImageEntity & { reviewer_name: string; review_text: string }>> {
+    const res = await this.pool.query(`
+      SELECT 
+        img.*,
+        sub.display_name AS reviewer_name,
+        sub.review_text AS review_text
+      FROM review_images img
+      JOIN review_submissions sub ON img.submission_id = sub.id
+      WHERE img.status = 'approved'
+        AND sub.status = 'approved'
+        AND sub.consent_public = true
+        AND sub.show_in_gallery = true
+      ORDER BY img.sort_order ASC, img.created_at DESC
+    `);
+    return res.rows;
+  }
+}

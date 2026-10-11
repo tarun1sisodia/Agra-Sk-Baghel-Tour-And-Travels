@@ -252,13 +252,25 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2.5">
-              <a
-                href={`/book.html?package=${encodeURIComponent(item.slug)}&step=1`}
-                className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-terracotta-deep text-white font-label-lg text-sm font-semibold hover:bg-terracotta-sunlit transition-colors"
-              >
-                <span>Book Now</span>
-                <span className="material-symbols-outlined text-icon-18" aria-hidden="true">arrow_forward</span>
-              </a>
+              {item.availability === "unavailable" || (item as any).status === "archived" ? (
+                <button
+                  type="button"
+                  disabled
+                  aria-disabled="true"
+                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-surface-container-high text-on-surface-variant font-label-lg text-sm font-semibold cursor-not-allowed opacity-75"
+                >
+                  <span className="material-symbols-outlined text-icon-18" aria-hidden="true">block</span>
+                  <span>Currently Unavailable</span>
+                </button>
+              ) : (
+                <a
+                  href={`/book.html?package=${encodeURIComponent(item.slug)}&step=1`}
+                  className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-terracotta-deep text-white font-label-lg text-sm font-semibold hover:bg-terracotta-sunlit transition-colors"
+                >
+                  <span>Book Now</span>
+                  <span className="material-symbols-outlined text-icon-18" aria-hidden="true">arrow_forward</span>
+                </a>
+              )}
               <a
                 href={whatsappUrl}
                 target="_blank"

@@ -8,7 +8,8 @@ import { loadEnv } from "../config/env.js";
 const MIGRATION_LOCK_KEY = "arenaai:migrations";
 
 function migrationChecksum(sql: string): string {
-  return createHash("sha256").update(sql).digest("hex");
+  const normalized = sql.replace(/\r\n/g, "\n");
+  return createHash("sha256").update(normalized).digest("hex");
 }
 
 export async function runMigrations(options?: {
