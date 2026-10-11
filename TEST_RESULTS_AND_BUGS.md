@@ -85,6 +85,44 @@
 
 ---
 
+### BUG-06: DatabaseError: column "inr_amount_paise" does not exist in `GET /api/v1/ops/admin/payments`
+* **Severity:** P0 (Operations Desk Failure)
+* **Root Cause:**  
+  In `backend/src/db/postgres.ts`, `payments.list` executed SQL `coalesce(sum(case when status='captured' then inr_amount_paise else 0 end), 0)`. The clean schema in PostgreSQL has `amount_paise` (bigint), not `inr_amount_paise`.
+* **Resolution Applied:**  
+  Updated `payments.list` to query `amount_paise`. Also updated `mapPayment` to map `amountMinor` and `inrAmountPaise` from `amount_paise`, use safe date parsing, and fall back safely on missing legacy columns.
+* **Verification:**  
+  `GET /api/v1/ops/admin/payments` tested via curl and Newman with `Authorization: Bearer test-super_admin`; returns HTTP 200 OK with full payment details and totals.
+
+---
+
+### BUG-07: RangeError: Invalid time value in `mapBooking` on `GET /api/v1/ops/admin/bookings`
+* **Severity:** P0 (Operations Desk Failure)
+* **Root Cause:**  
+  Clean bookings store `pickup_at` and `return_at`, while `mapBooking` expected legacy `row.pickup_datetime`. Calling `new Date(String(row.pickup_datetime)).toISOString()` with `undefined` threw `RangeError: Invalid time value`.
+* **Resolution Applied:**  
+  Added resilient date parsers `safeIsoDate` and `safeIsoDateOrNull` in `postgres.ts`. Mapped `pickupDatetime` from `row.pickup_datetime ?? row.pickup_at`, `returnDatetime` from `row.return_datetime ?? row.return_at`, `totalFare` from `row.total_amount ?? row.total_fare`, and extracted origin/destination from `fare_breakdown`.
+* **Verification:**  
+  `GET /api/v1/ops/admin/bookings` tested via curl; returns HTTP 200 OK with all booking records, sanitized origin/destination, and masked customer phone/email.
+
+---
+
+### BUG-08: Customer Deep Link URL Parsing Disconnect in `CleanBookingPage.tsx`
+* **Severity:** P1 (Customer Route & Campaign Deep Linking)
+* **Root Cause:**  
+  Links from route templates (`/book?from=Agra&to=Delhi&vehicle=sedan&route=...&tripType=round-trip`), packages (`/book.html?trip=local&package=...`), and monuments used legacy query parameter names (`trip`, `tripType`, `from`, `to`, `route`, `package`, `pkg`, `pax`, `vehicle`).
+* **Resolution Applied:**  
+  Enhanced `CleanBookingPage.tsx` to parse all variations:
+  - `trip=local` / `category=local_package` -> `category: "local_package"`
+  - `trip=package` / `category=tour_package` -> `category: "tour_package"`
+  - `tripType=round-trip` / `trip=round_trip` -> `tripType: "round_trip"`
+  - Smart product lookup matching `code`, `id`, or `from` & `to` across catalog products upon mount.
+  - Auto-selects requested vehicle when options load.
+* **Verification:**  
+  `npm run verify` passed; full production build across all 3 apps succeeded.
+
+---
+
 ## 3. Legacy Code Overlap Audit & Architecture Separation
 
 1. **Frontend Booking Pipeline (`react/`):**

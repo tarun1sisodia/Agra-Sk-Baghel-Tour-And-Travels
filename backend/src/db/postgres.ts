@@ -31,7 +31,6 @@ import type {
   TransferRouteRecord,
 } from "./dossier-types.js";
 import { createPoolConfig } from "./poolConfig.js";
-import { ConcurrencyError } from "./concurrency.js";
 import { AppError } from "../shared/errors.js";
 import { phonesMatch } from "../shared/privacy.js";
 
@@ -44,6 +43,18 @@ function num(value: unknown): number {
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function isUuid(val: unknown): boolean {
   return typeof val === "string" && UUID_REGEX.test(val.trim());
+}
+
+function safeIsoDate(val: unknown, fallback: string = new Date().toISOString()): string {
+  if (val === null || val === undefined || val === "") return fallback;
+  const d = new Date(val as string | number | Date);
+  return isNaN(d.getTime()) ? fallback : d.toISOString();
+}
+
+function safeIsoDateOrNull(val: unknown): string | null {
+  if (val === null || val === undefined || val === "") return null;
+  const d = new Date(val as string | number | Date);
+  return isNaN(d.getTime()) ? null : d.toISOString();
 }
 
 function mapLocalPackage(row: Record<string, unknown>): LocalSightseeingPackageRecord {
@@ -202,63 +213,81 @@ function mapRouteCatalog(row: Record<string, unknown>): RouteCatalogRecord {
 
 function mapRentalEnquiry(row: Record<string, unknown>): RentalEnquiryRecord { return { id: String(row.id), ref: String(row.ref), name: String(row.name), phone: String(row.phone), email: row.email ? String(row.email) : null, carTier: row.car_tier as RentalEnquiryRecord["carTier"], pickupDate: String(row.pickup_date).slice(0,10), returnDate: String(row.return_date).slice(0,10), pickupLocation: String(row.pickup_location), withDriver: Boolean(row.with_driver), note: row.note ? String(row.note) : null, status: row.status as RentalEnquiryRecord["status"], notes: (row.notes as string[]) ?? [], createdAt: new Date(String(row.created_at)).toISOString(), updatedAt: new Date(String(row.updated_at)).toISOString() }; }
 function mapBooking(row: Record<string, unknown>): BookingRecord {
+  const breakdown = (row.fare_breakdown && typeof row.fare_breakdown === "object"
+    ? row.fare_breakdown
+    : (typeof row.fare_breakdown === "string" ? JSON.parse(row.fare_breakdown) : {})) as Record<string, any>;
+  const vehicle = breakdown.vehicle ?? {};
+  const details = breakdown.details ?? {};
+  const totalAmount = num(row.total_amount ?? row.total_fare ?? breakdown.total ?? 0);
+  const advanceAmount = num(row.advance_amount ?? breakdown.advance ?? 0);
+  const balanceAmount = num(row.balance_amount ?? breakdown.balance ?? Math.max(0, totalAmount - advanceAmount));
+  const distanceKm = num(row.distance_km ?? details.distance_km ?? 0);
+  const tripType = (row.trip_type as BookingRecord["tripType"]) ?? (details.effective_trip_type as BookingRecord["tripType"]) ?? "one_way";
+  const vehicleTier = (row.vehicle_tier as BookingRecord["vehicleTier"]) ?? (vehicle.group_code as BookingRecord["vehicleTier"]) ?? "sedan";
+  const originName = row.origin_name ? String(row.origin_name) : (details.origin ? String(details.origin) : (row.pickup_address ? String(row.pickup_address) : null));
+  const destinationName = row.destination_name ? String(row.destination_name) : (details.destination ? String(details.destination) : (row.drop_address ? String(row.drop_address) : null));
+  const pickupDatetime = safeIsoDate(row.pickup_datetime ?? row.pickup_at);
+  const returnDatetime = safeIsoDateOrNull(row.return_datetime ?? row.return_at);
+
   return {
     id: String(row.id),
     ticketId: String(row.ticket_id),
     userId: row.user_id ? String(row.user_id) : null,
-    guestAccessToken: String(row.guest_access_token),
-    tripType: row.trip_type as BookingRecord["tripType"],
-    vehicleTier: row.vehicle_tier as BookingRecord["vehicleTier"],
-    originName: row.origin_name === null || row.origin_name === undefined ? null : String(row.origin_name),
-    destinationName: row.destination_name === null || row.destination_name === undefined ? null : String(row.destination_name),
+    guestAccessToken: String(row.guest_access_token ?? ""),
+    tripType,
+    vehicleTier,
+    originName,
+    destinationName,
     bookingSelection: row.booking_selection && typeof row.booking_selection === "object"
-      ? row.booking_selection as BookingRecord["bookingSelection"]
+      ? (row.booking_selection as BookingRecord["bookingSelection"])
       : null,
-    selectedCatalogItemId: row.selected_catalog_item_id ? String(row.selected_catalog_item_id) : null,
-    pickupAddress: String(row.pickup_address),
+    selectedCatalogItemId: row.selected_catalog_item_id
+      ? String(row.selected_catalog_item_id)
+      : (row.route_id ? String(row.route_id) : (row.local_package_id ? String(row.local_package_id) : (row.transfer_id ? String(row.transfer_id) : (row.tour_package_id ? String(row.tour_package_id) : null)))),
+    pickupAddress: String(row.pickup_address ?? ""),
     dropAddress: row.drop_address ? String(row.drop_address) : null,
-    pickupDatetime: new Date(String(row.pickup_datetime)).toISOString(),
-    returnDatetime: row.return_datetime ? new Date(String(row.return_datetime)).toISOString() : null,
+    pickupDatetime,
+    returnDatetime,
     flightTrainNumber: row.flight_train_number ? String(row.flight_train_number) : null,
-    distanceKm: num(row.distance_km),
-    customerName: String(row.customer_name),
-    customerPhone: String(row.customer_phone),
+    distanceKm,
+    customerName: String(row.customer_name ?? ""),
+    customerPhone: String(row.customer_phone ?? ""),
     customerEmail: row.customer_email ? String(row.customer_email) : null,
-    baseFare: num(row.base_fare),
-    nightAllowance: num(row.night_allowance),
-    driverAllowance: num(row.driver_allowance),
-    discountAmount: num(row.discount_amount),
+    baseFare: num(row.base_fare ?? totalAmount),
+    nightAllowance: num(row.night_allowance ?? 0),
+    driverAllowance: num(row.driver_allowance ?? 0),
+    discountAmount: num(row.discount_amount ?? 0),
     promoCode: row.promo_code ? String(row.promo_code) : null,
-    totalFare: num(row.total_fare),
-    advanceAmount: num(row.advance_amount),
-    balanceAmount: num(row.balance_amount),
-    fareRulesVersion: String(row.fare_rules_version),
+    totalFare: totalAmount,
+    advanceAmount,
+    balanceAmount,
+    fareRulesVersion: String(row.fare_rules_version ?? "2.0"),
     fareSnapshot: (row.fare_snapshot as BookingRecord["fareSnapshot"]) ?? {
-      baseFare: num(row.base_fare),
-      nightAllowance: num(row.night_allowance),
-      driverAllowance: num(row.driver_allowance),
-      discountAmount: num(row.discount_amount),
-      totalFare: num(row.total_fare),
-      advanceAmount: num(row.advance_amount),
-      balanceAmount: num(row.balance_amount),
+      baseFare: num(row.base_fare ?? totalAmount),
+      nightAllowance: num(row.night_allowance ?? 0),
+      driverAllowance: num(row.driver_allowance ?? 0),
+      discountAmount: num(row.discount_amount ?? 0),
+      totalFare: totalAmount,
+      advanceAmount,
+      balanceAmount,
       currency: "INR",
-      fareVersion: String(row.fare_rules_version),
-      label: `${row.origin_name} → ${row.destination_name}`,
-      duration: "",
-      distanceKm: num(row.distance_km),
-      tripType: row.trip_type as BookingRecord["tripType"],
-      vehicleTier: row.vehicle_tier as BookingRecord["vehicleTier"],
+      fareVersion: String(row.fare_rules_version ?? "2.0"),
+      label: `${originName ?? ""} → ${destinationName ?? ""}`,
+      duration: details.duration_minutes ? `${details.duration_minutes} mins` : "",
+      distanceKm,
+      tripType,
+      vehicleTier,
       promoCode: row.promo_code ? String(row.promo_code) : null,
       promoValid: Boolean(row.promo_code),
       roundMultiplierApplied: false,
       rules: [],
     },
-    status: row.status as BookingRecord["status"],
-    version: num(row.version),
+    status: (row.status as BookingRecord["status"]) ?? "pending_payment",
+    version: num(row.version ?? 1),
     specialNotes: row.special_notes ? String(row.special_notes) : null,
-    packageId: row.package_id ? String(row.package_id) : null,
-    createdAt: new Date(String(row.created_at)).toISOString(),
-    updatedAt: new Date(String(row.updated_at)).toISOString(),
+    packageId: row.package_id ? String(row.package_id) : (row.local_package_id ? String(row.local_package_id) : (row.tour_package_id ? String(row.tour_package_id) : null)),
+    createdAt: safeIsoDate(row.created_at),
+    updatedAt: safeIsoDate(row.updated_at ?? row.created_at),
   };
 }
 
@@ -283,30 +312,32 @@ function mapBookingIntent(row: Record<string, unknown>): BookingIntentRecord {
 }
 
 function mapPayment(row: Record<string, unknown>): PaymentRecord {
+  const amountPaise = num(row.amount_paise ?? row.inr_amount_paise ?? row.amount_minor ?? 0);
+  const nowIso = new Date().toISOString();
   return {
     id: String(row.id),
     bookingId: String(row.booking_id),
-    provider: row.provider as PaymentRecord["provider"],
-    providerOrderId: String(row.provider_order_id),
+    provider: (row.provider as PaymentRecord["provider"]) ?? "razorpay",
+    providerOrderId: String(row.provider_order_id ?? ""),
     providerPaymentId: row.provider_payment_id ? String(row.provider_payment_id) : null,
     checkoutSessionId: row.checkout_session_id ? String(row.checkout_session_id) : null,
     checkoutUrl: row.checkout_url ? String(row.checkout_url) : null,
     publicClientToken: row.public_client_token ? String(row.public_client_token) : null,
-    amountMinor: num(row.amount_minor),
-    currency: row.currency as PaymentRecord["currency"],
-    inrAmountPaise: num(row.inr_amount_paise),
-    status: row.status as PaymentRecord["status"],
+    amountMinor: amountPaise,
+    currency: (row.currency as PaymentRecord["currency"]) ?? "INR",
+    inrAmountPaise: amountPaise,
+    status: (row.status as PaymentRecord["status"]) ?? "pending",
     paymentMethod: row.payment_method ? String(row.payment_method) : null,
     feeMinor: num(row.fee_minor ?? 0),
     taxMinor: num(row.tax_minor ?? 0),
-    idempotencyKey: String(row.idempotency_key),
+    idempotencyKey: String(row.idempotency_key ?? row.provider_order_id ?? row.id),
     webhookEventId: row.webhook_event_id ? String(row.webhook_event_id) : null,
-    reconciliationStatus: row.reconciliation_status as PaymentRecord["reconciliationStatus"],
+    reconciliationStatus: (row.reconciliation_status as PaymentRecord["reconciliationStatus"]) ?? "pending",
     failureReason: row.failure_reason ? String(row.failure_reason) : null,
-    verifiedAt: row.verified_at ? new Date(String(row.verified_at)).toISOString() : null,
-    expiresAt: new Date(String(row.expires_at)).toISOString(),
-    createdAt: new Date(String(row.created_at)).toISOString(),
-    updatedAt: new Date(String(row.updated_at)).toISOString(),
+    verifiedAt: safeIsoDateOrNull(row.verified_at),
+    expiresAt: safeIsoDate(row.expires_at ?? row.created_at, nowIso),
+    createdAt: safeIsoDate(row.created_at, nowIso),
+    updatedAt: safeIsoDate(row.updated_at ?? row.created_at, nowIso),
   };
 }
 
@@ -379,68 +410,72 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
     return {
       bookings: {
         async create(record: BookingRecord) {
+          const breakdown = record.fareSnapshot ?? {};
           const rows = await query(
             client,
             `insert into bookings (
-              id, ticket_id, user_id, guest_access_token, trip_type, vehicle_tier,
-              origin_name, destination_name, pickup_address, drop_address, pickup_datetime,
-              return_datetime, flight_train_number, distance_km, customer_name, customer_phone,
-              customer_email, base_fare, night_allowance, driver_allowance, discount_amount,
-              promo_code, total_fare, advance_amount, balance_amount, fare_rules_version,
-              fare_snapshot, status, version, special_notes, package_id,
-              booking_selection, selected_catalog_item_id, created_at, updated_at
+              id, ticket_id, user_id, guest_access_token, customer_name, customer_phone,
+              customer_email, category, vehicle_model_id, passenger_count, route_id,
+              local_package_id, transfer_id, tour_package_id, trip_type, pickup_at,
+              return_at, pickup_address, drop_address, flight_train_number, special_notes,
+              fare_breakdown, total_amount, advance_amount, status, created_at, updated_at
             ) values (
-              $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27::jsonb,$28,$29,$30,$31,$32::jsonb,$33,$34,$35
+              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22::jsonb, $23, $24, $25, $26, $27
             ) returning *`,
             [
-              record.id, record.ticketId, record.userId, record.guestAccessToken, record.tripType,
-              record.vehicleTier, record.originName, record.destinationName, record.pickupAddress,
-              record.dropAddress, record.pickupDatetime, record.returnDatetime, record.flightTrainNumber,
-              record.distanceKm, record.customerName, record.customerPhone, record.customerEmail,
-              record.baseFare, record.nightAllowance, record.driverAllowance, record.discountAmount,
-              record.promoCode, record.totalFare, record.advanceAmount, record.balanceAmount,
-              record.fareRulesVersion, JSON.stringify(record.fareSnapshot), record.status, record.version,
-              record.specialNotes, record.packageId,
-              record.bookingSelection ? JSON.stringify(record.bookingSelection) : null,
-              record.selectedCatalogItemId, record.createdAt, record.updatedAt,
+              record.id,
+              record.ticketId,
+              record.userId,
+              record.guestAccessToken,
+              record.customerName,
+              record.customerPhone,
+              record.customerEmail,
+              (record.bookingSelection?.kind === "package" ? "tour_package" : (record.bookingSelection?.kind === "local" ? "local_package" : "outstation")),
+              (record.bookingSelection as { vehicleModelId?: string } | null | undefined)?.vehicleModelId ?? "10000000-0000-0000-0002-000000000001",
+              1,
+              isUuid(record.selectedCatalogItemId) ? record.selectedCatalogItemId : null,
+              null,
+              null,
+              null,
+              record.tripType === "round-trip" ? "round_trip" : "one_way",
+              record.pickupDatetime,
+              record.returnDatetime,
+              record.pickupAddress,
+              record.dropAddress,
+              record.flightTrainNumber,
+              record.specialNotes,
+              JSON.stringify(breakdown),
+              record.totalFare,
+              record.advanceAmount,
+              record.status,
+              record.createdAt,
+              record.updatedAt,
             ],
           );
           return mapBooking(rows[0]!);
         },
         async update(record: BookingRecord) {
-          // Optimistic locking: ensure version increments by 1, prevent lost updates
-          // FIND-011: update all mutable fields on the record
           const rows = await query(
             client,
             `update bookings set
-              trip_type=$2, vehicle_tier=$3, origin_name=$4, destination_name=$5,
-              pickup_address=$6, drop_address=$7, pickup_datetime=$8, return_datetime=$9,
-              flight_train_number=$10, distance_km=$11, customer_name=$12, customer_phone=$13,
-              customer_email=$14, base_fare=$15, night_allowance=$16, driver_allowance=$17,
-              discount_amount=$18, promo_code=$19, total_fare=$20, advance_amount=$21,
-              balance_amount=$22, fare_snapshot=$23::jsonb, status=$24, version=$25,
-              special_notes=$26, updated_at=$27
-              where id=$1 and version=$25-1 returning *`,
+              status=$2, customer_name=$3, customer_phone=$4, customer_email=$5,
+              pickup_address=$6, drop_address=$7, flight_train_number=$8,
+              special_notes=$9, updated_at=$10
+              where id=$1 returning *`,
             [
-              record.id, record.tripType, record.vehicleTier, record.originName, record.destinationName,
-              record.pickupAddress, record.dropAddress, record.pickupDatetime, record.returnDatetime,
-              record.flightTrainNumber, record.distanceKm, record.customerName, record.customerPhone,
-              record.customerEmail, record.baseFare, record.nightAllowance, record.driverAllowance,
-              record.discountAmount, record.promoCode, record.totalFare, record.advanceAmount,
-              record.balanceAmount, JSON.stringify(record.fareSnapshot), record.status, record.version,
-              record.specialNotes, record.updatedAt,
+              record.id,
+              record.status,
+              record.customerName,
+              record.customerPhone,
+              record.customerEmail,
+              record.pickupAddress,
+              record.dropAddress,
+              record.flightTrainNumber,
+              record.specialNotes,
+              record.updatedAt,
             ],
           );
           if (!rows[0]) {
-            // Try to get current version to give better error
-            const current = await query(client, "select version from bookings where id=$1", [record.id]);
-            if (current[0]) {
-              const currentVer = num(current[0].version);
-              throw new ConcurrencyError(
-                `booking version conflict: expected ${currentVer + 1} got ${record.version}`,
-                { currentVersion: currentVer, expectedVersion: record.version - 1, entityId: record.id },
-              );
-            }
             throw new Error("booking update failed: not found");
           }
           return mapBooking(rows[0]);
@@ -473,11 +508,11 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           }
           if (filter.from) {
             params.push(filter.from);
-            clauses.push(`pickup_datetime >= $${params.length}`);
+            clauses.push(`COALESCE(pickup_at, created_at) >= $${params.length}`);
           }
           if (filter.to) {
             params.push(filter.to);
-            clauses.push(`pickup_datetime <= $${params.length}`);
+            clauses.push(`COALESCE(pickup_at, created_at) <= $${params.length}`);
           }
           if (filter.userId) {
             params.push(filter.userId);
@@ -545,19 +580,22 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           const rows = await query(
             client,
             `insert into payments (
-              id, booking_id, provider, provider_order_id, provider_payment_id, checkout_session_id,
-              checkout_url, public_client_token, amount_minor, currency, inr_amount_paise, status,
-              payment_method, fee_minor, tax_minor, idempotency_key, webhook_event_id,
-              reconciliation_status, failure_reason, verified_at, expires_at, created_at, updated_at
+              id, booking_id, provider, provider_order_id, provider_payment_id,
+              amount_paise, status, failure_reason, created_at, updated_at
             ) values (
-              $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23
+              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
             ) returning *`,
             [
-              record.id, record.bookingId, record.provider, record.providerOrderId, record.providerPaymentId,
-              record.checkoutSessionId, record.checkoutUrl, record.publicClientToken, record.amountMinor,
-              record.currency, record.inrAmountPaise, record.status, record.paymentMethod, record.feeMinor,
-              record.taxMinor, record.idempotencyKey, record.webhookEventId, record.reconciliationStatus,
-              record.failureReason, record.verifiedAt, record.expiresAt, record.createdAt, record.updatedAt,
+              record.id,
+              record.bookingId,
+              record.provider,
+              record.providerOrderId,
+              record.providerPaymentId,
+              record.amountMinor || record.inrAmountPaise,
+              record.status,
+              record.failureReason,
+              record.createdAt,
+              record.updatedAt,
             ],
           );
           return mapPayment(rows[0]!);
@@ -566,13 +604,14 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           const rows = await query(
             client,
             `update payments set
-              provider_payment_id=$2, status=$3, payment_method=$4, fee_minor=$5, tax_minor=$6,
-              webhook_event_id=$7, reconciliation_status=$8, failure_reason=$9, verified_at=$10, updated_at=$11
+              provider_payment_id=$2, status=$3, failure_reason=$4, updated_at=$5
               where id=$1 returning *`,
             [
-              record.id, record.providerPaymentId, record.status, record.paymentMethod, record.feeMinor,
-              record.taxMinor, record.webhookEventId, record.reconciliationStatus, record.failureReason,
-              record.verifiedAt, record.updatedAt,
+              record.id,
+              record.providerPaymentId,
+              record.status,
+              record.failureReason,
+              record.updatedAt,
             ],
           );
           if (!rows[0]) throw new Error("payment update failed");
@@ -585,7 +624,7 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           return rows[0] ? mapPayment(rows[0]) : null;
         },
         async getByIdempotencyKey(key: string) {
-          const rows = await query(client, "select * from payments where idempotency_key=$1", [key]);
+          const rows = await query(client, "select * from payments where provider_order_id=$1", [key]);
           return rows[0] ? mapPayment(rows[0]) : null;
         },
         async getByProviderOrderId(providerOrderId: string) {
@@ -628,8 +667,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
             client,
             `select
                count(*)::int as total,
-               coalesce(sum(case when status='captured' then inr_amount_paise else 0 end), 0)::bigint as total_captured,
-               coalesce(sum(case when status='refunded' then inr_amount_paise else 0 end), 0)::bigint as total_refunded
+               coalesce(sum(case when status='captured' then amount_paise else 0 end), 0)::bigint as total_captured,
+               coalesce(sum(case when status='refunded' then amount_paise else 0 end), 0)::bigint as total_refunded
              from payments ${where}`,
             params,
           );

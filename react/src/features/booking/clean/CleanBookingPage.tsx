@@ -76,19 +76,39 @@ export function CleanBookingPage() {
     return new URLSearchParams();
   }, []);
 
-  const urlCategory = (searchParams.get("category") as CategoryCode) || "outstation";
-  const urlProduct = searchParams.get("product") || "";
-  const urlTrip = (searchParams.get("trip") as "one_way" | "round_trip") || "one_way";
-  const urlPassengers = Number(searchParams.get("passengers")) || 2;
+  const rawTrip = (searchParams.get("trip") || searchParams.get("tripType") || "").toLowerCase();
+  const rawCat = (searchParams.get("category") || "").toLowerCase();
+
+  let initialCategory: CategoryCode = "outstation";
+  if (rawCat === "local_package" || rawCat === "local" || rawTrip === "local") {
+    initialCategory = "local_package";
+  } else if (rawCat === "transfer" || rawTrip === "transfer" || rawTrip === "airport-transfer") {
+    initialCategory = "transfer";
+  } else if (rawCat === "tour_package" || rawCat === "package" || rawTrip === "package") {
+    initialCategory = "tour_package";
+  } else if (rawCat === "outstation" || rawTrip === "outstation") {
+    initialCategory = "outstation";
+  }
+
+  let initialTripType: "one_way" | "round_trip" = "one_way";
+  if (rawTrip.includes("round") || searchParams.get("tripType") === "round-trip" || searchParams.get("trip") === "round_trip") {
+    initialTripType = "round_trip";
+  }
+
+  const initialPassengers = Number(searchParams.get("passengers") || searchParams.get("pax") || searchParams.get("passengerCount")) || 2;
+  const initialProductParam = (searchParams.get("product") || searchParams.get("package") || searchParams.get("pkg") || searchParams.get("route") || "").trim().toLowerCase();
+  const initialFrom = (searchParams.get("from") || "").trim().toLowerCase();
+  const initialTo = (searchParams.get("to") || "").trim().toLowerCase();
+  const initialVehicle = (searchParams.get("vehicle") || searchParams.get("car") || "").trim().toLowerCase();
 
   // 2. Selection Parameters
   const [catalog, setCatalog] = useState<PublishedCatalogResponse | null>(null);
   const [catalogLoading, setCatalogLoading] = useState(true);
 
-  const [category, setCategory] = useState<CategoryCode>(urlCategory);
-  const [selectedProductCode, setSelectedProductCode] = useState<string>(urlProduct);
-  const [tripType, setTripType] = useState<"one_way" | "round_trip">(urlTrip);
-  const [passengerCount, setPassengerCount] = useState<number>(urlPassengers);
+  const [category, setCategory] = useState<CategoryCode>(initialCategory);
+  const [selectedProductCode, setSelectedProductCode] = useState<string>(initialProductParam);
+  const [tripType, setTripType] = useState<"one_way" | "round_trip">(initialTripType);
+  const [passengerCount, setPassengerCount] = useState<number>(initialPassengers);
 
   // Date and Time (IST)
   const [pickupDate, setPickupDate] = useState<string>(getDefaultPickupDate());
@@ -141,10 +161,34 @@ export function CleanBookingPage() {
       .then((data) => {
         if (!active) return;
         setCatalog(data);
-        // Pre-select first product in category if not provided
-        const availableInCat = data.products.filter((p) => p.category === category);
-        if (availableInCat.length > 0) {
-          if (!urlProduct || !availableInCat.some((p) => p.code === urlProduct)) {
+
+        // Smart match product from URL params
+        let matchedProduct: PublishedProductSummary | undefined;
+
+        if (initialProductParam) {
+          matchedProduct = data.products.find(
+            (p) => p.code.toLowerCase() === initialProductParam || p.id.toLowerCase() === initialProductParam
+          );
+        }
+
+        if (!matchedProduct && initialFrom && initialTo) {
+          matchedProduct = data.products.find((p) => {
+            const pCode = p.code.toLowerCase();
+            const pName = p.name.toLowerCase();
+            return (
+              (pCode.includes(initialFrom) && pCode.includes(initialTo)) ||
+              (pName.includes(initialFrom) && pName.includes(initialTo))
+            );
+          });
+        }
+
+        if (matchedProduct) {
+          setCategory(matchedProduct.category);
+          setSelectedProductCode(matchedProduct.code);
+        } else {
+          // Pre-select first product in category if not provided
+          const availableInCat = data.products.filter((p) => p.category === initialCategory);
+          if (availableInCat.length > 0) {
             setSelectedProductCode(availableInCat[0].code);
           }
         }
@@ -236,6 +280,13 @@ export function CleanBookingPage() {
             if (prev) {
               const matched = allVehicles.find((v) => v.vehicle_model_id === prev.vehicle.vehicle_model_id);
               if (matched) return { vehicle: matched, quote: matched.quote };
+            }
+            if (initialVehicle) {
+              const vehicleMatch = allVehicles.find((v) =>
+                v.quote.vehicle.group_code.toLowerCase() === initialVehicle ||
+                v.display_name.toLowerCase().includes(initialVehicle)
+              );
+              if (vehicleMatch) return { vehicle: vehicleMatch, quote: vehicleMatch.quote };
             }
             return { vehicle: allVehicles[0], quote: allVehicles[0].quote };
           });

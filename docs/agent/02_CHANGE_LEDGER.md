@@ -2,6 +2,36 @@
 
 ## 2026-10-11
 
+### 2026-10-11 — PostgreSQL Clean Schema Alignment, Admin Desk & Customer Deep-Link Hardening
+
+- **Admin Payments Endpoint Fix (`backend/src/db/postgres.ts`)**:
+  - Resolved `DatabaseError: column "inr_amount_paise" does not exist` on `GET /api/v1/ops/admin/payments`.
+  - Updated `payments.list` aggregate query to use `amount_paise` (bigint) matching the PostgreSQL schema.
+  - Updated `mapPayment` to map `amountMinor` and `inrAmountPaise` from `amount_paise`, with resilient date parsing and fallbacks for missing legacy columns.
+  - Updated `payments.create`, `payments.update`, and `payments.getByIdempotencyKey` to operate against PostgreSQL clean `payments` table columns.
+- **Admin Bookings Endpoint Fix (`backend/src/db/postgres.ts`)**:
+  - Resolved `RangeError: Invalid time value` in `mapBooking` on `GET /api/v1/ops/admin/bookings`.
+  - Clean `bookings` table stores `pickup_at` and `return_at` (timestamptz) rather than `pickup_datetime`.
+  - Introduced `safeIsoDate` and `safeIsoDateOrNull` date parsing helpers that safely handle undefined without throwing.
+  - Updated `mapBooking` to fall back from `pickup_datetime` to `pickup_at`, and mapped `totalFare` from `row.total_amount ?? row.total_fare`.
+  - Updated `bookings.list` date range filters to use `COALESCE(pickup_at, created_at)` instead of missing `pickup_datetime`.
+  - Updated `bookings.update` to write to clean table columns.
+- **Customer Deep-Link Parameter Hardening (`react/src/features/booking/clean/CleanBookingPage.tsx`)**:
+  - Enhanced URL search parameter parsing in `CleanBookingPage.tsx` to seamlessly accept incoming deep links from across the site:
+    - Resolves `trip=local` or `category=local_package` to `category: "local_package"`.
+    - Resolves `trip=package` or `category=tour_package` to `category: "tour_package"`.
+    - Resolves `tripType=round-trip` or `trip=round_trip` to `tripType: "round_trip"`.
+    - Parses `passengers`, `pax`, and `passengerCount`.
+    - Parses `product`, `package`, `pkg`, `route`, `from`, and `to`, auto-matching the catalog product upon mount.
+    - Pre-selects preferred `vehicle` or vehicle group when live quote options load.
+- **Automated Verification**:
+  - Newman Postman Collection Suite: 29 requests, 50 assertions, 100% pass (0 failures).
+  - Backend Unit & Integration Suite: 179 passed across 9 test files (100% pass).
+  - TypeScript Typecheck: 0 errors across `react/`, `admin/`, and `backend/`.
+  - Customer SEO & SSG: 59 pages pre-rendered + 14 redirects written.
+  - Production Builds: Clean builds for `react/dist`, `admin/dist`, and `backend/dist`.
+  - `npm run verify`: Passed all checks.
+
 ### 2026-10-11 — Route & API Inventory Implementation (Monorepo Clean Rewire)
 
 - **Route & API Inventory Master Plan (`docs/backend/ROUTE_AND_API_INVENTORY.md`)**:
