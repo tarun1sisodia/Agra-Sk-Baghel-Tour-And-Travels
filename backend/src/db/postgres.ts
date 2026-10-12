@@ -45,10 +45,17 @@ function isUuid(val: unknown): boolean {
   return typeof val === "string" && UUID_REGEX.test(val.trim());
 }
 
-export function safeIsoDate(val: unknown, fallback: string = new Date().toISOString()): string {
-  if (val === null || val === undefined || val === "") return fallback;
+export function safeIsoDate(val: unknown, fallback?: string): string {
+  if (val === null || val === undefined || val === "") {
+    if (fallback !== undefined) return fallback;
+    throw new AppError("DATA_CORRUPTION", "Missing required timestamp", 500);
+  }
   const d = new Date(val as string | number | Date);
-  return isNaN(d.getTime()) ? fallback : d.toISOString();
+  if (isNaN(d.getTime())) {
+    if (fallback !== undefined) return fallback;
+    throw new AppError("DATA_CORRUPTION", `Invalid timestamp value: ${String(val)}`, 500);
+  }
+  return d.toISOString();
 }
 
 export function safeIsoDateOrNull(val: unknown): string | null {
@@ -67,9 +74,9 @@ export function mapLocalPackage(row: Record<string, unknown>): LocalSightseeingP
     covers: String(row.covers ?? ""),
     parkingNote: row.parking_note ? String(row.parking_note) : (row.inclusions_note ? String(row.inclusions_note) : null),
     fleetPrices: (row.fleet_prices as Record<string, number>) ?? {},
-    usePerKm: Boolean(row.use_per_km ?? false),
+    usePerKm: row.use_per_km === null || row.use_per_km === undefined ? null : Boolean(row.use_per_km),
     extraRates: (row.extra_rates as LocalSightseeingPackageRecord["extraRates"]) ?? null,
-    nightChargeInr: num(row.night_charge_inr ?? 0),
+    nightChargeInr: row.night_charge_inr !== null && row.night_charge_inr !== undefined ? num(row.night_charge_inr) : null,
     status: (row.status as ContentStatus) ?? "draft",
     isActive: row.is_active !== undefined ? Boolean(row.is_active) : row.status === "published",
     createdAt: safeIsoDate(row.created_at),
@@ -85,8 +92,8 @@ export function mapTransferRoute(row: Record<string, unknown>): TransferRouteRec
     distanceText: row.distance_text ? String(row.distance_text) : null,
     directionNote: row.direction_note ? String(row.direction_note) : (row.pickup_name && row.drop_name ? `${row.pickup_name} to ${row.drop_name}` : null),
     fleetPrices: (row.fleet_prices as Record<string, number>) ?? {},
-    usePerKm: Boolean(row.use_per_km ?? false),
-    nightChargeInr: num(row.night_charge_inr ?? 0),
+    usePerKm: row.use_per_km === null || row.use_per_km === undefined ? null : Boolean(row.use_per_km),
+    nightChargeInr: row.night_charge_inr !== null && row.night_charge_inr !== undefined ? num(row.night_charge_inr) : null,
     status: (row.status as ContentStatus) ?? "draft",
     isActive: row.is_active !== undefined ? Boolean(row.is_active) : row.status === "published",
     createdAt: safeIsoDate(row.created_at),
@@ -102,14 +109,14 @@ export function mapTourPackage(row: Record<string, unknown>): TourPackageRecord 
     durationText: String(row.duration_text ?? `${row.days ?? 1} Days`),
     days: num(row.days ?? 1),
     nights: num(row.nights ?? 0),
-    baseTierCode: String(row.base_tier_code ?? "sedan"),
-    startingPriceInr: num(row.starting_price_inr ?? 0),
+    baseTierCode: row.base_tier_code ? String(row.base_tier_code) : null,
+    startingPriceInr: row.starting_price_inr !== null && row.starting_price_inr !== undefined ? num(row.starting_price_inr) : null,
     fleetPrices: (row.fleet_prices as Record<string, number>) ?? {},
-    nightChargeInr: num(row.night_charge_inr ?? 0),
+    nightChargeInr: row.night_charge_inr !== null && row.night_charge_inr !== undefined ? num(row.night_charge_inr) : null,
     inclusionsHighlight: row.inclusions_highlight ? String(row.inclusions_highlight) : null,
     inclusionsNote: row.inclusions_note ? String(row.inclusions_note) : null,
-    source: String(row.source ?? "Agra"),
-    destination: String(row.destination ?? ""),
+    source: row.source !== undefined && row.source !== null ? String(row.source) : null,
+    destination: row.destination !== undefined && row.destination !== null ? String(row.destination) : null,
     inclusions: Array.isArray(row.inclusions) ? (row.inclusions as string[]) : [],
     exclusions: Array.isArray(row.exclusions) ? (row.exclusions as string[]) : [],
     itinerary: Array.isArray(row.itinerary) ? (row.itinerary as any[]) : [],
@@ -122,17 +129,7 @@ export function mapTourPackage(row: Record<string, unknown>): TourPackageRecord 
   };
 }
 
-function mapPackageUpgrade(row: Record<string, unknown>): PackageVehicleUpgradeRecord {
-  return {
-    id: String(row.id),
-    packageId: row.package_id ? String(row.package_id) : null,
-    tierCode: String(row.tier_code),
-    passengerNote: row.passenger_note ? String(row.passenger_note) : null,
-    surchargeInr: num(row.surcharge_inr),
-    createdAt: safeIsoDate(row.created_at),
-    updatedAt: safeIsoDate(row.updated_at, safeIsoDate(row.created_at)),
-  };
-}
+
 
 function mapCancellationPolicy(row: Record<string, unknown>): CancellationPolicyRecord {
   return {
@@ -211,22 +208,22 @@ function mapRouteCatalog(row: Record<string, unknown>): RouteCatalogRecord {
   return {
     id: String(row.id),
     tripType: (row.trip_type as RouteCatalogRecord["tripType"]) ?? "one-way",
-    sourceCity: String(row.source_city ?? row.origin_name ?? "Agra"),
+    sourceCity: String(row.source_city ?? row.origin_name ?? ""),
     sourceDetail: row.source_detail ? String(row.source_detail) : null,
     destinationCity: row.destination_city ? String(row.destination_city) : (row.destination_name ? String(row.destination_name) : null),
     slug: String(row.slug ?? row.code ?? ""),
     distanceKm: row.distance_km === null || row.distance_km === undefined ? null : num(row.distance_km),
     durationText: row.duration_text ? String(row.duration_text) : (row.duration_minutes ? `${row.duration_minutes} mins` : null),
-    availableFleets: (row.available_fleets as string[]) ?? ["sedan", "ertiga", "innova-crysta", "tempo-traveller"],
+    availableFleets: (row.available_fleets as string[]) ?? [],
     faresInr: (row.fares_inr as Record<string, number>) ?? {},
-    driverChargeInr: num(row.driver_charge_inr ?? 0),
-    nightHaltInr: num(row.night_halt_inr ?? 0),
-    tollIncluded: Boolean(row.toll_included ?? false),
+    driverChargeInr: row.driver_charge_inr !== null && row.driver_charge_inr !== undefined ? num(row.driver_charge_inr) : null,
+    nightHaltInr: row.night_halt_inr !== null && row.night_halt_inr !== undefined ? num(row.night_halt_inr) : null,
+    tollIncluded: row.toll_included === null || row.toll_included === undefined ? null : Boolean(row.toll_included),
     tollAmountInr: row.toll_amount_inr === null || row.toll_amount_inr === undefined ? null : num(row.toll_amount_inr),
     interstateCharges: (row.interstate_charges as RouteCatalogRecord["interstateCharges"]) ?? [],
-    minKmPerDay: num(row.min_km_per_day ?? 250),
+    minKmPerDay: row.min_km_per_day !== null && row.min_km_per_day !== undefined ? num(row.min_km_per_day) : null,
     stops: (row.stops as RouteCatalogRecord["stops"]) ?? [],
-    usePerKm: row.use_per_km === undefined ? true : Boolean(row.use_per_km),
+    usePerKm: row.use_per_km === null || row.use_per_km === undefined ? null : Boolean(row.use_per_km),
     perKmRateOverride: row.per_km_rate_override === null || row.per_km_rate_override === undefined ? null : num(row.per_km_rate_override),
     highway: row.highway ? String(row.highway) : null,
     allInclusiveNote: row.all_inclusive_note ? String(row.all_inclusive_note) : (row.description ? String(row.description) : null),
@@ -464,60 +461,33 @@ SELECT
   case when r.duration_minutes is not null then concat(r.duration_minutes, ' mins') else null end as duration_text,
   coalesce(
     (
-      select jsonb_agg(distinct k)
-      from (
-        select coalesce(replace(vg.code, '_', '-'), lower(replace(vm.model_name, ' ', '-'))) as k
-        from outstation_route_vehicles orv
-        join vehicle_models vm on orv.vehicle_model_id = vm.id
-        left join vehicle_groups vg on vm.vehicle_group_id = vg.id
-        where orv.route_id = r.id and orv.is_active = true
-      ) sub
+      select jsonb_agg(distinct coalesce(lower(replace(vm.model_name, ' ', '-')), replace(vg.code, '_', '-')))
+      from outstation_route_vehicles orv
+      join vehicle_models vm on orv.vehicle_model_id = vm.id
+      left join vehicle_groups vg on vm.vehicle_group_id = vg.id
+      where orv.route_id = r.id and orv.is_active = true and orv.one_way_amount is not null
     ),
-    '["sedan", "ertiga", "innova-crysta", "tempo-traveller"]'::jsonb
+    '[]'::jsonb
   ) as available_fleets,
   coalesce(
     (
       select jsonb_object_agg(sub.k, sub.v)
       from (
-        select distinct on (k) k, v from (
-          select lower(replace(vm.model_name, ' ', '-')) as k, orv.one_way_amount as v
-          from outstation_route_vehicles orv
-          join vehicle_models vm on orv.vehicle_model_id = vm.id
-          where orv.route_id = r.id and orv.is_active = true and orv.one_way_amount is not null
-          union all
-          select replace(vg.code, '_', '-') as k, min(orv.one_way_amount) as v
-          from outstation_route_vehicles orv
-          join vehicle_models vm on orv.vehicle_model_id = vm.id
-          join vehicle_groups vg on vm.vehicle_group_id = vg.id
-          where orv.route_id = r.id and orv.is_active = true and orv.one_way_amount is not null
-          group by vg.code
-          union all
-          select 'innova-crysta' as k, min(orv.one_way_amount) as v
-          from outstation_route_vehicles orv
-          join vehicle_models vm on orv.vehicle_model_id = vm.id
-          where orv.route_id = r.id and orv.is_active = true and lower(vm.model_name) ilike '%crysta%' and orv.one_way_amount is not null
-          union all
-          select 'tempo-traveller' as k, min(orv.one_way_amount) as v
-          from outstation_route_vehicles orv
-          join vehicle_models vm on orv.vehicle_model_id = vm.id
-          left join vehicle_groups vg on vm.vehicle_group_id = vg.id
-          where orv.route_id = r.id and orv.is_active = true and (vg.code = 'tempo_traveller' or lower(vm.model_name) ilike '%traveller%') and orv.one_way_amount is not null
-          union all
-          select 'urbania' as k, min(orv.one_way_amount) as v
-          from outstation_route_vehicles orv
-          join vehicle_models vm on orv.vehicle_model_id = vm.id
-          where orv.route_id = r.id and orv.is_active = true and lower(vm.model_name) ilike '%urbania%' and orv.one_way_amount is not null
-        ) entries where k is not null
+        select lower(replace(vm.model_name, ' ', '-')) as k, orv.one_way_amount as v
+        from outstation_route_vehicles orv
+        join vehicle_models vm on orv.vehicle_model_id = vm.id
+        where orv.route_id = r.id and orv.is_active = true and orv.one_way_amount is not null
+        order by vm.sort_order asc
       ) sub
     ),
     '{}'::jsonb
   ) as fares_inr,
-  500 as driver_charge_inr,
-  0 as night_halt_inr,
-  true as toll_included,
+  null as driver_charge_inr,
+  null as night_halt_inr,
+  null as toll_included,
   null as toll_amount_inr,
   '[]'::jsonb as interstate_charges,
-  300 as min_km_per_day,
+  null as min_km_per_day,
   '[]'::jsonb as stops,
   false as use_per_km,
   null as per_km_rate_override,
@@ -534,41 +504,17 @@ SELECT
   concat(t.pickup_name, ' to ', t.drop_name) as direction_note,
   null as distance_text,
   false as use_per_km,
-  0 as night_charge_inr,
+  null as night_charge_inr,
   (t.status = 'published') as is_active,
   coalesce(
     (
       select jsonb_object_agg(sub.k, sub.v)
       from (
-        select distinct on (k) k, v from (
-          select lower(replace(vm.model_name, ' ', '-')) as k, fr.amount as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          where fr.transfer_id = t.id and fr.category = 'transfer' and fr.is_active = true
-          union all
-          select replace(vg.code, '_', '-') as k, min(fr.amount) as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          join vehicle_groups vg on vm.vehicle_group_id = vg.id
-          where fr.transfer_id = t.id and fr.category = 'transfer' and fr.is_active = true
-          group by vg.code
-          union all
-          select 'innova-crysta' as k, min(fr.amount) as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          where fr.transfer_id = t.id and fr.category = 'transfer' and fr.is_active = true and lower(vm.model_name) ilike '%crysta%'
-          union all
-          select 'tempo-traveller' as k, min(fr.amount) as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          left join vehicle_groups vg on vm.vehicle_group_id = vg.id
-          where fr.transfer_id = t.id and fr.category = 'transfer' and fr.is_active = true and (vg.code = 'tempo_traveller' or lower(vm.model_name) ilike '%traveller%')
-          union all
-          select 'urbania' as k, min(fr.amount) as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          where fr.transfer_id = t.id and fr.category = 'transfer' and fr.is_active = true and lower(vm.model_name) ilike '%urbania%'
-        ) entries where k is not null
+        select lower(replace(vm.model_name, ' ', '-')) as k, fr.amount as v
+        from fare_rules fr
+        join vehicle_models vm on fr.vehicle_model_id = vm.id
+        where fr.transfer_id = t.id and fr.category = 'transfer' and fr.is_active = true
+        order by vm.sort_order asc
       ) sub
     ),
     '{}'::jsonb
@@ -583,41 +529,17 @@ SELECT
   lp.inclusions_note as parking_note,
   false as use_per_km,
   null as extra_rates,
-  0 as night_charge_inr,
+  null as night_charge_inr,
   (lp.status = 'published') as is_active,
   coalesce(
     (
       select jsonb_object_agg(sub.k, sub.v)
       from (
-        select distinct on (k) k, v from (
-          select lower(replace(vm.model_name, ' ', '-')) as k, fr.amount as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          where fr.local_package_id = lp.id and fr.category = 'local_package' and fr.is_active = true
-          union all
-          select replace(vg.code, '_', '-') as k, min(fr.amount) as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          join vehicle_groups vg on vm.vehicle_group_id = vg.id
-          where fr.local_package_id = lp.id and fr.category = 'local_package' and fr.is_active = true
-          group by vg.code
-          union all
-          select 'innova-crysta' as k, min(fr.amount) as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          where fr.local_package_id = lp.id and fr.category = 'local_package' and fr.is_active = true and lower(vm.model_name) ilike '%crysta%'
-          union all
-          select 'tempo-traveller' as k, min(fr.amount) as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          left join vehicle_groups vg on vm.vehicle_group_id = vg.id
-          where fr.local_package_id = lp.id and fr.category = 'local_package' and fr.is_active = true and (vg.code = 'tempo_traveller' or lower(vm.model_name) ilike '%traveller%')
-          union all
-          select 'urbania' as k, min(fr.amount) as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          where fr.local_package_id = lp.id and fr.category = 'local_package' and fr.is_active = true and lower(vm.model_name) ilike '%urbania%'
-        ) entries where k is not null
+        select lower(replace(vm.model_name, ' ', '-')) as k, fr.amount as v
+        from fare_rules fr
+        join vehicle_models vm on fr.vehicle_model_id = vm.id
+        where fr.local_package_id = lp.id and fr.category = 'local_package' and fr.is_active = true
+        order by vm.sort_order asc
       ) sub
     ),
     '{}'::jsonb
@@ -629,50 +551,23 @@ const TOUR_PACKAGES_BASE_SELECT = `
 SELECT
   tp.*,
   tp.code as package_code,
-  'sedan' as base_tier_code,
-  coalesce(
-    (
-      select min(fr.amount)
-      from fare_rules fr
-      where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true
-    ),
-    0
+  null as base_tier_code,
+  (
+    select min(fr.amount)
+    from fare_rules fr
+    where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true
   ) as starting_price_inr,
-  0 as night_charge_inr,
+  null as night_charge_inr,
   (tp.status = 'published') as is_active,
   coalesce(
     (
       select jsonb_object_agg(sub.k, sub.v)
       from (
-        select distinct on (k) k, v from (
-          select lower(replace(vm.model_name, ' ', '-')) as k, fr.amount as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true
-          union all
-          select replace(vg.code, '_', '-') as k, min(fr.amount) as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          join vehicle_groups vg on vm.vehicle_group_id = vg.id
-          where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true
-          group by vg.code
-          union all
-          select 'innova-crysta' as k, min(fr.amount) as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true and lower(vm.model_name) ilike '%crysta%'
-          union all
-          select 'tempo-traveller' as k, min(fr.amount) as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          left join vehicle_groups vg on vm.vehicle_group_id = vg.id
-          where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true and (vg.code = 'tempo_traveller' or lower(vm.model_name) ilike '%traveller%')
-          union all
-          select 'urbania' as k, min(fr.amount) as v
-          from fare_rules fr
-          join vehicle_models vm on fr.vehicle_model_id = vm.id
-          where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true and lower(vm.model_name) ilike '%urbania%'
-        ) entries where k is not null
+        select lower(replace(vm.model_name, ' ', '-')) as k, fr.amount as v
+        from fare_rules fr
+        join vehicle_models vm on fr.vehicle_model_id = vm.id
+        where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true
+        order by vm.sort_order asc
       ) sub
     ),
     '{}'::jsonb
@@ -694,6 +589,24 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
   ): Promise<T[]> {
     const result = await client.query(sql, params);
     return result.rows as T[];
+  }
+
+  async function resolveVehicleModelId(client: pg.Pool | PoolClient, key: string): Promise<string | null> {
+    const normalized = key.trim().toLowerCase().replace(/[\s_]+/g, "-");
+    const rows = await query<{ id: string }>(
+      client,
+      `SELECT vm.id
+       FROM vehicle_models vm
+       LEFT JOIN vehicle_groups vg ON vm.vehicle_group_id = vg.id
+       WHERE vm.id::text = $1
+          OR lower(replace(vm.model_name, ' ', '-')) = $2
+          OR lower(replace(vm.display_name, ' ', '-')) = $2
+          OR lower(replace(vg.code, '_', '-')) = $2
+       ORDER BY vm.sort_order ASC
+       LIMIT 1`,
+      [isUuid(key) ? key : "00000000-0000-0000-0000-000000000000", normalized]
+    );
+    return rows[0]?.id ?? null;
   }
 
   const repos: Repositories = {
@@ -1110,7 +1023,7 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
       routeCatalog: {
         async create(record: RouteCatalogRecord) {
           const durationMins = record.durationText ? parseInt(record.durationText, 10) || null : null;
-          await query(
+          const rows = await query<{ id: string }>(
             client,
             `insert into outstation_routes (id, code, origin_name, destination_name, distance_km, duration_minutes, description, status, created_at, updated_at)
              values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -1121,7 +1034,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                duration_minutes = excluded.duration_minutes,
                description = excluded.description,
                status = excluded.status,
-               updated_at = excluded.updated_at`,
+               updated_at = excluded.updated_at
+             returning id`,
             [
               record.id,
               record.slug,
@@ -1135,34 +1049,97 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
               record.updatedAt,
             ],
           );
+          const routeId = rows[0]?.id ?? record.id;
+          if (record.faresInr && typeof record.faresInr === "object" && isUuid(routeId)) {
+            for (const [key, amount] of Object.entries(record.faresInr)) {
+              if (typeof amount === "number" && amount > 0) {
+                const modelId = await resolveVehicleModelId(client, key);
+                if (modelId) {
+                  await query(
+                    client,
+                    `insert into outstation_route_vehicles (route_id, vehicle_model_id, one_way_amount, round_trip_enabled, is_active)
+                     values ($1, $2, $3, true, true)
+                     on conflict (route_id, vehicle_model_id) do update set
+                       one_way_amount = excluded.one_way_amount,
+                       is_active = true`,
+                    [routeId, modelId, Math.round(amount)]
+                  );
+                }
+              }
+            }
+          }
           return record;
         },
         async update(record: RouteCatalogRecord) {
           const durationMins = record.durationText ? parseInt(record.durationText, 10) || null : null;
-          await query(
-            client,
-            `update outstation_routes set
-               code = $2,
-               origin_name = $3,
-               destination_name = $4,
-               distance_km = $5,
-               duration_minutes = $6,
-               description = $7,
-               status = $8,
-               updated_at = $9
-             where id = $1`,
-            [
-              record.id,
-              record.slug,
-              record.sourceCity,
-              record.destinationCity ?? record.sourceCity,
-              record.distanceKm,
-              durationMins,
-              record.allInclusiveNote,
-              record.status,
-              record.updatedAt,
-            ],
-          );
+          const rows = isUuid(record.id)
+            ? await query<{ id: string }>(
+                client,
+                `update outstation_routes set
+                   code = $2,
+                   origin_name = $3,
+                   destination_name = $4,
+                   distance_km = $5,
+                   duration_minutes = $6,
+                   description = $7,
+                   status = $8,
+                   updated_at = $9
+                 where id = $1::uuid
+                 returning id`,
+                [
+                  record.id,
+                  record.slug,
+                  record.sourceCity,
+                  record.destinationCity ?? record.sourceCity,
+                  record.distanceKm,
+                  durationMins,
+                  record.allInclusiveNote,
+                  record.status,
+                  record.updatedAt,
+                ],
+              )
+            : await query<{ id: string }>(
+                client,
+                `update outstation_routes set
+                   origin_name = $2,
+                   destination_name = $3,
+                   distance_km = $4,
+                   duration_minutes = $5,
+                   description = $6,
+                   status = $7,
+                   updated_at = $8
+                 where code = $1
+                 returning id`,
+                [
+                  record.slug,
+                  record.sourceCity,
+                  record.destinationCity ?? record.sourceCity,
+                  record.distanceKm,
+                  durationMins,
+                  record.allInclusiveNote,
+                  record.status,
+                  record.updatedAt,
+                ],
+              );
+          const routeId = rows[0]?.id ?? record.id;
+          if (record.faresInr && typeof record.faresInr === "object" && isUuid(routeId)) {
+            for (const [key, amount] of Object.entries(record.faresInr)) {
+              if (typeof amount === "number" && amount > 0) {
+                const modelId = await resolveVehicleModelId(client, key);
+                if (modelId) {
+                  await query(
+                    client,
+                    `insert into outstation_route_vehicles (route_id, vehicle_model_id, one_way_amount, round_trip_enabled, is_active)
+                     values ($1, $2, $3, true, true)
+                     on conflict (route_id, vehicle_model_id) do update set
+                       one_way_amount = excluded.one_way_amount,
+                       is_active = true`,
+                    [routeId, modelId, Math.round(amount)]
+                  );
+                }
+              }
+            }
+          }
           return record;
         },
         async getById(id: string) {
@@ -1201,7 +1178,7 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
       },
       tourPackages: {
         async create(record: TourPackageRecord) {
-          await query(
+          const rows = await query<{ id: string }>(
             client,
             `insert into tour_packages (id, code, name, duration_text, days, nights, source, destination, inclusions_highlight, inclusions_note, inclusions, exclusions, itinerary, image_url, gallery, status, created_at, updated_at)
              values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
@@ -1220,7 +1197,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                image_url = excluded.image_url,
                gallery = excluded.gallery,
                status = excluded.status,
-               updated_at = excluded.updated_at`,
+               updated_at = excluded.updated_at
+             returning id`,
             [
               record.id,
               record.packageCode,
@@ -1228,8 +1206,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
               record.durationText,
               record.days,
               record.nights,
-              record.source ?? "Agra",
-              record.destination ?? "",
+              record.source ?? null,
+              record.destination ?? null,
               record.inclusionsHighlight,
               record.inclusionsNote,
               JSON.stringify(record.inclusions ?? []),
@@ -1242,49 +1220,140 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
               record.updatedAt,
             ],
           );
+          const pkgId = rows[0]?.id ?? record.id;
+          if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(pkgId)) {
+            for (const [key, amount] of Object.entries(record.fleetPrices)) {
+              if (typeof amount === "number" && amount > 0) {
+                const modelId = await resolveVehicleModelId(client, key);
+                if (modelId) {
+                  const updated = await query(
+                    client,
+                    `update fare_rules set amount = $1, is_active = true
+                     where category = 'tour_package' and tour_package_id = $2 and vehicle_model_id = $3 and is_active = true
+                     returning id`,
+                    [Math.round(amount), pkgId, modelId],
+                  );
+                  if (updated.length === 0) {
+                    await query(
+                      client,
+                      `insert into fare_rules (category, vehicle_model_id, tour_package_id, amount, is_active)
+                       values ('tour_package', $1, $2, $3, true)`,
+                      [modelId, pkgId, Math.round(amount)],
+                    );
+                  }
+                }
+              }
+            }
+          }
           return record;
         },
         async update(record: TourPackageRecord) {
-          await query(
-            client,
-            `update tour_packages set
-               code = $2,
-               name = $3,
-               duration_text = $4,
-               days = $5,
-               nights = $6,
-               source = $7,
-               destination = $8,
-               inclusions_highlight = $9,
-               inclusions_note = $10,
-               inclusions = $11,
-               exclusions = $12,
-               itinerary = $13,
-               image_url = $14,
-               gallery = $15,
-               status = $16,
-               updated_at = $17
-             where id = $1`,
-            [
-              record.id,
-              record.packageCode,
-              record.name,
-              record.durationText,
-              record.days,
-              record.nights,
-              record.source ?? "Agra",
-              record.destination ?? "",
-              record.inclusionsHighlight,
-              record.inclusionsNote,
-              JSON.stringify(record.inclusions ?? []),
-              JSON.stringify(record.exclusions ?? []),
-              JSON.stringify(record.itinerary ?? []),
-              record.imageUrl ?? null,
-              JSON.stringify(record.gallery ?? []),
-              record.status,
-              record.updatedAt,
-            ],
-          );
+          const rows = isUuid(record.id)
+            ? await query<{ id: string }>(
+                client,
+                `update tour_packages set
+                   code = $2,
+                   name = $3,
+                   duration_text = $4,
+                   days = $5,
+                   nights = $6,
+                   source = $7,
+                   destination = $8,
+                   inclusions_highlight = $9,
+                   inclusions_note = $10,
+                   inclusions = $11,
+                   exclusions = $12,
+                   itinerary = $13,
+                   image_url = $14,
+                   gallery = $15,
+                   status = $16,
+                   updated_at = $17
+                 where id = $1::uuid
+                 returning id`,
+                [
+                  record.id,
+                  record.packageCode,
+                  record.name,
+                  record.durationText,
+                  record.days,
+                  record.nights,
+                  record.source ?? null,
+                  record.destination ?? null,
+                  record.inclusionsHighlight,
+                  record.inclusionsNote,
+                  JSON.stringify(record.inclusions ?? []),
+                  JSON.stringify(record.exclusions ?? []),
+                  JSON.stringify(record.itinerary ?? []),
+                  record.imageUrl ?? null,
+                  JSON.stringify(record.gallery ?? []),
+                  record.status,
+                  record.updatedAt,
+                ],
+              )
+            : await query<{ id: string }>(
+                client,
+                `update tour_packages set
+                   name = $2,
+                   duration_text = $3,
+                   days = $4,
+                   nights = $5,
+                   source = $6,
+                   destination = $7,
+                   inclusions_highlight = $8,
+                   inclusions_note = $9,
+                   inclusions = $10,
+                   exclusions = $11,
+                   itinerary = $12,
+                   image_url = $13,
+                   gallery = $14,
+                   status = $15,
+                   updated_at = $16
+                 where code = $1
+                 returning id`,
+                [
+                  record.packageCode,
+                  record.name,
+                  record.durationText,
+                  record.days,
+                  record.nights,
+                  record.source ?? null,
+                  record.destination ?? null,
+                  record.inclusionsHighlight,
+                  record.inclusionsNote,
+                  JSON.stringify(record.inclusions ?? []),
+                  JSON.stringify(record.exclusions ?? []),
+                  JSON.stringify(record.itinerary ?? []),
+                  record.imageUrl ?? null,
+                  JSON.stringify(record.gallery ?? []),
+                  record.status,
+                  record.updatedAt,
+                ],
+              );
+          const pkgId = rows[0]?.id ?? record.id;
+          if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(pkgId)) {
+            for (const [key, amount] of Object.entries(record.fleetPrices)) {
+              if (typeof amount === "number" && amount > 0) {
+                const modelId = await resolveVehicleModelId(client, key);
+                if (modelId) {
+                  const updated = await query(
+                    client,
+                    `update fare_rules set amount = $1, is_active = true
+                     where category = 'tour_package' and tour_package_id = $2 and vehicle_model_id = $3 and is_active = true
+                     returning id`,
+                    [Math.round(amount), pkgId, modelId],
+                  );
+                  if (updated.length === 0) {
+                    await query(
+                      client,
+                      `insert into fare_rules (category, vehicle_model_id, tour_package_id, amount, is_active)
+                       values ('tour_package', $1, $2, $3, true)`,
+                      [modelId, pkgId, Math.round(amount)],
+                    );
+                  }
+                }
+              }
+            }
+          }
           return record;
         },
         async getById(id: string) {
@@ -1323,58 +1392,19 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
             await query(client, "delete from tour_packages where code = $1", [id]);
           }
         },
-        async listUpgrades(packageId?: string | null) {
-          try {
-            const rows = packageId && isUuid(packageId)
-              ? await query(client, "select * from package_vehicle_upgrades where package_id=$1 or package_id is null order by surcharge_inr asc", [packageId])
-              : await query(client, "select * from package_vehicle_upgrades where package_id is null order by surcharge_inr asc");
-            return rows.map(mapPackageUpgrade);
-          } catch (err: any) {
-            if (err?.code === "42P01") return [];
-            throw err;
-          }
+        async listUpgrades(_packageId?: string | null) {
+          return [];
         },
-        async saveUpgrade(record: PackageVehicleUpgradeRecord) {
-          try {
-            const values = [record.id, record.packageId, record.tierCode, record.passengerNote, record.surchargeInr, record.createdAt, record.updatedAt];
-            const rows = record.packageId
-              ? await query(
-                  client,
-                  `insert into package_vehicle_upgrades (id, package_id, tier_code, passenger_note, surcharge_inr, created_at, updated_at)
-                   values ($1,$2,$3,$4,$5,$6,$7)
-                   on conflict (package_id, tier_code) do update
-                   set passenger_note=excluded.passenger_note, surcharge_inr=excluded.surcharge_inr, updated_at=excluded.updated_at
-                   returning *`,
-                  values,
-                )
-              : await query(
-                  client,
-                  `insert into package_vehicle_upgrades (id, package_id, tier_code, passenger_note, surcharge_inr, created_at, updated_at)
-                   values ($1,$2,$3,$4,$5,$6,$7)
-                   on conflict (tier_code) where package_id is null do update
-                   set passenger_note=excluded.passenger_note, surcharge_inr=excluded.surcharge_inr, updated_at=excluded.updated_at
-                   returning *`,
-                  values,
-                );
-            return rows[0] ? mapPackageUpgrade(rows[0]) : record;
-          } catch (err: any) {
-            if (err?.code === "42P01") return record;
-            throw err;
-          }
+        async saveUpgrade(_record: PackageVehicleUpgradeRecord) {
+          throw new AppError("UPGRADES_RETIRED", "Package vehicle upgrades were retired in migration 0038. Use fare_rules per vehicle model.", 410);
         },
-        async deleteUpgrade(id: string) {
-          try {
-            const result = await client.query("delete from package_vehicle_upgrades where id=$1", [id]);
-            return (result.rowCount ?? 0) > 0;
-          } catch (err: any) {
-            if (err?.code === "42P01") return false;
-            throw err;
-          }
+        async deleteUpgrade(_id: string) {
+          throw new AppError("UPGRADES_RETIRED", "Package vehicle upgrades were retired in migration 0038. Use fare_rules per vehicle model.", 410);
         },
       },
       transferRoutes: {
         async create(record: TransferRouteRecord) {
-          await query(
+          const rows = await query<{ id: string }>(
             client,
             `insert into transfers (id, code, name, pickup_name, drop_name, description, status, created_at, updated_at)
              values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -1384,7 +1414,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                drop_name = excluded.drop_name,
                description = excluded.description,
                status = excluded.status,
-               updated_at = excluded.updated_at`,
+               updated_at = excluded.updated_at
+             returning id`,
             [
               record.id,
               record.routeCode,
@@ -1397,31 +1428,104 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
               record.updatedAt,
             ],
           );
+          const transferId = rows[0]?.id ?? record.id;
+          if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(transferId)) {
+            for (const [key, amount] of Object.entries(record.fleetPrices)) {
+              if (typeof amount === "number" && amount > 0) {
+                const modelId = await resolveVehicleModelId(client, key);
+                if (modelId) {
+                  const updated = await query(
+                    client,
+                    `update fare_rules set amount = $1, is_active = true
+                     where category = 'transfer' and transfer_id = $2 and vehicle_model_id = $3 and is_active = true
+                     returning id`,
+                    [Math.round(amount), transferId, modelId],
+                  );
+                  if (updated.length === 0) {
+                    await query(
+                      client,
+                      `insert into fare_rules (category, vehicle_model_id, transfer_id, amount, is_active)
+                       values ('transfer', $1, $2, $3, true)`,
+                      [modelId, transferId, Math.round(amount)],
+                    );
+                  }
+                }
+              }
+            }
+          }
           return record;
         },
         async update(record: TransferRouteRecord) {
-          await query(
-            client,
-            `update transfers set
-               code = $2,
-               name = $3,
-               pickup_name = $4,
-               drop_name = $5,
-               description = $6,
-               status = $7,
-               updated_at = $8
-             where id = $1`,
-            [
-              record.id,
-              record.routeCode,
-              record.name,
-              record.directionNote?.split(" to ")[0] || record.name,
-              record.directionNote?.split(" to ")[1] || record.name,
-              record.directionNote,
-              record.status,
-              record.updatedAt,
-            ],
-          );
+          const rows = isUuid(record.id)
+            ? await query<{ id: string }>(
+                client,
+                `update transfers set
+                   code = $2,
+                   name = $3,
+                   pickup_name = $4,
+                   drop_name = $5,
+                   description = $6,
+                   status = $7,
+                   updated_at = $8
+                 where id = $1::uuid
+                 returning id`,
+                [
+                  record.id,
+                  record.routeCode,
+                  record.name,
+                  record.directionNote?.split(" to ")[0] || record.name,
+                  record.directionNote?.split(" to ")[1] || record.name,
+                  record.directionNote,
+                  record.status,
+                  record.updatedAt,
+                ],
+              )
+            : await query<{ id: string }>(
+                client,
+                `update transfers set
+                   name = $2,
+                   pickup_name = $3,
+                   drop_name = $4,
+                   description = $5,
+                   status = $6,
+                   updated_at = $7
+                 where code = $1
+                 returning id`,
+                [
+                  record.routeCode,
+                  record.name,
+                  record.directionNote?.split(" to ")[0] || record.name,
+                  record.directionNote?.split(" to ")[1] || record.name,
+                  record.directionNote,
+                  record.status,
+                  record.updatedAt,
+                ],
+              );
+          const transferId = rows[0]?.id ?? record.id;
+          if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(transferId)) {
+            for (const [key, amount] of Object.entries(record.fleetPrices)) {
+              if (typeof amount === "number" && amount > 0) {
+                const modelId = await resolveVehicleModelId(client, key);
+                if (modelId) {
+                  const updated = await query(
+                    client,
+                    `update fare_rules set amount = $1, is_active = true
+                     where category = 'transfer' and transfer_id = $2 and vehicle_model_id = $3 and is_active = true
+                     returning id`,
+                    [Math.round(amount), transferId, modelId],
+                  );
+                  if (updated.length === 0) {
+                    await query(
+                      client,
+                      `insert into fare_rules (category, vehicle_model_id, transfer_id, amount, is_active)
+                       values ('transfer', $1, $2, $3, true)`,
+                      [modelId, transferId, Math.round(amount)],
+                    );
+                  }
+                }
+              }
+            }
+          }
           return record;
         },
         async getById(id: string) {
@@ -1462,7 +1566,7 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
       },
       localPackages: {
         async create(record: LocalSightseeingPackageRecord) {
-          await query(
+          const rows = await query<{ id: string }>(
             client,
             `insert into local_packages (id, code, name, duration_hours, included_km, covers, inclusions_note, status, created_at, updated_at)
              values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -1473,7 +1577,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                covers = excluded.covers,
                inclusions_note = excluded.inclusions_note,
                status = excluded.status,
-               updated_at = excluded.updated_at`,
+               updated_at = excluded.updated_at
+             returning id`,
             [
               record.id,
               record.packageCode,
@@ -1487,33 +1592,108 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
               record.updatedAt,
             ],
           );
+          const packageId = rows[0]?.id ?? record.id;
+          if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(packageId)) {
+            for (const [key, amount] of Object.entries(record.fleetPrices)) {
+              if (typeof amount === "number" && amount > 0) {
+                const modelId = await resolveVehicleModelId(client, key);
+                if (modelId) {
+                  const updated = await query(
+                    client,
+                    `update fare_rules set amount = $1, is_active = true
+                     where category = 'local_package' and local_package_id = $2 and vehicle_model_id = $3 and is_active = true
+                     returning id`,
+                    [Math.round(amount), packageId, modelId],
+                  );
+                  if (updated.length === 0) {
+                    await query(
+                      client,
+                      `insert into fare_rules (category, vehicle_model_id, local_package_id, amount, is_active)
+                       values ('local_package', $1, $2, $3, true)`,
+                      [modelId, packageId, Math.round(amount)],
+                    );
+                  }
+                }
+              }
+            }
+          }
           return record;
         },
         async update(record: LocalSightseeingPackageRecord) {
-          await query(
-            client,
-            `update local_packages set
-               code = $2,
-               name = $3,
-               duration_hours = $4,
-               included_km = $5,
-               covers = $6,
-               inclusions_note = $7,
-               status = $8,
-               updated_at = $9
-             where id = $1`,
-            [
-              record.id,
-              record.packageCode,
-              record.name,
-              record.durationHours,
-              record.includedKm,
-              record.covers,
-              record.parkingNote,
-              record.status,
-              record.updatedAt,
-            ],
-          );
+          const rows = isUuid(record.id)
+            ? await query<{ id: string }>(
+                client,
+                `update local_packages set
+                   code = $2,
+                   name = $3,
+                   duration_hours = $4,
+                   included_km = $5,
+                   covers = $6,
+                   inclusions_note = $7,
+                   status = $8,
+                   updated_at = $9
+                 where id = $1::uuid
+                 returning id`,
+                [
+                  record.id,
+                  record.packageCode,
+                  record.name,
+                  record.durationHours,
+                  record.includedKm,
+                  record.covers,
+                  record.parkingNote,
+                  record.status,
+                  record.updatedAt,
+                ],
+              )
+            : await query<{ id: string }>(
+                client,
+                `update local_packages set
+                   name = $2,
+                   duration_hours = $3,
+                   included_km = $4,
+                   covers = $5,
+                   inclusions_note = $6,
+                   status = $7,
+                   updated_at = $8
+                 where code = $1
+                 returning id`,
+                [
+                  record.packageCode,
+                  record.name,
+                  record.durationHours,
+                  record.includedKm,
+                  record.covers,
+                  record.parkingNote,
+                  record.status,
+                  record.updatedAt,
+                ],
+              );
+          const packageId = rows[0]?.id ?? record.id;
+          if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(packageId)) {
+            for (const [key, amount] of Object.entries(record.fleetPrices)) {
+              if (typeof amount === "number" && amount > 0) {
+                const modelId = await resolveVehicleModelId(client, key);
+                if (modelId) {
+                  const updated = await query(
+                    client,
+                    `update fare_rules set amount = $1, is_active = true
+                     where category = 'local_package' and local_package_id = $2 and vehicle_model_id = $3 and is_active = true
+                     returning id`,
+                    [Math.round(amount), packageId, modelId],
+                  );
+                  if (updated.length === 0) {
+                    await query(
+                      client,
+                      `insert into fare_rules (category, vehicle_model_id, local_package_id, amount, is_active)
+                       values ('local_package', $1, $2, $3, true)`,
+                      [modelId, packageId, Math.round(amount)],
+                    );
+                  }
+                }
+              }
+            }
+          }
           return record;
         },
         async getById(id: string) {

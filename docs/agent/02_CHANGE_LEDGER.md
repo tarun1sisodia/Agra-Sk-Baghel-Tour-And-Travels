@@ -2,6 +2,29 @@
 
 ## 2026-10-12
 
+### 2026-10-12 — Canonical Schema Alignment & Price Write Path Remediation
+
+- **Elimination of Synthetic Fleet Fallbacks & Hardcoded Projections (`backend/src/db/postgres.ts`)**:
+  - Replaced SQL lateral subqueries and string pattern matching (`%crysta%`, `%urbania%`, `%traveller%`) with clean JSON aggregates keyed strictly on actual active `vehicle_models` sorted by `sort_order`.
+  - Removed hardcoded fallback fleet lists (`coalesce(..., '["sedan", "ertiga", ...]')` -> `'[]'::jsonb`).
+  - Removed `min()` vehicle-group rate collapsing that masked distinct car pricing with synthetic group-level minima.
+  - Eliminated invented route charges (`500 as driver_charge_inr, 0 as night_halt_inr, true as toll_included, 300 as min_km_per_day`) and invented package defaults (`'sedan' as base_tier_code`, `coalesce(min(fr.amount), 0) as starting_price_inr`). Attributes now project `null` when not configured.
+- **Strict Timestamp & Date Integrity (`backend/src/db/postgres.ts`, `backend/tests/unit/legacy-schema-reconciliation.test.ts`)**:
+  - Updated `safeIsoDate` to enforce strict timestamp validation. When a required database timestamp is missing, empty, or malformed and no explicit fallback is provided, it throws `AppError("DATA_CORRUPTION", ...)`.
+  - Prohibits silent fabrication of current time timestamps masking missing database data.
+- **Canonical Admin Price Persistence (`backend/src/db/postgres.ts`)**:
+  - `routeCatalog.create` & `routeCatalog.update`: Persists `record.faresInr` entries directly into `outstation_route_vehicles` mapped via `resolveVehicleModelId`.
+  - `tourPackages.create` & `tourPackages.update`: Persists `record.fleetPrices` entries directly into canonical `fare_rules` (`category = 'tour_package'`).
+  - `transferRoutes.create` & `transferRoutes.update`: Persists `record.fleetPrices` entries directly into canonical `fare_rules` (`category = 'transfer'`).
+  - `localPackages.create` & `localPackages.update`: Persists `record.fleetPrices` entries directly into canonical `fare_rules` (`category = 'local_package'`).
+- **Clean Feature Retirement for `package_vehicle_upgrades` (`backend/src/db/postgres.ts`)**:
+  - Replaced silent `42P01` table-missing error catching and fake successful saves with intentional empty read (`listUpgrades` -> `[]`) and explicit HTTP 410 rejection on mutations (`saveUpgrade`, `deleteUpgrade` -> `AppError("UPGRADES_RETIRED", ...)`).
+- **Endpoint Aliases (`backend/src/modules/content/content.routes.ts`)**:
+  - Registered `/content/manifest` alias alongside `/api/v1/content/manifest` to prevent 404s from callers requesting without the `/api/v1` prefix.
+- **Verification**:
+  - Monorepo Typecheck: Clean 0 errors across `react/`, `admin/`, and `backend/`.
+  - Backend Vitest Suite: 11 test files, 191 unit & integration tests passing (100%).
+
 ### 2026-10-12 — Reconcile Legacy API Modules with Canonical Schema (Task 2)
 
 - **Legacy Schema Reconciliation (`backend/src/db/postgres.ts`)**:

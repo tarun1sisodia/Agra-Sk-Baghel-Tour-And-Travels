@@ -76,11 +76,11 @@ export async function resolveProductContext(
         (await db.tourPackages.getByCode(input.packageId));
       if (tourPkg && tourPkg.status === "published" && tourPkg.isActive) {
         productFleetPrices = tourPkg.fleetPrices;
-        productNightChargeInr = tourPkg.nightChargeInr;
+        productNightChargeInr = tourPkg.nightChargeInr ?? undefined;
         productNights = tourPkg.nights;
         productPackageName = tourPkg.name;
         productPackageDuration = tourPkg.durationText;
-        productPackageBasePrice = tourPkg.startingPriceInr;
+        productPackageBasePrice = tourPkg.startingPriceInr ?? undefined;
         productCatalogItemType = "tour";
         productUsePerKm = false;
         productDistanceKm = tourPkg.days ? tourPkg.days * 300 : undefined;
@@ -116,8 +116,8 @@ export async function resolveProductContext(
         : null;
       if (xfer && xfer.status === "published" && xfer.isActive) {
         productFleetPrices = xfer.fleetPrices;
-        productUsePerKm = xfer.usePerKm;
-        productNightChargeInr = xfer.nightChargeInr;
+        productUsePerKm = xfer.usePerKm ?? undefined;
+        productNightChargeInr = xfer.nightChargeInr ?? undefined;
         productPackageName = xfer.name;
         productPackageDuration = xfer.distanceText ?? undefined;
         productCatalogItemType = "ride";
@@ -141,10 +141,10 @@ export async function resolveProductContext(
           (await db.localPackages.getByCode(localCode));
         if (localPkg && localPkg.status === "published" && localPkg.isActive) {
           productFleetPrices = localPkg.fleetPrices;
-          productUsePerKm = localPkg.usePerKm;
+          productUsePerKm = localPkg.usePerKm ?? undefined;
           const extraRateHit = resolveTierKey(localPkg.extraRates, input.vehicleTier);
           productPerKmRateOverride = extraRateHit.value?.per_km ?? undefined;
-          productNightChargeInr = localPkg.nightChargeInr;
+          productNightChargeInr = localPkg.nightChargeInr ?? undefined;
           productPackageName = localPkg.name;
           productPackageDuration = `${localPkg.durationHours} hrs / ${localPkg.includedKm} km`;
           productCatalogItemType = "package";
@@ -182,10 +182,10 @@ export async function resolveProductContext(
       }
       if (routeRow && routeRow.status === "published" && !routeRow.needsReview) {
         productFleetPrices = routeRow.usePerKm ? undefined : routeRow.faresInr;
-        productUsePerKm = routeRow.usePerKm;
-        productNightHaltInr = routeRow.nightHaltInr;
-        productDriverAllowance = routeRow.driverChargeInr;
-        productMinKmPerDay = routeRow.minKmPerDay;
+        productUsePerKm = routeRow.usePerKm ?? undefined;
+        productNightHaltInr = routeRow.nightHaltInr ?? undefined;
+        productDriverAllowance = routeRow.driverChargeInr ?? undefined;
+        productMinKmPerDay = routeRow.minKmPerDay ?? undefined;
         productTollAmountInr = routeRow.tollIncluded ? undefined : (routeRow.tollAmountInr ?? undefined);
         productDistanceKm = routeRow.distanceKm ?? undefined;
         productPackageName = `${routeRow.sourceCity} to ${routeRow.destinationCity ?? ""}`;

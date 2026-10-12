@@ -32,30 +32,28 @@ describe("Task 2: Legacy API Modules & Canonical Schema Reconciliation", () => {
     const mapped2 = mapTourPackage(rowNullUpdatedAt);
     expect(mapped2.updatedAt).toBe("2026-10-12T08:00:00.000Z");
 
-    // 3. Raw row where created_at and updated_at are malformed non-date strings
+    // 3. Raw row where created_at is malformed non-date string throws DATA_CORRUPTION error
     const rowMalformedDates = {
       ...rowUndefinedUpdatedAt,
       created_at: "not-a-valid-date",
       updated_at: "also-not-a-date",
     };
-    const mapped3 = mapTourPackage(rowMalformedDates);
-    expect(new Date(mapped3.createdAt).getTime()).not.toBeNaN();
-    expect(new Date(mapped3.updatedAt).getTime()).not.toBeNaN();
+    expect(() => mapTourPackage(rowMalformedDates)).toThrowError(/Invalid timestamp value/);
 
-    // 4. Raw row with empty date strings
+    // 4. Raw row with empty date strings throws DATA_CORRUPTION error
     const rowEmptyDates = {
       ...rowUndefinedUpdatedAt,
       created_at: "",
       updated_at: "",
     };
-    const mapped4 = mapTourPackage(rowEmptyDates);
-    expect(new Date(mapped4.createdAt).getTime()).not.toBeNaN();
-    expect(new Date(mapped4.updatedAt).getTime()).not.toBeNaN();
+    expect(() => mapTourPackage(rowEmptyDates)).toThrowError(/Missing required timestamp/);
 
-    // 5. safeIsoDate standalone behavior
-    expect(safeIsoDate(undefined)).toMatch(/^\d{4}-\d{2}-\d{2}T/);
-    expect(safeIsoDate(null)).toMatch(/^\d{4}-\d{2}-\d{2}T/);
-    expect(safeIsoDate("invalid-timestamp")).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    // 5. safeIsoDate standalone behavior: throws when missing without fallback, uses fallback when provided
+    expect(() => safeIsoDate(undefined)).toThrowError(/Missing required timestamp/);
+    expect(() => safeIsoDate(null)).toThrowError(/Missing required timestamp/);
+    expect(() => safeIsoDate("invalid-timestamp")).toThrowError(/Invalid timestamp value/);
+    expect(safeIsoDate(undefined, "2026-10-12T08:00:00.000Z")).toBe("2026-10-12T08:00:00.000Z");
+    expect(safeIsoDate("invalid-timestamp", "2026-10-12T08:00:00.000Z")).toBe("2026-10-12T08:00:00.000Z");
   });
 
   it("P1: /api/v1/tour-packages/manifest succeeds and returns published tour packages", async () => {

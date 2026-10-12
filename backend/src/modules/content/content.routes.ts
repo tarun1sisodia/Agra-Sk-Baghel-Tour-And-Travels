@@ -20,26 +20,33 @@ export async function registerContentManifestRoutes(
   }
 ): Promise<void> {
   // Combined content manifest for public / build consumption
+  const manifestHandler = async (_request: any, reply: any) => {
+    const [cancellationPolicies, monuments, petPolicy, companyProfile, dossierSignoffs] =
+      await Promise.all([
+        deps.cancellationPoliciesService.list(),
+        deps.monumentsService.list(),
+        deps.petPolicyService.get(),
+        deps.companyProfileService.get(),
+        deps.dossierSignoffsService.list(),
+      ]);
+
+    return sendSuccess(reply, {
+      cancellationPolicies,
+      monuments,
+      petPolicy,
+      companyProfile,
+      dossierSignoffs,
+    });
+  };
+
   app.get("/api/v1/content/manifest", {
     config: { rateLimit: { max: 120, timeWindow: "1 minute" } },
-    handler: async (_request, reply) => {
-      const [cancellationPolicies, monuments, petPolicy, companyProfile, dossierSignoffs] =
-        await Promise.all([
-          deps.cancellationPoliciesService.list(),
-          deps.monumentsService.list(),
-          deps.petPolicyService.get(),
-          deps.companyProfileService.get(),
-          deps.dossierSignoffsService.list(),
-        ]);
+    handler: manifestHandler,
+  });
 
-      return sendSuccess(reply, {
-        cancellationPolicies,
-        monuments,
-        petPolicy,
-        companyProfile,
-        dossierSignoffs,
-      });
-    },
+  app.get("/content/manifest", {
+    config: { rateLimit: { max: 120, timeWindow: "1 minute" } },
+    handler: manifestHandler,
   });
 
   app.get("/api/v1/content/release/latest", {
