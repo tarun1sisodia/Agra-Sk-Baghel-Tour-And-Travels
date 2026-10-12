@@ -1,12 +1,19 @@
-# Main branch verification — 9f41771ec01d
+# Main branch verification — f965a385076f
 
 - **Result:** PASS
-- **Commit:** [9f41771ec01d8f2b8cdfdc4b46c0e737c0e19f85](https://github.com/tarun1sisodia/ArenaAI/commit/9f41771ec01d8f2b8cdfdc4b46c0e737c0e19f85)
-- **Checked at:** 2026-10-12T07:23:07Z
-- **Workflow run:** [38217347207](https://github.com/tarun1sisodia/ArenaAI/actions/runs/38217347207)
+- **Commit:** [f965a385076f9184f93a59d672fb4aec0609a692](https://github.com/tarun1sisodia/ArenaAI/commit/f965a385076f9184f93a59d672fb4aec0609a692)
+- **Checked at:** 2026-10-12T08:21:43Z
+- **Workflow run:** [38222938815](https://github.com/tarun1sisodia/ArenaAI/actions/runs/38222938815)
 
 ## Changed files
 
+- M	backend/src/db/dossier-types.ts
+- M	backend/src/db/postgres.ts
+- M	backend/src/db/route-catalog-types.ts
+- M	backend/src/modules/content/content.routes.ts
+- M	backend/src/modules/fares/resolvers/product.resolver.ts
+- M	backend/tests/unit/legacy-schema-reconciliation.test.ts
+- M	docs/agent/02_CHANGE_LEDGER.md
 
 ## Verification command
 
@@ -20,27 +27,27 @@ npm run install:all && npm run verify
 [90mstderr[2m | tests/unit/publication-worker.test.ts[2m > [22m[2mPublicationWorker (Section 12.17: PB-04 to PB-06)[2m > [22m[2mhandles missing deployHookUrl gracefully without crashing
 [22m[39m{ eventId: [32m'ev-no-hook'[39m } publication worker skipped: deploy hook not configured
 
- [32m✓[39m tests/unit/publication-worker.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m tests/unit/contracts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/clean-routes-alias.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 60[2mms[22m[39m
- [32m✓[39m tests/unit/locationiq.service.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1606[2mms[22m[39m
+ [32m✓[39m tests/unit/publication-worker.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/contracts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/clean-routes-alias.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 110[2mms[22m[39m
+ [32m✓[39m tests/unit/locationiq.service.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1608[2mms[22m[39m
    [33m[2m✓[22m[39m LocationIQ Service Unit Tests (AA-09 to AA-11)[2m > [22mAA-10: Mocked LocationIQ returns 230,456 m and 14,730 s -> 230.5 km and 246 min [33m 803[2mms[22m[39m
-   [33m[2m✓[22m[39m LocationIQ Service Unit Tests (AA-09 to AA-11)[2m > [22mAA-11: Routing failure throws ROUTING_FAILED [33m 802[2mms[22m[39m
+   [33m[2m✓[22m[39m LocationIQ Service Unit Tests (AA-09 to AA-11)[2m > [22mAA-11: Routing failure throws ROUTING_FAILED [33m 801[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m11 passed[39m[22m[90m (11)[39m
 [2m      Tests [22m [1m[32m191 passed[39m[22m[90m (191)[39m
-[2m   Start at [22m 07:22:41
-[2m   Duration [22m 5.60s[2m (transform 518ms, setup 0ms, collect 969ms, tests 3.49s, environment 1ms, prepare 341ms)[22m
+[2m   Start at [22m 08:21:02
+[2m   Duration [22m 7.25s[2m (transform 879ms, setup 0ms, collect 1.63s, tests 3.75s, environment 2ms, prepare 614ms)[22m
 
 
 > skb-react@0.1.0 test:catalog-sources
 > node --experimental-strip-types --test scripts/catalog-sources.test.ts
 
 ▶ catalog source resolution (P0-T03 / P0-T04)
-  ✔ does not default missing production variables to the staging API (0.709529ms)
-  ✔ derives the implemented content manifest path from the API base (0.155595ms)
-  ✔ prefers the exact ROUTE_CATALOG_MANIFEST_URL spelling over a constructed fallback (0.0997ms)
-✔ catalog source resolution (P0-T03 / P0-T04) (1.615724ms)
+  ✔ does not default missing production variables to the staging API (1.251068ms)
+  ✔ derives the implemented content manifest path from the API base (0.244467ms)
+  ✔ prefers the exact ROUTE_CATALOG_MANIFEST_URL spelling over a constructed fallback (0.212728ms)
+✔ catalog source resolution (P0-T03 / P0-T04) (2.997062ms)
 ℹ tests 3
 ℹ suites 1
 ℹ pass 3
@@ -48,7 +55,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 65.190798
+ℹ duration_ms 111.639145
 
 > sk-baghel-tour-travels@0.1.0 customer:seo
 > npm --prefix react run test:seo
@@ -81,6 +88,11 @@ SEO lifecycle checks passed.
 [Manifest Builder] Preserved existing snapshot at /home/runner/work/ArenaAI/ArenaAI/react/src/data/generated-published-content.json because the remote source was not fetched.
 [36mvite v7.3.6 [32mbuilding client environment for production...[36m[39m
 transforming...
+[33mnode_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
 [33mnode_modules/zod/v4/core/regexes.js (74:0): A comment
 
 "/** Anchors a pattern source. The interpolation lives here rather than at the call site because
@@ -88,11 +100,6 @@ transforming...
  * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
 
 in "node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
-[33mnode_modules/zod/v4/core/util.js (400:0): A comment
-
-"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
-
-in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
 [32m✓[39m 2547 modules transformed.
 rendering chunks...
 [2mdist/[22m[32mindex.html                                   [39m[1m[2m  4.42 kB[22m[1m[22m
@@ -136,7 +143,7 @@ rendering chunks...
 [2mdist/[22m[2massets/[22m[36mvendor-supabase-DaueY-7D.js           [39m[1m[2m224.50 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mindex-BcrmJpk2.js                     [39m[1m[2m237.97 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mdata-catalogue-YjuurHFu.js            [39m[1m[2m352.50 kB[22m[1m[22m
-[32m✓ built in 2.83s[39m
+[32m✓ built in 4.37s[39m
 🚀 Starting Static HTML Pre-Renderer (SSG)...
 ⚠️ SEO error [h1-count] /en/taxis/rent/: Expected exactly one H1, found 0.
 ⚠️ SEO error [h1-count] /en/transfers/agc-station-transfer/: Expected exactly one H1, found 0.
@@ -144,7 +151,7 @@ rendering chunks...
 ⚠️ SEO error [h1-count] /en/transfers/kheria-airport-transfer/: Expected exactly one H1, found 0.
 ⚠️ SEO error [h1-count] /en/transfers/delhi-igi-oneway-transfer/: Expected exactly one H1, found 0.
 ✅ Generated sitemap.xml (50 URLs with source-owned lastmod values where available, priorities & xhtml:link alternates) and robots.txt pointing to https://skbagheltravels-customer.coccoder999.workers.dev/sitemap.xml
-✅ SSG Pre-Rendering Complete: 59 pages rendered + 14 redirects written (3.50 MB total) in 1.55s.
+✅ SSG Pre-Rendering Complete: 59 pages rendered + 14 redirects written (3.50 MB total) in 2.69s.
 
 > sk-baghel-tour-travels@0.1.0 admin:build
 > npm --prefix admin run build
@@ -188,7 +195,7 @@ computing gzip size...
 [2mdist/[22m[2massets/[22m[36mvendor-motion-ETqTANL-.js              [39m[1m[2m133.36 kB[22m[1m[22m[2m │ gzip: 44.17 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-react-YWPnaJPF.js               [39m[1m[2m221.70 kB[22m[1m[22m[2m │ gzip: 68.96 kB[22m
 [2mdist/[22m[2massets/[22m[36mindex-D1zkiH8s.js                      [39m[1m[2m324.25 kB[22m[1m[22m[2m │ gzip: 88.97 kB[22m
-[32m✓ built in 2.44s[39m
+[32m✓ built in 3.96s[39m
 
 > sk-baghel-tour-travels@0.1.0 backend:build
 > npm --prefix backend run build
