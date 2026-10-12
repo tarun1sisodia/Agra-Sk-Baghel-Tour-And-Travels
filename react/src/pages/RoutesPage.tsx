@@ -224,6 +224,23 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
     }
   };
 
+  const latestRoutesProp = useMemo(() => {
+    return allRoutes.slice(0, 3).map((r) => ({
+      slug: r.id,
+      sourceCity: r.origin,
+      destinationCity: r.destination,
+      distanceKm: r.distanceKm,
+      durationText: r.duration,
+      faresInr: {
+        sedan: r.fares.sedan,
+        ertiga: r.fares.ertiga,
+        innova: r.fares.crysta,
+      },
+      tripType: r.pricingModel || "one-way",
+      isPublished: true,
+    }));
+  }, [allRoutes]);
+
   const filteredRoutes = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return allRoutes.filter((route) => {
@@ -322,9 +339,9 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
           <InstantRouteCalculator className="mb-space-xl" />
 
           {/* Latest Published Routes Showcase */}
-          {selectedFilter === "all" && !searchQuery && currentPage === 1 && (
+          {selectedFilter === "all" && !searchQuery && currentPage === 1 && latestRoutesProp.length > 0 && (
             <div className="mb-space-xl -mx-margin-mobile lg:-mx-margin">
-              <LatestRoutesSection />
+              <LatestRoutesSection routes={latestRoutesProp} />
             </div>
           )}
 
@@ -413,7 +430,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                   </div>
 
                   <h3 className="font-headline-md text-sm sm:text-base text-on-surface font-bold mb-1.5">
-                    <a href={`/en/${route.id}/`} className="hover:text-primary transition-colors">
+                    <a href={`/routes/${route.id}/`} className="hover:text-primary transition-colors">
                       {route.name}
                     </a>
                   </h3>
@@ -483,7 +500,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                   <div className="flex items-center gap-2">
                     <a
                       className="px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-caps text-xs transition-colors font-semibold inline-flex items-center gap-1"
-                      href={`/en/${route.id}/`}
+                      href={`/routes/${route.id}/`}
                     >
                       <span>Details</span>
                       <span className="material-symbols-outlined text-icon-13">info</span>
@@ -500,7 +517,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                     </a>
                     <a
                       className="px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary-container text-white font-label-caps text-xs transition-all shadow-xs font-bold flex items-center gap-1"
-                      href={`/book?from=${encodeURIComponent(route.origin || route.name.split("→")[0]?.trim() || "Agra")}&to=${encodeURIComponent(route.destination || route.name.split("→")[1]?.trim() || "")}`}
+                      href={`/book?category=outstation&from=${encodeURIComponent(route.origin || route.name.split("→")[0]?.trim() || "Agra")}&to=${encodeURIComponent(route.destination || route.name.split("→")[1]?.trim() || "")}&route=${encodeURIComponent(route.id)}`}
                     >
                       <span>Book Cab</span>
                       <span className="material-symbols-outlined text-icon-13">arrow_forward</span>

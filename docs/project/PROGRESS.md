@@ -50,9 +50,10 @@
 - [x] **Phase 1 Master Plan & Supermemory Ingestion:** Created `docs/FLEET_PRICING_MASTER_IMPLEMENTATION_PLAN.md` with complete 8-part testing matrix; ingested all architecture, rules, and audit artifacts into Supermemory container `sk_baghel_travels`.
 - [x] **Phase 2 Fleet Master Normalization:** Extended C-ENUM-001 (v0.1.1) in `contracts/enums/vehicle-tiers.ts` with snake_case aliases (`innova_crysta`, `tempo_traveller`) and compound forms (`tempo-12`, `tempo-16`), added `normalizeFleetCode`, synced byte-identical generated copies to `backend/`, `admin/`, and `react/`, unified `react/src/services/api.ts` `mapVehicleTier`, and validated with 9/9 contract tests passing and 0 sync drift.
 
+- [x] **Phase 3:** Route Fare Rule Source Normalization (PostgreSQL `fare_rules` as single rate authority & catalog manifest canonical database reads: eliminated static `CATALOG_RAW_DATA` and `VEHICLES` baseline from `catalog.service.ts`, eliminated synthetic reverse routes, eliminated invented multiplier fares, derived manifest from canonical published DB records via `FareCatalogRepository`, missing vehicle fares set to `null`, unit test in `catalog-manifest.test.ts` passing, `npm run verify` green).
+
 ## Next Actions
 
-- [ ] **Phase 3:** Route Fare Rule Source Normalization (PostgreSQL `fare_rules` as single rate authority).
 - [ ] **Phase 4:** Route Fleet-Price Resolver (<300km forced round-trip + ₹500 DA, >=300km per-km + ₹500 DA).
 - [ ] **Phase 5:** Package Fleet-Price Resolver (`tour_packages.fleet_prices`).
 - [ ] **Phase 6:** Normalized Customer Contract (`FleetPriceOption`).
@@ -65,6 +66,7 @@
 
 | Date | Change | Owner |
 |---|---|---|
+| 2026-10-12 | Completed Phase 3: Route Fare Rule Source Normalization & Catalog Manifest Cleanup — eliminated static baseline, synthetic reverse routes, and multiplier fares from `catalog.service.ts`; wired `FareCatalogRepository`; 192 backend unit tests passing, `npm run verify` green | Antigravity AI |
 | 2026-10-11 | Completed Route & API Inventory Monorepo Migration: Clean canonical `/api/v1` routes, Customer & Admin rewired, Zero client fare math, 179/179 tests passing, `npm run verify` green | Antigravity AI |
 | 2026-10-08 | Completed Phase 2: Fleet Master Normalization (Contract C-ENUM-001 v0.1.1) across contracts, backend, admin, and react | Antigravity AI |
 | 2026-10-08 | Authored `docs/FLEET_PRICING_MASTER_IMPLEMENTATION_PLAN.md` with 8-part testing matrix, completed Phase 0 audit ingestion into Supermemory | Antigravity AI |

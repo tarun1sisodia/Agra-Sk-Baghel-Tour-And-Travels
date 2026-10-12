@@ -260,7 +260,11 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
         }`
       : "Catalog media uploads → inline DB storage (no S3_* or SUPABASE_SERVICE_ROLE_KEY configured)",
   );
-  const catalogService = createCatalogService({ db, clock, mediaStorage });
+  const farePool: pg.Pool | null =
+    (db.pool as pg.Pool | undefined) ??
+    (env.DATABASE_URL ? new pg.Pool(createPoolConfig(env.DATABASE_URL)) : null);
+  const fareCatalogRepo = farePool ? new FareCatalogRepository(farePool) : null;
+  const catalogService = createCatalogService({ db, clock, mediaStorage, fareCatalogRepo });
   const reviewService = createReviewService({ db, clock });
   const locationService = createLocationService({ db, clock, geocoding });
   const inquiryService = createInquiryService({ db, clock });
@@ -328,18 +332,14 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
 
   // --- Clean Fare System (fare-system-final-spec.md) Mounts ---
   let publicationWorker: PublicationWorker | undefined;
-  const farePool: pg.Pool | null =
-    (db.pool as pg.Pool | undefined) ??
-    (env.DATABASE_URL ? new pg.Pool(createPoolConfig(env.DATABASE_URL)) : null);
 
-  if (farePool) {
+  if (farePool && fareCatalogRepo) {
     publicationWorker = new PublicationWorker({
       pool: farePool,
       deployHookUrl: env.PAGES_DEPLOY_HOOK_URL,
       customerSiteUrl: process.env.CUSTOMER_SITE_URL || process.env.SITE_URL || "https://agraskbagheltourandtravels.com",
       logger: options.logger,
     });
-    const fareCatalogRepo = new FareCatalogRepository(farePool);
     const quotesService = new QuotesService(fareCatalogRepo);
     await registerQuotesRoutes(app, quotesService);
     await registerFareCatalogRoutes(app, fareCatalogRepo);

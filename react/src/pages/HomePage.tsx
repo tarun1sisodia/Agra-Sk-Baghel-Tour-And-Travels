@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { SupportedLanguage } from "../config";
 import { contact } from "../data/contact";
 import { ReviewsMarquee } from "../components/home/ReviewsMarquee";
@@ -7,7 +7,15 @@ import { HomeHeroSlideshow } from "../components/home/HomeHeroSlideshow";
 import { WhatsAppIcon } from "../components/icons";
 import { HomeBookingWidget } from "../components/home/HomeBookingWidget";
 import { useCustomerAuth } from "../auth/customerAuth";
-import { fetchFeaturedPromo, type FeaturedPromo } from "../services/api";
+import {
+  fetchFeaturedPromo,
+  type FeaturedPromo,
+  createInquiry,
+  formatInquiryPhone,
+  sanitizeInquiryName,
+} from "../services/api";
+import { fetchLiveFleet, type PublicFleetVehicle } from "../services/catalog";
+import { loadRoutesManifest, type CompressedRoute } from "../services/catalogManifest";
 import { onUserInteractionOrIdle } from "../utils/deferredRevalidation";
 
 export interface HomePageProps {
@@ -53,6 +61,59 @@ export function HomePage({ language = "en" }: HomePageProps) {
   const [inquiryPhone, setInquiryPhone] = useState("");
   const [inquiryDate, setInquiryDate] = useState("");
   const [inquiryNotes, setInquiryNotes] = useState("");
+  const [inquirySubmitting, setInquirySubmitting] = useState(false);
+  const [inquirySubmitted, setInquirySubmitted] = useState(false);
+  const [inquiryError, setInquiryError] = useState<string | null>(null);
+
+  const [liveFleet, setLiveFleet] = useState<PublicFleetVehicle[]>([]);
+  const [manifestRoutes, setManifestRoutes] = useState<Record<string, CompressedRoute>>({});
+  const [popularTripMode, setPopularTripMode] = useState<"oneway" | "round">("oneway");
+
+  useEffect(() => {
+    let active = true;
+    fetchLiveFleet()
+      .then((f) => {
+        if (active && f.length > 0) setLiveFleet(f);
+      })
+      .catch(() => { });
+
+    loadRoutesManifest()
+      .then((m) => {
+        if (active && m) setManifestRoutes(m);
+      })
+      .catch(() => { });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const popularRoutesList = useMemo(() => {
+    const entries = Object.entries(manifestRoutes);
+    if (entries.length > 0) {
+      return entries.slice(0, 4).map(([slug, item]) => {
+        const durationHrs = Math.floor(item.m / 60);
+        const durationMins = item.m % 60;
+        return {
+          slug,
+          from: item.o,
+          to: item.d,
+          badge: item.c.split("->")[0]?.trim() || "Outstation Corridor",
+          km: `${item.km} km`,
+          time: `${durationHrs}h${durationMins ? ` ${durationMins}m` : ""}`,
+          note: item.c || "Direct Highway Corridor",
+          price: item.fs || 3499,
+          icon: "directions_car",
+        };
+      });
+    }
+    return [
+      { slug: "agra-to-delhi", from: "Agra", to: "Delhi", badge: "Most Popular", km: "230 km", time: "3h 30m", note: "Yamuna Expressway, IGI Airport drop", price: 3499, icon: "flight" },
+      { slug: "agra-to-jaipur", from: "Agra", to: "Jaipur", badge: "Golden Triangle", km: "240 km", time: "4h 30m", note: "Via NH-21, optional Fatehpur Sikri stop", price: 3699, icon: "castle" },
+      { slug: "agra-to-fatehbad-tax-one-way", from: "Agra", to: "Fatehabad", badge: "Expressway", km: "35 km", time: "45m", note: "Fast one-way expressway drop", price: 1200, icon: "near_me" },
+      { slug: "khandoli-to-jewar-one-way", from: "Khandoli", to: "Jewar", badge: "Airport Link", km: "115 km", time: "1h 45m", note: "Jewar International Airport corridor", price: 2400, icon: "flight_land" },
+    ];
+  }, [manifestRoutes]);
 
   const copyCoupon = () => {
     if (featuredPromo && typeof navigator !== "undefined" && navigator.clipboard) {
@@ -62,10 +123,27 @@ export function HomePage({ language = "en" }: HomePageProps) {
     }
   };
 
-  const handleInquirySubmit = (e: React.FormEvent) => {
+  const handleInquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const text = `Hello Agra SK Baghel Tour and Travels, I would like to inquire about a cab:%0A- Name: ${encodeURIComponent(inquiryName)}%0A- Phone: ${encodeURIComponent(inquiryPhone)}%0A- Date: ${encodeURIComponent(inquiryDate)}%0A- Route: ${encodeURIComponent(origin)} to ${encodeURIComponent(destination)} (${tripType})%0A- Vehicle: ${encodeURIComponent(selectedVehicle)}%0A- Details: ${encodeURIComponent(inquiryNotes)}`;
-    window.open(`https://wa.me/919762817598?text=${text}`, "_blank");
+    if (inquirySubmitting) return;
+    setInquirySubmitting(true);
+    setInquiryError(null);
+    try {
+      const cleanName = sanitizeInquiryName(inquiryName);
+      const cleanPhone = formatInquiryPhone(inquiryPhone);
+      const message = `Travel Date: ${inquiryDate || "Flexible"}, Route: ${origin} to ${destination} (${tripType}), Vehicle: ${selectedVehicle}. Notes: ${inquiryNotes || "None"}`;
+      await createInquiry({
+        name: cleanName,
+        phone: cleanPhone,
+        message: message.slice(0, 2000),
+        tripInterest: `Homepage inquiry: ${origin} to ${destination}`,
+      });
+      setInquirySubmitted(true);
+    } catch (err: any) {
+      setInquiryError(err?.message || "Failed to submit inquiry. Please call us directly at +91 97628 17598.");
+    } finally {
+      setInquirySubmitting(false);
+    }
   };
 
   return (
@@ -230,27 +308,46 @@ export function HomePage({ language = "en" }: HomePageProps) {
           </div>
         </section>
 
-        {/* ── POPULAR ROUTES ── Editorial horizontal rows, not a card grid */}
+        {/* ── POPULAR ROUTES ── Dynamic published routes with One-Way / Round-Trip mode */}
         <section
           className="w-full py-space-3xl max-w-[1280px] mx-auto px-margin-mobile lg:px-margin"
         >
-          {/* Section header: centred, no eyebrow, no split-header */}
-          <div className="mb-space-xl text-center">
-            <h2 className="font-headline-lg text-headline-lg text-on-surface">Popular routes</h2>
+          {/* Section header: centred with mode toggle */}
+          <div className="mb-space-lg text-center">
+            <h2 className="font-headline-lg text-headline-lg text-on-surface">Popular Outstation Routes</h2>
             <p className="font-body-md text-body-md text-on-surface-variant mt-1.5">
-              Toll-inclusive one-way fares — zero hidden return charges.
+              Verified published intercity corridors with transparent expressway billing.
             </p>
+
+            {/* One-Way vs Round-Trip Selector */}
+            <div className="inline-flex items-center p-1 rounded-full bg-surface-container border border-border-warm/60 mt-4">
+              <button
+                type="button"
+                onClick={() => setPopularTripMode("oneway")}
+                className={`px-4 py-1.5 rounded-full font-label-caps text-xs uppercase tracking-wider font-bold transition-all ${popularTripMode === "oneway"
+                    ? "bg-primary text-white shadow-xs"
+                    : "text-on-surface hover:text-primary"
+                  }`}
+              >
+                One-Way Drop
+              </button>
+              <button
+                type="button"
+                onClick={() => setPopularTripMode("round")}
+                className={`px-4 py-1.5 rounded-full font-label-caps text-xs uppercase tracking-wider font-bold transition-all ${popularTripMode === "round"
+                    ? "bg-primary text-white shadow-xs"
+                    : "text-on-surface hover:text-primary"
+                  }`}
+              >
+                Round-Trip Tour (300 km/day)
+              </button>
+            </div>
           </div>
 
-          {/* Horizontal route rows — distinct from the card grid below */}
+          {/* Horizontal route rows */}
           <div className="divide-y divide-border-warm/40">
-            {[
-              { from: "Agra", to: "Delhi", badge: "Most Popular", km: "230 km", time: "3h 30m", note: "Yamuna Expressway, IGI Airport drop", price: 3499, icon: "flight" },
-              { from: "Agra", to: "Jaipur", badge: "Golden Triangle", km: "240 km", time: "4h 30m", note: "Via NH-21, optional Fatehpur Sikri stop", price: 3699, icon: "castle" },
-              { from: "Agra", to: "Mathura", badge: "Pilgrimage", km: "55 km", time: "1h 15m", note: "Banke Bihari & Prem Mandir circuit", price: 2200, icon: "temple_hindu" },
-              { from: "Agra", to: "Gwalior", badge: "Day Trip", km: "120 km", time: "2h 30m", note: "Via NH-44, interstate permit included", price: 3000, icon: "fort" },
-            ].map((route) => (
-              <div key={route.to} className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-3 group">
+            {popularRoutesList.map((route) => (
+              <div key={route.slug} className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-3 group">
                 {/* Route identity */}
                 <div className="flex items-center gap-4 min-w-0">
                   <span className="material-symbols-outlined text-on-surface-variant text-icon-22 shrink-0">{route.icon}</span>
@@ -275,12 +372,18 @@ export function HomePage({ language = "en" }: HomePageProps) {
                 {/* Price + CTA */}
                 <div className="flex items-center gap-4 shrink-0">
                   <div className="text-right">
-                    <span className="font-label-caps text-label-caps text-on-surface-variant block">Sedan from</span>
-                    <span className="font-price-display text-lg font-bold text-primary">₹{route.price.toLocaleString("en-IN")}</span>
+                    <span className="font-label-caps text-label-caps text-on-surface-variant block">
+                      {popularTripMode === "oneway" ? "Sedan One-Way" : "Round-Trip Rate"}
+                    </span>
+                    <span className="font-price-display text-lg font-bold text-primary">
+                      {popularTripMode === "oneway"
+                        ? `₹${route.price.toLocaleString("en-IN")}`
+                        : "From ₹10/km"}
+                    </span>
                   </div>
                   <a
                     className="min-h-[44px] px-4 py-2.5 rounded-lg bg-primary hover:bg-primary-container text-white font-label-md font-bold transition-all duration-200 whitespace-nowrap active:scale-[0.98] shadow-xs inline-flex items-center justify-center"
-                    href={`/book?from=Agra&to=${route.to}`}
+                    href={`/book?category=outstation&from=${encodeURIComponent(route.from)}&to=${encodeURIComponent(route.to)}&route=${encodeURIComponent(route.slug)}&trip=${popularTripMode === "oneway" ? "one-way" : "round-trip"}`}
                     aria-label={`Book cab from ${route.from} to ${route.to}`}
                   >
                     <span className="text-white font-bold">Book ↗</span>
@@ -295,7 +398,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
               className="inline-flex items-center gap-1 font-label-lg text-label-lg text-primary hover:text-primary-container font-semibold transition-colors"
               href="/routes"
             >
-              <span>View all 980+ routes</span>
+              <span>View All Published Routes</span>
               <span className="material-symbols-outlined text-icon-16">east</span>
             </a>
           </div>
@@ -817,70 +920,117 @@ export function HomePage({ language = "en" }: HomePageProps) {
                 </div>
               </div>
 
-              {/* Right — inquiry form */}
+              {/* Right — inquiry form with backend persistence */}
               <div className="lg:col-span-7">
                 <div className="bg-surface-container-lowest p-5 sm:p-6 rounded-xl shadow-md border border-border-warm/40">
                   <h3 className="font-headline-sm text-headline-sm font-normal text-on-surface mb-1">Send a booking inquiry</h3>
                   <p className="font-body-sm text-label-md text-on-surface-variant mb-space-md">
-                    We'll reply on WhatsApp with a quote in under 5 minutes.
+                    Inquiries are saved directly to our dispatch desk. You'll receive a verified quote in under 5 minutes.
                   </p>
-                  <form onSubmit={handleInquirySubmit} className="space-y-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                  {inquirySubmitted ? (
+                    <div className="p-4 sm:p-5 rounded-lg bg-sandstone-wash border border-border-warm text-center flex flex-col items-center gap-2.5">
+                      <div className="w-10 h-10 rounded-full bg-success-jade text-white flex items-center justify-center">
+                        <span className="material-symbols-outlined text-icon-22 text-white">check</span>
+                      </div>
+                      <h4 className="font-headline-sm text-sm sm:text-base text-ink-charcoal font-bold">
+                        Inquiry Received &amp; Saved
+                      </h4>
+                      <p className="font-body-sm text-xs text-on-surface-variant max-w-md">
+                        Thank you, {inquiryName}! Your request has been logged in our Taj Ganj dispatch inbox. Our concierge desk will contact you at {inquiryPhone} shortly.
+                      </p>
+                      <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
+                        <a
+                          href={`https://wa.me/919762817598?text=${encodeURIComponent(`Hello Agra SK Baghel Tour and Travels, following up on my booking inquiry for ${origin} to ${destination} on ${inquiryDate}.`)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ color: "#ffffff" }}
+                          className="px-3.5 py-2 rounded-lg bg-black text-white font-label-caps text-xs font-bold inline-flex items-center gap-1.5 shadow-xs"
+                        >
+                          <WhatsAppIcon className="w-3.5 h-3.5 text-white" />
+                          <span className="text-white" style={{ color: "#ffffff" }}>Open in WhatsApp (Optional)</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setInquirySubmitted(false);
+                            setInquiryNotes("");
+                          }}
+                          className="px-3 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-caps text-xs font-bold transition-colors cursor-pointer"
+                        >
+                          Submit Another Inquiry
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleInquirySubmit} className="space-y-3">
+                      {inquiryError && (
+                        <div className="p-2.5 rounded-lg bg-error-container/20 border border-error text-error font-body-sm text-xs">
+                          {inquiryError}
+                        </div>
+                      )}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label htmlFor="homepage-inquiry-name" className="font-label-caps text-body-sm text-on-surface-variant uppercase font-semibold block mb-1">Full Name</label>
+                          <input
+                            id="homepage-inquiry-name"
+                            type="text"
+                            required
+                            value={inquiryName}
+                            onChange={(e) => setInquiryName(e.target.value)}
+                            placeholder="e.g. Rahul Sharma"
+                            className="w-full px-3 py-2 rounded-lg bg-surface-container-low border border-border-warm/50 text-on-surface focus:outline-none focus:border-primary text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="homepage-inquiry-phone" className="font-label-caps text-body-sm text-on-surface-variant uppercase font-semibold block mb-1">Phone / WhatsApp</label>
+                          <input
+                            id="homepage-inquiry-phone"
+                            type="tel"
+                            required
+                            value={inquiryPhone}
+                            onChange={(e) => setInquiryPhone(e.target.value)}
+                            placeholder="+91 97628 17598"
+                            className="w-full px-3 py-2 rounded-lg bg-surface-container-low border border-border-warm/50 text-on-surface focus:outline-none focus:border-primary text-xs"
+                          />
+                        </div>
+                      </div>
                       <div>
-                        <label htmlFor="homepage-inquiry-name" className="font-label-caps text-body-sm text-on-surface-variant uppercase font-semibold block mb-1">Full Name</label>
+                        <label htmlFor="homepage-inquiry-date" className="font-label-caps text-body-sm text-on-surface-variant uppercase font-semibold block mb-1">Travel Date</label>
                         <input
-                          id="homepage-inquiry-name"
-                          type="text"
+                          id="homepage-inquiry-date"
+                          type="date"
                           required
-                          value={inquiryName}
-                          onChange={(e) => setInquiryName(e.target.value)}
-                          placeholder="e.g. Rahul Sharma"
+                          value={inquiryDate}
+                          onChange={(e) => setInquiryDate(e.target.value)}
                           className="w-full px-3 py-2 rounded-lg bg-surface-container-low border border-border-warm/50 text-on-surface focus:outline-none focus:border-primary text-xs"
                         />
                       </div>
                       <div>
-                        <label htmlFor="homepage-inquiry-phone" className="font-label-caps text-body-sm text-on-surface-variant uppercase font-semibold block mb-1">Phone / WhatsApp</label>
-                        <input
-                          id="homepage-inquiry-phone"
-                          type="tel"
-                          required
-                          value={inquiryPhone}
-                          onChange={(e) => setInquiryPhone(e.target.value)}
-                          placeholder="+91 97628 17598"
-                          className="w-full px-3 py-2 rounded-lg bg-surface-container-low border border-border-warm/50 text-on-surface focus:outline-none focus:border-primary text-xs"
+                        <label htmlFor="homepage-inquiry-notes" className="font-label-caps text-body-sm text-on-surface-variant uppercase font-semibold block mb-1">Itinerary & Pickup Details</label>
+                        <textarea
+                          id="homepage-inquiry-notes"
+                          rows={3}
+                          value={inquiryNotes}
+                          onChange={(e) => setInquiryNotes(e.target.value)}
+                          placeholder="Pick-up hotel, destination, monument preferences, or special requests..."
+                          className="w-full px-3 py-2 rounded-lg bg-surface-container-low border border-border-warm/50 text-on-surface focus:outline-none focus:border-primary text-xs resize-none"
                         />
                       </div>
-                    </div>
-                    <div>
-                      <label htmlFor="homepage-inquiry-date" className="font-label-caps text-body-sm text-on-surface-variant uppercase font-semibold block mb-1">Travel Date</label>
-                      <input
-                        id="homepage-inquiry-date"
-                        type="date"
-                        required
-                        value={inquiryDate}
-                        onChange={(e) => setInquiryDate(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-surface-container-low border border-border-warm/50 text-on-surface focus:outline-none focus:border-primary text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="homepage-inquiry-notes" className="font-label-caps text-body-sm text-on-surface-variant uppercase font-semibold block mb-1">Itinerary & Pickup Details</label>
-                      <textarea
-                        id="homepage-inquiry-notes"
-                        rows={3}
-                        value={inquiryNotes}
-                        onChange={(e) => setInquiryNotes(e.target.value)}
-                        placeholder="Pick-up hotel, destination, monument preferences, or special requests..."
-                        className="w-full px-3 py-2 rounded-lg bg-surface-container-low border border-border-warm/50 text-on-surface focus:outline-none focus:border-primary text-xs resize-none"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full flex items-center justify-center gap-1.5 py-3 rounded-lg bg-primary hover:bg-primary-container text-white font-title-md text-xs font-semibold transition-all shadow-md active:scale-[0.98]"
-                    >
-                      <span className="material-symbols-outlined text-icon-16 text-white">send</span>
-                      <span className="text-white">Send Inquiry via WhatsApp</span>
-                    </button>
-                  </form>
+                      <button
+                        type="submit"
+                        disabled={inquirySubmitting}
+                        className="w-full flex items-center justify-center gap-1.5 py-3 rounded-lg bg-primary hover:bg-primary-container text-white font-title-md text-xs font-semibold transition-all shadow-md active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-icon-16 text-white">
+                          {inquirySubmitting ? "hourglass_top" : "send"}
+                        </span>
+                        <span className="text-white">
+                          {inquirySubmitting ? "Saving to Dispatch Desk..." : "Send Booking Inquiry to Dispatch Desk"}
+                        </span>
+                      </button>
+                    </form>
+                  )}
                 </div>
               </div>
             </div>

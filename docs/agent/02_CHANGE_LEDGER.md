@@ -2,6 +2,42 @@
 
 ## 2026-10-12
 
+### 2026-10-12 — Phase V2: Unified Master Remediation (Backend, Admin, Customer Site)
+
+- **Phase V2.1: Canonical Contracts & Backend Reads (P0)**:
+  - Eliminated static `CATALOG_RAW_DATA` and `compileBaseRoutes` baseline in `backend/src/modules/catalog/catalog.service.ts`.
+  - Replaced legacy manifest builder with canonical DB queries via `FareCatalogRepository` and `routeCatalog`; purged synthetic bidirectional reverse routes and multiplier pricing; unconfigured vehicle fares return explicit `null`.
+  - Wired `FareCatalogRepository` in `backend/src/app.ts`. Authored `backend/tests/unit/catalog-manifest.test.ts` (192 backend tests passing).
+- **Phase V2.2: Services Page Luxury Editorial Redesign (P1)**:
+  - Replaced 6 static modules in `react/src/pages/ServicesPage.tsx` with 4 full-image dynamic editorial category sections (01 Outstation, 02 Local Sightseeing, 03 Transfers, 04 Tour Packages) backed by published DB records.
+  - Implemented scroll-driven reveals, hover/touch card details reveal, luxury terracotta/sandstone tokens, full mobile responsiveness, and canonical booking URLs (`/book?category=...`).
+- **Phase V2.3: Routes Page & Homepage Dynamic Content Rewiring (P1)**:
+  - Rewired `RoutesPage.tsx`, `InstantRouteCalculator.tsx`, and `LatestRoutesSection.tsx` to read solely from canonical published routes; purged runtime fallback to static JSON in `catalogManifest.ts`.
+  - Standardized Popular Routes on `HomePage.tsx` with distinct One-Way and Round-Trip modes; rewired Fleet to `fetchLiveFleet()`; rewired booking inquiry form to `createInquiry()` (`POST /api/v1/inquiries`); completely eradicated client-side fare math.
+- **Phase V2.4: Reviews Moderation Feed & Booking Inquiry Persistence (P1)**:
+  - Unified review workflow in backend; enforced 30-review maximum cap in `ReviewsRepository.getPublicReviews()`.
+  - Added `fetchPublicReviews()` and `fetchPublicGallery()` in React API client (`react/src/services/api.ts`).
+  - Wired live approved reviews into `ReviewsMarquee.tsx` (LOCK-N06) with graceful fallback to curated reviews.
+  - Rewired `ContactPage.tsx` with full dispatch inquiry form persisted to PostgreSQL `inquiries` table (admin inbox) via `POST /api/v1/inquiries`, with optional WhatsApp forwarding.
+- **Phase V2.5: Build Manifest & Seed Scripts Reconciliation (P0)**:
+  - Updated `react/scripts/build-manifest.ts` to eliminate synthetic reverse routes, fake `-taxi` aliases, and fallback prices (manifest reduced from 2,060 keys to 963 canonical routes).
+  - Reconciled `backend/scripts/seed-routes.ts` (removed dropped `starting_price_inr`) and `seed-canonical-catalog.ts` (rebuilt to seed Clean Fare System tables `tour_packages`, `transfers`, `local_packages`, `fare_rules`).
+  - Ran and passed full root `npm run verify` (3 typechecks, 192 backend tests, catalog-sources tests, SEO lifecycle, 3 production builds with 59 SSG pages).
+
+### 2026-10-12 — Phase 3: Route Fare Rule Source Normalization & Catalog Manifest Cleanup
+
+- **Elimination of Static Baseline & Synthetic Fares (`backend/src/modules/catalog/catalog.service.ts`)**:
+  - Removed static `CATALOG_RAW_DATA` and `VEHICLES` baseline import and `compileBaseRoutes()` from `catalog.service.ts`.
+  - Replaced legacy `buildManifest()` body with canonical database reads: published `outstation_routes` via `deps.db.routeCatalog`, dedicated `tour_packages` via `deps.db.tourPackages`, and `local_packages` via `deps.db.localPackages`.
+  - Removed synthetic bidirectional / reverse route generation (`d + "-to-" + s`); routes are emitted solely from published database records.
+  - Eliminated invented multiplier fares (`Math.round(startingPrice * 0.85)` / `startingPrice * 1.35`, etc.); missing vehicle tiers project explicit `null`, not synthetic numbers.
+  - Eliminated package starting price fallbacks (`fleetPrices.sedan || 2999`, etc.); missing starting prices project explicit `null`.
+  - Wired `farePool` and `FareCatalogRepository` into `createCatalogService` in `backend/src/app.ts` so active vehicle models are queried from canonical DB records.
+- **Unit Testing & Verification (`backend/tests/unit/catalog-manifest.test.ts`)**:
+  - Added unit test verifying `/api/v1/catalog/manifest` returns canonical published routes, preserves real vehicle tier pricing, excludes drafts, omits synthetic reverse routes, and sets missing tiers to `null`.
+  - Ran backend test suite: 12 test files, 192 unit tests passing (100%).
+  - Ran full monorepo `npm run verify`: typecheck x3 (`react/`, `admin/`, `backend/`), unit tests, SEO lifecycle, and 3 builds (`customer:build` SSG 59 pages, `admin:build`, `backend:build`) all passed cleanly.
+
 ### 2026-10-12 — Canonical Schema Alignment & Price Write Path Remediation
 
 - **Elimination of Synthetic Fleet Fallbacks & Hardcoded Projections (`backend/src/db/postgres.ts`)**:

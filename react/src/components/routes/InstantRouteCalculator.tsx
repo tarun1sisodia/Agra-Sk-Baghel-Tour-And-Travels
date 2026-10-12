@@ -130,7 +130,7 @@ export function InstantRouteCalculator({
 
   const applyRouteSelection = useCallback(
     (slug: string, item: CompressedRouteItem) => {
-      const targetUrl = `/en/${slug}/`;
+      const targetUrl = `/routes/${slug}/`;
       if (typeof window !== "undefined" && window.location.pathname !== targetUrl) {
         window.history.pushState({ slug, o: item.o, d: item.d }, "", targetUrl);
       }
@@ -150,15 +150,18 @@ export function InstantRouteCalculator({
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  // Indicative Browse Engine (Shared Rule Module)
-  const indicativeQuote = useMemo(() => {
+  // Authoritative published route fare for the selected tier
+  const activeFare = useMemo(() => {
     if (!matchedEntry) return null;
-    return getIndicativeBrowseFare(matchedEntry, selectedTier, "one-way");
+    switch (selectedTier) {
+      case "sedan": return matchedEntry.fs;
+      case "ertiga": return matchedEntry.fe;
+      case "innova": return matchedEntry.fi;
+      case "tempo": return matchedEntry.ft;
+      case "urbania": return matchedEntry.fu;
+      default: return matchedEntry.fs;
+    }
   }, [matchedEntry, selectedTier]);
-
-  const activeFare = indicativeQuote?.total ?? 0;
-  const isGroupVehicle = Boolean(indicativeQuote?.alwaysRoundTrip);
-  const billableKm = indicativeQuote?.billedKm ?? (matchedEntry ? matchedEntry.km : 0);
 
   const hasSearchedPair = Boolean(originInput.trim() && destInput.trim());
 
@@ -174,7 +177,7 @@ export function InstantRouteCalculator({
         </div>
         <div className="flex items-center gap-1.5 font-body-sm text-xs text-on-surface-variant">
           <span className="w-2 h-2 rounded-full bg-success-jade animate-pulse" />
-          <span className="font-semibold text-ink-slate">982 Outstation Corridors</span>
+          <span className="font-semibold text-ink-slate">Live Published Corridors</span>
         </div>
       </div>
 
@@ -260,23 +263,21 @@ export function InstantRouteCalculator({
 
             <div className="text-left sm:text-right shrink-0">
               <span className="block font-body-sm text-xs text-on-surface-variant">
-                {isGroupVehicle ? "Indicative Group Fare (Round-Trip Billed)" : "Indicative One-Way Fare"}
+                Published One-Way Tariff
               </span>
-              <span className={EDITORIAL_TYPOGRAPHY.price}>₹{activeFare.toLocaleString("en-IN")}</span>
-
-              {/* Transparent Breakdown for Tempo / Urbania */}
-              {isGroupVehicle && (
-                <span className="block font-body-sm text-label-lg text-on-surface-variant mt-0.5 font-medium">
-                  Round-trip billed · {billableKm} km · +₹500 Driver
-                </span>
-              )}
+              <span className={EDITORIAL_TYPOGRAPHY.price}>
+                {activeFare && activeFare > 0 ? `₹${activeFare.toLocaleString("en-IN")}` : "Server Quote on Request"}
+              </span>
+              <span className="block font-body-sm text-label-lg text-on-surface-variant mt-0.5 font-medium">
+                {matchedEntry.toll === 1 ? "Expressway tolls included" : "Tolls as per actuals"}
+              </span>
             </div>
           </div>
 
           {/* Action CTAs */}
           <div className="flex flex-wrap items-center gap-2 pt-space-xs border-t border-border-warm/60">
             <a
-              href={`/en/${matchedEntry.slug}/`}
+              href={`/routes/${matchedEntry.slug}/`}
               onClick={(e) => {
                 e.preventDefault();
                 applyRouteSelection(matchedEntry.slug, matchedEntry);
@@ -289,7 +290,7 @@ export function InstantRouteCalculator({
             </a>
             <a
               href={`https://wa.me/${contact.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                `Hello Agra SK Baghel Tour and Travels, I would like to book a ${selectedTier.toUpperCase()} for ${matchedEntry.o} to ${matchedEntry.d} (${matchedEntry.km} km). Indicative Fare: ₹${activeFare}.`
+                `Hello Agra SK Baghel Tour and Travels, I would like to book a ${selectedTier.toUpperCase()} for ${matchedEntry.o} to ${matchedEntry.d} (${matchedEntry.km} km).`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -300,7 +301,7 @@ export function InstantRouteCalculator({
               <span className="text-white font-semibold" style={{ color: "#ffffff" }}>WhatsApp Concierge</span>
             </a>
             <a
-              href={`/book?from=${encodeURIComponent(matchedEntry.o)}&to=${encodeURIComponent(matchedEntry.d)}&vehicle=${selectedTier}&trip=one-way`}
+              href={`/book?category=outstation&from=${encodeURIComponent(matchedEntry.o)}&to=${encodeURIComponent(matchedEntry.d)}&vehicle=${selectedTier}&route=${encodeURIComponent(matchedEntry.slug)}`}
               className="inline-flex items-center gap-1 px-3.5 py-2 rounded-lg bg-primary text-white font-label-lg text-xs font-semibold hover:bg-primary-container transition-colors ml-auto shadow-xs active:scale-[0.98]"
             >
               <span>Direct Booking Form</span>

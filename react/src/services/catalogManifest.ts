@@ -129,29 +129,7 @@ export async function fetchCatalogManifest(): Promise<CatalogManifestData | null
       return inMemoryManifest;
     }
 
-    // 4. Fallback to static /routes-manifest.json and staticPackages
-    try {
-      if (typeof window !== "undefined") {
-        const res = await fetch("/routes-manifest.json");
-        if (res.ok) {
-          const routes = await res.json();
-          inMemoryManifest = {
-            version: 1,
-            updatedAt: new Date().toISOString(),
-            routeCount: Object.keys(routes).length,
-            packageCount: staticPackages.length,
-            routes,
-            packages: [...staticPackages],
-            vehicles: [],
-            isStale: true,
-          };
-          return inMemoryManifest;
-        }
-      }
-    } catch {
-      // Fallback failed
-    }
-
+    // 4. Return null if remote API is unreachable and no cache exists
     return null;
   })().finally(() => {
     fetchPromise = null;
@@ -164,15 +142,6 @@ export async function loadRoutesManifest(): Promise<Record<string, CompressedRou
   const manifest = await fetchCatalogManifest();
   if (manifest?.routes && Object.keys(manifest.routes).length > 0) {
     return manifest.routes;
-  }
-  // Hard static fallback
-  if (typeof window !== "undefined") {
-    try {
-      const res = await fetch("/routes-manifest.json");
-      if (res.ok) return await res.json();
-    } catch {
-      // Ignore
-    }
   }
   return {};
 }

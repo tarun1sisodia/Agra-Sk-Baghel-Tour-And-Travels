@@ -294,3 +294,52 @@ export async function fetchFeaturedPromo(): Promise<FeaturedPromo | null> {
     return null;
   }
 }
+
+export interface PublicReview {
+  id: string;
+  display_name: string;
+  rating: number;
+  review_text: string;
+  tour_name?: string | null;
+  route_text?: string | null;
+  social_url?: string | null;
+  social_platform?: string | null;
+  created_at: string;
+}
+
+export interface PublicGalleryItem {
+  id: string;
+  storage_key: string;
+  width?: number;
+  height?: number;
+  alt_text?: string | null;
+  reviewer_name: string;
+  review_text: string;
+}
+
+export async function fetchPublicReviews(): Promise<PublicReview[]> {
+  try {
+    const baseUrl = getApiBaseUrl();
+    const res = await fetch(`${baseUrl}/api/v1/public/reviews`);
+    if (!res.ok) return [];
+    const json = await res.json().catch(() => ({}));
+    const list = json?.reviews || json?.data || [];
+    return Array.isArray(list) ? list.slice(0, 30) : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchPublicGallery(): Promise<PublicGalleryItem[]> {
+  try {
+    const baseUrl = getApiBaseUrl();
+    const res = await fetch(`${baseUrl}/api/v1/public/gallery`);
+    if (!res.ok) return [];
+    const json = await res.json().catch(() => ({}));
+    const list = json?.gallery || json?.data || [];
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+

@@ -271,6 +271,7 @@ export class ReviewsRepository {
         AND consent_public = true
         AND show_on_homepage = true
       ORDER BY created_at DESC
+      LIMIT 30
     `);
     return res.rows;
   }

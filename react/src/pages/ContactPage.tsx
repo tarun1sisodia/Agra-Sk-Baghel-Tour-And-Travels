@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import type { SupportedLanguage } from "../config";
 import { contact } from "../data/contact";
 import { WhatsAppIcon } from "../components/icons";
+import { createInquiry, formatInquiryPhone, sanitizeInquiryName } from "../services/api";
 
 export interface ContactPageProps {
   language?: SupportedLanguage;
@@ -44,27 +45,36 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
     companyReceiptRequested: false,
   });
 
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    const text = `Hello Agra SK Baghel Tour and Travels, I would like to book a trip:%0A- Name: ${encodeURIComponent(
-      formData.name
-    )}%0A- Phone: ${encodeURIComponent(formData.phone)}%0A- Email: ${encodeURIComponent(
-      formData.email
-    )}%0A- Service: ${encodeURIComponent(formData.serviceType)}%0A- Vehicle: ${encodeURIComponent(
-      formData.vehiclePreference
-    )}%0A- Date/Time: ${encodeURIComponent(formData.tripDate)} at ${encodeURIComponent(
-      formData.tripTime
-    )}%0A- Pickup: ${encodeURIComponent(formData.pickupLocation)}%0A- Notes: ${encodeURIComponent(
-      formData.notes
-    )}%0A- booking receipt: ${formData.companyReceiptRequested ? "Yes" : "No"}`;
+    setSubmitError(null);
+    setSubmitting(true);
 
-    setTimeout(() => {
-      window.open(`https://wa.me/919762817598?text=${text}`, "_blank");
-    }, 400);
+    try {
+      const sanitizedName = sanitizeInquiryName(formData.name);
+      const formattedPhone = formatInquiryPhone(formData.phone);
+      const rawNotes = formData.notes.trim();
+      const message = `Service: ${formData.serviceType} | Vehicle: ${formData.vehiclePreference} | Date: ${formData.tripDate || "Flexible"} ${formData.tripTime || ""} | Pickup: ${formData.pickupLocation || "Agra"} | Receipt: ${formData.companyReceiptRequested ? "Yes" : "No"}${rawNotes ? ` | Notes: ${rawNotes}` : ""}`;
+
+      await createInquiry({
+        name: sanitizedName,
+        phone: formattedPhone,
+        email: formData.email.trim() || undefined,
+        message,
+        tripInterest: formData.serviceType,
+      });
+
+      setSubmitting(false);
+      setSubmitted(true);
+    } catch (err: any) {
+      setSubmitting(false);
+      setSubmitError(err?.message || "Failed to submit inquiry. Please call or WhatsApp us directly.");
+    }
   };
 
   return (
@@ -227,9 +237,250 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
           </div>
         </div>
 
+        {/* 3. DISPATCH INQUIRY & RESERVATION FORM */}
+        <div className="max-w-4xl mx-auto bg-surface-container-lowest border border-border-warm rounded-2xl p-5 sm:p-8 shadow-xs">
+          <div className="mb-6">
+            <span className="text-terracotta-sandstone font-label-caps uppercase tracking-wider text-xs font-bold block mb-1">
+              Dispatch Reservation Form
+            </span>
+            <h2 className="font-headline-md text-headline-sm sm:text-headline-md text-ink-charcoal font-semibold">
+              Send Direct Booking Inquiry
+            </h2>
+            <p className="text-on-surface-variant font-body-sm text-body-md mt-1">
+              Submissions persist directly into our central dispatch inbox in Taj Ganj, Agra. Our team reviews vehicle availability and confirms within 15 minutes.
+            </p>
+          </div>
 
+          {submitted ? (
+            <div className="p-6 rounded-xl bg-success-jade/10 border border-success-jade/30 text-ink-charcoal space-y-4">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-success-jade text-3xl">check_circle</span>
+                <div>
+                  <h3 className="font-headline-sm text-base font-bold text-ink-charcoal">
+                    Inquiry Received by Central Dispatch!
+                  </h3>
+                  <p className="text-sm text-on-surface-variant mt-0.5">
+                    Thank you, {formData.name}. Our 24×7 dispatch desk has logged your request and will contact you at <strong>{formData.phone}</strong> shortly.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-3 pt-2">
+                <a
+                  href={`https://wa.me/919762817598?text=${encodeURIComponent(
+                    `Hello Agra SK Baghel Tour & Travels, I just submitted an inquiry on your website for ${formData.serviceType} (${formData.name}, ${formData.phone}).`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 bg-black text-white hover:bg-neutral-900 px-4 py-2 rounded-lg text-xs font-semibold shadow-xs transition-colors"
+                  style={{ color: "#ffffff" }}
+                >
+                  <WhatsAppIcon className="w-4 h-4 shrink-0 text-white" />
+                  <span className="text-white" style={{ color: "#ffffff" }}>Also Notify on WhatsApp ↗</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSubmitted(false);
+                    setFormData({
+                      name: "",
+                      phone: "",
+                      email: "",
+                      serviceType: "outstation-oneway",
+                      vehiclePreference: "sedan",
+                      tripDate: "",
+                      tripTime: "",
+                      pickupLocation: "",
+                      notes: "",
+                      companyReceiptRequested: false,
+                    });
+                  }}
+                  className="px-4 py-2 rounded-lg border border-border-warm text-ink-charcoal hover:bg-sandstone-wash/40 text-xs font-semibold transition-colors"
+                >
+                  Submit Another Inquiry
+                </button>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {submitError && (
+                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm shrink-0">error</span>
+                  <span>{submitError}</span>
+                </div>
+              )}
 
-        {/* 4. DISPATCH FAQS (Compact -20%) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-ink-charcoal mb-1" htmlFor="inquiry-name">
+                    Full Name *
+                  </label>
+                  <input
+                    id="inquiry-name"
+                    type="text"
+                    required
+                    placeholder="e.g. Rahul Sharma"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-border-warm bg-white text-ink-charcoal text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ink-charcoal mb-1" htmlFor="inquiry-phone">
+                    Mobile Number (WhatsApp preferred) *
+                  </label>
+                  <input
+                    id="inquiry-phone"
+                    type="tel"
+                    required
+                    placeholder="+91 98765 43210"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-border-warm bg-white text-ink-charcoal text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-ink-charcoal mb-1" htmlFor="inquiry-email">
+                    Email Address (Optional)
+                  </label>
+                  <input
+                    id="inquiry-email"
+                    type="email"
+                    placeholder="name@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-border-warm bg-white text-ink-charcoal text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ink-charcoal mb-1" htmlFor="inquiry-service">
+                    Service Category *
+                  </label>
+                  <select
+                    id="inquiry-service"
+                    value={formData.serviceType}
+                    onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-border-warm bg-white text-ink-charcoal text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  >
+                    <option value="outstation-oneway">01 / Outstation One-Way</option>
+                    <option value="outstation-roundtrip">01 / Outstation Round-Trip</option>
+                    <option value="local-sightseeing">02 / Local Sightseeing (8h / 80km)</option>
+                    <option value="airport-transfer">03 / Airport &amp; Station Transfer</option>
+                    <option value="tour-package">04 / Signature Tour Package</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-ink-charcoal mb-1" htmlFor="inquiry-vehicle">
+                    Vehicle Tier
+                  </label>
+                  <select
+                    id="inquiry-vehicle"
+                    value={formData.vehiclePreference}
+                    onChange={(e) => setFormData({ ...formData, vehiclePreference: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-border-warm bg-white text-ink-charcoal text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  >
+                    <option value="sedan">Sedan (Dzire / Etios · 4 Passengers)</option>
+                    <option value="ertiga">Ertiga (6+1 MPV · 6 Passengers)</option>
+                    <option value="innova-crysta">Innova Crysta (Plush SUV · 6–7 Passengers)</option>
+                    <option value="tempo-traveller">Tempo Traveller (12–17 Seater)</option>
+                    <option value="urbania">Force Urbania (Luxury Van)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ink-charcoal mb-1" htmlFor="inquiry-date">
+                    Travel Date
+                  </label>
+                  <input
+                    id="inquiry-date"
+                    type="date"
+                    value={formData.tripDate}
+                    onChange={(e) => setFormData({ ...formData, tripDate: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-border-warm bg-white text-ink-charcoal text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ink-charcoal mb-1" htmlFor="inquiry-time">
+                    Preferred Pickup Time
+                  </label>
+                  <input
+                    id="inquiry-time"
+                    type="time"
+                    value={formData.tripTime}
+                    onChange={(e) => setFormData({ ...formData, tripTime: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-border-warm bg-white text-ink-charcoal text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-ink-charcoal mb-1" htmlFor="inquiry-pickup">
+                  Pickup Location &amp; Destination Details
+                </label>
+                <input
+                  id="inquiry-pickup"
+                  type="text"
+                  placeholder="e.g. Hotel ITC Mughal, Agra to Delhi IGI Airport Terminal 3"
+                  value={formData.pickupLocation}
+                  onChange={(e) => setFormData({ ...formData, pickupLocation: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-border-warm bg-white text-ink-charcoal text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-ink-charcoal mb-1" htmlFor="inquiry-notes">
+                  Special Requirements / Notes
+                </label>
+                <textarea
+                  id="inquiry-notes"
+                  rows={2}
+                  placeholder="e.g. Flight arrival at 11:30 AM, need child car seat, extra luggage..."
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-border-warm bg-white text-ink-charcoal text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="inquiry-receipt"
+                  checked={formData.companyReceiptRequested}
+                  onChange={(e) => setFormData({ ...formData, companyReceiptRequested: e.target.checked })}
+                  className="rounded border-border-warm text-primary focus:ring-primary"
+                />
+                <label htmlFor="inquiry-receipt" className="text-xs text-on-surface-variant font-medium cursor-pointer">
+                  Require official corporate booking receipt tax invoice
+                </label>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full sm:w-auto px-6 py-3 rounded-lg bg-terracotta-deep hover:bg-primary text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                >
+                  {submitting ? (
+                    <>
+                      <span className="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Transmitting to Central Dispatch...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-base">send</span>
+                      <span>Submit Dispatch Inquiry</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+
         <div className="max-w-4xl mx-auto pt-6">
           <div className="text-center mb-6">
             <span className="font-label-caps text-body-sm text-primary uppercase tracking-widest font-bold block mb-1">

@@ -4,6 +4,7 @@ import {
   PrimaryButton,
   WhatsAppButton,
   EDITORIAL_TYPOGRAPHY,
+  EDITORIAL_BUTTONS,
 } from "../components/layout/EditorialPageTemplate";
 import { fetchLiveFleet, type PublicFleetVehicle } from "../services/catalog";
 import { useScrollReveal } from "../utils/scrollReveal";
@@ -12,141 +13,116 @@ export interface ServicesPageProps {
   language?: SupportedLanguage;
 }
 
-interface ServiceModule {
+interface ServiceCategory {
   id: string;
   number: string;
   name: string;
   subtitle: string;
-  startingFare: string;
-  fareDetail: string;
+  tag: string;
   description: string;
   image: string;
   highlights: string[];
   vehicleTypes: string;
   idealFor: string;
+  tariffSummary: string;
   bookingUrl: string;
+  secondaryUrl?: string;
+  secondaryLabel?: string;
+  inquiryText: string;
 }
 
-const SERVICES_MODULES: ServiceModule[] = [
+const CANONICAL_CATEGORIES: ServiceCategory[] = [
   {
-    id: "service-01",
+    id: "outstation",
     number: "01",
-    name: "One-Way Outstation Drops",
-    subtitle: "POINT-TO-POINT INTERCITY",
-    startingFare: "₹3,499",
-    fareDetail: "Agra to Delhi IGI Airport / NCR · All Tolls Included",
+    name: "Outstation & Intercity Corridors",
+    subtitle: "EXPRESSWAY ONE-WAY & MULTI-DAY ROUND TRIPS",
+    tag: "POINT-TO-POINT & ROUND TRIP",
     description:
-      "Swift, private, access-controlled expressway drops from Agra to New Delhi, IGI Airport, Jaipur, Mathura, Gwalior, and Lucknow. You pay strictly for the single journey with zero empty return charges.",
-    image: "/assets/fleet/sedan.webp",
+      "Swift, private, access-controlled expressway transit connecting Agra to New Delhi, IGI Airport, Jaipur, Mathura, Gwalior, and Lucknow. Choose between direct point-to-point one-way drops with zero empty return charges, or reserve a dedicated chauffeur for multi-day touring with transparent garage logbooks.",
+    image: "/assets/destinations/jaipur-hawa-mahal.webp",
     highlights: [
-      "Yamuna & Agra-Lucknow expressway tolls included",
-      "Doorstep pickup anywhere in Agra city",
-      "Direct drop to Delhi IGI Airport Terminal 1, 2, 3",
-      "Flight delay tracking for return pickups",
+      "Yamuna & Agra-Lucknow expressway tolls included for one-way drops",
+      "Round-trip multi-day touring with dedicated chauffeur & 300 km/day billing",
+      "Doorstep pickup anywhere in Agra city & direct drop to Delhi NCR terminals",
+      "All-India commercial tourist permits with flight delay arrival tracking",
     ],
-    vehicleTypes: "Sedan (Dzire), MPV (Ertiga), SUV (Innova Crysta)",
-    idealFor: "Solo business executives, couples flying out of Delhi, and rapid one-way interstate travel.",
-    bookingUrl: "/book?type=oneway",
+    vehicleTypes: "Sedan (Dzire), MPV (Ertiga), Luxury SUV (Innova Crysta), Tempo (12–26 Seater)",
+    idealFor: "Executive business passengers, interstate family travel, and Golden Triangle circuits.",
+    tariffSummary: "Verified Point-to-Point Fares · All Tolls & Chauffeur Included",
+    bookingUrl: "/book?category=outstation",
+    secondaryUrl: "/routes",
+    secondaryLabel: "Explore Outstation Routes",
+    inquiryText: "Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about Outstation Chauffeur Services.",
   },
   {
-    id: "service-02",
+    id: "local-sightseeing",
     number: "02",
-    name: "Outstation Round-Trip Touring",
-    subtitle: "MULTI-DAY CHAUFFEURED TRAVEL",
-    startingFare: "₹10/km",
-    fareDetail: "Min. 300 km/day · All-India Tourist Permit",
+    name: "Local Heritage & City Sightseeing",
+    subtitle: "DISCOVER AGRA MONUMENTS AT YOUR PACE",
+    tag: "HALF-DAY & FULL-DAY SLOTS",
     description:
-      "Hire a clean, comfortable vehicle and a polite driver for multi-day trips across Rajasthan, Uttarakhand, and Madhya Pradesh. Standard 300 km/day billing with zero hidden kilometer charges.",
-    image: "/assets/fleet/innova.webp",
-    highlights: [
-      "Dedicated vehicle & chauffeur on standby all day",
-      "Transparent garage-to-garage kilometer logbook",
-      "Chauffeur overnight stay managed with simple ₹300 allowance",
-      "Spotless interior cleaned daily before morning departure",
-    ],
-    vehicleTypes: "Sedan, Ertiga, Innova Crysta, 12–26 Seater Tempo",
-    idealFor: "Family vacations, Golden Triangle trips, and corporate multi-city travel.",
-    bookingUrl: "/book?type=round",
-  },
-  {
-    id: "service-03",
-    number: "03",
-    name: "Local Sightseeing & City Tours",
-    subtitle: "AGRA MONUMENTS AT YOUR PACE",
-    startingFare: "₹1,900",
-    fareDetail: "8 Hours / 80 Kilometers · AC Sedan & Chauffeur",
-    description:
-      "Explore the architectural crown jewels of the Mughal Empire without rushing. Our experienced chauffeurs navigate local monument gates, bypass tourist bottlenecks, and wait patiently while you explore.",
+      "Explore the architectural crown jewels of the Mughal Empire in relaxed, air-conditioned luxury. Our polite, experienced chauffeurs navigate monument gates, parking areas, and tourist congestion while you experience Agra's UNESCO world heritage sites at your own rhythm.",
     image: "/assets/packages/agra-fort.webp",
     highlights: [
-      "Covers Taj Mahal, Agra Fort, Itimad-ud-Daulah, Mehtab Bagh",
-      "8h/80km (₹1,900) or 12h/120km (₹2,200) standard slots",
-      "Zero commission shopping halts unless explicitly requested",
-      "Doorstep pickup from any Agra hotel or home",
+      "Covers Taj Mahal, Agra Fort, Itimad-ud-Daulah (Baby Taj), and Mehtab Bagh",
+      "Flexible 8-hour / 80 km or 12-hour / 120 km sightseeing packages",
+      "Dedicated AC vehicle and chauffeur on standby at every monument gate",
+      "Zero commission shopping halts; 100% guest-focused heritage itinerary",
     ],
-    vehicleTypes: "Sedan, Ertiga, Innova Crysta, Tempo Traveller",
-    idealFor: "Heritage lovers, photography enthusiasts, and leisurely travelers.",
-    bookingUrl: "/packages/same-day-agra-taj-mahal-tour",
+    vehicleTypes: "Executive Sedan, Ertiga MPV, Innova Crysta, Tempo Traveller",
+    idealFor: "Heritage lovers, families, photographers, and independent voyagers.",
+    tariffSummary: "Published Package Rates · Flexible Sightseeing Hours",
+    bookingUrl: "/book?category=local",
+    secondaryUrl: "/packages",
+    secondaryLabel: "View Tour Packages",
+    inquiryText: "Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about Agra Local Sightseeing Cabs.",
   },
   {
-    id: "service-04",
-    number: "04",
-    name: "Airport & Railway Station Transfers",
-    subtitle: "PUNCTUAL PLATFORM & TERMINAL PICKUPS",
-    startingFare: "₹800",
-    fareDetail: "Agra Cantt from ₹800 · Delhi IGI Airport ₹3,499",
+    id: "transfers",
+    number: "03",
+    name: "Airport & Railway Station Transit",
+    subtitle: "ARRIVE WITHOUT THE STRESS",
+    tag: "PUNCTUAL PLATFORM & TERMINAL PICKUPS",
     description:
-      "Guaranteed punctual station and airport transit. Whether arriving on the Gatimaan Express at Agra Cantt or catching an international departure from Delhi IGI Terminal 3, your driver is on the curb 15 minutes before your scheduled arrival.",
+      "Guaranteed punctual transit between terminals and your doorstep. Whether arriving on the Gatimaan Express at Agra Cantt or catching an international departure from Delhi IGI Airport Terminal 1, 2, or 3, your private chauffeur is at the curb 15 minutes prior to scheduled arrival.",
     image: "/assets/fleet/ertiga.webp",
     highlights: [
-      "Chauffeur waiting with personalized name signboard",
-      "Live flight and train delay tracking",
-      "Luggage loading & unloading assistance",
-      "Direct drop to departures curb",
+      "Personalized arrival signboard greeting at platform and airport exits",
+      "Live train and flight status tracking for delay protection",
+      "Luggage handling assistance and direct curbside drop-off",
+      "Direct transit via Yamuna Expressway for Delhi IGI flights",
     ],
     vehicleTypes: "Executive Sedan, Ertiga MPV, Innova Crysta",
-    idealFor: "International travelers, business passengers with tight train or flight schedules.",
-    bookingUrl: "/book",
+    idealFor: "International flight passengers, executive arrivals at Agra Cantt station.",
+    tariffSummary: "Fixed Terminal Transfers · Zero Parking or Roadside Extras",
+    bookingUrl: "/book?category=transfer",
+    secondaryUrl: "/book",
+    secondaryLabel: "Book Fast Transfer",
+    inquiryText: "Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about Airport / Station Transfers.",
   },
   {
-    id: "service-05",
-    number: "05",
-    name: "Group Transit: Tempo & Urbania",
-    subtitle: "LARGE FAMILY & DELEGATION TRANSIT",
-    startingFare: "₹25/km",
-    fareDetail: "9 to 26 Seats · Rear Baggage Cargo Hold",
+    id: "tour-packages",
+    number: "04",
+    name: "Curated Heritage & Multi-Day Circuits",
+    subtitle: "JOURNEYS WORTH REMEMBERING",
+    tag: "HANDCRAFTED PRIVATE ITINERARIES",
     description:
-      "Eliminate the hassle of splitting your party across multiple small cabs. Our Force Tempo Travellers and luxury Force Urbanias offer individual AC vents, reclining high-back seating, and ample cargo storage for everyone.",
-    image: "/assets/fleet/tempo.webp",
-    highlights: [
-      "9, 12, 16, 20, and 26-seater configurations available",
-      "Individual aircraft-style jet AC louvers",
-      "Weatherproof roof carrier and deep rear luggage bay",
-      "Dedicated microphone PA system for group leaders",
-    ],
-    vehicleTypes: "Force Tempo Traveller, Force Urbania VIP",
-    idealFor: "Wedding entourages, pilgrim groups to Mathura & Vrindavan, school and college heritage tours.",
-    bookingUrl: "/fleet",
-  },
-  {
-    id: "service-06",
-    number: "06",
-    name: "Guided Heritage Tours",
-    subtitle: "COMPLETE HANDCRAFTED ITINERARIES",
-    startingFare: "₹3,499",
-    fareDetail: "Same-Day to 3-Day Circuits · Doorstep Service",
-    description:
-      "All-inclusive private tours designed to maximize monument time and eliminate tourist stress. From sunrise at the Taj Mahal to the sacred evening aarti of Mathura and the royal palaces of Jaipur.",
+      "All-inclusive private touring circuits crafted to maximize monument access and eliminate travel fatigue. From early dawn VIP entry at the Taj Mahal to the sacred evening aarti of Mathura-Vrindavan and the royal forts of Rajasthan.",
     image: "/assets/packages/taj-dawn.webp",
     highlights: [
-      "Sunrise Taj Mahal Guided Tour (VIP Dawn Entry)",
-      "Mathura & Vrindavan Darshan with Krishna Janmabhoomi",
-      "Same Day Agra by Gatimaan Superfast Express",
-      "Golden Triangle 3-Day Circuit (Delhi-Agra-Jaipur)",
+      "VIP Sunrise Taj Mahal Guided Tour with early dawn monument entry",
+      "Mathura & Vrindavan Darshan covering Krishna Janmabhoomi & Prem Mandir",
+      "Same-Day Agra by Gatimaan Superfast Express with private AC cab",
+      "Golden Triangle 3-Day Circuit (Delhi – Agra – Jaipur)",
     ],
-    vehicleTypes: "Any vehicle tier from Sedan to Force Urbania",
-    idealFor: "First-time visitors, international tourists, and couples looking for a seamless private vacation.",
-    bookingUrl: "/packages",
+    vehicleTypes: "Executive Sedan, Innova Crysta, 12–26 Seater Tempo Traveller, Force Urbania VIP",
+    idealFor: "First-time international visitors, families, and curated luxury holidays.",
+    tariffSummary: "All-Inclusive Circuits · Licensed Guides & Chauffeur",
+    bookingUrl: "/book?category=tour",
+    secondaryUrl: "/packages",
+    secondaryLabel: "Explore Handcrafted Tours",
+    inquiryText: "Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about Handcrafted Tour Packages.",
   },
 ];
 
@@ -167,31 +143,22 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
     };
   }, []);
 
-  const serviceModules = useMemo(() => {
+  const categories = useMemo(() => {
     const activeVehicles = liveFleet.filter((v) => v.active);
     const sedan = activeVehicles.find((v) => v.id === "sedan" || v.tier === "sedan");
-    const tempo = activeVehicles.find((v) => v.id === "tempo" || v.tier === "tempo-traveller");
-    const lowestCabRate = sedan?.perKm ?? 10;
-    const tempoRate = tempo?.perKm ?? 25;
 
-    return SERVICES_MODULES.map((s) => {
-      if (s.id === "service-02") {
+    return CANONICAL_CATEGORIES.map((cat) => {
+      if (cat.id === "outstation" && sedan && sedan.perKm > 0) {
         return {
-          ...s,
-          startingFare: `₹${lowestCabRate}/km`,
+          ...cat,
+          tariffSummary: `Starting ₹${sedan.perKm}/km for Round-Trip · Verified Point-to-Point Fares`,
         };
       }
-      if (s.id === "service-05") {
-        return {
-          ...s,
-          startingFare: `₹${tempoRate}/km`,
-        };
-      }
-      return s;
+      return cat;
     });
   }, [liveFleet]);
 
-  useScrollReveal([serviceModules]);
+  useScrollReveal([categories]);
 
   return (
     <div className="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen">
@@ -208,15 +175,16 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-end reveal">
             <div className="lg:col-span-8 flex flex-col">
-              <h1 className={`${EDITORIAL_TYPOGRAPHY.heroH1} hero-line max-w-3xl`}>
+              <span className={EDITORIAL_TYPOGRAPHY.eyebrow}>Concierge Transit Portfolio</span>
+              <h1 className={`${EDITORIAL_TYPOGRAPHY.heroH1} hero-line max-w-3xl mt-1.5`}>
                 Every journey in North India,{" "}
                 <span className={EDITORIAL_TYPOGRAPHY.heroAccent}>thoughtfully chauffeured.</span>
               </h1>
             </div>
             <div className="lg:col-span-4 flex flex-col pb-1">
               <p className={`${EDITORIAL_TYPOGRAPHY.lead} mb-space-lg`}>
-                From fast one-way expressway drops to multi-day tours, our fleet delivers
-                transparent billing, courteous drivers, and round-the-clock local support.
+                From fast one-way expressway drops to multi-day touring circuits, our fleet delivers
+                transparent billing, courteous drivers, and round-the-clock local dispatch support.
               </p>
               <div className="flex flex-wrap items-center gap-space-sm">
                 <PrimaryButton href="/book">
@@ -230,19 +198,20 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
             </div>
           </div>
 
-          {/* Quick Directory Jump Strip */}
+          {/* Quick Directory Jump Strip (The 4 Canonical Categories) */}
           <div className="mt-space-lg pt-space-md reveal" style={{ "--reveal-delay": "150ms" } as React.CSSProperties}>
             <p className={EDITORIAL_TYPOGRAPHY.eyebrow}>
-              Quick Directory Jump
+              Quick Category Jump
             </p>
             <div className="flex items-center gap-2 overflow-x-auto pb-space-xs mt-1.5 row-scroll">
-              {serviceModules.map((s) => (
+              {categories.map((cat) => (
                 <a
-                  key={s.id}
-                  className="whitespace-nowrap px-3 py-1 rounded-full bg-surface-container hover:bg-surface-container-high text-ink-charcoal font-label-caps text-body-sm transition-all font-bold lift"
-                  href={`#${s.id}`}
+                  key={cat.id}
+                  className="whitespace-nowrap px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high text-ink-charcoal font-label-caps text-body-sm transition-all font-bold lift border border-border-warm/50"
+                  href={`#${cat.id}`}
                 >
-                  {s.number} {s.name.split(":")[0]}
+                  <span className="text-primary mr-1.5">{cat.number}</span>
+                  {cat.name.split("&")[0].trim()}
                 </a>
               ))}
             </div>
@@ -250,94 +219,128 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
         </div>
       </section>
 
-      {/* ── 2. THE 6 DETAILED SERVICE MODULES ── */}
-      <section className="max-w-[1280px] mx-auto px-margin-mobile lg:px-margin py-8 sm:py-space-xl flex flex-col gap-6 sm:gap-space-xl">
+      {/* ── 2. THE 4 CANONICAL CATEGORY EDITORIAL SECTIONS ── */}
+      <section className="max-w-[1280px] mx-auto px-margin-mobile lg:px-margin py-8 sm:py-space-xl flex flex-col gap-8 sm:gap-12">
         <div className="flex flex-col items-center text-center max-w-2xl mx-auto reveal">
           <span className={EDITORIAL_TYPOGRAPHY.eyebrow}>
-            Concierge Transit Portfolio
+            Authoritative Product Portfolio
           </span>
           <h2 className={`${EDITORIAL_TYPOGRAPHY.sectionH2} hero-line mt-1`}>
             Handcrafted transportation designed for modern voyagers.
           </h2>
           <p className={`${EDITORIAL_TYPOGRAPHY.body} mt-1.5`}>
-            Every service is backed by our Taj Ganj dispatch operations, strict vehicle cleanliness inspections, and honest
-            per-kilometer billing.
+            Every service is backed by our Taj Ganj dispatch operations, strict vehicle cleanliness inspections, and verified
+            server-authoritative pricing.
           </p>
         </div>
 
-        {serviceModules.map((s, idx) => (
-          <div
-            key={s.id}
-            id={s.id}
+        {categories.map((cat, idx) => (
+          <article
+            key={cat.id}
+            id={cat.id}
             style={{ "--reveal-delay": `${(idx % 2) * 120}ms` } as React.CSSProperties}
-            className="scroll-mt-24 bg-surface-container-lowest rounded-xl shadow-xs overflow-hidden border border-border-warm/70 lift reveal"
+            className="scroll-mt-24 group relative rounded-2xl overflow-hidden border border-border-warm/70 bg-ink-charcoal text-ivory-surface shadow-md lift reveal"
           >
-            <div className="grid grid-cols-1 lg:grid-cols-12">
-              <div className="lg:col-span-5 relative min-h-[190px] lg:min-h-[260px] bg-sandstone-wash overflow-hidden">
-                <img
-                  className="w-full h-full object-cover min-h-[190px] lg:min-h-[260px] transition-transform duration-700 hover:scale-105"
-                  src={s.image}
-                  alt={s.name}
-                  loading="lazy"
-                />
-                <div className="absolute bottom-2.5 left-2.5 right-2.5 p-2 sm:p-2.5 bg-surface-container-lowest/95 backdrop-blur-md rounded-lg shadow-xs border border-border-warm/40 arch">
-                  <div className="flex items-center justify-between text-on-surface">
-                    <span className="font-label-caps text-label-caps text-primary uppercase font-bold">Starting Tariff</span>
-                    <span className="font-price-display text-base sm:text-lg text-primary font-bold">{s.startingFare}</span>
-                  </div>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">{s.fareDetail}</p>
+            {/* Full-Bleed Atmospheric Image & Backdrop */}
+            <div className="relative w-full min-h-[460px] sm:min-h-[500px] lg:min-h-[560px] flex flex-col justify-between overflow-hidden">
+              <img
+                src={cat.image}
+                alt={cat.name}
+                loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 group-focus-within:scale-105"
+              />
+              {/* Deep Luxury Editorial Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight via-ink-midnight/80 to-ink-midnight/35" />
+              <div className="absolute inset-0 bg-radial-[at_top_right] from-transparent via-black/20 to-black/60 pointer-events-none" />
+
+              {/* Top Banner: Category Number & Pill */}
+              <div className="relative z-10 p-5 sm:p-6 lg:p-8 flex items-center justify-between border-b border-white/10 backdrop-blur-xs">
+                <div className="flex items-center gap-3">
+                  <span className="font-price-display text-2xl sm:text-3xl text-primary-fixed-dim font-bold">
+                    {cat.number}
+                  </span>
+                  <div className="h-4 w-px bg-white/20" />
+                  <span className="font-label-caps text-terracotta-sunlit uppercase font-bold tracking-widest text-xs">
+                    {cat.subtitle}
+                  </span>
                 </div>
+                <span className="hidden sm:inline-flex items-center px-3 py-1 rounded-full bg-black/40 border border-gold-accent/40 text-gold-accent font-label-caps text-label-md font-bold tracking-wider backdrop-blur-md">
+                  {cat.tag}
+                </span>
               </div>
 
-              <div className="lg:col-span-7 p-4 sm:p-5 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-price-display text-headline-sm text-primary font-bold">{s.number}</span>
-                    <span className="font-label-caps text-body-sm text-terracotta-sandstone uppercase font-bold tracking-wider">
-                      {s.subtitle}
-                    </span>
-                  </div>
-                  <h3 className={`${EDITORIAL_TYPOGRAPHY.cardH3} text-base sm:text-lg mb-1.5`}>{s.name}</h3>
-                  <p className={`${EDITORIAL_TYPOGRAPHY.compact} mb-3`}>
-                    {s.description}
+              {/* Bottom Card Content: Title, Description, Highlights & CTAs */}
+              <div className="relative z-10 p-5 sm:p-6 lg:p-8 flex flex-col justify-end bg-gradient-to-t from-ink-midnight via-ink-midnight/95 to-transparent pt-12 sm:pt-16">
+                <div className="max-w-4xl">
+                  <h3 className="font-headline-hero text-2xl sm:text-3xl lg:text-4xl text-ivory-surface font-semibold mb-2.5 leading-tight">
+                    {cat.name}
+                  </h3>
+                  <p className="font-body-md text-ivory-surface/85 text-sm sm:text-base leading-relaxed mb-4 max-w-3xl">
+                    {cat.description}
                   </p>
 
-                  <div className="space-y-1.5 mb-3 border-y border-border-warm/50 rule py-2">
-                    {s.highlights.map((item) => (
-                      <div key={item} className="flex items-start gap-1.5 text-on-surface font-body-sm text-body-md">
-                        <span className="material-symbols-outlined text-success-jade text-icon-15 shrink-0 mt-0.5">
+                  {/* Highlights Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 mb-4 py-3 border-y border-white/15">
+                    {cat.highlights.map((highlight) => (
+                      <div key={highlight} className="flex items-start gap-2 text-ivory-surface/90 text-xs sm:text-sm">
+                        <span className="material-symbols-outlined text-success-jade text-icon-16 shrink-0 mt-0.5">
                           check_circle
                         </span>
-                        <span>{item}</span>
+                        <span>{highlight}</span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3 text-label-lg text-on-surface-variant">
-                    <div>
-                      <strong className="block text-ink-charcoal mb-0.5">Fleet Options:</strong>
-                      {s.vehicleTypes}
+                  {/* Fleet & Suitability Specs */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 text-xs text-ivory-surface/75">
+                    <div className="bg-white/5 rounded-lg p-2.5 border border-white/10">
+                      <strong className="block text-gold-accent font-label-caps uppercase text-label-caps tracking-wider mb-1">
+                        Active Fleet Options
+                      </strong>
+                      <span className="text-ivory-surface/90">{cat.vehicleTypes}</span>
                     </div>
-                    <div>
-                      <strong className="block text-ink-charcoal mb-0.5">Best Suited For:</strong>
-                      {s.idealFor}
+                    <div className="bg-white/5 rounded-lg p-2.5 border border-white/10">
+                      <strong className="block text-gold-accent font-label-caps uppercase text-label-caps tracking-wider mb-1">
+                        Best Suited For
+                      </strong>
+                      <span className="text-ivory-surface/90">{cat.idealFor}</span>
+                    </div>
+                  </div>
+
+                  {/* Action Dock: Tariff Pill + Dual Action Buttons */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-terracotta-sunlit text-icon-18">
+                        verified
+                      </span>
+                      <span className="font-label-caps text-ivory-surface/80 text-xs tracking-wider">
+                        {cat.tariffSummary}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <PrimaryButton href={cat.bookingUrl} size="md">
+                        Reserve Service
+                      </PrimaryButton>
+                      {cat.secondaryUrl && (
+                        <a
+                          href={cat.secondaryUrl}
+                          className={EDITORIAL_BUTTONS.secondary}
+                        >
+                          {cat.secondaryLabel || "View Details"}
+                        </a>
+                      )}
+                      <WhatsAppButton
+                        size="md"
+                        inquiryText={cat.inquiryText}
+                        label="WhatsApp Consultation"
+                      />
                     </div>
                   </div>
                 </div>
-
-                <div className="flex flex-wrap items-center gap-2.5 pt-2.5 border-t border-border-warm/50 rule">
-                  <PrimaryButton href={s.bookingUrl} size="md">
-                    Reserve Service
-                  </PrimaryButton>
-                  <WhatsAppButton
-                    size="md"
-                    inquiryText={`Inquiry for ${s.name}`}
-                    label="WhatsApp Inquiry"
-                  />
-                </div>
               </div>
             </div>
-          </div>
+          </article>
         ))}
       </section>
 
@@ -361,7 +364,7 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
               {
                 icon: "timer",
                 title: "Punctuality Guarantee",
-                desc: "Chauffeurs arrive at your pickup location 15 minutes before the scheduled rendezvous. If any delay occurs, our standby backup fleet in Taj Ganj deploys immediately.",
+                desc: "Chauffeurs arrive at your pickup location 15 minutes before scheduled departure. If any delay occurs, our standby backup fleet in Taj Ganj deploys immediately.",
               },
               {
                 icon: "payments",
@@ -371,7 +374,7 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
               {
                 icon: "badge",
                 title: "Police-Verified Drivers",
-                desc: "Every chauffeur holds an active commercial badge, police background verification certificate, and follows our strict guest etiquette code for families and solo women travelers.",
+                desc: "Every chauffeur holds an active commercial badge, police background verification certificate, and follows our strict guest etiquette code for families and solo travelers.",
               },
               {
                 icon: "sanitizer",
@@ -398,7 +401,30 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
           </div>
         </div>
       </section>
+
+      {/* ── 4. FINAL BOOKING & ENQUIRY CTA SECTION ── */}
+      <section className="w-full bg-surface-container-lowest py-8 sm:py-space-xl border-t border-border-warm/60">
+        <div className="max-w-[1280px] mx-auto px-margin-mobile lg:px-margin text-center reveal">
+          <span className={EDITORIAL_TYPOGRAPHY.eyebrow}>
+            Plan Your Next Journey
+          </span>
+          <h2 className={`${EDITORIAL_TYPOGRAPHY.sectionH2} hero-line mt-1 max-w-xl mx-auto`}>
+            Ready for a seamless travel experience across North India?
+          </h2>
+          <p className={`${EDITORIAL_TYPOGRAPHY.lead} mt-2 max-w-2xl mx-auto mb-space-lg`}>
+            Speak directly with our Taj Ganj dispatch desk for custom itineraries, group delegates, or instant expressway bookings.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-space-sm">
+            <PrimaryButton href="/book">
+              Book Cab Online
+            </PrimaryButton>
+            <WhatsAppButton
+              inquiryText="Hello Agra SK Baghel Tour and Travels Desk, I would like to plan a custom trip."
+              label="Chat on WhatsApp"
+            />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
-

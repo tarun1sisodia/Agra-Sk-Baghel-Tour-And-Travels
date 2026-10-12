@@ -34,11 +34,11 @@ export interface CompressedRoute {
   d: string;              // Destination
   km: number;             // Distance in km (One-Way)
   m: number;              // Duration in minutes
-  fs: number;             // Fare Sedan (Dzire / Etios)
-  fe: number;             // Fare Ertiga / SUV
-  fi: number;             // Fare Innova Crysta
-  ft: number;             // Tempo Traveller Fare
-  fu: number;             // Force Urbania Fare
+  fs: number | null;      // Fare Sedan (Dzire / Etios)
+  fe: number | null;      // Fare Ertiga / SUV
+  fi: number | null;      // Fare Innova Crysta
+  ft: number | null;      // Tempo Traveller Fare
+  fu: number | null;      // Force Urbania Fare
   pm: PricingModelType;   // Pricing Model Flag
   c: string;              // Travel Corridor
   toll: 1 | 0;            // Toll inclusion: 1 = included, 0 = extra
@@ -100,11 +100,11 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   }
 
   for (const [slug, item] of Object.entries(catalogRoutes)) {
-    const fs = item.fares.sedan;
-    const fe = item.fares.ertiga;
-    const fi = item.fares.innova;
-    const ft = item.fares.tempo;
-    const fu = item.fares.urbania;
+    const fs = item.fares?.sedan != null ? Number(item.fares.sedan) : null;
+    const fe = item.fares?.ertiga != null ? Number(item.fares.ertiga) : null;
+    const fi = item.fares?.innova != null ? Number(item.fares.innova) : null;
+    const ft = item.fares?.tempo != null ? Number(item.fares.tempo) : null;
+    const fu = item.fares?.urbania != null ? Number(item.fares.urbania) : null;
 
     manifest[slug] = {
       o: item.origin,
@@ -142,35 +142,6 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
         urbania: fu,
       },
     });
-
-    // Alias `-taxi` slug if not present (e.g. agra-delhi -> agra-to-delhi-taxi)
-    if (!slug.endsWith("-taxi") && item.from && item.to) {
-      const taxiAlias = `${item.from}-to-${item.to}-taxi`;
-      if (!manifest[taxiAlias]) {
-        manifest[taxiAlias] = manifest[slug];
-      }
-    }
-
-    // Bidirectional return route for catalogRoutes if reverse does not exist
-    if (item.origin && item.destination && item.from && item.to && item.from !== item.to && item.kind !== "local") {
-      const revSlug = `${item.to}-to-${item.from}-taxi`;
-      if (!manifest[revSlug]) {
-        manifest[revSlug] = {
-          o: item.destination,
-          d: item.origin,
-          km: item.km,
-          m: item.durationMins || Math.round((item.km / 55) * 60),
-          fs,
-          fe,
-          fi,
-          ft,
-          fu,
-          pm: item.pricingModel || "oneway",
-          c: `${item.destination} to ${item.origin} Corridor`,
-          toll: item.toll === 1 ? 1 : 0,
-        };
-      }
-    }
   }
 
   // Published admin routes become the customer site's source of truth on the
@@ -179,106 +150,59 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   const manifestUrl = catalogSources["route-catalog"]?.url;
   const routeCatalogPayload = await loadCatalogSource("route-catalog");
   if (routeCatalogPayload) {
-        const payload = routeCatalogPayload as { data?: Array<any> };
-        for (const item of payload.data ?? []) {
-          if (item.status !== "published") continue;
-          publishedRouteItems.push(item);
-          const fares = item.faresInr ?? item.fares_inr ?? {};
-          const routeSlug = String(item.slug);
-          const distanceKm = Number(item.distanceKm ?? item.distance_km ?? 0);
-          const durationText = String(item.durationText ?? item.duration_text ?? "");
-          const durationMins = Number(durationText.match(/(\d+(?:\.\d+)?)\s*h/i)?.[1] ?? 0) * 60 || Math.round((distanceKm / 55) * 60);
-          const sourceCity = String(item.sourceCity ?? item.source_city ?? "");
-          const destCity = String(item.destinationCity ?? item.destination_city ?? "Local sightseeing");
+    const payload = routeCatalogPayload as { data?: Array<any> };
+    for (const item of payload.data ?? []) {
+      if (item.status !== "published") continue;
+      publishedRouteItems.push(item);
+      const fares = item.faresInr ?? item.fares_inr ?? {};
+      const routeSlug = String(item.slug);
+      const distanceKm = Number(item.distanceKm ?? item.distance_km ?? 0);
+      const durationText = String(item.durationText ?? item.duration_text ?? "");
+      const durationMins = Number(durationText.match(/(\d+(?:\.\d+)?)\s*h/i)?.[1] ?? 0) * 60 || Math.round((distanceKm / 55) * 60);
+      const sourceCity = String(item.sourceCity ?? item.source_city ?? "");
+      const destCity = String(item.destinationCity ?? item.destination_city ?? "Local sightseeing");
 
-          manifest[routeSlug] = {
-            o: sourceCity,
-            d: destCity,
-            km: distanceKm,
-            m: durationMins,
-            fs: Number(fares.sedan ?? 2000),
-            fe: Number(fares.ertiga ?? 2800),
-            fi: Number(fares.innova ?? 3800),
-            ft: Number(fares.tempo ?? 5500),
-            fu: Number(fares.urbania ?? 7500),
-            pm: item.tripType === "round-trip" ? "day120" : item.tripType === "local-tour" ? "tour" : "oneway",
-            c: item.sourceDetail ?? "Direct Highway Corridor",
-            toll: item.tollIncluded === false ? 0 : 1,
-          };
-          allRoutesList.push({
-            id: routeSlug,
-            from: sourceCity,
-            to: destCity,
-            origin: sourceCity,
-            destination: destCity,
-            km: distanceKm,
-            duration: durationText,
-            kind: item.tripType,
-            pricingModel: item.tripType === "round-trip" ? "day120" : item.tripType === "local-tour" ? "tour" : "oneway",
-            toll: item.tollIncluded === false ? 0 : 1,
-            fares: {
-              sedan: Number(fares.sedan ?? 2000),
-              ertiga: Number(fares.ertiga ?? 2800),
-              innova: Number(fares.innova ?? 3800),
-              tempo: Number(fares.tempo ?? 5500),
-              urbania: Number(fares.urbania ?? 7500),
-            },
-          });
+      const fs = fares.sedan != null ? Number(fares.sedan) : null;
+      const fe = fares.ertiga != null ? Number(fares.ertiga) : null;
+      const fi = fares.innova != null ? Number(fares.innova) : null;
+      const ft = fares.tempo != null ? Number(fares.tempo) : null;
+      const fu = fares.urbania != null ? Number(fares.urbania) : null;
 
-          // Bidirectional reverse route generation for SEO ranking and reverse search
-          if (sourceCity && destCity && destCity !== "Local sightseeing" && item.tripType !== "local-tour") {
-            const sSlug = sourceCity.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-            const dSlug = destCity.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-            const revSlug = `${dSlug}-to-${sSlug}-${item.tripType === "round-trip" ? "round-trip-" : ""}taxi`.replace(/--+/g, "-");
-
-            if (!manifest[revSlug]) {
-              manifest[revSlug] = {
-                o: destCity,
-                d: sourceCity,
-                km: distanceKm,
-                m: durationMins,
-                fs: Number(fares.sedan ?? 2000),
-                fe: Number(fares.ertiga ?? 2800),
-                fi: Number(fares.innova ?? 3800),
-                ft: Number(fares.tempo ?? 5500),
-                fu: Number(fares.urbania ?? 7500),
-                pm: item.tripType === "round-trip" ? "day120" : "oneway",
-                c: `${destCity} to ${sourceCity} Highway Corridor`,
-                toll: item.tollIncluded === false ? 0 : 1,
-              };
-              allRoutesList.push({
-                id: revSlug,
-                from: destCity,
-                to: sourceCity,
-                origin: destCity,
-                destination: sourceCity,
-                km: distanceKm,
-                duration: durationText,
-                kind: item.tripType,
-                pricingModel: item.tripType === "round-trip" ? "day120" : "oneway",
-                toll: item.tollIncluded === false ? 0 : 1,
-                fares: {
-                  sedan: Number(fares.sedan ?? 2000),
-                  ertiga: Number(fares.ertiga ?? 2800),
-                  innova: Number(fares.innova ?? 3800),
-                  tempo: Number(fares.tempo ?? 5500),
-                  urbania: Number(fares.urbania ?? 7500),
-                },
-              });
-              publishedRouteItems.push({
-                ...item,
-                id: `${item.id ?? revSlug}-rev`,
-                slug: revSlug,
-                sourceCity: destCity,
-                source_city: destCity,
-                destinationCity: sourceCity,
-                destination_city: sourceCity,
-                title: `${destCity} to ${sourceCity} Taxi`,
-              });
-            }
-          }
-        }
-        console.log(`✅ [Manifest Builder] Merged published admin route catalog from ${redactCatalogUrl(manifestUrl!)}.`);
+      manifest[routeSlug] = {
+        o: sourceCity,
+        d: destCity,
+        km: distanceKm,
+        m: durationMins,
+        fs,
+        fe,
+        fi,
+        ft,
+        fu,
+        pm: item.tripType === "round-trip" ? "day120" : item.tripType === "local-tour" ? "tour" : "oneway",
+        c: item.sourceDetail ?? "Direct Highway Corridor",
+        toll: item.tollIncluded === false ? 0 : 1,
+      };
+      allRoutesList.push({
+        id: routeSlug,
+        from: sourceCity,
+        to: destCity,
+        origin: sourceCity,
+        destination: destCity,
+        km: distanceKm,
+        duration: durationText,
+        kind: item.tripType,
+        pricingModel: item.tripType === "round-trip" ? "day120" : item.tripType === "local-tour" ? "tour" : "oneway",
+        toll: item.tollIncluded === false ? 0 : 1,
+        fares: {
+          sedan: fs,
+          ertiga: fe,
+          innova: fi,
+          tempo: ft,
+          urbania: fu,
+        },
+      });
+    }
+    console.log(`✅ [Manifest Builder] Merged published admin route catalog from ${redactCatalogUrl(manifestUrl!)}.`);
   }
 
   // 1. Emit react/public/routes-manifest.json

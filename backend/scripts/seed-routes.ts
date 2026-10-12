@@ -41,19 +41,14 @@ export async function seedAllRoutes(connectionString: string): Promise<number> {
       const shortDesc = `${corridor}: Point-to-point AC taxi connecting ${origin} to ${dest}.`;
       const durationText = row[7]?.replace(/"/g, "").trim() || "3.5 hrs";
       const routeSummary = `${origin} · ${dest}`;
-
-      const fareMatch = row[9]?.match(/Rs\.?\s*([\d,]+)/i);
-      const startingPrice = fareMatch?.[1] ? parseInt(fareMatch[1].replace(/,/g, ""), 10) : 2500;
-
       await client.query(
         `INSERT INTO catalog_items (
            id, type, slug, title, short_description, description, status,
-           duration_text, route_summary, starting_price_inr, version
-         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 1)
+           duration_text, route_summary, version
+         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 1)
          ON CONFLICT (slug) DO UPDATE SET
            title = EXCLUDED.title,
            short_description = EXCLUDED.short_description,
-           starting_price_inr = EXCLUDED.starting_price_inr,
            duration_text = EXCLUDED.duration_text,
            updated_at = NOW()`,
         [
@@ -66,7 +61,6 @@ export async function seedAllRoutes(connectionString: string): Promise<number> {
           "published",
           durationText,
           routeSummary,
-          startingPrice > 0 ? startingPrice : 2500,
         ]
       );
       insertedCount++;

@@ -15,32 +15,40 @@ async function run() {
 
   const client = await pool.connect();
   try {
-    console.log("Seeding canonical catalog records (5 fleet tiers, nightChargeInr=0)...");
+    console.log("Seeding canonical Clean Fare System catalog records...");
     await client.query("BEGIN");
 
-    // 1. Tour Packages
+    // Fetch vehicle models to associate fare_rules
+    const vmRes = await client.query("SELECT id, display_name, vehicle_group_id FROM vehicle_models");
+    const vehicleModels: Array<{ id: string; display_name: string; vehicle_group_id: string }> = vmRes.rows;
+
+    const getModelId = (nameSubstr: string): string | null => {
+      const found = vehicleModels.find((m) =>
+        m.display_name.toLowerCase().includes(nameSubstr.toLowerCase())
+      );
+      return found?.id ?? null;
+    };
+
+    const sedanModelId = getModelId("Dzire") ?? vehicleModels[0]?.id;
+    const ertigaModelId = getModelId("Ertiga") ?? vehicleModels[1]?.id;
+    const innovaModelId = getModelId("Innova") ?? vehicleModels[2]?.id;
+    const tempoModelId = getModelId("Traveller") ?? vehicleModels[3]?.id;
+    const urbaniaModelId = getModelId("Urbania") ?? vehicleModels[4]?.id;
+
+    // 1. Tour Packages (Clean Fare System Schema)
     const tourPackages = [
       {
         id: "d0000000-0000-4000-a000-000000000001",
-        package_code: "same-day-agra-taj-mahal-tour",
+        code: "same-day-agra-taj-mahal-tour",
         name: "Same Day Agra Taj Mahal Tour",
         duration_text: "1 day",
         days: 1,
         nights: 0,
-        base_tier_code: "sedan",
-        starting_price_inr: 3499,
-        fleet_prices: {
-          sedan: 3499,
-          ertiga: 4299,
-          "innova-crysta": 5299,
-          "tempo-traveller": 6999,
-          urbania: 8999,
-        },
-        night_charge_inr: 0,
-        inclusions_highlight: "Dedicated AC Cab, Uniformed Chauffeur, Highway Tolls & Chilled Water",
-        inclusions_note: "Doorstep hotel or railway station pickup anywhere in Agra.",
         source: "Agra",
         destination: "Same Day Agra Taj Mahal Tour",
+        description: "Point-to-point same-day guided tour of Taj Mahal, Agra Fort, and Mehtab Bagh with dedicated chauffeur.",
+        inclusions_highlight: "Dedicated AC Cab, Uniformed Chauffeur, Highway Tolls & Chilled Water",
+        inclusions_note: "Doorstep hotel or railway station pickup anywhere in Agra.",
         inclusions: [
           "Private AC Cab dedicated exclusively to your group",
           "Police-verified professional chauffeur & fuel charges",
@@ -70,29 +78,20 @@ async function run() {
           { url: "/assets/places/gallery/taj-mahal-02.jpg", caption: "Taj Mahal marble archways & minarets", alt: "Taj Mahal marble archways" },
         ],
         status: "published",
-        is_active: true,
+        fares: { sedan: 3499, ertiga: 4299, innova: 5299, tempo: 6999, urbania: 8999 },
       },
       {
         id: "d0000000-0000-4000-a000-000000000002",
-        package_code: "taj-mahal-sunrise-tour",
+        code: "taj-mahal-sunrise-tour",
         name: "Taj Mahal Sunrise Tour",
         duration_text: "1 day",
         days: 1,
         nights: 0,
-        base_tier_code: "sedan",
-        starting_price_inr: 3999,
-        fleet_prices: {
-          sedan: 3999,
-          ertiga: 4799,
-          "innova-crysta": 5799,
-          "tempo-traveller": 7499,
-          urbania: 9499,
-        },
-        night_charge_inr: 0,
-        inclusions_highlight: "Pre-Dawn Hotel Pickup, Chauffeur Allowance & Sanitized AC Cab",
-        inclusions_note: "Optimal pre-dawn timing avoids midday tourist crowds.",
         source: "Agra",
         destination: "Taj Mahal & Baby Taj",
+        description: "Early pre-dawn pickup to experience the Taj Mahal at its quietest and most breathtaking golden dawn hour.",
+        inclusions_highlight: "Pre-Dawn Hotel Pickup, Chauffeur Allowance & Sanitized AC Cab",
+        inclusions_note: "Optimal pre-dawn timing avoids midday tourist crowds.",
         inclusions: [
           "Private AC Cab dedicated exclusively to your group",
           "Police-verified chauffeur & early-morning fuel allowance",
@@ -116,29 +115,20 @@ async function run() {
           { url: "/assets/places/gallery/agra-fort-02.jpg", caption: "Diwan-i-Khas marble royal pavilion", alt: "Diwan-i-Khas Agra Fort" },
         ],
         status: "published",
-        is_active: true,
+        fares: { sedan: 3999, ertiga: 4799, innova: 5799, tempo: 7499, urbania: 9499 },
       },
       {
         id: "d0000000-0000-4000-a000-000000000003",
-        package_code: "mathura-vrindavan",
+        code: "mathura-vrindavan",
         name: "Mathura & Vrindavan Spiritual Darshan",
         duration_text: "1 day",
         days: 1,
         nights: 0,
-        base_tier_code: "sedan",
-        starting_price_inr: 3200,
-        fleet_prices: {
-          sedan: 3200,
-          ertiga: 3900,
-          "innova-crysta": 4800,
-          "tempo-traveller": 6500,
-          urbania: 8500,
-        },
-        night_charge_inr: 0,
-        inclusions_highlight: "Dedicated Chauffeur, Interstate Permits, Parking & Fuel",
-        inclusions_note: "Seamless temple coordination for Banke Bihari & Prem Mandir.",
         source: "Agra",
         destination: "Mathura & Vrindavan",
+        description: "Full-day spiritual darshan connecting Krishna Janmabhoomi, Banke Bihari Mandir, and Prem Mandir.",
+        inclusions_highlight: "Dedicated Chauffeur, Interstate Permits, Parking & Fuel",
+        inclusions_note: "Seamless temple coordination for Banke Bihari & Prem Mandir.",
         inclusions: [
           "Dedicated sanitized AC cab for full day (10 hrs)",
           "Police-verified chauffeur & fuel",
@@ -161,274 +151,234 @@ async function run() {
           { url: "/assets/places/gallery/mehtab-bagh-01.jpg", caption: "Mehtab Bagh sunset vantage point", alt: "Mehtab Bagh across Yamuna River" },
         ],
         status: "published",
-        is_active: true,
+        fares: { sedan: 3200, ertiga: 3900, innova: 4800, tempo: 6500, urbania: 8500 },
       },
     ];
 
     for (const p of tourPackages) {
       await client.query(
         `INSERT INTO tour_packages (
-          id, package_code, name, duration_text, days, nights,
-          base_tier_code, starting_price_inr, fleet_prices, night_charge_inr,
-          inclusions_highlight, inclusions_note, source, destination,
-          inclusions, exclusions, itinerary, image_url, gallery,
-          status, is_active, created_at, updated_at
+          id, code, name, duration_text, days, nights, source, destination,
+          description, inclusions_highlight, inclusions_note, image_url,
+          gallery, inclusions, exclusions, itinerary, status, created_at
         ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
-          $15, $16, $17, $18, $19, $20, $21, NOW(), NOW()
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, NOW()
         )
-        ON CONFLICT (package_code) DO UPDATE SET
+        ON CONFLICT (code) DO UPDATE SET
           name = EXCLUDED.name,
-          fleet_prices = EXCLUDED.fleet_prices,
-          night_charge_inr = EXCLUDED.night_charge_inr,
+          duration_text = EXCLUDED.duration_text,
+          description = EXCLUDED.description,
           gallery = EXCLUDED.gallery,
           inclusions = EXCLUDED.inclusions,
           exclusions = EXCLUDED.exclusions,
           itinerary = EXCLUDED.itinerary,
-          status = EXCLUDED.status,
-          updated_at = NOW();`,
+          status = EXCLUDED.status;`,
         [
           p.id,
-          p.package_code,
+          p.code,
           p.name,
           p.duration_text,
           p.days,
           p.nights,
-          p.base_tier_code,
-          p.starting_price_inr,
-          JSON.stringify(p.fleet_prices),
-          p.night_charge_inr,
-          p.inclusions_highlight,
-          p.inclusions_note,
           p.source,
           p.destination,
+          p.description,
+          p.inclusions_highlight,
+          p.inclusions_note,
+          p.image_url,
+          JSON.stringify(p.gallery),
           JSON.stringify(p.inclusions),
           JSON.stringify(p.exclusions),
           JSON.stringify(p.itinerary),
-          p.image_url,
-          JSON.stringify(p.gallery),
           p.status,
-          p.is_active,
         ]
       );
-      console.log(`  ✓ Seeded tour package: ${p.name}`);
+
+      // Seed fare_rules for this tour package
+      const modelPairs = [
+        { modelId: sedanModelId, amt: p.fares.sedan },
+        { modelId: ertigaModelId, amt: p.fares.ertiga },
+        { modelId: innovaModelId, amt: p.fares.innova },
+        { modelId: tempoModelId, amt: p.fares.tempo },
+        { modelId: urbaniaModelId, amt: p.fares.urbania },
+      ];
+
+      for (const pair of modelPairs) {
+        if (!pair.modelId) continue;
+        await client.query(
+          `INSERT INTO fare_rules (category, vehicle_model_id, tour_package_id, amount, is_active)
+           VALUES ('tour_package', $1, $2, $3, true)
+           ON CONFLICT (category, vehicle_model_id, local_package_id, transfer_id, tour_package_id)
+           DO UPDATE SET amount = EXCLUDED.amount, is_active = true;`,
+          [pair.modelId, p.id, pair.amt]
+        );
+      }
+
+      console.log(`  ✓ Seeded canonical tour package: ${p.name}`);
     }
 
-    // 2. Package Vehicle Upgrades (Canonical Tiers)
-    const upgrades = [
-      { tier_code: "ertiga", passenger_note: "Up to 6 Passengers with Luggage", surcharge_inr: 800 },
-      { tier_code: "innova-crysta", passenger_note: "VIP Executive Comfort (6–7 Passengers)", surcharge_inr: 1800 },
-      { tier_code: "tempo-traveller", passenger_note: "Large Family / Group (12–16 Passengers)", surcharge_inr: 3500 },
-      { tier_code: "urbania", passenger_note: "Ultra-Luxury Chauffeur Cruiser (10–17 Passengers)", surcharge_inr: 5500 },
-    ];
-
-    for (const u of upgrades) {
-      await client.query(
-        `INSERT INTO package_vehicle_upgrades (package_id, tier_code, passenger_note, surcharge_inr)
-         VALUES (NULL, $1, $2, $3)
-         ON CONFLICT (tier_code) WHERE package_id IS NULL DO UPDATE SET
-           passenger_note = EXCLUDED.passenger_note,
-           surcharge_inr = EXCLUDED.surcharge_inr;`,
-        [u.tier_code, u.passenger_note, u.surcharge_inr]
-      );
-    }
-    console.log(`  ✓ Seeded 4 canonical package vehicle upgrades`);
-
-    // 3. Transfer Routes
+    // 2. Transfers (Clean Fare System Schema)
     const transfers = [
       {
         id: "e0000000-0000-4000-a000-000000000001",
-        route_code: "agc-station-transfer",
+        code: "agc-station-transfer",
         name: "Agra Cantt Railway Station (AGC) Transfer",
-        distance_text: "~15–20 km",
-        direction_note: "Doorstep pickup or drop at Agra Cantt Railway Station",
-        fleet_prices: { sedan: 800, ertiga: 900, "innova-crysta": 1100, "tempo-traveller": 2200, urbania: 3500 },
-        night_charge_inr: 0,
+        direction: "both",
+        hub_name: "Agra Cantt Railway Station",
+        description: "Doorstep pickup or drop at Agra Cantt Railway Station (AGC) with meet-and-greet.",
+        inclusions: ["Chauffeur greeting at exit gate", "Luggage assistance", "Parking and tolls included"],
+        exclusions: ["Porter gratuity", "Multiple stopovers"],
         status: "published",
-        is_active: true,
+        fares: { sedan: 800, ertiga: 900, innova: 1100, tempo: 2200, urbania: 3500 },
       },
       {
         id: "e0000000-0000-4000-a000-000000000002",
-        route_code: "af-station-transfer",
+        code: "af-station-transfer",
         name: "Agra Fort Railway Station (AF) Transfer",
-        distance_text: "~12–15 km",
-        direction_note: "Doorstep pickup or drop at Agra Fort Railway Station",
-        fleet_prices: { sedan: 800, ertiga: 900, "innova-crysta": 1100, "tempo-traveller": 2200, urbania: 3500 },
-        night_charge_inr: 0,
+        direction: "both",
+        hub_name: "Agra Fort Railway Station",
+        description: "Chauffeured pickup and drop at Agra Fort Railway Station (AF).",
+        inclusions: ["Doorstep pickup or drop", "Luggage assistance", "Parking included"],
+        exclusions: ["Porter tip"],
         status: "published",
-        is_active: true,
+        fares: { sedan: 800, ertiga: 900, innova: 1100, tempo: 2200, urbania: 3500 },
       },
       {
         id: "e0000000-0000-4000-a000-000000000003",
-        route_code: "kheria-airport-transfer",
+        code: "kheria-airport-transfer",
         name: "Agra Airport (Kheria AGR) Transfer",
-        distance_text: "~15–25 km",
-        direction_note: "Doorstep pickup or drop at Agra Kheria Airport",
-        fleet_prices: { sedan: 900, ertiga: 1050, "innova-crysta": 1250, "tempo-traveller": 2400, urbania: 3800 },
-        night_charge_inr: 0,
+        direction: "both",
+        hub_name: "Agra Kheria Airport",
+        description: "Flight-tracked pickup or departure drop at Agra Kheria Airport.",
+        inclusions: ["Flight arrival monitoring", "No waiting surcharge for delays", "Chauffeur meet-and-greet"],
+        exclusions: ["Excess waiting over 90 mins"],
         status: "published",
-        is_active: true,
+        fares: { sedan: 900, ertiga: 1050, innova: 1250, tempo: 2400, urbania: 3800 },
       },
       {
         id: "e0000000-0000-4000-a000-000000000004",
-        route_code: "delhi-igi-oneway-transfer",
+        code: "delhi-igi-oneway-transfer",
         name: "Delhi IGI Airport (DEL) Direct Transfer (One-Way)",
-        distance_text: "225 km",
-        direction_note: "Direct expressway express transfer between Agra and Delhi IGI Airport",
-        fleet_prices: { sedan: 3499, ertiga: 4200, "innova-crysta": 5200, "tempo-traveller": 8500, urbania: 11500 },
-        night_charge_inr: 0,
+        direction: "both",
+        hub_name: "Delhi IGI Airport (DEL)",
+        description: "Expressway direct transit between Agra hotels and Delhi IGI Airport Terminal 1/2/3.",
+        inclusions: ["Yamuna Expressway tolls included", "Doorstep pickup", "Chilled water"],
+        exclusions: ["Terminal parking charges"],
         status: "published",
-        is_active: true,
+        fares: { sedan: 3499, ertiga: 4200, innova: 5200, tempo: 8500, urbania: 11500 },
       },
     ];
 
     for (const t of transfers) {
       await client.query(
-        `INSERT INTO transfer_routes (
-          id, route_code, name, distance_text, direction_note,
-          fleet_prices, use_per_km, night_charge_inr, status, is_active,
-          created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, false, $7, $8, $9, NOW(), NOW())
-        ON CONFLICT (route_code) DO UPDATE SET
-          fleet_prices = EXCLUDED.fleet_prices,
-          night_charge_inr = EXCLUDED.night_charge_inr,
-          status = EXCLUDED.status,
-          updated_at = NOW();`,
-        [t.id, t.route_code, t.name, t.distance_text, t.direction_note, JSON.stringify(t.fleet_prices), t.night_charge_inr, t.status, t.is_active]
+        `INSERT INTO transfers (
+          id, code, name, direction, hub_name, description, inclusions, exclusions, status, created_at
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()
+        )
+        ON CONFLICT (code) DO UPDATE SET
+          name = EXCLUDED.name,
+          direction = EXCLUDED.direction,
+          hub_name = EXCLUDED.hub_name,
+          description = EXCLUDED.description,
+          inclusions = EXCLUDED.inclusions,
+          exclusions = EXCLUDED.exclusions,
+          status = EXCLUDED.status;`,
+        [t.id, t.code, t.name, t.direction, t.hub_name, t.description, JSON.stringify(t.inclusions), JSON.stringify(t.exclusions), t.status]
       );
-      console.log(`  ✓ Seeded transfer route: ${t.name}`);
+
+      // Seed fare_rules for transfer
+      const transferPairs = [
+        { modelId: sedanModelId, amt: t.fares.sedan },
+        { modelId: ertigaModelId, amt: t.fares.ertiga },
+        { modelId: innovaModelId, amt: t.fares.innova },
+        { modelId: tempoModelId, amt: t.fares.tempo },
+        { modelId: urbaniaModelId, amt: t.fares.urbania },
+      ];
+
+      for (const pair of transferPairs) {
+        if (!pair.modelId) continue;
+        await client.query(
+          `INSERT INTO fare_rules (category, vehicle_model_id, transfer_id, amount, is_active)
+           VALUES ('transfer', $1, $2, $3, true)
+           ON CONFLICT (category, vehicle_model_id, local_package_id, transfer_id, tour_package_id)
+           DO UPDATE SET amount = EXCLUDED.amount, is_active = true;`,
+          [pair.modelId, t.id, pair.amt]
+        );
+      }
+
+      console.log(`  ✓ Seeded canonical transfer: ${t.name}`);
     }
 
-    // 4. Local Sightseeing Packages
+    // 3. Local Packages (Clean Fare System Schema)
     const localPackages = [
       {
         id: "f0000000-0000-4000-a000-000000000001",
-        package_code: "agra-standard-sightseeing",
+        code: "agra-standard-sightseeing",
         name: "Agra Standard Sightseeing (8 Hours / 80 Km)",
         duration_hours: 8,
         included_km: 80,
-        covers: "Taj Mahal, Agra Fort, Mehtab Bagh, Itmad-Ud-Daulah (Baby Taj), Sadar Bazaar",
-        parking_note: "Monument entry fees & parking billed at actuals",
-        fleet_prices: { sedan: 1900, ertiga: 2600, "innova-crysta": 2850, "tempo-traveller": 5500, urbania: 7500 },
-        extra_rates: {
-          sedan: { per_km: 10, per_hr: 150 },
-          ertiga: { per_km: 14, per_hr: 200 },
-          "innova-crysta": { per_km: 18, per_hr: 250 },
-          "tempo-traveller": { per_km: 25, per_hr: 400 },
-          urbania: { per_km: 34, per_hr: 600 },
-        },
-        night_charge_inr: 0,
+        description: "Full-day sightseeing tour covering Taj Mahal, Agra Fort, Mehtab Bagh, and Baby Taj within 8 hours and 80 kilometers.",
+        inclusions: ["8 Hours vehicle & chauffeur use", "80 kilometers city transit", "Chauffeur allowance and fuel"],
+        exclusions: ["Monument tickets & camera passes", "Parking fees at monuments", "Meals & refreshments"],
         status: "published",
-        is_active: true,
+        fares: { sedan: 1900, ertiga: 2600, innova: 2850, tempo: 5500, urbania: 7500 },
       },
     ];
 
     for (const l of localPackages) {
       await client.query(
-        `INSERT INTO local_sightseeing_packages (
-          id, package_code, name, duration_hours, included_km, covers,
-          parking_note, fleet_prices, use_per_km, extra_rates, night_charge_inr,
-          status, is_active, created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, $9, $10, $11, $12, NOW(), NOW())
-        ON CONFLICT (package_code) DO UPDATE SET
-          fleet_prices = EXCLUDED.fleet_prices,
-          night_charge_inr = EXCLUDED.night_charge_inr,
-          status = EXCLUDED.status,
-          updated_at = NOW();`,
+        `INSERT INTO local_packages (
+          id, code, name, duration_hours, included_km, description, inclusions, exclusions, status, created_at
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()
+        )
+        ON CONFLICT (code) DO UPDATE SET
+          name = EXCLUDED.name,
+          duration_hours = EXCLUDED.duration_hours,
+          included_km = EXCLUDED.included_km,
+          description = EXCLUDED.description,
+          inclusions = EXCLUDED.inclusions,
+          exclusions = EXCLUDED.exclusions,
+          status = EXCLUDED.status;`,
         [
           l.id,
-          l.package_code,
+          l.code,
           l.name,
           l.duration_hours,
           l.included_km,
-          l.covers,
-          l.parking_note,
-          JSON.stringify(l.fleet_prices),
-          JSON.stringify(l.extra_rates),
-          l.night_charge_inr,
+          l.description,
+          JSON.stringify(l.inclusions),
+          JSON.stringify(l.exclusions),
           l.status,
-          l.is_active,
         ]
       );
-      console.log(`  ✓ Seeded local sightseeing package: ${l.name}`);
-    }
 
-    // 5. Route Catalog (High Volume Corridors with Canonical Fleets)
-    const routes = [
-      {
-        id: "c0000000-0000-4000-a000-000000000001",
-        source_city: "Agra",
-        destination_city: "Delhi",
-        slug: "delhi-to-agra-one-way",
-        trip_type: "one-way",
-        distance_km: 210,
-        duration_text: "3.5 hrs",
-        fares_inr: { sedan: 2800, ertiga: 3600, "innova-crysta": 4600, "tempo-traveller": 7500, urbania: 10500 },
-        available_fleets: ["sedan", "ertiga", "innova-crysta", "tempo-traveller", "urbania"],
-        driver_charge_inr: 0,
-        night_halt_inr: 0,
-        toll_amount_inr: 0,
-        min_km_per_day: 300,
-        highway: "Yamuna Expressway",
-        status: "published",
-      },
-      {
-        id: "c0000000-0000-4000-a000-000000000002",
-        source_city: "Agra",
-        destination_city: "Jaipur",
-        slug: "agra-to-jaipur-one-way",
-        trip_type: "one-way",
-        distance_km: 240,
-        duration_text: "4 hrs",
-        fares_inr: { sedan: 3400, ertiga: 4300, "innova-crysta": 5400, "tempo-traveller": 8500, urbania: 12000 },
-        available_fleets: ["sedan", "ertiga", "innova-crysta", "tempo-traveller", "urbania"],
-        driver_charge_inr: 0,
-        night_halt_inr: 0,
-        toll_amount_inr: 0,
-        min_km_per_day: 300,
-        highway: "NH 21",
-        status: "published",
-      },
-    ];
+      // Seed fare_rules for local package
+      const localPairs = [
+        { modelId: sedanModelId, amt: l.fares.sedan },
+        { modelId: ertigaModelId, amt: l.fares.ertiga },
+        { modelId: innovaModelId, amt: l.fares.innova },
+        { modelId: tempoModelId, amt: l.fares.tempo },
+        { modelId: urbaniaModelId, amt: l.fares.urbania },
+      ];
 
-    for (const r of routes) {
-      await client.query(
-        `INSERT INTO route_catalog (
-          id, source_city, destination_city, slug, trip_type, distance_km,
-          duration_text, fares_inr, available_fleets, driver_charge_inr,
-          night_halt_inr, toll_amount_inr, min_km_per_day, highway,
-          status, created_at, updated_at
-        ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW()
-        )
-        ON CONFLICT (slug) DO UPDATE SET
-          fares_inr = EXCLUDED.fares_inr,
-          available_fleets = EXCLUDED.available_fleets,
-          status = EXCLUDED.status,
-          updated_at = NOW();`,
-        [
-          r.id,
-          r.source_city,
-          r.destination_city,
-          r.slug,
-          r.trip_type,
-          r.distance_km,
-          r.duration_text,
-          JSON.stringify(r.fares_inr),
-          r.available_fleets,
-          r.driver_charge_inr,
-          r.night_halt_inr,
-          r.toll_amount_inr,
-          r.min_km_per_day,
-          r.highway,
-          r.status,
-        ]
-      );
-      console.log(`  ✓ Seeded route: ${r.slug}`);
+      for (const pair of localPairs) {
+        if (!pair.modelId) continue;
+        await client.query(
+          `INSERT INTO fare_rules (category, vehicle_model_id, local_package_id, amount, is_active)
+           VALUES ('local_package', $1, $2, $3, true)
+           ON CONFLICT (category, vehicle_model_id, local_package_id, transfer_id, tour_package_id)
+           DO UPDATE SET amount = EXCLUDED.amount, is_active = true;`,
+          [pair.modelId, l.id, pair.amt]
+        );
+      }
+
+      console.log(`  ✓ Seeded canonical local package: ${l.name}`);
     }
 
     await client.query("COMMIT");
-    console.log("✅ Canonical catalog seeded successfully with 0 legacy keys!");
+    console.log("✅ Canonical catalog seeded successfully with Clean Fare System schema!");
   } catch (err) {
     await client.query("ROLLBACK");
     console.error("❌ Canonical seed failed:", err);

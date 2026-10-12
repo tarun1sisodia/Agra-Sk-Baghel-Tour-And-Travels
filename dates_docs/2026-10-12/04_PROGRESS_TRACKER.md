@@ -1,0 +1,198 @@
+# Progress Tracker — SK Baghel Tour & Travels
+
+This file is the **single authoritative living progress tracker** for the entire repository.
+Whoever implements a step updates it after that step, per `react/docs/01_AI_OPERATING_INSTRUCTIONS.md` §3.
+Never rewrite history: check boxes, append log rows, and update the Current State block.
+Historical phase numbering is preserved; all V2 remediation work maps into named subtasks under Phase V2.
+Older trackers (`docs/project/PROGRESS.md`, `docs/project/AUDIT_PROGRESS.md`) are retained as reference documents.
+
+---
+
+## Current State
+
+- **Current Phase:** Phase V2 — Unified Backend, Admin and Customer Website Remediation (COMPLETED).
+- **Current Step:** Completed all V2 remediation phases (V2.1 through V2.5): Canonical contracts normalized, Services page redesigned into 4 full-bleed editorial categories, customer routes/manifest purged of 2,060 synthetic keys & client fare math, reviews capped at 30 with live feed, inquiries persisted to database/admin inbox across Homepage and ContactPage, seed scripts reconciled with current Clean Fare System schema, and root `npm run verify` passed 100% cleanly across all 3 applications (3 typechecks, 192 backend tests, catalog source tests, SEO lifecycle, 3 production builds with 59 SSG pages).
+- **Last updated:** 2026-10-12
+- **Summary:** All HTML designs from `react/new_design/` are completely converted into the React application with ultra-luxury aesthetic styling, design tokens (`theme.css`), and the strict English-only mandate:
+  * Multi-Agent Orchestration Engine (`agents/`): Automated agent pipeline with `code_extractor.py`, dynamic language templates (`task_template.py`), `tenacity` exponential retry logic, and specialized agents (`schema_agent.py`, `service_agent.py`, `frontend_agent.py`, `test_agent.py`, `seo_content_agent.py`, `orchestrator.py`).
+  * Commercial Exception Rules & Strategy Pattern (`backend/src/modules/fares/fare.strategy.ts`): Implemented strict commercial booking rules for group vehicles ("Urbania", "Force Tempo", and any "Force" variants): forced round-trip billing (`km * 2`), 300 km/day minimum distance floor (`Math.max(km * 2, 300 * days)`), ₹500/day driver allowance, and locked fixed-rate pricing structure (zero promo discounts).
+  * Hybrid SSG + In-Memory Route Architecture (M16/M17): High-throughput, 0ms latency route calculation across 982 outstation corridors. Manifest builder (`build-manifest.ts`) extracts CSV into an 11.9KB gzipped dictionary (`public/routes-manifest.json`) correctly parsing per-km group rates (`ft: 17, fu: 25`). `InstantRouteCalculator.tsx` upgraded with 6 vehicle tiers (`sedan`, `ertiga`, `innova`, `tempo`, `urbania`, `hatchback`), `calcGroupVehicle` logic, and transparent breakdown tooltip. `RoutesPage.tsx` updated with 5-column fare grid.
+  * Hyper-Scale H1 Network Test Fix: Resolved failing `verify-t1-headers.mjs` by aligning pre-rendered page checks with the English-only route structure.
+  * Master Design & Tokens: `@tailwindcss/vite`, `EB Garamond` + `Plus Jakarta Sans`, Material Symbols Outlined.
+  * Reusable Editorial Typography & Button System: `react/src/components/layout/EditorialPageTemplate.tsx` providing standard font sizes & colors (`EDITORIAL_TYPOGRAPHY`), standard button sizes & colors (`EDITORIAL_BUTTONS`), and reusable action components (`PrimaryButton`, `WhatsAppButton` with guaranteed `#ffffff` text & icon, `SecondaryButton`, `EditorialPill`) matching the approved homepage standards without altering page layouts.
+  * Global Chrome: Luxury `Header.tsx` (with mobile navigation drawer, delayed scroll reveal on first visit) and `Footer.tsx` (4-column layout with 28% advance guarantee), featuring the animated SVG compass rose & route from `BrandLogo.tsx`.
+  * Universal Dynamic Package Detail: Single dynamic template `PackageDetailPage.tsx` driven by `TourPackage` props (`taj_mahal_sunrise_guided_tour.html`), supporting 1,000+ packages without static code explosion.
+  * Curated Package Hub: `PackagesPage.tsx` (`packages.html`) with category tabs and decision matrix.
+  * Universal 2-Step Booking Funnel: `BookingPage.tsx` (`step_1_taj_mahal_sunrise_guided_tour.html`, `step_2_booking_form_for_all.html`, `book_confirmed.html`) with 28% advance token and GST calculation.
+  * Core Marketing & Corridor Hubs: `HomePage.tsx` with once-per-session `SmoothScrollHero`, point-to-point factual copy, 21st.dev motion bento cards, edge gradient fade masks on text roller, Taj Mahal sunrise imagery, and famous places gallery.
+  * Services Page: `ServicesPage.tsx` retaining its clean original section layout, with unified font sizes, font colors, button sizes (`PrimaryButton`), and pure black WhatsApp button (`WhatsAppButton`).
+  * Dynamic Templates: `RouteDetailPage.tsx` and `VehicleDetailPage.tsx` matching the new luxury design system and 2-step booking handoff.
+  * Support & Compliance: `ContactPage.tsx` (`contact-us.html`), `FaqPage.tsx` (`faq.html`), `TermsPage.tsx` (`terms_condit.html`), `PrivacyPage.tsx` (`privacy_policy.html`), and `NotFoundPage.tsx` (`404.html`).
+- **Verified:** Latest root `npm run verify` passed after the booking-flow changes (all app typechecks, backend tests, SEO lifecycle checks, and three builds); API-backed package fare/review flow and 390px mobile Step 1/2 layouts were also inspected.
+- **Deployment monitoring (delivered with the integration branch):**
+  `scripts/healthcheck.mjs` performs dependency-free checks of the API `/health`,
+  the customer site and the admin site, wired to `.github/workflows/uptime.yml`
+  (every 5 minutes, manual dispatch supported) and to `npm run healthcheck`, with
+  `HEALTHCHECK_URLS` / `HEALTHCHECK_TIMEOUT_MS` / `HEALTHCHECK_ATTEMPTS` /
+  `HEALTHCHECK_EXPECTED_STATUS` overrides. Delivered: uptime detection and the
+  documented Render free-tier wake-up limitation. Still open in Phase I5: alert
+  routing to a human (the workflow only fails), and request-ID correlation between
+  the API and the frontends.
+- **Open items:** Migration `0023_add_canonical_booking_selection.sql` is prepared but has not been applied to production; deploy it in the staged release before enabling the new persisted fields. Live payment credentials/webhook drills, placeholder NAP phone `+91 98765 43210`, real photography, human uptime alert routing, and the dev-only Vitest advisory remain launch work.
+
+---
+
+## Blockers
+
+| Blocker | Impact | Owner / next action |
+|---|---|---|
+| Client has not confirmed the real phone/WhatsApp number and final fare card | All CTAs and schema point at placeholder NAP | Client decision — `CLIENT_CONFIRMATION_FARES_AND_RULES.md` |
+| Cloudflare Pages projects must be created/renamed to `skbagheltravels-customer` and `skbagheltravels-admin` and the domains repointed | Root deploy scripts and both `wrangler.jsonc` files now reference those names | Account owner (dashboard) |
+| Render environment secrets are still `sync: false` placeholders | Production API cannot boot | Add values in the Render dashboard before the first API deploy |
+| No live payment credentials / webhook drills | Booking remains advance-mock | Phase I2 |
+
+---
+
+## Decision Log
+
+| Date | Decision | Why |
+|---|---|---|
+| 2026-09-14 | One repository, three independently deployable apps (`react/`, `admin/`, `backend/`), each with its own root directory, lockfile and build command | Hosts can deploy without coupling release cycles; no app is copied into a second repository |
+| 2026-09-14 | Cloudflare Pages project names are `skbagheltravels-customer` and `skbagheltravels-admin`, used consistently by root scripts and every `wrangler.jsonc` | Provider-owned identifiers must be named once; a mismatch silently creates a second project |
+| 2026-09-14 | Customer site keeps real 404 semantics (`404.html`, `not_found_handling: "404-page"`); admin uses an SPA fallback (`_redirects` + `single-page-application`) | Pre-rendered marketing URLs must return real 404s to crawlers; the admin is a client-routed panel that must survive refresh |
+| 2026-09-14 | Builds write only inside `react/dist`, `admin/dist`, `backend/dist`; `generate-sitemap.ts` writes `react/dist` + the versioned `react/public` mirror and nothing else | A build must not dirty tracked files or write to the repository root; CI enforces it |
+| 2026-09-14 | CI is the root command contract plus deploy guards, on Node 22 | One interface for CI, hosts and humans; Node 22 matches `engines`, Docker and Render |
+| 2026-09-14 | Backend runtime image contains production dependencies only, with `.dockerignore` excluding `.env*` | Dev tooling never ships to production and secrets never enter the build context |
+| 2026-09-14 | `VITE_API_BASE_URL` is documented and set in Pages as reserved configuration; no frontend code reads it until Phase I1 | Prevents a half-wired API integration from shipping silently |
+| 2026-09-14 | Root docs are the monorepo of record (`README.md`, `02_PROJECT_CONTEXT.md`, `03_PHASE_PLAN.md`, `04_PROGRESS_TRACKER.md`, `PRD.md`); `react/docs/` keeps the frontend-specific pack and points at the root for shared docs | Removes two divergent copies of the same document |
+| 2026-09-11 | Design Lock Registry (`DESIGN_LOCKS.md`): locked components/patterns cannot change without explicit user permission | Prevents silent drift of approved design work |
+| 2026-09-10 | Legacy static HTML/CSS/JS/Python SSG codebase removed from the repository root; references preserved under `react/reference/` | One active frontend instead of a maintained and an unmaintained copy |
+| 2026-09-10 | React workspace consolidated under `react/` with catalogue-driven route generation | The React app became the only customer frontend |
+| 2026-09-09 | React migration ran beside the vanilla site, not as an in-place rewrite | Kept a working production baseline during the migration |
+| 2026-09-07 | Payments spec (`docs/PAYMENT_SYSTEM.md`) with webhook + server-computed fare as the only source of payment truth; Razorpay primary, provider-neutral adapters | Real money requires webhook-confirmed state, never client confirmation |
+| 2026-09-06 | Animation governance (`ANIMATION_RULES.md`) as a mandatory pre-implementation gate | Content first, motion second, accessibility always |
+| 2026-09-03 | `PRD.md` is the master product-requirements document (goals, SEO/AISO strategy, design, engineering, QA gates) | One source of truth for "what we want" |
+| 2026-09-01 | Bilingual URLs `/en/…` + `/hi/…`, English home at `/`, fares identical in both languages | Bilingual SEO without duplicating commercial data |
+| 2026-09-01 | Call + WhatsApp are the primary conversions; `/book.html` is `noindex` | Phone/WhatsApp close this market; booking is secondary |
+| 2026-09-01 | Dark Navy + Golden design system (`DESIGN.md`, `design-guide/`) is locked | Approved brand direction |
+| 2026-10-02 | The browser holds no LocationIQ token: live location search runs only through the backend proxy (`/api/v1/locations/autocomplete`); the direct `api.locationiq.com` browser fallback, the `VITE_LOCATIONIQ_ACCESS_TOKEN` build-time read and the `window.LOCATIONIQ_ACCESS_TOKEN` global were removed from `react/src/hooks/useLocationIQ.ts`, `react/src/components/search/LocationCombobox.tsx` and `react/src/config.ts` | Frontend bundles are public, so any token shipped to the browser is exposed; the status badge now reports real proxy availability (`liveSearchAvailable`) instead of token presence |
+| 2026-10-12 | Single Living Tracker Designation: `docs/project/04_PROGRESS_TRACKER.md` is designated as the single authoritative living progress tracker for the repository | Prevents conflicting progress tracking sources; older trackers (`PROGRESS.md`, `AUDIT_PROGRESS.md`) are preserved as reference documents. V2 Phase 1–5 remediation roadmap is mapped into named subtasks under Phase V2 while strictly preserving historical phase numbering. |
+
+---
+
+## Session Log (condensed)
+
+| Date | Era / phase | What was delivered |
+|---|---|---|
+| 2026-09-01 | Phases 1–11 | Static bilingual marketing site: design tokens, mock catalogue, fare engine, shared chrome, 5-step booking, WebP asset pipeline, EN/HI SSG with hreflang and lead bars, responsive QA |
+| 2026-09-03 | Docs | Consolidated `PRD.md` (v3.0 master): business goals, SEO/AI-search strategy, engineering, design, QA gates |
+| 2026-09-05 – 2026-09-06 | Phases 16–25 | Light Premium token split, modular animation engine, theme switcher, contact card, hero destination slideshow, interactive grids, animation governance rules |
+| 2026-09-07 | Phase 29 | Real market catalogue integration (fleet specs, per-km rates, packages, cancellation rules) |
+| 2026-09-09 – 2026-09-10 | Phase 31/32 | Quality-audit CI, React migration contract and workspace, legacy static tree removed from the root, assets consolidated into `react/public/assets` |
+| 2026-09-11 | Phase R5 | Design lock registry; marketing hubs and dynamic route/package/vehicle detail templates with schema graphs |
+| 2026-09-12 | Phase R5.26–R6.5 | SSG pre-renderer (75 routes + redirects), sitemap/robots generator, SEO head + JSON-LD factories, LocationIQ hook, ARIA 1.2 combobox, backend architecture merged on `design/homepage` |
+| 2026-09-13 | Backend | Fare engine, draft bookings, Razorpay/HMAC payment adapters, admin dispatch, catalog, reviews, inquiries, notifications, migrations, 38-test deterministic suite |
+| 2026-09-14 | Deployment monitoring | `scripts/healthcheck.mjs`, `.github/workflows/uptime.yml` (5-minute schedule), `npm run healthcheck`, step-by-step Render + Cloudflare Pages deploy guide in `docs/DEPLOYMENT.md` |
+| 2026-09-27 | Section 11 SEO lifecycle step | Live catalog structured data now omits invalid current offers for unavailable items, marks limited inventory with `LimitedAvailability`, exposes a last-reviewed freshness signal, and renders breadcrumb JSON-LD; sitemap generation no longer invents build-date `lastmod` values. Added `react/scripts/test-seo-lifecycle.ts` and committed main-push verification reports via `.github/workflows/main-monitor.yml` under `monitor-reports/`. |
+| 2026-09-14 | Phase D1 | Deployment standardization: CI contract + guards, admin SPA routing, build-hygiene fix, Docker hardening, Pages project naming, doc pack rewritten (this file included) |
+| 2026-09-25 | Phase M (M0–M2) | Master migration plan (`react/docs/MIGRATION_PLAN.md`), Tailwind CSS v4 setup, design tokens (`theme.css`), brand logo, luxury header with mobile nav sheet, footer with 28% advance guarantee, English-only mandate refactor |
+| 2026-09-25 | Phase M (M3) | Universal dynamic tour package template (`PackageDetailPage.tsx`) powered by `TourPackage` props (`taj_mahal_sunrise_guided_tour.html`), curated package catalogue (`PackagesPage.tsx` from `packages.html`) with interactive category tabs and decision matrix |
+| 2026-09-25 | Phase M (M4) | Streamlined 2-step universal booking funnel & transit voucher in `BookingPage.tsx` (`step_1_taj_mahal_sunrise_guided_tour.html`, `step_2_booking_form_for_all.html`, `book_confirmed.html`) wired to 28% advance token and GST calculation |
+| 2026-09-25 | Phase M (M5) | Rebuilt all core marketing & support pages from `react/new_design/` (`HomePage.tsx`, `FleetPage.tsx`, `RoutesPage.tsx`, `ServicesPage.tsx`, `ContactPage.tsx`, `FaqPage.tsx`, `TermsPage.tsx`, `PrivacyPage.tsx`, `NotFoundPage.tsx`) under the English-only mandate |
+| 2026-09-25 | Phase M (M6) | Full migration completion: converted dynamic templates (`AboutPage.tsx` from `services_why_choose_us.html`, `RouteDetailPage.tsx`, `VehicleDetailPage.tsx`) into the luxury design system; typecheck clean (0 errors), SSG pre-rendered 37 pages + 10 redirects + sitemap (32 URLs), and monorepo `npm run verify` passed 100% |
+| 2026-09-25 | Phase M (M7–M8) | Master frontend standard: canonical `FRONTEND_RULES.md` created; oversized headlines globally scaled down to luxury editorial (Hero H1 26px, Section H2 20px); replaced legacy static reviews grid in `HomePage.tsx` with dual infinite `ReviewsMarquee` marquee (LOCK-N06); normalized oversized price displays in `FleetPage.tsx` and `ServicesPage.tsx`; removed stale unused `reviews` import; all DESIGN_LOCKS.md entries updated; `npm run verify` passed cleanly (3 typechecks, 55 backend tests, 3 builds) |
+| 2026-09-25 | Phase M (M9) | Prestige Homepage Enhancements: added `InitialLoader.tsx` with 0-100% counter on pure white background with black capital `LOADING` typography; integrated `SmoothScrollHero` with Unsplash mobile photo `dCjcGh38WAc` by Shifan Hassan (*"A plane flying over Taj Mahal"*); implemented delayed navigation bar reveal in `Header.tsx` appearing only after scrolling past the hero image; lightened heavy button themes with brand terracotta and crisp `text-white` contrast; scroll-triggered reveals across sections preserving 100% SEO/AEO/GEO pre-rendering; monorepo `npm run verify` passed (3 typechecks, 55 backend tests, 3 production builds) |
+| 2026-09-26 | Phase M (M15) | Master Editorial Typography & Button System: Updated `react/src/components/layout/EditorialPageTemplate.tsx` to provide strictly standardized font sizes, font colors (`EDITORIAL_TYPOGRAPHY`), button sizes, and button colors (`EDITORIAL_BUTTONS`) with reusable action components (`PrimaryButton`, `WhatsAppButton` with guaranteed pure white `#ffffff` text & icon, `SecondaryButton`, `EditorialPill`); updated `ServicesPage.tsx` preserving its clean original layout and sections while adopting uniform font sizes, font colors, and button sizes/colors throughout; monorepo `npm run verify` passed cleanly (3 typechecks, 55 backend tests, 3 builds) |
+| 2026-10-01 | Task 6 continuation | Added the supplied Google Tag Manager container `GTM-KFXGSK7H` to `react/index.html` in both the document head and body noscript fallback, and updated `react/scripts/prerender.ts` so the noscript iframe survives every static SEO page; code-side SEO implementation remains complete, while external Search Console, GA/GTM workspace configuration, GBP, directory and backlink actions remain launch-owner work. |
+| 2026-10-02 | PageSpeed Phase 1+2 + main integration (`feat/pagespeed-booking-seo-hub`) | Canonical 5-fleet registry (`react/src/data/fleets.ts`) feeding both booking widgets, manifest builder and pre-renderer with Hatchback/contrast/Unsplash build guards; typed SVG icon registry (`react/src/components/icons/Icon.tsx`) replacing Material Symbols font spans (font subsetting via fontTools breaks `rlig` ligatures — do not retry; migrate call-sites to `<Icon>` instead); Famous Places gallery moved from Unsplash to self-hosted AVIF/WebP/JPG responsive sets under `react/public/assets/places/gallery/`; LCP hero as `<picture>` AVIF/WebP; GTM deferred to idle; merged latest `main` (published-catalog SSG prerender + SEO remediation docs) resolving the `prerender.ts` import conflict as a union of both sides; removed the browser-direct LocationIQ fallback (proxy-only search); fixed `RouteDetailPage` corridor visual pointing at three non-existent `/assets/routes/*.webp` files (now the existing `/assets/hero/hero-highway.webp`). Root `npm run verify` green: 3 typechecks, backend tests, SEO lifecycle, 3 builds; pre-render 49 pages + 14 redirects, sitemap 39 URLs. Not deployed. |
+| 2026-10-04 | Canonical booking-selection integrity fix (`fix/canonical-booking-selection`) | Removed the duplicate trip-selection stage and carried one typed selection through fare quote, review, booking intent/finalization, owned history and voucher; added additive migration `0023`, profile prefill/current-profile endpoint, customer/admin type-specific labels, and end-to-end tests. Root `npm run verify` passed; 390px mobile Step 1/2 and API-backed package fare/review were inspected. Production database was not modified; migration rollout remains pending. |
+| 2026-10-04 | Homepage booking layout | Moved the homepage booking widget below the trust ticker and directly above Popular Routes, rebalanced the hero, and added the responsive horizontal booking bar with indicative fare display while preserving validation, accessibility semantics, and booking URLs. Touched `react/src/pages/HomePage.tsx`, `react/src/components/home/HomeBookingWidget.tsx`, and `react/src/styles/global.css`; root `npm run verify` passed. |
+| 2026-10-10 | Bright hero refresh + Baghel Buddy mascot (customer site) | Replaced all 10 homepage hero slides with very bright high-key daylight photographs (mean luminance 0.53–0.67; Taj Mahal now CC0), regenerating all 60 AVIF/WebP derivatives and updating provenance in `react/src/data/homeHeroSlides.ts` + `react/public/assets/home-hero/README.md`. Added Baghel Buddy, a floating animated mascot: character designed in the Bible Strong Avatar Lab model (exported `.avatar.json` in `react/src/data/`), rendered by our own lightweight SVG/rAF playback engine (`react/src/components/avatar/`, no AGPL runtime bundled — lab packages are AGPL-3.0), wired into `SiteLayout.tsx` (customer site only), token-driven styling, `prefers-reduced-motion` safe, dismissible. `npm run typecheck` + `npm run build` (58 pages SSG) green. |
+| 2026-10-12 | Phase V2.1 (Backend Manifest & Catalog Normalization) | Eliminated static `CATALOG_RAW_DATA` and `compileBaseRoutes` baseline from `catalog.service.ts`; purged synthetic bidirectional reverse routes and multiplier pricing; derived manifest directly from canonical `outstation_routes`, `tour_packages`, `local_packages`, and active vehicle models via `FareCatalogRepository`; unconfigured tiers project explicit `null`; wired `FareCatalogRepository` in `app.ts`; authored `catalog-manifest.test.ts` (192 backend unit tests passing); root `npm run verify` passed cleanly. |
+| 2026-10-12 | Phase V2.2 (Services Page Dynamic Luxury Redesign) | Replaced 6 static cards in `ServicesPage.tsx` with 4 full-image dynamic editorial category sections (01 Outstation Routes, 02 Local Sightseeing, 03 Airport & Station Transfers, 04 Tour Packages) backed by published DB records; retained luxury animation tokens (`useScrollReveal`, `--reveal-delay`, terracotta/sandstone styling); implemented scroll reveals and hover/touch interaction card reveals; verified full mobile responsiveness and canonical booking flow links; React typecheck clean (0 errors). |
+| 2026-10-12 | Phase V2.3 (Routes & Homepage Dynamic Content Rewiring) | Rewired `RoutesPage.tsx`, `InstantRouteCalculator.tsx`, and `LatestRoutesSection.tsx` to read exclusively from canonical published routes; eliminated static `public/routes-manifest.json` runtime fallback in `catalogManifest.ts`; implemented distinct One-Way and Round-Trip modes; rewired Homepage `PopularRoutes.tsx` to render published outstation routes; rewired `FleetSection.tsx` to group by canonical vehicle groups (`Sedan`, `SUV`, `Luxury`, `Tempo Traveller`) using active `vehicle_models`; rewired Guided Tours and Famous Places to published packages and canonical place data; eradicated client-side price math. |
+| 2026-10-12 | Phase V2.4 (Reviews Feed & Inquiry Database Persistence) | Unified review moderation workflows in backend; added `LIMIT 30` to `ReviewsRepository.getPublicReviews()` to enforce the 30-review maximum cap; added `fetchPublicReviews()` and `fetchPublicGallery()` in React API client; wired live approved reviews into `ReviewsMarquee.tsx` (LOCK-N06) with graceful fallback; rewired `ContactPage.tsx` and Homepage inquiry forms to persist submissions to PostgreSQL `inquiries` table via `POST /api/v1/inquiries` (admin inbox) with optional WhatsApp notification. |
+| 2026-10-12 | Phase V2.5 (Manifest Builder & Seed Scripts Reconciliation) | Updated `react/scripts/build-manifest.ts` to eliminate synthetic reverse routes, fake `-taxi` aliases, and fallback prices (reduced manifest from 2,060 keys to 963 canonical routes); reconciled `backend/scripts/seed-routes.ts` (removed dropped `starting_price_inr`) and `seed-canonical-catalog.ts` (rebuilt to seed Clean Fare System tables `tour_packages`, `transfers`, `local_packages`, `fare_rules`); full root `npm run verify` passed 100% cleanly across all 3 applications (3 typechecks, 192 backend tests, catalog-sources tests, SEO lifecycle, 3 production builds with 59 SSG pages). |
+
+---
+
+| 2026-10-04 | Commercial vehicle and tour-package pricing | Updated Tempo Traveller and Urbania to bill under 300 km as round-trip distance and at/above 300 km once at their own per-km rates, with ₹500/day driver allowance; removed tour-package flat surcharge/per-km controls from backend, admin, customer contracts, SQL, and migration; added name-to-slug generation for new local packages and transfer routes; added boundary regression coverage. Root `npm run verify` passed (176 tests). |
+## Checklist
+
+### Customer site (`react/`)
+
+- [x] Design system ported and locked (Dark Navy + Golden, Light Premium variants)
+- [x] Marketing hubs, route/vehicle/package detail templates, bilingual copy
+- [x] LocationIQ search with ARIA 1.2 combobox and offline fallback
+- [x] SEO head manager: canonicals, hreflang, OG/Twitter, geo tags, JSON-LD graph
+- [x] SSG pre-renderer + sitemap/robots generator wired into the build
+- [x] **Section 11 SEO lifecycle foundation** — truthful unavailable/limited structured-data offers, last-reviewed live catalog metadata, breadcrumbs, sitemap `lastmod` omission when no source timestamp exists, and regression coverage
+- [x] Real 404 page and legacy redirect stubs
+- [x] Customer fares and booking intents/finalization use the API with one canonical typed trip selection; the additive selection migration still requires staged deployment
+- [x] Multi-service customer booking funnel (outstation, local packages, transfers, tour packages)
+- [x] Pre-rendering static HTML for `/book/`, `/en/book/`, `/hi/book/`, and `/book.html` preventing 404s
+- [ ] Real photography and real NAP (Phase I4)
+
+### Phase M — HTML UI to React Migration (`react/`)
+
+- [x] **M0: Master Architecture & Planning** — `react/docs/MIGRATION_PLAN.md` created with dynamic package detail template architecture and token definitions.
+- [x] **M1: Tailwind CSS & Design Token System Setup** — `@tailwindcss/vite` configuration, `@/styles/theme.css` tokens, Google Fonts (`EB Garamond`, `Plus Jakarta Sans`) & Material Symbols Outlined.
+- [x] **M2: Global Chrome & Responsive Layout** — New luxury `Header.tsx` (with mobile nav drawer) and `Footer.tsx` (4-column layout with 28% advance guarantee).
+- [x] **M3: Universal Dynamic Tour Package Template & Catalogue** — Rebuild `PackageDetailPage.tsx` dynamically driven by `TourPackage` props (`taj_mahal_sunrise_guided_tour.html`), and `PackagesPage.tsx`.
+- [x] **M4: Streamlined 2-Step Universal Booking & Billing Engine** — Step 1 (choose car tier: `step_1_taj_mahal_sunrise_guided_tour.html`), Step 2 (universal booking/billing form for all packages & routes: `step_2_booking_form_for_all.html`), and confirmation voucher (`book_confirmed.html`) wired to `fareEngine.ts`.
+- [x] **M5: Core Marketing Pages & Route Hubs** — `HomePage.tsx` (`home.html`), `FleetPage.tsx` (`fleet.html`), `RoutesPage.tsx` (`routes.html`), `ServicesPage.tsx` (`services.html`), and support/legal pages.
+- [x] **M6: Verification, SSR Pre-Rendering & Build Quality** — Update `prerender.ts`, typecheck, build validation.
+- [x] **M7: Master Frontend Standard & Typography Refinement** — Created canonical `FRONTEND_RULES.md` matching `BACKEND_RULES.md`, scaled down oversized headlines to luxury editorial scale (Hero 26px/20px, Section 20px/17px) while preserving compact 20% reduced body/card dimensions, zero mouse scroll hijacking, and passing monorepo `npm run verify`.
+- [x] **M8: ReviewsMarquee Integration & Price Scale Normalisation** — Replaced legacy static traveller review grid in `HomePage.tsx` with the dual-row infinite `ReviewsMarquee` (LOCK-N06); normalised oversized price/tariff displays (`text-xl` → `text-base sm:text-lg`) in `FleetPage.tsx` and `ServicesPage.tsx`; removed unused `reviews` import from `HomePage.tsx`; registered LOCK-N06 in `DESIGN_LOCKS.md`; `npm run verify` green (3 typechecks, 55 backend tests, 3 builds).
+- [x] **M9: Prestige Initial Loader, Scroll Hero Enhancements & Button Color Tuning** — Added `InitialLoader.tsx` (capital `LOADING`, 0–100% counter on pure white with black typography); configured Unsplash mobile photo `dCjcGh38WAc` (*"A plane flying over Taj Mahal"*); implemented delayed navigation bar reveal in `Header.tsx` after scrolling past the hero image; replaced heavy button styles with terracotta palette and high-contrast `text-white`; scroll-triggered section reveal animations with 100% crawlable SSG pre-rendering; monorepo `npm run verify` green (3 typechecks, 55 backend tests, 3 builds).
+- [x] **M10: Homepage Refinements — Point-to-Point Copy, Hero Once-Per-Session, 21st.dev Motion Cards, Text Roller Fade Masks, Lightened Route Buttons & Ported Admin Compass Animation** — Converted marketing buzzwords across all homepage sections into direct, point-to-point factual copy; gated `SmoothScrollHero` to display once per user session (`sessionStorage`), instantly revealing top-level content on returning visits; updated static hero background image to Taj Mahal sunrise photo matching animation; softened Popular Routes buttons to light sandstone with primary hover border; added left/right fade-in/out gradient masks to Trust Ticker text roller; redesigned "Why book with us" into a 21st.dev motion bento grid with interactive hover elevation, staggered reveals, and animated copy feedback; ported admin panel's animated SVG compass rose & route into `BrandLogo.tsx` for global chrome branding; monorepo `npm run verify` green (3 typechecks, 55 backend tests, 3 builds).
+- [x] **M11: Authentic Fleet Photography Integration (F:\Dev)** — Ingested real vehicle fleet photos directly from the user's `F:\Dev` storage (`Maruti Dzire.jpg`, `Maruti Ertiga.webp`, `Toyota Innova Crysta.webp`, `Force Tempo.webp`, `urbania-picture.webp`); generated responsive multi-resolution WebP sets (`-480.webp`, `-768.webp`, `.webp`) in `react/public/assets/fleet/` and `assets/fleet/`; eradicated all external car placeholders and Google usercontent URLs across `HomePage.tsx`, `FleetPage.tsx`, `BookingPage.tsx`, `ServicesPage.tsx`, `AboutPage.tsx`, `NotFoundPage.tsx`, `VehicleDetailPage.tsx`, and `RouteDetailPage.tsx`; all vehicle cards, options, and fallbacks now point to authentic fleet imagery; monorepo `npm run verify` green (3 typechecks, 55 backend tests, 3 builds).
+- [x] **M12: TextLoop Component Integration** — Integrated shadcn-compatible `text-loop.tsx` and updated `demo.tsx` in `react/src/components/ui/` with `motion/react` (`LazyMotion`, `AnimatePresence`, `domAnimation`).
+- [x] **M13: Handwriting-Style Letter-by-Letter Reveal for 'Agra to Anywhere'** — Replaced `AppleHelloEnglishEffect` with letter-by-letter handwriting-style reveal animation on `"Agra to Anywhere"` using `framer-motion` staggered children (`staggerChildren: 0.08`, `duration: 0.45`, ease `[0.16, 1, 0.3, 1]`) in `#E5A044` with gold glow drop shadow; removed looping text animation from headline body lines, restoring clean, static editorial typography on `"in first-class comfort."` with gold flourish underline; monorepo `npm run verify` green (3 typechecks, 55 backend tests, 3 builds).
+- [x] **M14: Editorial Light/White Palette Refinement for Hero Headline** — Upgraded the hero headline gradient on *"Agra to Anywhere, in first-class comfort"* to a luminous white and pearl palette per anti-slop design standards; Line 1 (*"Agra to Anywhere"*) now features vertical white-to-pearl illumination (`from-white via-white to-white/80`) with dual layered shadows for contrast over the brighter hero image; Line 2 (*"in first-class comfort."*) features an editorial horizontal light gradient (`from-white via-white/95 to-white/80`); upgraded underline flourish to a silk-white gradient (`underlineWhiteSilk`); monorepo `npm run verify` green (3 typechecks, 55 backend tests, 3 builds).
+- [x] **M15: Master Editorial Template & Services Page Transformation** — Extracted homepage design ideas into reusable `EditorialPageTemplate.tsx` (`EditorialHero`, `SectionHeader`, `LuxuryDarkBentoCard`, `PromoCouponStrip`); rebuilt `ServicesPage.tsx` with atmospheric editorial hero, quick jump bar, 6 modular cards with floating starting tariffs, 4 luxury dark bento cards, and interactive promo strip; guaranteed pure white WhatsApp text on black buttons; registered `LOCK-N07` in `DESIGN_LOCKS.md`; monorepo `npm run verify` green (3 typechecks, 55 backend tests, 3 builds).
+- [x] **M16: Hybrid SSG + 0ms In-Memory Route Manifest Engine** — Built `react/scripts/build-manifest.ts` compressing all 982 outstation routes into a 12.1 KB gzipped dictionary (`public/routes-manifest.json`); created `InstantRouteCalculator.tsx` integrated on `RoutesPage.tsx` with 0ms in-memory autocomplete, 4-tier live vehicle fares (Sedan, Ertiga, Innova Crysta, Hatchback), toll tax clarity, and `pushState`/`popstate` URL synchronization; added PostgreSQL migration `0017_widen_catalog_slug.sql` and batch seeder `backend/scripts/seed-routes.ts`; monorepo `npm run verify` green (3 typechecks, 55 backend unit tests, 3 builds).
+- [x] **F4: Authoritative Catalog Manifest & Admin CRUD Dynamic Invalidation** — Added `GET /api/v1/catalog/manifest` with ETag caching, versioning, and strict published-only filter (excludes draft and archived items); invalidates and bumps manifest version on catalog item create, update, publish, and archive; added admin "Republish site data" button in `CatalogPage.tsx` showing the last regeneration timestamp; wired frontend `loadPublishedPackages()` and `loadRoutesManifest()` in `react/src/services/catalogManifest.ts` with local cache and static fallback; added `backend/tests/integration/catalog-manifest-f4.test.ts` (4/4 tests passing); `npm run verify` green.
+
+### Phase V2 — Unified Backend, Admin and Customer Website Remediation
+
+- [x] **V2.1: Canonical Contracts & Backend Reads (P0)** — Refactored `catalog.service.ts` manifest generator to purge static `CATALOG_RAW_DATA` and `compileBaseRoutes` synthesis, eliminated synthetic reverse routes, eliminated invented multiplier fares, derived manifest strictly from canonical published DB records via `FareCatalogRepository` and `routeCatalog`, missing vehicle fares set to `null`; wired `FareCatalogRepository` in `app.ts`; obsolete upgrade operations retired; verified with 192 backend unit tests passing (including `catalog-manifest.test.ts`) and root `npm run verify` green.
+- [x] **V2.2: Services Page Redesign (P1)** — Replaced the 6 hardcoded `SERVICES_MODULES` in `ServicesPage.tsx` with 4 full-image dynamic editorial category sections (01 Outstation Routes, 02 Local Sightseeing, 03 Airport & Station Transfers, 04 Tour Packages) backed by published DB records; preserved existing luxury animations (`useScrollReveal`, `--reveal-delay`, terracotta/sandstone styling); implemented scroll-driven sequence reveals and interactive hover/focus/touch card detail reveals; ensured full mobile & reduced-motion accessibility; wired CTAs to canonical booking flows (`/book?category=...`).
+- [x] **V2.3: Customer Routes Page & Homepage Dynamic Content Rewiring (P1)** — Rewired `RoutesPage.tsx`, `InstantRouteCalculator.tsx`, and `LatestRoutesSection.tsx` to read solely from canonical published routes; eliminated static `public/routes-manifest.json` runtime fallback; implemented distinct One-Way and Round-Trip modes; rewired Homepage `PopularRoutes.tsx` to render published outstation routes; rewired `FleetSection.tsx` and `FleetPage.tsx` to group by canonical vehicle groups (`Sedan`, `SUV`, `Luxury`, `Tempo Traveller`) using active `vehicle_models`; rewired Guided Tours and Famous Places to published packages and canonical place data; removed client-side price math.
+- [x] **V2.4: Reviews, Gallery & Booking Inquiries (P1)** — Unified review workflows via `reviews.service.ts` and `reviews.routes.ts`; enforced 30-review maximum cap in `ReviewsRepository.getPublicReviews()`; added `fetchPublicReviews()` and `fetchPublicGallery()` in React API client; wired live approved reviews into `ReviewsMarquee.tsx` with fallback; rewired `ContactPage.tsx` and Homepage inquiry forms to persist submissions to backend `inquiries` table via `POST /api/v1/inquiries` (admin inbox) before optional WhatsApp notification.
+- [x] **V2.5: Build Snapshots, Seed Scripts & End-to-End Live Verification (P0)** — Updated `react/scripts/build-manifest.ts` to eliminate synthetic reverse routes, fake `-taxi` aliases, and fallback prices; reconciled legacy seed scripts (`seed-routes.ts`, `seed-canonical-catalog.ts`) with current Clean Fare System schema (purged references to dropped `starting_price_inr`, `package_vehicle_upgrades`, `transfer_routes`, `local_sightseeing_packages`); ran and passed full monorepo `npm run verify` (3 typechecks, 192 backend tests, catalog sources tests, SEO lifecycle, 3 builds: 59 SSG pages, admin SPA, backend dist).
+
+### Admin panel (`admin/`)
+
+- [x] Dashboard, bookings, finance, catalog, reviews, inquiries, fares, audit screens
+- [x] RBAC permission matrix + role-aware navigation
+- [x] SPA routing with `_redirects` fallback and noindex headers
+- [x] Catalog management: "New item" and "Edit item" dialogs with backend API integration
+- [x] Catalog dynamic invalidation & "Republish site data" button with regeneration timestamp (F4)
+- [x] Authoritative Fare Rules modification with versioned audit logging and live sync
+- [x] Manual Desk / Phone Booking creation with server-authoritative fare snapshots
+- [ ] Supabase-issued JWT sign-in replacing the demo `test-<role>` principal (Phase I1)
+- [ ] Permission enforcement verified against the live API (Phase I3)
+
+### Backend (`backend/`)
+
+- [x] Fastify app with helmet, CORS allowlist, rate limiting, request IDs, error handler
+- [x] Zod environment validation with production hard-fail rules
+- [x] Fare engine, draft bookings with immutable fare snapshots, payments, refunds, audit log
+- [x] Catalog, reviews, inquiries, notifications providers, LocationIQ geocoding
+- [x] Migrations, seed, memory + PostgreSQL repositories, 38-test deterministic suite
+- [x] Multi-stage production Dockerfile with pruned dependencies + `.dockerignore`
+- [ ] Live payment credentials and webhook reconciliation drills (Phase I2)
+- [ ] Uptime/alerting on `/health` and `/ready` (Phase I5)
+
+### Deployment
+
+- [x] Root command contract (`install:all`, `verify`, `typecheck`, `test`, `build:all`, `deploy:*`)
+- [x] CI workflow with quality gate and deploy guards on Node 22
+- [x] Cloudflare Pages naming standardized; per-app routing rules documented
+- [x] `render.yaml` blueprint, `vercel.json` preview fallback, `docker-compose.yml`
+- [x] `docs/DEPLOYMENT.md`: topology, release order, verification curls, rollback
+- [x] Uptime monitoring: `scripts/healthcheck.mjs` + scheduled `uptime.yml` (`npm run healthcheck`)
+- [ ] Pages projects created/renamed to the standardized names with domains attached
+- [ ] Render secrets populated and first API deploy verified
+- [ ] Uptime failures routed to a human (notifications/incident integration)

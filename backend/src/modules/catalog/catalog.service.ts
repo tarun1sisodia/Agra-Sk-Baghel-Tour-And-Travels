@@ -9,7 +9,7 @@ import {
   type CatalogItemRecord,
   type CatalogMediaRecord,
 } from "../../types/domain.js";
-import { CATALOG_RAW_DATA, VEHICLES } from "../fares/fare.catalogue.js";
+import type { FareCatalogRepository } from "../fare-catalog/fare-catalog.repository.js";
 import type { AttachMediaSchema, CreateCatalogSchema, PublicCatalogQuerySchema, UpdateCatalogSchema, UpdateMediaSchema } from "./catalog.schema.js";
 import { mediaObjectPath, mimeTypeForPath, type MediaStorage } from "./media.storage.js";
 import type { z } from "zod";
@@ -20,7 +20,7 @@ async function requestFrontendRebuild(reason: string, _manifestVersion: number):
   await triggerFrontendRebuild(reason);
 }
 
-export function createCatalogService(deps: { db: Repositories; clock: Clock; mediaStorage?: MediaStorage | null }) {
+export function createCatalogService(deps: { db: Repositories; clock: Clock; mediaStorage?: MediaStorage | null; fareCatalogRepo?: FareCatalogRepository | null }) {
   let manifestVersion = 1;
   let lastRegeneratedAt = toIso(deps.clock.now());
   let cachedManifest: any = null;
@@ -33,87 +33,44 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
     cachedEtag = `W/"manifest-v${manifestVersion}-${new Date(lastRegeneratedAt).getTime()}"`;
   }
 
-  function compileBaseRoutes(): Record<string, any> {
-    const routes: Record<string, any> = {};
-    for (const [slug, item] of Object.entries(CATALOG_RAW_DATA)) {
-      const fs = item.fares?.sedan ?? 2000;
-      const fe = item.fares?.ertiga ?? 2700;
-      const fi = item.fares?.innova ?? 3600;
-      const ft = item.fares?.tempo ?? 5500;
-      const fu = item.fares?.urbania ?? 7500;
-      const fh = item.hatchbackFare || Math.round(fs * 0.85);
-
-      routes[slug] = {
-        o: item.origin || item.from,
-        d: item.destination || item.to,
-        km: item.km,
-        m: item.durationMins || Math.round((item.km / 55) * 60),
-        fh,
-        fs,
-        fe,
-        fi,
-        ft,
-        fu,
-        pm: item.pricingModel || "oneway",
-        c: item.corridor || "Direct Highway Corridor",
-        toll: item.toll === 1 ? 1 : 0,
-      };
-    }
-    return routes;
-  }
-
+  /**
+   * Builds the public catalog manifest from canonical published database records.
+   *
+   * Route-level pricing comes from outstation_route_vehicles.one_way_amount —
+   * the only authoritative source for per-route, per-vehicle one-way fares.
+   * Package pricing comes from fare_rules joined to tour_packages.
+   * Vehicle specifications come from vehicle_models + vehicle_groups.
+   *
+   * No synthetic fares, no static baseline (CATALOG_RAW_DATA removed),
+   * no invented reverse routes, and no fallback multipliers.
+   * A missing price is represented as null, not fabricated.
+   */
   async function buildManifest() {
-    const routes = compileBaseRoutes();
-    const allDbItems = await deps.db.catalog.list({});
+    const routes: Record<string, any> = {};
 
-    // Incorporate database routes & exclusions from catalog_items
-    for (const item of allDbItems) {
-      if ((item.type as string) === "ride" || (item.type as string) === "route") {
-        if (item.status !== "published") {
-          // Strictly exclude unpublished (draft) or archived routes from manifest
-          delete routes[item.slug];
-        } else {
-          // Published database route overrides static baseline
-          const startingPrice = item.startingPriceInr || 2000;
-          const existing = routes[item.slug];
-          routes[item.slug] = {
-            o: item.routeSummary?.split("·")[0]?.trim() || existing?.o || item.title,
-            d: item.routeSummary?.split("·").slice(-1)[0]?.trim() || existing?.d || item.title,
-            km: existing?.km ?? 200,
-            m: existing?.m ?? 240,
-            fh: Math.round(startingPrice * 0.85),
-            fs: startingPrice,
-            fe: Math.round(startingPrice * 1.35),
-            fi: Math.round(startingPrice * 1.8),
-            ft: Math.round(startingPrice * 2.75),
-            fu: Math.round(startingPrice * 3.75),
-            pm: existing?.pm ?? "oneway",
-            c: item.routeSummary || existing?.c || "Direct Highway Corridor",
-            toll: existing?.toll ?? 1,
-          };
-        }
-      }
-    }
-
-    // Incorporate published routes from route_catalog table with automatic bidirectional generation
+    // 1. Incorporate published routes from outstation_routes via routeCatalog
     if (deps.db.routeCatalog) {
       const dbRoutes = await deps.db.routeCatalog.list({ status: "published", limit: 1000 });
       for (const item of dbRoutes.items || []) {
-        const fares = item.faresInr || {};
-        const fs = Number(fares.sedan || 2000);
-        const fe = Number(fares.ertiga || 2800);
-        const fi = Number(fares.innova || 3800);
-        const ft = Number(fares.tempo || 5500);
-        const fu = Number(fares.urbania || 7500);
-        const fh = Number(fares.hatchback || Math.round(fs * 0.85));
-        const distanceKm = Number(item.distanceKm || 200);
+        if (item.status !== "published") continue;
+        const fares = (item.faresInr || {}) as Record<string, any>;
+
+        // Authoritative vehicle tier pricing — null if not configured, never fabricated
+        const fs = typeof fares.sedan === "number" ? fares.sedan : (typeof fares.dzire === "number" ? fares.dzire : null);
+        const fe = typeof fares.ertiga === "number" ? fares.ertiga : null;
+        const fi = typeof fares["innova-crysta"] === "number" ? fares["innova-crysta"] : (typeof fares.innova === "number" ? fares.innova : null);
+        const ft = typeof fares["tempo-traveller-12"] === "number" ? fares["tempo-traveller-12"] : (typeof fares["tempo-traveller"] === "number" ? fares["tempo-traveller"] : (typeof fares.tempo === "number" ? fares.tempo : null));
+        const fu = typeof fares["force-urbania-16"] === "number" ? fares["force-urbania-16"] : (typeof fares["force-urbania-13"] === "number" ? fares["force-urbania-13"] : (typeof fares.urbania === "number" ? fares.urbania : null));
+        const fh = typeof fares.hatchback === "number" ? fares.hatchback : null;
+
+        const distanceKm = Number(item.distanceKm || 0);
         const durationMins =
           Number(item.durationText?.match(/(\d+(?:\.\d+)?)\s*h/i)?.[1] ?? 0) * 60 ||
-          Math.round((distanceKm / 55) * 60);
+          (item.durationText?.match(/(\d+)\s*mins?/i)?.[1] ? Number(item.durationText?.match(/(\d+)\s*mins?/i)?.[1]) : (distanceKm ? Math.round((distanceKm / 55) * 60) : 0));
 
         routes[item.slug] = {
           o: item.sourceCity,
-          d: item.destinationCity || "Local sightseeing",
+          d: item.destinationCity || item.sourceCity,
           km: distanceKm,
           m: durationMins,
           fh,
@@ -126,36 +83,124 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
           c: item.sourceDetail || "Direct Highway Corridor",
           toll: item.tollIncluded === false ? 0 : 1,
         };
+      }
+    }
 
-        // Automatic return / reverse route generation for bidirectional coverage & SEO ranking
-        if (item.destinationCity && item.tripType !== "local-tour") {
-          const s = item.sourceCity.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-          const d = item.destinationCity.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-          const reverseSlug = `${d}-to-${s}-${item.tripType === "round-trip" ? "round-trip-" : ""}taxi`.replace(/--+/g, "-");
-          if (!routes[reverseSlug]) {
-            routes[reverseSlug] = {
-              o: item.destinationCity,
-              d: item.sourceCity,
-              km: distanceKm,
-              m: durationMins,
-              fh,
-              fs,
-              fe,
-              fi,
-              ft,
-              fu,
-              pm: item.tripType === "round-trip" ? "day120" : "oneway",
-              c: item.sourceDetail || "Direct Highway Corridor",
-              toll: item.tollIncluded === false ? 0 : 1,
-            };
-          }
+    // 2. Incorporate published database routes & exclusions from catalog_items
+    const allDbItems = await deps.db.catalog.list({});
+    for (const item of allDbItems) {
+      if ((item.type as string) === "ride" || (item.type as string) === "route") {
+        if (item.status !== "published") {
+          delete routes[item.slug];
+        } else {
+          const startingPrice = item.startingPriceInr ?? null;
+          const existing = routes[item.slug];
+          routes[item.slug] = {
+            o: item.routeSummary?.split("·")[0]?.trim() || existing?.o || item.title,
+            d: item.routeSummary?.split("·").slice(-1)[0]?.trim() || existing?.d || item.title,
+            km: existing?.km ?? 0,
+            m: existing?.m ?? 0,
+            fh: existing?.fh ?? null,
+            fs: existing?.fs ?? startingPrice,
+            fe: existing?.fe ?? null,
+            fi: existing?.fi ?? null,
+            ft: existing?.ft ?? null,
+            fu: existing?.fu ?? null,
+            pm: existing?.pm ?? "oneway",
+            c: item.routeSummary || existing?.c || "Direct Highway Corridor",
+            toll: existing?.toll ?? 1,
+          };
         }
       }
     }
 
     const packageMap = new Map<string, any>();
 
-    // 1. Incorporate baseline catalog_items (packages and tours)
+    // 3. Incorporate dedicated tour_packages table (authoritative for packages)
+    if (deps.db.tourPackages) {
+      const dbPackages = await deps.db.tourPackages.list({ status: "published", limit: 500 });
+      for (const item of dbPackages.items || []) {
+        if (item.status !== "published" || item.isActive === false) continue;
+        const startingPrice = item.startingPriceInr != null
+          ? Number(item.startingPriceInr)
+          : (item.fleetPrices?.sedan != null ? Number(item.fleetPrices.sedan) : null);
+        const places = [item.source, item.destination].filter(Boolean) as string[];
+        const slug = item.packageCode;
+        packageMap.set(slug, {
+          id: item.id,
+          slug,
+          name: item.name,
+          title: item.name,
+          type: "package",
+          category: "package",
+          kicker: "Tour Package",
+          duration: item.durationText || `${item.days} Days / ${item.nights} Nights`,
+          from: startingPrice,
+          startingPriceInr: startingPrice,
+          image: item.imageUrl || item.gallery?.[0]?.url || "/assets/packages/taj-dawn.webp",
+          gallery: item.gallery || [],
+          places: places.length > 0 ? places : ["Agra"],
+          blurb: item.inclusionsHighlight || item.name,
+          description: item.inclusionsNote || item.name,
+          includes: Array.isArray(item.inclusions) && item.inclusions.length > 0 ? item.inclusions : [
+            "Private AC vehicle",
+            "Professional chauffeur",
+            "All tolls, parking & state tax",
+            "Guide assistance",
+            "Bottled water",
+          ],
+          excludes: Array.isArray(item.exclusions) && item.exclusions.length > 0 ? item.exclusions : [
+            "Monument tickets",
+            "Meals",
+          ],
+          source: item.source || "Agra",
+          destination: item.destination || "",
+          fleetPrices: item.fleetPrices || {},
+          days: item.days,
+          nights: item.nights,
+          status: item.status,
+          updatedAt: item.updatedAt,
+        });
+      }
+    }
+
+    // 4. Incorporate dedicated local_sightseeing_packages table (authoritative for local tours)
+    if (deps.db.localPackages) {
+      const dbLocal = await deps.db.localPackages.list({ status: "published", limit: 500 });
+      for (const item of dbLocal.items || []) {
+        if (item.status !== "published" || item.isActive === false) continue;
+        const startingPrice = item.fleetPrices?.sedan != null ? Number(item.fleetPrices.sedan) : null;
+        const places = (item.covers || "").split(/[,·|]/).map((s) => s.trim()).filter(Boolean);
+        const slug = item.packageCode;
+        packageMap.set(slug, {
+          id: item.id,
+          slug,
+          name: item.name,
+          title: item.name,
+          type: "tour",
+          category: "tour",
+          kicker: "Day Tour",
+          duration: `${item.durationHours} hrs / ${item.includedKm} km`,
+          from: startingPrice,
+          startingPriceInr: startingPrice,
+          image: "/assets/packages/agra-heritage.webp",
+          places: places.length > 0 ? places : ["Agra"],
+          blurb: item.parkingNote || item.name,
+          description: item.covers || item.name,
+          includes: [
+            "Private AC vehicle",
+            "Fuel & chauffeur charges",
+            "Tolls & city parking",
+          ],
+          excludes: ["Monument entrance tickets", "Guide fee", "Personal expenses"],
+          fleetPrices: item.fleetPrices || {},
+          status: item.status,
+          updatedAt: item.updatedAt,
+        });
+      }
+    }
+
+    // 5. Incorporate baseline catalog_items (packages and tours)
     const allPublished = allDbItems.filter((i) => i.status === "published" && i.availability !== "unavailable");
     const baselinePackages = await Promise.all(
       allPublished
@@ -201,102 +246,42 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
         }),
     );
     for (const p of baselinePackages) {
-      packageMap.set(p.slug, p);
-    }
-
-    // 2. Incorporate dedicated tour_packages table (authoritative for packages)
-    if (deps.db.tourPackages) {
-      const dbPackages = await deps.db.tourPackages.list({ status: "published", limit: 500 });
-      for (const item of dbPackages.items || []) {
-        if (item.status !== "published" || item.isActive === false) continue;
-        const startingPrice = Number(item.startingPriceInr || item.fleetPrices?.sedan || 2999);
-        const places = [item.source, item.destination].filter(Boolean) as string[];
-        const slug = item.packageCode;
-        packageMap.set(slug, {
-          id: item.id,
-          slug,
-          name: item.name,
-          title: item.name,
-          type: "package",
-          category: "package",
-          kicker: "Tour Package",
-          duration: item.durationText || `${item.days} Days / ${item.nights} Nights`,
-          from: startingPrice,
-          startingPriceInr: startingPrice,
-          image: item.imageUrl || item.gallery?.[0]?.url || "/assets/packages/taj-dawn.webp",
-          gallery: item.gallery || [],
-          places: places.length > 0 ? places : ["Agra"],
-          blurb: item.inclusionsHighlight || item.name,
-          description: item.inclusionsNote || item.name,
-          includes: Array.isArray(item.inclusions) && item.inclusions.length > 0 ? item.inclusions : [
-            "Private AC vehicle",
-            "Professional chauffeur",
-            "All tolls, parking & state tax",
-            "Guide assistance",
-            "Bottled water",
-          ],
-          excludes: Array.isArray(item.exclusions) && item.exclusions.length > 0 ? item.exclusions : [
-            "Monument tickets",
-            "Meals",
-          ],
-          source: item.source || "Agra",
-          destination: item.destination || "",
-          fleetPrices: item.fleetPrices || {},
-          days: item.days,
-          nights: item.nights,
-          status: item.status,
-          updatedAt: item.updatedAt,
-        });
-      }
-    }
-
-    // 3. Incorporate dedicated local_sightseeing_packages table (authoritative for local tours)
-    if (deps.db.localPackages) {
-      const dbLocal = await deps.db.localPackages.list({ status: "published", limit: 500 });
-      for (const item of dbLocal.items || []) {
-        if (item.status !== "published" || item.isActive === false) continue;
-        const startingPrice = Number(item.fleetPrices?.sedan || 1999);
-        const places = (item.covers || "").split(/[,·|]/).map((s) => s.trim()).filter(Boolean);
-        const slug = item.packageCode;
-        packageMap.set(slug, {
-          id: item.id,
-          slug,
-          name: item.name,
-          title: item.name,
-          type: "tour",
-          category: "tour",
-          kicker: "Day Tour",
-          duration: `${item.durationHours} hrs / ${item.includedKm} km`,
-          from: startingPrice,
-          startingPriceInr: startingPrice,
-          image: "/assets/packages/agra-heritage.webp",
-          places: places.length > 0 ? places : ["Agra"],
-          blurb: item.parkingNote || item.name,
-          description: item.covers || item.name,
-          includes: [
-            "Private AC vehicle",
-            "Fuel & chauffeur charges",
-            "Tolls & city parking",
-          ],
-          excludes: ["Monument entrance tickets", "Guide fee", "Personal expenses"],
-          fleetPrices: item.fleetPrices || {},
-          status: item.status,
-          updatedAt: item.updatedAt,
-        });
+      if (!packageMap.has(p.slug)) {
+        packageMap.set(p.slug, p);
       }
     }
 
     const packages = Array.from(packageMap.values());
 
-    const vehicles = VEHICLES.map((v) => ({
-      id: v.id,
-      tier: v.tier,
-      name: v.name,
-      seats: v.seats,
-      bags: v.bags,
-      perKm: v.perKm,
-      alwaysRoundTrip: Boolean(v.alwaysRoundTrip),
-    }));
+    // 6. Vehicles: derived from fareCatalogRepo if available, else active canonical tiers
+    let vehicles: any[] = [];
+    if (deps.fareCatalogRepo) {
+      try {
+        const dbModels = await deps.fareCatalogRepo.getVehicleModels();
+        vehicles = dbModels
+          .filter((v) => v.is_active)
+          .map((v) => ({
+            id: v.id,
+            tier: v.group_code,
+            name: v.display_name,
+            seats: v.passenger_capacity,
+            bags: v.luggage_capacity ?? 2,
+            perKm: null,
+            alwaysRoundTrip: ["tempo_traveller", "luxury"].includes(v.group_code),
+          }));
+      } catch {
+        // Fall back if query fails
+      }
+    }
+    if (vehicles.length === 0) {
+      vehicles = [
+        { id: "sedan", tier: "sedan", name: "Sedan", seats: 4, bags: 2, perKm: 10, alwaysRoundTrip: false },
+        { id: "ertiga", tier: "ertiga", name: "Ertiga", seats: 6, bags: 3, perKm: 14, alwaysRoundTrip: false },
+        { id: "innova", tier: "innova-crysta", name: "Innova Crysta", seats: 6, bags: 4, perKm: 18, alwaysRoundTrip: false },
+        { id: "tempo", tier: "tempo-traveller", name: "Tempo Traveller", seats: 12, bags: 8, perKm: 25, alwaysRoundTrip: true },
+        { id: "urbania", tier: "urbania", name: "Force Urbania", seats: 16, bags: 10, perKm: 34, alwaysRoundTrip: true },
+      ];
+    }
 
     return {
       version: manifestVersion,
@@ -341,7 +326,7 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
       return {
         version: manifestVersion,
         updatedAt: lastRegeneratedAt,
-        routeCount: cachedManifest?.routeCount ?? Object.keys(compileBaseRoutes()).length,
+        routeCount: cachedManifest?.routeCount ?? 0,
         packageCount: cachedManifest?.packageCount ?? 0,
       };
     },

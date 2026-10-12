@@ -9,8 +9,9 @@
  * - Pure Tailwind CSS & theme tokens, 100% accessible
  */
 
-import React from "react";
-import { reviews, type Review } from "../../data/catalogue";
+import React, { useEffect, useState } from "react";
+import { reviews as fallbackReviews, type Review } from "../../data/catalogue";
+import { fetchPublicReviews } from "../../services/api";
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -84,8 +85,33 @@ function ReviewCard({ review }: ReviewCardProps) {
 }
 
 export function ReviewsMarquee() {
-  const row1 = reviews.slice(0, 5);
-  const row2 = reviews.slice(5, 10);
+  const [reviewsList, setReviewsList] = useState<readonly Review[]>(fallbackReviews);
+
+  useEffect(() => {
+    let active = true;
+    fetchPublicReviews().then((live) => {
+      if (!active || !live || live.length === 0) return;
+      const mapped: Review[] = live.slice(0, 30).map((r) => ({
+        name: r.display_name,
+        place: r.tour_name || r.route_text || "Agra & Outstation",
+        rating: Math.min(5, Math.max(1, r.rating || 5)),
+        quote: r.review_text,
+        role: r.social_platform && r.social_url ? r.social_platform : undefined,
+      }));
+      if (mapped.length >= 2) {
+        setReviewsList(mapped);
+      }
+    }).catch(() => {
+      // Graceful fallback to static reviews
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const mid = Math.ceil(reviewsList.length / 2);
+  const row1 = reviewsList.slice(0, mid);
+  const row2 = reviewsList.slice(mid);
 
   return (
     <section
