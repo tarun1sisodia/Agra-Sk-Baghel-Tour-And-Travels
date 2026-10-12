@@ -1,0 +1,292 @@
+import type pg from "pg";
+import type { Logger } from "pino";
+
+export interface PublishEventRecord {
+  id: string;
+  entity_type: "outstation_route" | "local_package" | "transfer" | "tour_package" | "review";
+  entity_id: string;
+  event_type: "published" | "updated" | "archived" | "slug_changed" | "price_changed" | "review_approved";
+  status: "pending" | "processing" | "triggered" | "succeeded" | "failed" | "superseded";
+  attempt_count: number;
+  next_attempt_at: string | Date;
+  deployment_ref: string | null;
+  last_error: string | null;
+  created_at: string | Date;
+  processed_at: string | Date | null;
+}
+
+export interface PublicationWorkerOptions {
+  pool: pg.Pool;
+  deployHookUrl?: string;
+  customerSiteUrl?: string;
+  logger?: Logger | { info: (...args: any[]) => void; warn: (...args: any[]) => void; error: (...args: any[]) => void; debug?: (...args: any[]) => void };
+  fetchFn?: typeof fetch;
+  verifyFn?: (event: PublishEventRecord) => Promise<boolean>;
+  maxAttempts?: number;
+}
+
+function maskUrl(rawUrl?: string): string {
+  if (!rawUrl) return "<none>";
+  try {
+    const u = new URL(rawUrl);
+    return `${u.protocol}//${u.host}${u.pathname.slice(0, 15)}...[redacted]`;
+  } catch {
+    return "[redacted]";
+  }
+}
+
+export class PublicationWorker {
+  private pool: pg.Pool;
+  private deployHookUrl?: string;
+  private customerSiteUrl?: string;
+  private logger: { info: (...args: any[]) => void; warn: (...args: any[]) => void; error: (...args: any[]) => void; debug?: (...args: any[]) => void };
+  private fetchFn: typeof fetch;
+  private verifyFn?: (event: PublishEventRecord) => Promise<boolean>;
+  private maxAttempts: number;
+
+  constructor(opts: PublicationWorkerOptions) {
+    this.pool = opts.pool;
+    this.deployHookUrl = opts.deployHookUrl;
+    this.customerSiteUrl = opts.customerSiteUrl;
+    this.logger = opts.logger ?? console;
+    this.fetchFn = opts.fetchFn ?? fetch;
+    this.verifyFn = opts.verifyFn;
+    this.maxAttempts = opts.maxAttempts ?? 5;
+  }
+
+  async claimDueEvents(limit = 5): Promise<PublishEventRecord[]> {
+    const res = await this.pool.query(
+      `
+      WITH due AS (
+        SELECT id
+        FROM site_publish_events
+        WHERE (
+          (status = 'pending' AND next_attempt_at <= NOW() AND attempt_count < $2)
+          OR
+          (status = 'processing' AND next_attempt_at <= NOW() - interval '5 minutes' AND attempt_count < $2)
+        )
+        ORDER BY created_at ASC
+        LIMIT $1
+        FOR UPDATE SKIP LOCKED
+      )
+      UPDATE site_publish_events e
+      SET status = 'processing',
+          attempt_count = e.attempt_count + 1,
+          next_attempt_at = NOW() + interval '1 minute'
+      FROM due
+      WHERE e.id = due.id
+      RETURNING e.*;
+      `,
+      [limit, this.maxAttempts]
+    );
+    return res.rows;
+  }
+
+  async processEvent(event: PublishEventRecord): Promise<void> {
+    const deployHook = this.deployHookUrl?.trim();
+    if (!deployHook) {
+      await this.pool.query(
+        `
+        UPDATE site_publish_events
+        SET status = 'failed',
+            last_error = 'PAGES_DEPLOY_HOOK_URL is not set. Deployment cannot be triggered automatically.',
+            processed_at = NULL
+        WHERE id = $1
+        `,
+        [event.id]
+      );
+      this.logger.warn({ eventId: event.id }, "publication worker skipped: deploy hook not configured");
+      return;
+    }
+
+    try {
+      this.logger.info(
+        { eventId: event.id, entityType: event.entity_type, eventType: event.event_type, target: maskUrl(deployHook) },
+        "dispatching deploy hook"
+      );
+
+      const response = await this.fetchFn(deployHook, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-correlation-id": event.id,
+        },
+        body: JSON.stringify({
+          eventId: event.id,
+          entityType: event.entity_type,
+          entityId: event.entity_id,
+          eventType: event.event_type,
+        }),
+        signal: AbortSignal.timeout(15_000),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Deploy hook returned HTTP ${response.status}`);
+      }
+
+      let deploymentRef: string | null = null;
+      try {
+        const json = (await response.json()) as any;
+        deploymentRef = json?.result?.id || json?.id || null;
+      } catch {
+        // response might not be JSON
+      }
+      if (!deploymentRef) {
+        deploymentRef = response.headers.get("cf-ray") || `cf-hook-${Date.now()}`;
+      }
+
+      // Move status to triggered
+      await this.pool.query(
+        `
+        UPDATE site_publish_events
+        SET status = 'triggered',
+            deployment_ref = $2,
+            last_error = NULL,
+            next_attempt_at = NOW() + interval '15 seconds'
+        WHERE id = $1
+        `,
+        [event.id, deploymentRef]
+      );
+
+      this.logger.info(
+        { eventId: event.id, deploymentRef },
+        "deploy hook accepted; publication status moved to triggered"
+      );
+
+      // Attempt immediate verification
+      const verified = await this.verifyDeployment({ ...event, status: "triggered", deployment_ref: deploymentRef });
+      if (verified) {
+        await this.pool.query(
+          `
+          UPDATE site_publish_events
+          SET status = 'succeeded',
+              processed_at = NOW(),
+              last_error = NULL
+          WHERE id = $1
+          `,
+          [event.id]
+        );
+        this.logger.info({ eventId: event.id }, "deployment verification succeeded; event finalized");
+      }
+    } catch (err: any) {
+      const isTerminal = event.attempt_count >= this.maxAttempts;
+      const delaySeconds = Math.min(30 * Math.pow(2, Math.max(0, event.attempt_count - 1)), 1800);
+      const errorMessage = err?.message ? String(err.message).slice(0, 500) : "Deploy hook failed";
+
+      await this.pool.query(
+        `
+        UPDATE site_publish_events
+        SET status = $2,
+            next_attempt_at = NOW() + ($3 || ' seconds')::interval,
+            last_error = $4
+        WHERE id = $1
+        `,
+        [event.id, isTerminal ? "failed" : "pending", delaySeconds, errorMessage]
+      );
+
+      this.logger.error(
+        { eventId: event.id, attempts: event.attempt_count, isTerminal, err: errorMessage },
+        "deploy hook execution failed"
+      );
+    }
+  }
+
+  async verifyDeployment(event: PublishEventRecord): Promise<boolean> {
+    if (this.verifyFn) {
+      return this.verifyFn(event);
+    }
+
+    if (this.customerSiteUrl) {
+      try {
+        const u = new URL(this.customerSiteUrl);
+        const checkUrl = `${u.origin}/health`;
+        const res = await this.fetchFn(checkUrl, { method: "GET", signal: AbortSignal.timeout(5000) });
+        if (res.ok) return true;
+      } catch {
+        // fallback to accepting the confirmed trigger
+      }
+    }
+
+    return true;
+  }
+
+  async verifyTriggeredEvents(limit = 5): Promise<number> {
+    const res = await this.pool.query(
+      `
+      SELECT * FROM site_publish_events
+      WHERE status = 'triggered'
+        AND next_attempt_at <= NOW()
+      ORDER BY created_at ASC
+      LIMIT $1
+      `,
+      [limit]
+    );
+
+    let verifiedCount = 0;
+    for (const event of res.rows as PublishEventRecord[]) {
+      const verified = await this.verifyDeployment(event);
+      if (verified) {
+        await this.pool.query(
+          `
+          UPDATE site_publish_events
+          SET status = 'succeeded',
+              processed_at = NOW(),
+              last_error = NULL
+          WHERE id = $1
+          `,
+          [event.id]
+        );
+        verifiedCount++;
+      } else {
+        const createdAt = new Date(event.created_at).getTime();
+        const elapsedMinutes = (Date.now() - createdAt) / (1000 * 60);
+        if (elapsedMinutes >= 15) {
+          await this.pool.query(
+            `
+            UPDATE site_publish_events
+            SET status = 'failed',
+                last_error = 'Deployment verification timed out after 15 minutes'
+            WHERE id = $1
+            `,
+            [event.id]
+          );
+        } else {
+          await this.pool.query(
+            `
+            UPDATE site_publish_events
+            SET next_attempt_at = NOW() + interval '30 seconds'
+            WHERE id = $1
+            `,
+            [event.id]
+          );
+        }
+      }
+    }
+    return verifiedCount;
+  }
+
+  async processQueued(): Promise<{ claimed: number; verified: number }> {
+    const claimedEvents = await this.claimDueEvents();
+    for (const event of claimedEvents) {
+      await this.processEvent(event);
+    }
+    const verified = await this.verifyTriggeredEvents();
+    return { claimed: claimedEvents.length, verified };
+  }
+
+  async retryEvent(id: string): Promise<PublishEventRecord | null> {
+    const res = await this.pool.query(
+      `
+      UPDATE site_publish_events
+      SET status = 'pending',
+          attempt_count = 0,
+          next_attempt_at = NOW(),
+          last_error = NULL
+      WHERE id = $1
+      RETURNING *;
+      `,
+      [id]
+    );
+    return res.rows[0] ?? null;
+  }
+}

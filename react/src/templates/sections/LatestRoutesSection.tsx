@@ -78,12 +78,12 @@ export function LatestRoutesSection({
           {routesToDisplay.map((r) => {
             const origin = r.sourceCity || r.source_city || "Agra";
             const dest = r.destinationCity || r.destination_city || "Delhi";
-            const distance = r.distanceKm ?? r.distance_km ?? 200;
+            const distance = r.distanceKm ?? r.distance_km ?? 0;
             const duration = r.durationText || r.duration_text || "3h 30m";
             const fares = r.faresInr || r.fares_inr || {};
             const sedanResolved = resolveTierKey(fares, "sedan");
-            const startingFare = Number(sedanResolved.value || 2500);
-            const token = Math.round(startingFare * 0.28);
+            const startingFare = Number(sedanResolved.value || 0);
+            const token = startingFare > 0 ? Math.round(startingFare * 0.25) : 0;
             const routeUrl = `/routes/${r.slug}/`;
             const bookUrl = `/book?from=${encodeURIComponent(origin)}&to=${encodeURIComponent(dest)}&vehicle=sedan&route=${encodeURIComponent(r.slug)}`;
 
@@ -125,14 +125,28 @@ export function LatestRoutesSection({
                   <div className="flex flex-col pt-1">
                     <span className="text-xs uppercase text-secondary font-semibold">Starting Sedan Fare</span>
                     <div className="flex items-baseline gap-1 mt-0.5">
-                      <span className="font-headline-md text-headline-sm text-terracotta-sandstone font-serif font-bold">
-                        ₹{startingFare.toLocaleString("en-IN")}
-                      </span>
-                      <span className="text-xs text-on-surface-variant">All-Inclusive</span>
+                      {startingFare > 0 ? (
+                        <>
+                          <span className="font-headline-md text-headline-sm text-terracotta-sandstone font-serif font-bold">
+                            ₹{startingFare.toLocaleString("en-IN")}
+                          </span>
+                          <span className="text-xs text-on-surface-variant">All-Inclusive</span>
+                        </>
+                      ) : (
+                        <span className="font-headline-md text-headline-sm text-terracotta-sandstone font-serif font-bold">
+                          Live Quote
+                        </span>
+                      )}
                     </div>
-                    <span className="text-xs text-secondary">
-                      Lock with only ₹{token.toLocaleString("en-IN")} (28% deposit)
-                    </span>
+                    {startingFare > 0 && token > 0 ? (
+                      <span className="text-xs text-secondary">
+                        Lock with only ₹{token.toLocaleString("en-IN")} (advance deposit)
+                      </span>
+                    ) : (
+                      <span className="text-xs text-secondary">
+                        Instant calculation on booking
+                      </span>
+                    )}
                   </div>
                 </div>
 

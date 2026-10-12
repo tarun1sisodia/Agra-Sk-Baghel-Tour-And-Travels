@@ -3,15 +3,10 @@ import type {
   OptionsResponse,
   OptionsVehicleItem,
   QuoteResponse,
-} from "../../../contracts/fare-system";
+  BookingEntryParams,
+} from "../../../contracts/fare-system.js";
 
-export interface BookingEntryParams {
-  category: CategoryCode;
-  product?: string;
-  trip?: "one_way" | "round_trip";
-  car?: string;
-  passengers?: number;
-}
+export type { BookingEntryParams };
 
 export interface CustomerFormState {
   name: string;

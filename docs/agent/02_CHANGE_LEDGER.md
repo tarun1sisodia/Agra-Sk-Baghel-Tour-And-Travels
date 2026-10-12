@@ -1,5 +1,68 @@
 # ArenaAI Agent Change Ledger
 
+## 2026-10-12
+
+### 2026-10-12 — Reconcile Legacy API Modules with Canonical Schema (Task 2)
+
+- **Legacy Schema Reconciliation (`backend/src/db/postgres.ts`)**:
+  - Reconciled legacy database modules with canonical schema introduced in migration `0038_fare_system_clean_rebuild.sql` (and updated in `0040_add_missing_indexes_and_defaults.sql`), eliminating PostgreSQL `42P01` (`relation does not exist`) runtime errors:
+    1. **`mapTourPackage()` Date Conversion Hardening (Priority 1)**:
+       - Handled undefined, null, and non-date strings safely via `safeIsoDate()` and `safeIsoDateOrNull()`.
+       - `updated_at` falls back to `created_at` or current ISO time without throwing `RangeError: Invalid time value` or HTTP 500 when `updated_at` is omitted in the raw table row.
+    2. **Route Catalog Manifest Migration (Priority 2)**:
+       - Migrated `routeCatalog` repository (`list`, `getById`, `getBySlug`, `create`, `update`, `delete`) to query canonical `outstation_routes`.
+       - Implemented `ROUTE_CATALOG_BASE_SELECT` with JSON lateral subquery from `outstation_route_vehicles`, `vehicle_models`, and `vehicle_groups` to project `fares_inr` and `available_fleets`, preserving customer-facing manifest contracts.
+    3. **Transfer Routes Manifest Migration (Priority 3)**:
+       - Migrated `transferRoutes` repository to query canonical `transfers`.
+       - Implemented `TRANSFER_ROUTES_BASE_SELECT` with JSON subquery joining `fare_rules` (`category = 'transfer'`) and `vehicle_models` to populate `fleet_prices` for consumer compatibility.
+    4. **Local Packages Manifest Migration (Priority 4)**:
+       - Migrated `localPackages` repository to query canonical `local_packages`.
+       - Implemented `LOCAL_PACKAGES_BASE_SELECT` with JSON subquery joining `fare_rules` (`category = 'local_package'`) and `vehicle_models` to populate `fleet_prices` preserving required package fields.
+    5. **Promo Codes Retirement & Clean Empty-State (Priority 5)**:
+       - Resolved obsolete `promo_codes` table dependency.
+       - Implemented intentional, documented empty-state responses (`getByCode` -> `null`, `getById` -> `null`, `list` -> `[]`, `getFeatured` -> `null`, `consume` -> `null`).
+       - Write operations (`create`, `update`, `delete`) fail explicitly and cleanly with 410 `AppError("PROMOS_RETIRED", ...)` without executing invalid SQL or masking database errors.
+- **Test Suite Verification (`backend/tests/unit/legacy-schema-reconciliation.test.ts`)**:
+  - Authored comprehensive test suite (7 tests) verifying safe date parsing across missing/null/invalid dates, SQL projections against canonical tables, promo code empty-state handling, and 410 rejection of promo writes.
+  - Test suite status: All 11 test files and exactly 191 tests passed (previously 184 passing tests before Task 2 tests added).
+  - Typecheck verification: `npm run typecheck` across `react/`, `admin/`, and `backend/` exited 0 with no errors.
+
+### 2026-10-12 — Publication Pipeline Worker & Outbox Engine Implementation (Task 1)
+
+- **Publication Worker Engine (`backend/src/modules/publishing/publication-worker.ts`)**:
+  - Implemented `PublicationWorker` resolving the operational blocker where `site_publish_events` remained stalled in `pending` status.
+  - Safe atomic concurrency claiming: Uses PostgreSQL `WITH due AS (SELECT id FROM site_publish_events ... FOR UPDATE SKIP LOCKED) UPDATE ... RETURNING` to safely claim due events without race conditions across multiple instances or concurrent worker cycles.
+  - Cloudflare Deploy Hook Dispatch: Triggers the configured `PAGES_DEPLOY_HOOK_URL` on publication events (`published`, `updated`, `archived`, `slug_changed`, `price_changed`, `review_approved`).
+  - Secret Protection & URL Masking: Built-in `maskUrl` ensures secret webhook URLs and auth tokens are NEVER logged, serialized into errors, or exposed to clients.
+  - State Machine Compliance (`PB-04`): Advances events through `pending` -> `processing` -> `triggered` -> `succeeded`.
+  - Exponential Backoff & Retry (`PB-05`): Automatically schedules retries with exponential backoff (`Math.min(30 * 2^(attempt - 1), 1800)` seconds) on HTTP failures or network timeouts. Transitions to `failed` only after reaching max attempts (5).
+  - Deployment Verification (`PB-06`): Holds accepted events in `triggered` and verifies live availability before transitioning to `succeeded` and recording `processed_at`.
+  - Admin Retry Endpoint: Added `retryPublishEvent` to `FareAdminService` and mounted `POST /admin/publishing/events/:id/retry` with audit logging in `fare-admin.routes.ts`.
+- **Server Lifecycle Integration (`backend/src/server.ts`, `backend/src/app.ts`)**:
+  - Wired `PublicationWorker` into `buildApp` and scheduled a background interval in `server.ts` alongside notifications worker.
+  - Added clean shutdown handlers clearing intervals on `SIGINT` and `SIGTERM`.
+- **Test Verification (`backend/tests/unit/publication-worker.test.ts`)**:
+  - Added test suite with 5 test cases covering PB-04 (pending -> processing -> triggered -> succeeded), PB-05 (backoff retry and failure limit), PB-06 (verification pending), admin retry, and missing hook handling.
+  - Monorepo verification: All 184 backend tests passing, `npm run typecheck` across `react/`, `admin/`, and `backend/` green.
+
+### 2026-10-12 — Customer Site Legacy Scan Audit & Approved Remediation Blueprint
+
+
+- **Master Customer Site Legacy Audit (`reports/customer-site-legacy-scan.md`)**:
+  - Conducted exhaustive, read-only contract-drift audit across all 676 files in `react/`.
+  - Audited 22 `fetch` call sites, 59 `/api/v1/*` endpoint references, 26 Supabase client calls, 121 client financial math calculations, and 121 unsafe nullish/synthetic fallbacks.
+  - Documented dead service `react/src/services/fareApi.ts` (0 imports across repo, unvalidated `{ booking: any }`).
+  - Identified critical disconnect in guest booking recovery (`CleanBookingPage.tsx` drops `guest_access_token`, `MyBookingsPage.tsx` rejects unauthenticated users).
+  - Identified `INV-2` violations across `fares.ts`, `customDistance.ts`, `RouteTemplate.tsx`, and `TourPackageTemplate.tsx` (28% advance calculation, arbitrary ₹500 floor).
+  - Identified hardcoded price fallback injections (`|| 2500`, `|| 3200`, `|| 4500`, `|| 9500`, `|| 14000`, `|| 3499`).
+- **Remediation Blueprint & Approved Corrections**:
+  - User reviewed and approved the report as the remediation baseline, locking in four fundamental corrections:
+    1. **Protect Guest Token:** Keep `guest_access_token` out of query strings; persist in `sessionStorage` and send via `x-guest-token` header. Display authoritative server payment status from `GET /api/v1/bookings/:id`.
+    2. **Resolve Static vs. Live Pricing:** Implement live or cached catalog overlay for active cards to prevent stale pricing from SSG manifests after admin fare adjustments.
+    3. **Protect Backend Legacy Endpoints:** Retain legacy backend routes until admin desk, webhooks, and external consumers are verified; migration strictly targets customer frontend (`react/`).
+    4. **Enforce Post-Remediation Verification:** Every remediation phase requires automated command execution, result recording, and end-to-end user testing.
+  - Sequenced into an ordered 10-phase migration plan to be implemented discrete, one step at a time.
+
 ## 2026-10-11
 
 ### 2026-10-11 — Fare System Contract Normalization, Canonical Field Registry & Fail-Closed Hardening
@@ -1169,6 +1232,46 @@ Implemented:
   - `admin`: typecheck clean, production build clean (`vite build`) with code 0.
   - `react`: typecheck clean, production build clean (`prerender.ts` 58 SSG pages) with code 0.
   - `contracts`: `sync-contracts.ts --check` passes with code 0.
+
+### 2026-10-12 — Customer Site Legacy Remediation & Canonical Fare Alignment (Phases 1 to 10)
+
+- **Phase 1: Canonical Contracts & Field Definitions**:
+  - Re-synced contracts via `sync-contracts.ts` across `backend`, `admin`, and `react`; zero drift confirmed with `--check`.
+  - Re-exported canonical `BookingEntryParams` in `react/src/features/booking/clean/bookingTypes.ts`.
+- **Phase 2: Consolidated API Clients**:
+  - Extended `react/src/services/cleanFareApi.ts` with `fetchMyProfile`, `fetchMyBookings`, and `fetchMyBooking` to unify authenticated customer endpoints.
+- **Phase 3: Catalog & Outstation Route Pages Modernization**:
+  - Eliminated synthetic fallbacks (`|| 2500`, `|| 3200`, `|| 4500`, etc.) in `RoutesPage.tsx`, `RouteTemplate.tsx`, `LatestRoutesSection.tsx`, and `App.tsx`.
+  - Missing fares render authoritative "On request" / live quote prompts instead of phantom numbers.
+- **Phase 4: Packages, Transfer & Rental Modernization**:
+  - Eliminated synthetic `3499` fallback and arbitrary tier multipliers (`* 1.35`, `* 1.7`, `* 2.6`, `* 3.6`) in `TourPackageTemplate.tsx` and `PackagesPage.tsx`.
+  - Tiers without published vehicle rates display dynamic quote triggers rather than client-calculated estimates.
+- **Phase 5: Deep-link & Booking Normalization Boundary**:
+  - Created `react/src/features/booking/clean/urlNormalizer.ts` with `normalizeBookingUrlParams` and `buildCanonicalBookingUrl`.
+  - Inbound links automatically normalize legacy parameters (`tripType`, `pkg`, `packageCode`, `passengers`, `vehicle`, etc.) into `BookingEntryParams`.
+  - Outward links in `RouteTemplate.tsx`, `PopularRoutes.tsx`, `HomeBookingWidget.tsx`, and `TourPackageTemplate.tsx` generate canonical query parameters.
+- **Phase 6: Quote Flow Verification & Integrity Hardening**:
+  - Hardened `CleanBookingPage.tsx` adhering to `INV-1` through `INV-7` (zero client price math, future date enforcement, duration boundary validation, 409 `PRICE_CHANGED` reconfirmation modal, AbortController cancellation).
+- **Phase 7: Payment Flow & Authoritative Webhook Alignment**:
+  - `CleanBookingPage.tsx` initiates Razorpay orders exclusively using server-calculated `amount_paise`.
+  - Eliminated client signature verification as proof of payment; status updates rely strictly on authoritative server records populated by signed webhooks.
+- **Phase 8: Booking Confirmation & Protected Guest Voucher Recovery**:
+  - Created `react/src/pages/BookingConfirmationPage.tsx` supporting authoritative booking status retrieval, polling, and voucher printing.
+  - User correction 1 strictly implemented: `guest_access_token` stored safely in `sessionStorage` (`arenaai:guest_token:${booking_id}`), passed via `x-guest-token` header, and NEVER leaked into URL search params.
+  - Added guest voucher lookup bridge to `MyBookingsPage.tsx`.
+- **Phase 9: Web Storage & Cache Invalidation Hardening**:
+  - Verified bounded 10-minute TTL and ETag revalidation in `catalogManifest.ts`.
+  - Session storage lifecycle verified for booking recovery in `bookingIntentStorage.ts`.
+- **Phase 10: Frontend Legacy Code Deletion & Safety Verification**:
+  - Deleted obsolete duplicate client `react/src/services/fareApi.ts` after confirming zero active callers.
+  - Kept legacy backend endpoints intact per user directive 3.
+- **Verification & Builds**:
+  - `customer:typecheck`: 0 errors.
+  - `admin:typecheck`: 0 errors.
+  - `backend:typecheck`: 0 errors.
+  - `npm test`: 179 backend unit tests + 3 catalog source tests passed with 0 failures.
+  - `npm --prefix react run test:seo`: Passed.
+  - `npm --prefix react run build`: Vite build + 59 SSG pages pre-rendered with 0 errors.
 
 ## Known next work (Phase 3 — secure integrations)
 

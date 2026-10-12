@@ -186,3 +186,80 @@ export async function submitReview(token: string, payload: any): Promise<any> {
     body: JSON.stringify(payload),
   });
 }
+
+// 11. Customer Account & Bookings
+export interface MyProfileResponse {
+  fullName: string | null;
+  phone: string | null;
+  email: string | null;
+}
+
+export interface MyBookingsItem {
+  id: string;
+  ticketId: string;
+  status: string;
+  tripType: string;
+  vehicleTier: string;
+  originName: string | null;
+  destinationName: string | null;
+  bookingSelection: any | null;
+  pickupAddress: string;
+  dropAddress: string | null;
+  pickupDatetime: string;
+  returnDatetime: string | null;
+  distanceKm: number;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string | null;
+  fare: {
+    totalFare?: number;
+    advanceAmount?: number;
+    balanceAmount?: number;
+    baseFare?: number;
+    driverAllowance?: number;
+    nightAllowance?: number;
+    discountAmount?: number;
+    [key: string]: any;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MyBookingsResponse {
+  items: MyBookingsItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export async function fetchMyProfile(accessToken: string): Promise<MyProfileResponse> {
+  return apiRequest<MyProfileResponse>("/api/v1/me/profile", {
+    method: "GET",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+}
+
+export async function fetchMyBookings(
+  accessToken: string,
+  page = 1,
+  pageSize = 20
+): Promise<MyBookingsResponse> {
+  const query = new URLSearchParams({
+    page: String(page),
+    pageSize: String(pageSize),
+  });
+  return apiRequest<MyBookingsResponse>(`/api/v1/me/bookings?${query.toString()}`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+}
+
+export async function fetchMyBooking(
+  bookingId: string,
+  accessToken: string
+): Promise<MyBookingsItem> {
+  return apiRequest<MyBookingsItem>(`/api/v1/me/bookings/${encodeURIComponent(bookingId)}`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+}

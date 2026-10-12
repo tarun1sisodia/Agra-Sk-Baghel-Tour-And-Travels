@@ -166,9 +166,8 @@ export const RouteVehiclesPut = z.object({
 });
 export type RouteVehiclesPut = z.infer<typeof RouteVehiclesPut>;
 
-export const VehicleModelBase = z.object({
-  vehicle_group_code: VehicleGroupCode.optional(),
-  vehicle_group_id: z.string().uuid().optional(),
+export const VehicleModelCreate = z.object({
+  vehicle_group_code: VehicleGroupCode,
   make: z.string().min(1),
   model_name: z.string().min(1),
   display_name: z.string().min(1),
@@ -176,19 +175,10 @@ export const VehicleModelBase = z.object({
   luggage_capacity: z.number().int().nonnegative().optional(),
   image_url: z.string().optional(),
   sort_order: z.number().int().optional(),
-  is_active: z.boolean().optional(),
 });
-
-export const VehicleModelCreate = VehicleModelBase.refine(
-  (data) => data.vehicle_group_code || data.vehicle_group_id,
-  { message: "Either vehicle_group_code or vehicle_group_id must be provided" }
-);
 export type VehicleModelCreate = z.infer<typeof VehicleModelCreate>;
 
-export const VehicleModelPatch = VehicleModelBase.omit({
-  vehicle_group_code: true,
-  vehicle_group_id: true,
-}).partial().extend({
+export const VehicleModelPatch = VehicleModelCreate.omit({ vehicle_group_code: true }).partial().extend({
   is_active: z.boolean().optional(),
 });
 export type VehicleModelPatch = z.infer<typeof VehicleModelPatch>;
@@ -208,7 +198,6 @@ export const FareRuleCreate = z.object({
   transfer_id: z.string().uuid().optional(),
   tour_package_id: z.string().uuid().optional(),
   amount: z.number().int().positive(),
-  is_active: z.boolean().optional(),
 });
 export type FareRuleCreate = z.infer<typeof FareRuleCreate>;
 
@@ -226,8 +215,7 @@ export const ExtraChargeCreate = z.object({
   transfer_id: z.string().uuid().optional(),
   tour_package_id: z.string().uuid().optional(),
   label: z.string().min(1),
-  amount: z.number().int().positive().nullable().optional(),
-  is_active: z.boolean().optional(),
+  amount: z.number().int().positive().optional(),
 });
 export type ExtraChargeCreate = z.infer<typeof ExtraChargeCreate>;
 

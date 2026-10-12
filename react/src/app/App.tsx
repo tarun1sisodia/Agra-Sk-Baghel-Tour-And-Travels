@@ -26,6 +26,7 @@ const SeoLandingPage = lazy(() => import("../pages/SeoLandingPage").then((m) => 
 const AuthCallbackPage = lazy(() => import("../pages/AuthCallbackPage").then((m) => ({ default: m.AuthCallbackPage })));
 const MyBookingsPage = lazy(() => import("../pages/MyBookingsPage").then((m) => ({ default: m.MyBookingsPage })));
 const PaymentResumePage = lazy(() => import("../pages/PaymentResumePage").then((m) => ({ default: m.PaymentResumePage })));
+const BookingConfirmationPage = lazy(() => import("../pages/BookingConfirmationPage").then((m) => ({ default: m.BookingConfirmationPage })));
 const LoginPage = lazy(() => import("../pages/LoginPage").then((m) => ({ default: m.LoginPage })));
 const MonumentsPage = lazy(() => import("../pages/MonumentsPage").then((m) => ({ default: m.MonumentsPage })));
 import { SEO_LANDING_SLUGS, type SeoLandingSlug } from "../data/seoLandingSlugs";
@@ -265,15 +266,20 @@ export function App({ pathname: propPathname }: AppProps = {}) {
   const isAuthCallback = cleanPath === "/auth/callback";
   const isMyBookings = cleanPath === "/my-bookings";
   const isPaymentResume = cleanPath === "/payment/resume";
+  const isBookingConfirmation =
+    cleanPath === "/booking/confirmation" ||
+    cleanPath === "/booking/confirmation.html" ||
+    cleanPath === "/booking-confirmation";
   const isLogin = cleanPath === "/login" || cleanPath === "/auth/login";
-  const isPrivateCustomerPage = isAuthCallback || isMyBookings || isPaymentResume || isLogin;
+  const isPrivateCustomerPage = isAuthCallback || isMyBookings || isPaymentResume || isLogin || isBookingConfirmation;
   const isBooking =
-    cleanPath.endsWith("book.html") ||
-    section === "book" ||
-    section === "booking" ||
-    cleanPath === "/book" ||
-    cleanPath === "/booking" ||
-    cleanPath === "/en/book";
+    !isBookingConfirmation &&
+    (cleanPath.endsWith("book.html") ||
+      section === "book" ||
+      section === "booking" ||
+      cleanPath === "/book" ||
+      cleanPath === "/booking" ||
+      cleanPath === "/en/book");
 
   const normalizedPath = pathname.replace(/^\/(?:en|hi)(?=\/|$)/, "").replace(/\/$/, "");
   const cleanProductMatch = useMemo<{ category: CategoryCode; code: string } | null>(() => {
@@ -367,11 +373,11 @@ export function App({ pathname: propPathname }: AppProps = {}) {
         duration: durationText,
         kind: published.tripType === "round-trip" ? "local" : "one-way",
         fares: {
-          sedan: Number(fares.sedan ?? 2000),
-          ertiga: Number(fares.ertiga ?? 2800),
-          innova: Number(fares.innova ?? 3800),
-          tempo: Number(fares.tempo ?? 5500),
-          urbania: Number(fares.urbania ?? 7500),
+          sedan: Number(fares.sedan ?? 0),
+          ertiga: Number(fares.ertiga ?? 0),
+          innova: Number(fares.innova ?? 0),
+          tempo: Number(fares.tempo ?? 0),
+          urbania: Number(fares.urbania ?? 0),
         },
       } as Route;
     }
@@ -416,15 +422,15 @@ export function App({ pathname: propPathname }: AppProps = {}) {
             id: matchedRoute?.id || cleanSection,
             from: entry.o,
             to: entry.d,
-            km: entry.km > 0 ? entry.km : (matchedRoute?.km || 180),
+            km: entry.km > 0 ? entry.km : (matchedRoute?.km || 0),
             duration: durationStr,
             kind: entry.pm === "day120" ? "local" : "one-way",
             fares: {
-              sedan: entry.fs || 2500,
-              ertiga: entry.fe || 3200,
-              innova: entry.fi || 4500,
-              tempo: entry.ft > 100 ? entry.ft : 9500,
-              urbania: entry.fu > 100 ? entry.fu : 14000,
+              sedan: entry.fs || 0,
+              ertiga: entry.fe || 0,
+              innova: entry.fi || 0,
+              tempo: entry.ft > 100 ? entry.ft : 0,
+              urbania: entry.fu > 100 ? entry.fu : 0,
             },
           } as Route);
         }
@@ -510,6 +516,8 @@ export function App({ pathname: propPathname }: AppProps = {}) {
             <PaymentResumePage />
           ) : isLogin ? (
             <LoginPage />
+          ) : isBookingConfirmation ? (
+            <BookingConfirmationPage />
           ) : isBooking ? (
             <BookingPage />
           ) : cleanProductMatch ? (

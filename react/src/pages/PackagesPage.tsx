@@ -480,11 +480,12 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
           "Dedicated verified chauffeur",
           "All highway tolls & parking fees included",
         ],
-        vehiclePrices: [
-          { label: "Sedan", price: `₹${pkg.from}` },
-          { label: "Ertiga", price: `₹${Math.round((pkg.from * 1.25) / 100) * 100}` },
-          { label: "Innova", price: `₹${Math.round((pkg.from * 1.8) / 100) * 100}` },
-        ],
+        vehiclePrices: pkg.from && Number(pkg.from) > 0
+          ? [
+              { label: "Sedan", price: `₹${Number(pkg.from).toLocaleString("en-IN")}` },
+              { label: "SUV / Tempo", price: "On request" },
+            ]
+          : [{ label: "All Tiers", price: "On request" }],
         suitedFor: "Travelers & Groups",
         recommendedFleet: "Sedan / Ertiga / Innova",
       };

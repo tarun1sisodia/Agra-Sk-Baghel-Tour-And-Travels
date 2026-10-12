@@ -94,7 +94,7 @@ export function PopularRoutes() {
             route.from.charAt(0).toUpperCase() + route.from.slice(1);
           const toName =
             route.to.charAt(0).toUpperCase() + route.to.slice(1);
-          const bookUrl = `/book.html?from=${route.from}&to=${route.to}&trip=one-way`;
+          const bookUrl = `/book.html?category=outstation&product=${route.id}&from=${route.from}&to=${route.to}&trip=one_way&car=sedan`;
 
           return (
             <article

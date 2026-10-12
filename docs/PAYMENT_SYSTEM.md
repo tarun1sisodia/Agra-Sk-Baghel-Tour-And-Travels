@@ -2,7 +2,11 @@
 
 **Status:** Specification only. Live Razorpay is **out of scope** until this document is followed end-to-end.  
 **Canonical product:** Agra SK Baghel Tour & Travels (`book.html` 5-step flow: Route → Vehicle → Details → Advance → Ticket).  
-**Gateway:** Razorpay (India). **Frontend host:** Cloudflare (Workers / Pages + custom domain). **Backend:** Cloudflare Workers + D1/KV **or** a small VPS/cloud API.  
+**Gateway:** Razorpay (India). 
+
+**Frontend host:** Cloudflare (Workers / Pages + custom domain). 
+
+**Backend:** Cloudflare Workers + D1/KV **or** a small VPS/cloud API.  
 **Session branch note:** Arena sessions stay on `arena/<session-id>`. Do not invent a `docs-payment-system` git branch inside an Arena session; keep this file on the session branch and merge to `main`.
 
 This file is the **source of truth** for money movement. If code and this doc disagree, **stop and update the doc first**.

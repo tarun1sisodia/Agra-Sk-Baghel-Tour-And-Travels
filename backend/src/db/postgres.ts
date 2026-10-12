@@ -45,67 +45,67 @@ function isUuid(val: unknown): boolean {
   return typeof val === "string" && UUID_REGEX.test(val.trim());
 }
 
-function safeIsoDate(val: unknown, fallback: string = new Date().toISOString()): string {
+export function safeIsoDate(val: unknown, fallback: string = new Date().toISOString()): string {
   if (val === null || val === undefined || val === "") return fallback;
   const d = new Date(val as string | number | Date);
   return isNaN(d.getTime()) ? fallback : d.toISOString();
 }
 
-function safeIsoDateOrNull(val: unknown): string | null {
+export function safeIsoDateOrNull(val: unknown): string | null {
   if (val === null || val === undefined || val === "") return null;
   const d = new Date(val as string | number | Date);
   return isNaN(d.getTime()) ? null : d.toISOString();
 }
 
-function mapLocalPackage(row: Record<string, unknown>): LocalSightseeingPackageRecord {
+export function mapLocalPackage(row: Record<string, unknown>): LocalSightseeingPackageRecord {
   return {
     id: String(row.id),
-    packageCode: String(row.package_code),
+    packageCode: String(row.code ?? row.package_code ?? ""),
     name: String(row.name),
     durationHours: num(row.duration_hours),
     includedKm: num(row.included_km),
-    covers: String(row.covers),
-    parkingNote: row.parking_note ? String(row.parking_note) : null,
+    covers: String(row.covers ?? ""),
+    parkingNote: row.parking_note ? String(row.parking_note) : (row.inclusions_note ? String(row.inclusions_note) : null),
     fleetPrices: (row.fleet_prices as Record<string, number>) ?? {},
-    usePerKm: Boolean(row.use_per_km),
+    usePerKm: Boolean(row.use_per_km ?? false),
     extraRates: (row.extra_rates as LocalSightseeingPackageRecord["extraRates"]) ?? null,
-    nightChargeInr: num(row.night_charge_inr),
-    status: row.status as ContentStatus,
-    isActive: Boolean(row.is_active),
-    createdAt: new Date(String(row.created_at)).toISOString(),
-    updatedAt: new Date(String(row.updated_at)).toISOString(),
+    nightChargeInr: num(row.night_charge_inr ?? 0),
+    status: (row.status as ContentStatus) ?? "draft",
+    isActive: row.is_active !== undefined ? Boolean(row.is_active) : row.status === "published",
+    createdAt: safeIsoDate(row.created_at),
+    updatedAt: safeIsoDate(row.updated_at, safeIsoDate(row.created_at)),
   };
 }
 
-function mapTransferRoute(row: Record<string, unknown>): TransferRouteRecord {
+export function mapTransferRoute(row: Record<string, unknown>): TransferRouteRecord {
   return {
     id: String(row.id),
-    routeCode: String(row.route_code),
+    routeCode: String(row.code ?? row.route_code ?? ""),
     name: String(row.name),
     distanceText: row.distance_text ? String(row.distance_text) : null,
-    directionNote: row.direction_note ? String(row.direction_note) : null,
+    directionNote: row.direction_note ? String(row.direction_note) : (row.pickup_name && row.drop_name ? `${row.pickup_name} to ${row.drop_name}` : null),
     fleetPrices: (row.fleet_prices as Record<string, number>) ?? {},
-    usePerKm: Boolean(row.use_per_km),
-    nightChargeInr: num(row.night_charge_inr),
-    status: row.status as ContentStatus,
-    isActive: Boolean(row.is_active),
-    createdAt: new Date(String(row.created_at)).toISOString(),
-    updatedAt: new Date(String(row.updated_at)).toISOString(),
+    usePerKm: Boolean(row.use_per_km ?? false),
+    nightChargeInr: num(row.night_charge_inr ?? 0),
+    status: (row.status as ContentStatus) ?? "draft",
+    isActive: row.is_active !== undefined ? Boolean(row.is_active) : row.status === "published",
+    createdAt: safeIsoDate(row.created_at),
+    updatedAt: safeIsoDate(row.updated_at, safeIsoDate(row.created_at)),
   };
 }
 
-function mapTourPackage(row: Record<string, unknown>): TourPackageRecord {
+export function mapTourPackage(row: Record<string, unknown>): TourPackageRecord {
   return {
     id: String(row.id),
-    packageCode: String(row.package_code),
+    packageCode: String(row.code ?? row.package_code ?? ""),
     name: String(row.name),
-    durationText: String(row.duration_text),
-    days: num(row.days),
-    nights: num(row.nights),
-    baseTierCode: String(row.base_tier_code),
-    startingPriceInr: num(row.starting_price_inr),
+    durationText: String(row.duration_text ?? `${row.days ?? 1} Days`),
+    days: num(row.days ?? 1),
+    nights: num(row.nights ?? 0),
+    baseTierCode: String(row.base_tier_code ?? "sedan"),
+    startingPriceInr: num(row.starting_price_inr ?? 0),
     fleetPrices: (row.fleet_prices as Record<string, number>) ?? {},
-    nightChargeInr: num(row.night_charge_inr),
+    nightChargeInr: num(row.night_charge_inr ?? 0),
     inclusionsHighlight: row.inclusions_highlight ? String(row.inclusions_highlight) : null,
     inclusionsNote: row.inclusions_note ? String(row.inclusions_note) : null,
     source: String(row.source ?? "Agra"),
@@ -115,10 +115,10 @@ function mapTourPackage(row: Record<string, unknown>): TourPackageRecord {
     itinerary: Array.isArray(row.itinerary) ? (row.itinerary as any[]) : [],
     imageUrl: row.image_url ? String(row.image_url) : null,
     gallery: Array.isArray(row.gallery) ? (row.gallery as any) : [],
-    status: row.status as ContentStatus,
-    isActive: Boolean(row.is_active),
-    createdAt: new Date(String(row.created_at)).toISOString(),
-    updatedAt: new Date(String(row.updated_at)).toISOString(),
+    status: (row.status as ContentStatus) ?? "draft",
+    isActive: row.is_active !== undefined ? Boolean(row.is_active) : row.status === "published",
+    createdAt: safeIsoDate(row.created_at),
+    updatedAt: safeIsoDate(row.updated_at, safeIsoDate(row.created_at)),
   };
 }
 
@@ -129,8 +129,8 @@ function mapPackageUpgrade(row: Record<string, unknown>): PackageVehicleUpgradeR
     tierCode: String(row.tier_code),
     passengerNote: row.passenger_note ? String(row.passenger_note) : null,
     surchargeInr: num(row.surcharge_inr),
-    createdAt: new Date(String(row.created_at)).toISOString(),
-    updatedAt: new Date(String(row.updated_at)).toISOString(),
+    createdAt: safeIsoDate(row.created_at),
+    updatedAt: safeIsoDate(row.updated_at, safeIsoDate(row.created_at)),
   };
 }
 
@@ -144,8 +144,8 @@ function mapCancellationPolicy(row: Record<string, unknown>): CancellationPolicy
     refundPercent: num(row.refund_percent),
     ruleText: String(row.rule_text),
     refundTimelineNote: String(row.refund_timeline_note),
-    createdAt: new Date(String(row.created_at)).toISOString(),
-    updatedAt: new Date(String(row.updated_at)).toISOString(),
+    createdAt: safeIsoDate(row.created_at),
+    updatedAt: safeIsoDate(row.updated_at, safeIsoDate(row.created_at)),
   };
 }
 
@@ -162,8 +162,8 @@ function mapCompanyProfile(row: Record<string, unknown>): CompanyProfileRecord {
     mapsLocation: String(row.maps_location),
     dossierVersion: String(row.dossier_version),
     dossierStatus: row.dossier_status as CompanyProfileRecord["dossierStatus"],
-    createdAt: new Date(String(row.created_at)).toISOString(),
-    updatedAt: new Date(String(row.updated_at)).toISOString(),
+    createdAt: safeIsoDate(row.created_at),
+    updatedAt: safeIsoDate(row.updated_at, safeIsoDate(row.created_at)),
   };
 }
 
@@ -175,9 +175,9 @@ function mapDossierSignoff(row: Record<string, unknown>): DossierSignoffRecord {
     status: row.status as DossierSignoffRecord["status"],
     clientNotes: row.client_notes ? String(row.client_notes) : null,
     approvedBy: row.approved_by ? String(row.approved_by) : null,
-    approvedAt: row.approved_at ? new Date(String(row.approved_at)).toISOString() : null,
-    createdAt: new Date(String(row.created_at)).toISOString(),
-    updatedAt: new Date(String(row.updated_at)).toISOString(),
+    approvedAt: row.approved_at ? safeIsoDateOrNull(row.approved_at) : null,
+    createdAt: safeIsoDate(row.created_at),
+    updatedAt: safeIsoDate(row.updated_at, safeIsoDate(row.created_at)),
   };
 }
 
@@ -189,8 +189,8 @@ function mapMonument(row: Record<string, unknown>): MonumentRecord {
     closedNote: String(row.closed_note),
     historicalContext: row.historical_context ? String(row.historical_context) : null,
     sortOrder: num(row.sort_order),
-    createdAt: new Date(String(row.created_at)).toISOString(),
-    updatedAt: new Date(String(row.updated_at)).toISOString(),
+    createdAt: safeIsoDate(row.created_at),
+    updatedAt: safeIsoDate(row.updated_at, safeIsoDate(row.created_at)),
   };
 }
 
@@ -202,16 +202,61 @@ function mapPetTaxiPolicy(row: Record<string, unknown>): PetTaxiPolicyRecord {
     breedRestrictionNote: String(row.breed_restriction_note),
     comfortStopNote: String(row.comfort_stop_note),
     bookingInstruction: String(row.booking_instruction),
-    createdAt: new Date(String(row.created_at)).toISOString(),
-    updatedAt: new Date(String(row.updated_at)).toISOString(),
+    createdAt: safeIsoDate(row.created_at),
+    updatedAt: safeIsoDate(row.updated_at, safeIsoDate(row.created_at)),
   };
 }
 
 function mapRouteCatalog(row: Record<string, unknown>): RouteCatalogRecord {
-  return { id: String(row.id), tripType: row.trip_type as RouteCatalogRecord["tripType"], sourceCity: String(row.source_city), sourceDetail: row.source_detail ? String(row.source_detail) : null, destinationCity: row.destination_city ? String(row.destination_city) : null, slug: String(row.slug), distanceKm: row.distance_km === null ? null : num(row.distance_km), durationText: row.duration_text ? String(row.duration_text) : null, availableFleets: (row.available_fleets as string[]) ?? [], faresInr: (row.fares_inr as Record<string, number>) ?? {}, driverChargeInr: num(row.driver_charge_inr), nightHaltInr: num(row.night_halt_inr), tollIncluded: Boolean(row.toll_included), tollAmountInr: row.toll_amount_inr === null ? null : num(row.toll_amount_inr), interstateCharges: (row.interstate_charges as RouteCatalogRecord["interstateCharges"]) ?? [], minKmPerDay: num(row.min_km_per_day), stops: (row.stops as RouteCatalogRecord["stops"]) ?? [], usePerKm: row.use_per_km === undefined ? true : Boolean(row.use_per_km), perKmRateOverride: row.per_km_rate_override === null || row.per_km_rate_override === undefined ? null : num(row.per_km_rate_override), highway: row.highway ? String(row.highway) : null, allInclusiveNote: row.all_inclusive_note ? String(row.all_inclusive_note) : null, status: row.status as RouteCatalogRecord["status"], needsReview: Boolean(row.needs_review), createdAt: new Date(String(row.created_at)).toISOString(), updatedAt: new Date(String(row.updated_at)).toISOString() };
+  return {
+    id: String(row.id),
+    tripType: (row.trip_type as RouteCatalogRecord["tripType"]) ?? "one-way",
+    sourceCity: String(row.source_city ?? row.origin_name ?? "Agra"),
+    sourceDetail: row.source_detail ? String(row.source_detail) : null,
+    destinationCity: row.destination_city ? String(row.destination_city) : (row.destination_name ? String(row.destination_name) : null),
+    slug: String(row.slug ?? row.code ?? ""),
+    distanceKm: row.distance_km === null || row.distance_km === undefined ? null : num(row.distance_km),
+    durationText: row.duration_text ? String(row.duration_text) : (row.duration_minutes ? `${row.duration_minutes} mins` : null),
+    availableFleets: (row.available_fleets as string[]) ?? ["sedan", "ertiga", "innova-crysta", "tempo-traveller"],
+    faresInr: (row.fares_inr as Record<string, number>) ?? {},
+    driverChargeInr: num(row.driver_charge_inr ?? 0),
+    nightHaltInr: num(row.night_halt_inr ?? 0),
+    tollIncluded: Boolean(row.toll_included ?? false),
+    tollAmountInr: row.toll_amount_inr === null || row.toll_amount_inr === undefined ? null : num(row.toll_amount_inr),
+    interstateCharges: (row.interstate_charges as RouteCatalogRecord["interstateCharges"]) ?? [],
+    minKmPerDay: num(row.min_km_per_day ?? 250),
+    stops: (row.stops as RouteCatalogRecord["stops"]) ?? [],
+    usePerKm: row.use_per_km === undefined ? true : Boolean(row.use_per_km),
+    perKmRateOverride: row.per_km_rate_override === null || row.per_km_rate_override === undefined ? null : num(row.per_km_rate_override),
+    highway: row.highway ? String(row.highway) : null,
+    allInclusiveNote: row.all_inclusive_note ? String(row.all_inclusive_note) : (row.description ? String(row.description) : null),
+    status: (row.status as RouteCatalogRecord["status"]) ?? "draft",
+    needsReview: Boolean(row.needs_review ?? false),
+    createdAt: safeIsoDate(row.created_at),
+    updatedAt: safeIsoDate(row.updated_at, safeIsoDate(row.created_at)),
+  };
 }
 
-function mapRentalEnquiry(row: Record<string, unknown>): RentalEnquiryRecord { return { id: String(row.id), ref: String(row.ref), name: String(row.name), phone: String(row.phone), email: row.email ? String(row.email) : null, carTier: row.car_tier as RentalEnquiryRecord["carTier"], pickupDate: String(row.pickup_date).slice(0,10), returnDate: String(row.return_date).slice(0,10), pickupLocation: String(row.pickup_location), withDriver: Boolean(row.with_driver), note: row.note ? String(row.note) : null, status: row.status as RentalEnquiryRecord["status"], notes: (row.notes as string[]) ?? [], createdAt: new Date(String(row.created_at)).toISOString(), updatedAt: new Date(String(row.updated_at)).toISOString() }; }
+function mapRentalEnquiry(row: Record<string, unknown>): RentalEnquiryRecord {
+  return {
+    id: String(row.id),
+    ref: String(row.ref),
+    name: String(row.name),
+    phone: String(row.phone),
+    email: row.email ? String(row.email) : null,
+    carTier: row.car_tier as RentalEnquiryRecord["carTier"],
+    pickupDate: String(row.pickup_date).slice(0, 10),
+    returnDate: String(row.return_date).slice(0, 10),
+    pickupLocation: String(row.pickup_location),
+    withDriver: Boolean(row.with_driver),
+    note: row.note ? String(row.note) : null,
+    status: row.status as RentalEnquiryRecord["status"],
+    notes: (row.notes as string[]) ?? [],
+    createdAt: safeIsoDate(row.created_at),
+    updatedAt: safeIsoDate(row.updated_at, safeIsoDate(row.created_at)),
+  };
+}
+
 function mapBooking(row: Record<string, unknown>): BookingRecord {
   const breakdown = (row.fare_breakdown && typeof row.fare_breakdown === "object"
     ? row.fare_breakdown
@@ -407,6 +452,233 @@ function mapInquiry(row: Record<string, unknown>): InquiryRecord {
     updatedAt: new Date(String(row.updated_at ?? row.created_at)).toISOString(),
   };
 }
+
+const ROUTE_CATALOG_BASE_SELECT = `
+SELECT
+  r.*,
+  'one-way' as trip_type,
+  r.origin_name as source_city,
+  null as source_detail,
+  r.destination_name as destination_city,
+  r.code as slug,
+  case when r.duration_minutes is not null then concat(r.duration_minutes, ' mins') else null end as duration_text,
+  coalesce(
+    (
+      select jsonb_agg(distinct k)
+      from (
+        select coalesce(replace(vg.code, '_', '-'), lower(replace(vm.model_name, ' ', '-'))) as k
+        from outstation_route_vehicles orv
+        join vehicle_models vm on orv.vehicle_model_id = vm.id
+        left join vehicle_groups vg on vm.vehicle_group_id = vg.id
+        where orv.route_id = r.id and orv.is_active = true
+      ) sub
+    ),
+    '["sedan", "ertiga", "innova-crysta", "tempo-traveller"]'::jsonb
+  ) as available_fleets,
+  coalesce(
+    (
+      select jsonb_object_agg(sub.k, sub.v)
+      from (
+        select distinct on (k) k, v from (
+          select lower(replace(vm.model_name, ' ', '-')) as k, orv.one_way_amount as v
+          from outstation_route_vehicles orv
+          join vehicle_models vm on orv.vehicle_model_id = vm.id
+          where orv.route_id = r.id and orv.is_active = true and orv.one_way_amount is not null
+          union all
+          select replace(vg.code, '_', '-') as k, min(orv.one_way_amount) as v
+          from outstation_route_vehicles orv
+          join vehicle_models vm on orv.vehicle_model_id = vm.id
+          join vehicle_groups vg on vm.vehicle_group_id = vg.id
+          where orv.route_id = r.id and orv.is_active = true and orv.one_way_amount is not null
+          group by vg.code
+          union all
+          select 'innova-crysta' as k, min(orv.one_way_amount) as v
+          from outstation_route_vehicles orv
+          join vehicle_models vm on orv.vehicle_model_id = vm.id
+          where orv.route_id = r.id and orv.is_active = true and lower(vm.model_name) ilike '%crysta%' and orv.one_way_amount is not null
+          union all
+          select 'tempo-traveller' as k, min(orv.one_way_amount) as v
+          from outstation_route_vehicles orv
+          join vehicle_models vm on orv.vehicle_model_id = vm.id
+          left join vehicle_groups vg on vm.vehicle_group_id = vg.id
+          where orv.route_id = r.id and orv.is_active = true and (vg.code = 'tempo_traveller' or lower(vm.model_name) ilike '%traveller%') and orv.one_way_amount is not null
+          union all
+          select 'urbania' as k, min(orv.one_way_amount) as v
+          from outstation_route_vehicles orv
+          join vehicle_models vm on orv.vehicle_model_id = vm.id
+          where orv.route_id = r.id and orv.is_active = true and lower(vm.model_name) ilike '%urbania%' and orv.one_way_amount is not null
+        ) entries where k is not null
+      ) sub
+    ),
+    '{}'::jsonb
+  ) as fares_inr,
+  500 as driver_charge_inr,
+  0 as night_halt_inr,
+  true as toll_included,
+  null as toll_amount_inr,
+  '[]'::jsonb as interstate_charges,
+  300 as min_km_per_day,
+  '[]'::jsonb as stops,
+  false as use_per_km,
+  null as per_km_rate_override,
+  null as highway,
+  r.description as all_inclusive_note,
+  false as needs_review
+FROM outstation_routes r
+`;
+
+const TRANSFER_ROUTES_BASE_SELECT = `
+SELECT
+  t.*,
+  t.code as route_code,
+  concat(t.pickup_name, ' to ', t.drop_name) as direction_note,
+  null as distance_text,
+  false as use_per_km,
+  0 as night_charge_inr,
+  (t.status = 'published') as is_active,
+  coalesce(
+    (
+      select jsonb_object_agg(sub.k, sub.v)
+      from (
+        select distinct on (k) k, v from (
+          select lower(replace(vm.model_name, ' ', '-')) as k, fr.amount as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          where fr.transfer_id = t.id and fr.category = 'transfer' and fr.is_active = true
+          union all
+          select replace(vg.code, '_', '-') as k, min(fr.amount) as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          join vehicle_groups vg on vm.vehicle_group_id = vg.id
+          where fr.transfer_id = t.id and fr.category = 'transfer' and fr.is_active = true
+          group by vg.code
+          union all
+          select 'innova-crysta' as k, min(fr.amount) as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          where fr.transfer_id = t.id and fr.category = 'transfer' and fr.is_active = true and lower(vm.model_name) ilike '%crysta%'
+          union all
+          select 'tempo-traveller' as k, min(fr.amount) as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          left join vehicle_groups vg on vm.vehicle_group_id = vg.id
+          where fr.transfer_id = t.id and fr.category = 'transfer' and fr.is_active = true and (vg.code = 'tempo_traveller' or lower(vm.model_name) ilike '%traveller%')
+          union all
+          select 'urbania' as k, min(fr.amount) as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          where fr.transfer_id = t.id and fr.category = 'transfer' and fr.is_active = true and lower(vm.model_name) ilike '%urbania%'
+        ) entries where k is not null
+      ) sub
+    ),
+    '{}'::jsonb
+  ) as fleet_prices
+FROM transfers t
+`;
+
+const LOCAL_PACKAGES_BASE_SELECT = `
+SELECT
+  lp.*,
+  lp.code as package_code,
+  lp.inclusions_note as parking_note,
+  false as use_per_km,
+  null as extra_rates,
+  0 as night_charge_inr,
+  (lp.status = 'published') as is_active,
+  coalesce(
+    (
+      select jsonb_object_agg(sub.k, sub.v)
+      from (
+        select distinct on (k) k, v from (
+          select lower(replace(vm.model_name, ' ', '-')) as k, fr.amount as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          where fr.local_package_id = lp.id and fr.category = 'local_package' and fr.is_active = true
+          union all
+          select replace(vg.code, '_', '-') as k, min(fr.amount) as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          join vehicle_groups vg on vm.vehicle_group_id = vg.id
+          where fr.local_package_id = lp.id and fr.category = 'local_package' and fr.is_active = true
+          group by vg.code
+          union all
+          select 'innova-crysta' as k, min(fr.amount) as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          where fr.local_package_id = lp.id and fr.category = 'local_package' and fr.is_active = true and lower(vm.model_name) ilike '%crysta%'
+          union all
+          select 'tempo-traveller' as k, min(fr.amount) as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          left join vehicle_groups vg on vm.vehicle_group_id = vg.id
+          where fr.local_package_id = lp.id and fr.category = 'local_package' and fr.is_active = true and (vg.code = 'tempo_traveller' or lower(vm.model_name) ilike '%traveller%')
+          union all
+          select 'urbania' as k, min(fr.amount) as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          where fr.local_package_id = lp.id and fr.category = 'local_package' and fr.is_active = true and lower(vm.model_name) ilike '%urbania%'
+        ) entries where k is not null
+      ) sub
+    ),
+    '{}'::jsonb
+  ) as fleet_prices
+FROM local_packages lp
+`;
+
+const TOUR_PACKAGES_BASE_SELECT = `
+SELECT
+  tp.*,
+  tp.code as package_code,
+  'sedan' as base_tier_code,
+  coalesce(
+    (
+      select min(fr.amount)
+      from fare_rules fr
+      where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true
+    ),
+    0
+  ) as starting_price_inr,
+  0 as night_charge_inr,
+  (tp.status = 'published') as is_active,
+  coalesce(
+    (
+      select jsonb_object_agg(sub.k, sub.v)
+      from (
+        select distinct on (k) k, v from (
+          select lower(replace(vm.model_name, ' ', '-')) as k, fr.amount as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true
+          union all
+          select replace(vg.code, '_', '-') as k, min(fr.amount) as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          join vehicle_groups vg on vm.vehicle_group_id = vg.id
+          where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true
+          group by vg.code
+          union all
+          select 'innova-crysta' as k, min(fr.amount) as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true and lower(vm.model_name) ilike '%crysta%'
+          union all
+          select 'tempo-traveller' as k, min(fr.amount) as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          left join vehicle_groups vg on vm.vehicle_group_id = vg.id
+          where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true and (vg.code = 'tempo_traveller' or lower(vm.model_name) ilike '%traveller%')
+          union all
+          select 'urbania' as k, min(fr.amount) as v
+          from fare_rules fr
+          join vehicle_models vm on fr.vehicle_model_id = vm.id
+          where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true and lower(vm.model_name) ilike '%urbania%'
+        ) entries where k is not null
+      ) sub
+    ),
+    '{}'::jsonb
+  ) as fleet_prices
+FROM tour_packages tp
+`;
 
 export async function createPostgresRepositories(databaseUrl: string): Promise<Repositories> {
   const pool = new pg.Pool(createPoolConfig(databaseUrl));
@@ -837,67 +1109,194 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
       },
       routeCatalog: {
         async create(record: RouteCatalogRecord) {
-          await query(client, `insert into route_catalog (id, trip_type, source_city, source_detail, destination_city, slug, distance_km, duration_text, available_fleets, fares_inr, driver_charge_inr, night_halt_inr, toll_included, toll_amount_inr, interstate_charges, min_km_per_day, stops, use_per_km, per_km_rate_override, highway, all_inclusive_note, status, needs_review, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)`, [record.id, record.tripType, record.sourceCity, record.sourceDetail, record.destinationCity, record.slug, record.distanceKm, record.durationText, record.availableFleets, JSON.stringify(record.faresInr), record.driverChargeInr, record.nightHaltInr, record.tollIncluded, record.tollAmountInr, JSON.stringify(record.interstateCharges), record.minKmPerDay, JSON.stringify(record.stops), record.usePerKm, record.perKmRateOverride, record.highway, record.allInclusiveNote, record.status, record.needsReview, record.createdAt, record.updatedAt]);
+          const durationMins = record.durationText ? parseInt(record.durationText, 10) || null : null;
+          await query(
+            client,
+            `insert into outstation_routes (id, code, origin_name, destination_name, distance_km, duration_minutes, description, status, created_at, updated_at)
+             values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+             on conflict (code) do update set
+               origin_name = excluded.origin_name,
+               destination_name = excluded.destination_name,
+               distance_km = excluded.distance_km,
+               duration_minutes = excluded.duration_minutes,
+               description = excluded.description,
+               status = excluded.status,
+               updated_at = excluded.updated_at`,
+            [
+              record.id,
+              record.slug,
+              record.sourceCity,
+              record.destinationCity ?? record.sourceCity,
+              record.distanceKm,
+              durationMins,
+              record.allInclusiveNote,
+              record.status,
+              record.createdAt,
+              record.updatedAt,
+            ],
+          );
           return record;
         },
         async update(record: RouteCatalogRecord) {
-          await query(client, `update route_catalog set trip_type=$2, source_city=$3, source_detail=$4, destination_city=$5, distance_km=$6, duration_text=$7, available_fleets=$8, fares_inr=$9, driver_charge_inr=$10, night_halt_inr=$11, toll_included=$12, toll_amount_inr=$13, interstate_charges=$14, min_km_per_day=$15, stops=$16, use_per_km=$17, per_km_rate_override=$18, highway=$19, all_inclusive_note=$20, status=$21, needs_review=$22, updated_at=$23 where id=$1`, [record.id, record.tripType, record.sourceCity, record.sourceDetail, record.destinationCity, record.distanceKm, record.durationText, record.availableFleets, JSON.stringify(record.faresInr), record.driverChargeInr, record.nightHaltInr, record.tollIncluded, record.tollAmountInr, JSON.stringify(record.interstateCharges), record.minKmPerDay, JSON.stringify(record.stops), record.usePerKm, record.perKmRateOverride, record.highway, record.allInclusiveNote, record.status, record.needsReview, record.updatedAt]);
+          const durationMins = record.durationText ? parseInt(record.durationText, 10) || null : null;
+          await query(
+            client,
+            `update outstation_routes set
+               code = $2,
+               origin_name = $3,
+               destination_name = $4,
+               distance_km = $5,
+               duration_minutes = $6,
+               description = $7,
+               status = $8,
+               updated_at = $9
+             where id = $1`,
+            [
+              record.id,
+              record.slug,
+              record.sourceCity,
+              record.destinationCity ?? record.sourceCity,
+              record.distanceKm,
+              durationMins,
+              record.allInclusiveNote,
+              record.status,
+              record.updatedAt,
+            ],
+          );
           return record;
         },
-        async getById(id: string) { if (!isUuid(id)) return null; const rows = await query(client, "select * from route_catalog where id=$1", [id]); return rows[0] ? mapRouteCatalog(rows[0]) : null; },
-        async getBySlug(slug: string) { const rows = await query(client, "select * from route_catalog where slug=$1", [slug]); return rows[0] ? mapRouteCatalog(rows[0]) : null; },
-        async list(filter) {
-          const clauses: string[] = []; const params: unknown[] = [];
-          if (filter.tripType) { params.push(filter.tripType); clauses.push(`trip_type=$${params.length}`); }
-          if (filter.status) { params.push(filter.status); clauses.push(`status=$${params.length}`); }
-          if (filter.q) { params.push(`%${filter.q}%`); clauses.push(`(source_city ilike $${params.length} or coalesce(destination_city,'') ilike $${params.length} or slug ilike $${params.length})`); }
-          const where = clauses.length ? `where ${clauses.join(" and ")}` : "";
-          const rows = await query(client, `select * from route_catalog ${where} order by updated_at desc`, params);
-          const page = filter.page ?? 1; const limit = filter.limit ?? 50; const total = rows.length;
-          return { items: rows.slice((page - 1) * limit, page * limit).map(mapRouteCatalog), total };
+        async getById(id: string) {
+          if (!isUuid(id)) return null;
+          const rows = await query(client, `${ROUTE_CATALOG_BASE_SELECT} where r.id = $1::uuid`, [id]);
+          return rows[0] ? mapRouteCatalog(rows[0]) : null;
         },
-        async delete(id: string) { await query(client, "delete from route_catalog where id=$1", [id]); },
+        async getBySlug(slug: string) {
+          const rows = await query(client, `${ROUTE_CATALOG_BASE_SELECT} where r.code = $1`, [slug]);
+          return rows[0] ? mapRouteCatalog(rows[0]) : null;
+        },
+        async list(filter) {
+          const clauses: string[] = [];
+          const params: unknown[] = [];
+          if (filter.status) {
+            params.push(filter.status);
+            clauses.push(`r.status = $${params.length}`);
+          }
+          if (filter.q) {
+            params.push(`%${filter.q}%`);
+            clauses.push(`(r.origin_name ilike $${params.length} or coalesce(r.destination_name, '') ilike $${params.length} or r.code ilike $${params.length})`);
+          }
+          const where = clauses.length ? `where ${clauses.join(" and ")}` : "";
+          const rows = await query(client, `${ROUTE_CATALOG_BASE_SELECT} ${where} order by r.created_at desc`, params);
+          const page = filter.page ?? 1;
+          const limit = filter.limit ?? 50;
+          return { items: rows.slice((page - 1) * limit, page * limit).map(mapRouteCatalog), total: rows.length };
+        },
+        async delete(id: string) {
+          if (isUuid(id)) {
+            await query(client, "delete from outstation_routes where id = $1::uuid", [id]);
+          } else {
+            await query(client, "delete from outstation_routes where code = $1", [id]);
+          }
+        },
       },
       tourPackages: {
         async create(record: TourPackageRecord) {
           await query(
             client,
-            `insert into tour_packages (id, package_code, name, duration_text, days, nights, base_tier_code, starting_price_inr, fleet_prices, night_charge_inr, inclusions_highlight, inclusions_note, source, destination, inclusions, exclusions, itinerary, image_url, gallery, status, is_active, created_at, updated_at)
-             values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)`,
+            `insert into tour_packages (id, code, name, duration_text, days, nights, source, destination, inclusions_highlight, inclusions_note, inclusions, exclusions, itinerary, image_url, gallery, status, created_at, updated_at)
+             values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+             on conflict (code) do update set
+               name = excluded.name,
+               duration_text = excluded.duration_text,
+               days = excluded.days,
+               nights = excluded.nights,
+               source = excluded.source,
+               destination = excluded.destination,
+               inclusions_highlight = excluded.inclusions_highlight,
+               inclusions_note = excluded.inclusions_note,
+               inclusions = excluded.inclusions,
+               exclusions = excluded.exclusions,
+               itinerary = excluded.itinerary,
+               image_url = excluded.image_url,
+               gallery = excluded.gallery,
+               status = excluded.status,
+               updated_at = excluded.updated_at`,
             [
-              record.id, record.packageCode, record.name, record.durationText, record.days, record.nights,
-              record.baseTierCode, record.startingPriceInr, JSON.stringify(record.fleetPrices), record.nightChargeInr,
-              record.inclusionsHighlight, record.inclusionsNote, record.source ?? "Agra", record.destination ?? "",
-              JSON.stringify(record.inclusions ?? []), JSON.stringify(record.exclusions ?? []), JSON.stringify(record.itinerary ?? []),
-              record.imageUrl ?? null, JSON.stringify(record.gallery ?? []), record.status, record.isActive, record.createdAt, record.updatedAt
-            ]
+              record.id,
+              record.packageCode,
+              record.name,
+              record.durationText,
+              record.days,
+              record.nights,
+              record.source ?? "Agra",
+              record.destination ?? "",
+              record.inclusionsHighlight,
+              record.inclusionsNote,
+              JSON.stringify(record.inclusions ?? []),
+              JSON.stringify(record.exclusions ?? []),
+              JSON.stringify(record.itinerary ?? []),
+              record.imageUrl ?? null,
+              JSON.stringify(record.gallery ?? []),
+              record.status,
+              record.createdAt,
+              record.updatedAt,
+            ],
           );
           return record;
         },
         async update(record: TourPackageRecord) {
           await query(
             client,
-            `update tour_packages set package_code=$2, name=$3, duration_text=$4, days=$5, nights=$6, base_tier_code=$7, starting_price_inr=$8, fleet_prices=$9, night_charge_inr=$10, inclusions_highlight=$11, inclusions_note=$12, source=$13, destination=$14, inclusions=$15, exclusions=$16, itinerary=$17, image_url=$18, gallery=$19, status=$20, is_active=$21, updated_at=$22 where id=$1`,
+            `update tour_packages set
+               code = $2,
+               name = $3,
+               duration_text = $4,
+               days = $5,
+               nights = $6,
+               source = $7,
+               destination = $8,
+               inclusions_highlight = $9,
+               inclusions_note = $10,
+               inclusions = $11,
+               exclusions = $12,
+               itinerary = $13,
+               image_url = $14,
+               gallery = $15,
+               status = $16,
+               updated_at = $17
+             where id = $1`,
             [
-              record.id, record.packageCode, record.name, record.durationText, record.days, record.nights,
-              record.baseTierCode, record.startingPriceInr, JSON.stringify(record.fleetPrices), record.nightChargeInr,
-              record.inclusionsHighlight, record.inclusionsNote, record.source ?? "Agra", record.destination ?? "",
-              JSON.stringify(record.inclusions ?? []), JSON.stringify(record.exclusions ?? []), JSON.stringify(record.itinerary ?? []),
-              record.imageUrl ?? null, JSON.stringify(record.gallery ?? []), record.status, record.isActive, record.updatedAt
-            ]
+              record.id,
+              record.packageCode,
+              record.name,
+              record.durationText,
+              record.days,
+              record.nights,
+              record.source ?? "Agra",
+              record.destination ?? "",
+              record.inclusionsHighlight,
+              record.inclusionsNote,
+              JSON.stringify(record.inclusions ?? []),
+              JSON.stringify(record.exclusions ?? []),
+              JSON.stringify(record.itinerary ?? []),
+              record.imageUrl ?? null,
+              JSON.stringify(record.gallery ?? []),
+              record.status,
+              record.updatedAt,
+            ],
           );
           return record;
         },
         async getById(id: string) {
           const rows = isUuid(id)
-            ? await query(client, "select * from tour_packages where id = $1::uuid", [id])
-            : await query(client, "select * from tour_packages where package_code = $1", [id]);
+            ? await query(client, `${TOUR_PACKAGES_BASE_SELECT} where tp.id = $1::uuid`, [id])
+            : await query(client, `${TOUR_PACKAGES_BASE_SELECT} where tp.code = $1`, [id]);
           return rows[0] ? mapTourPackage(rows[0]) : null;
         },
         async getByCode(code: string) {
           const rows = isUuid(code)
-            ? await query(client, "select * from tour_packages where id = $1::uuid", [code])
-            : await query(client, "select * from tour_packages where package_code = $1", [code]);
+            ? await query(client, `${TOUR_PACKAGES_BASE_SELECT} where tp.id = $1::uuid or tp.code = $1`, [code])
+            : await query(client, `${TOUR_PACKAGES_BASE_SELECT} where tp.code = $1`, [code]);
           return rows[0] ? mapTourPackage(rows[0]) : null;
         },
         async list(filter = {}) {
@@ -905,83 +1304,135 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           const params: unknown[] = [];
           if (filter.status && filter.status !== "all") {
             params.push(filter.status);
-            clauses.push(`status = $${params.length}`);
+            clauses.push(`tp.status = $${params.length}`);
           }
           if (filter.q) {
             params.push(`%${filter.q}%`);
-            clauses.push(`(name ilike $${params.length} or package_code ilike $${params.length})`);
+            clauses.push(`(tp.name ilike $${params.length} or tp.code ilike $${params.length})`);
           }
           const where = clauses.length ? `where ${clauses.join(" and ")}` : "";
-          const rows = await query(client, `select * from tour_packages ${where} order by created_at asc`, params);
+          const rows = await query(client, `${TOUR_PACKAGES_BASE_SELECT} ${where} order by tp.created_at asc`, params);
           const page = filter.page ?? 1;
           const limit = filter.limit ?? 50;
           return { items: rows.slice((page - 1) * limit, page * limit).map(mapTourPackage), total: rows.length };
         },
         async delete(id: string) {
-          await query(client, "delete from tour_packages where id=$1", [id]);
+          if (isUuid(id)) {
+            await query(client, "delete from tour_packages where id = $1::uuid", [id]);
+          } else {
+            await query(client, "delete from tour_packages where code = $1", [id]);
+          }
         },
         async listUpgrades(packageId?: string | null) {
-          const rows = packageId && isUuid(packageId)
-            ? await query(client, "select * from package_vehicle_upgrades where package_id=$1 or package_id is null order by surcharge_inr asc", [packageId])
-            : await query(client, "select * from package_vehicle_upgrades where package_id is null order by surcharge_inr asc");
-          return rows.map(mapPackageUpgrade);
+          try {
+            const rows = packageId && isUuid(packageId)
+              ? await query(client, "select * from package_vehicle_upgrades where package_id=$1 or package_id is null order by surcharge_inr asc", [packageId])
+              : await query(client, "select * from package_vehicle_upgrades where package_id is null order by surcharge_inr asc");
+            return rows.map(mapPackageUpgrade);
+          } catch (err: any) {
+            if (err?.code === "42P01") return [];
+            throw err;
+          }
         },
         async saveUpgrade(record: PackageVehicleUpgradeRecord) {
-          const values = [record.id, record.packageId, record.tierCode, record.passengerNote, record.surchargeInr, record.createdAt, record.updatedAt];
-          const rows = record.packageId
-            ? await query(
-                client,
-                `insert into package_vehicle_upgrades (id, package_id, tier_code, passenger_note, surcharge_inr, created_at, updated_at)
-                 values ($1,$2,$3,$4,$5,$6,$7)
-                 on conflict (package_id, tier_code) do update
-                 set passenger_note=excluded.passenger_note, surcharge_inr=excluded.surcharge_inr, updated_at=excluded.updated_at
-                 returning *`,
-                values,
-              )
-            : await query(
-                client,
-                `insert into package_vehicle_upgrades (id, package_id, tier_code, passenger_note, surcharge_inr, created_at, updated_at)
-                 values ($1,$2,$3,$4,$5,$6,$7)
-                 on conflict (tier_code) where package_id is null do update
-                 set passenger_note=excluded.passenger_note, surcharge_inr=excluded.surcharge_inr, updated_at=excluded.updated_at
-                 returning *`,
-                values,
-              );
-          return rows[0] ? mapPackageUpgrade(rows[0]) : record;
+          try {
+            const values = [record.id, record.packageId, record.tierCode, record.passengerNote, record.surchargeInr, record.createdAt, record.updatedAt];
+            const rows = record.packageId
+              ? await query(
+                  client,
+                  `insert into package_vehicle_upgrades (id, package_id, tier_code, passenger_note, surcharge_inr, created_at, updated_at)
+                   values ($1,$2,$3,$4,$5,$6,$7)
+                   on conflict (package_id, tier_code) do update
+                   set passenger_note=excluded.passenger_note, surcharge_inr=excluded.surcharge_inr, updated_at=excluded.updated_at
+                   returning *`,
+                  values,
+                )
+              : await query(
+                  client,
+                  `insert into package_vehicle_upgrades (id, package_id, tier_code, passenger_note, surcharge_inr, created_at, updated_at)
+                   values ($1,$2,$3,$4,$5,$6,$7)
+                   on conflict (tier_code) where package_id is null do update
+                   set passenger_note=excluded.passenger_note, surcharge_inr=excluded.surcharge_inr, updated_at=excluded.updated_at
+                   returning *`,
+                  values,
+                );
+            return rows[0] ? mapPackageUpgrade(rows[0]) : record;
+          } catch (err: any) {
+            if (err?.code === "42P01") return record;
+            throw err;
+          }
         },
         async deleteUpgrade(id: string) {
-          const result = await client.query("delete from package_vehicle_upgrades where id=$1", [id]);
-          return (result.rowCount ?? 0) > 0;
+          try {
+            const result = await client.query("delete from package_vehicle_upgrades where id=$1", [id]);
+            return (result.rowCount ?? 0) > 0;
+          } catch (err: any) {
+            if (err?.code === "42P01") return false;
+            throw err;
+          }
         },
       },
       transferRoutes: {
         async create(record: TransferRouteRecord) {
           await query(
             client,
-            `insert into transfer_routes (id, route_code, name, distance_text, direction_note, fleet_prices, use_per_km, night_charge_inr, status, is_active, created_at, updated_at)
-             values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
-            [record.id, record.routeCode, record.name, record.distanceText, record.directionNote, JSON.stringify(record.fleetPrices), record.usePerKm, record.nightChargeInr, record.status, record.isActive, record.createdAt, record.updatedAt]
+            `insert into transfers (id, code, name, pickup_name, drop_name, description, status, created_at, updated_at)
+             values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+             on conflict (code) do update set
+               name = excluded.name,
+               pickup_name = excluded.pickup_name,
+               drop_name = excluded.drop_name,
+               description = excluded.description,
+               status = excluded.status,
+               updated_at = excluded.updated_at`,
+            [
+              record.id,
+              record.routeCode,
+              record.name,
+              record.directionNote?.split(" to ")[0] || record.name,
+              record.directionNote?.split(" to ")[1] || record.name,
+              record.directionNote,
+              record.status,
+              record.createdAt,
+              record.updatedAt,
+            ],
           );
           return record;
         },
         async update(record: TransferRouteRecord) {
           await query(
             client,
-            `update transfer_routes set route_code=$2, name=$3, distance_text=$4, direction_note=$5, fleet_prices=$6, use_per_km=$7, night_charge_inr=$8, status=$9, is_active=$10, updated_at=$11 where id=$1`,
-            [record.id, record.routeCode, record.name, record.distanceText, record.directionNote, JSON.stringify(record.fleetPrices), record.usePerKm, record.nightChargeInr, record.status, record.isActive, record.updatedAt]
+            `update transfers set
+               code = $2,
+               name = $3,
+               pickup_name = $4,
+               drop_name = $5,
+               description = $6,
+               status = $7,
+               updated_at = $8
+             where id = $1`,
+            [
+              record.id,
+              record.routeCode,
+              record.name,
+              record.directionNote?.split(" to ")[0] || record.name,
+              record.directionNote?.split(" to ")[1] || record.name,
+              record.directionNote,
+              record.status,
+              record.updatedAt,
+            ],
           );
           return record;
         },
         async getById(id: string) {
-          const rows = isUuid(id)
-            ? await query(client, "select * from transfer_routes where id = $1::uuid", [id])
-            : await query(client, "select * from transfer_routes where route_code = $1", [id]);
+          if (!isUuid(id)) return null;
+          const rows = await query(client, `${TRANSFER_ROUTES_BASE_SELECT} where t.id = $1::uuid`, [id]);
           return rows[0] ? mapTransferRoute(rows[0]) : null;
         },
         async getByCode(code: string) {
           const rows = isUuid(code)
-            ? await query(client, "select * from transfer_routes where id = $1::uuid", [code])
-            : await query(client, "select * from transfer_routes where route_code = $1", [code]);
+            ? await query(client, `${TRANSFER_ROUTES_BASE_SELECT} where t.id = $1::uuid or t.code = $1`, [code])
+            : await query(client, `${TRANSFER_ROUTES_BASE_SELECT} where t.code = $1`, [code]);
           return rows[0] ? mapTransferRoute(rows[0]) : null;
         },
         async list(filter = {}) {
@@ -989,50 +1440,91 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           const params: unknown[] = [];
           if (filter.status && filter.status !== "all") {
             params.push(filter.status);
-            clauses.push(`status = $${params.length}`);
+            clauses.push(`t.status = $${params.length}`);
           }
           if (filter.q) {
             params.push(`%${filter.q}%`);
-            clauses.push(`(name ilike $${params.length} or route_code ilike $${params.length})`);
+            clauses.push(`(t.name ilike $${params.length} or t.code ilike $${params.length})`);
           }
           const where = clauses.length ? `where ${clauses.join(" and ")}` : "";
-          const rows = await query(client, `select * from transfer_routes ${where} order by created_at asc`, params);
+          const rows = await query(client, `${TRANSFER_ROUTES_BASE_SELECT} ${where} order by t.created_at asc`, params);
           const page = filter.page ?? 1;
           const limit = filter.limit ?? 50;
           return { items: rows.slice((page - 1) * limit, page * limit).map(mapTransferRoute), total: rows.length };
         },
         async delete(id: string) {
-          await query(client, "delete from transfer_routes where id=$1", [id]);
+          if (isUuid(id)) {
+            await query(client, "delete from transfers where id = $1::uuid", [id]);
+          } else {
+            await query(client, "delete from transfers where code = $1", [id]);
+          }
         },
       },
       localPackages: {
         async create(record: LocalSightseeingPackageRecord) {
           await query(
             client,
-            `insert into local_sightseeing_packages (id, package_code, name, duration_hours, included_km, covers, parking_note, fleet_prices, use_per_km, extra_rates, night_charge_inr, status, is_active, created_at, updated_at)
-             values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
-            [record.id, record.packageCode, record.name, record.durationHours, record.includedKm, record.covers, record.parkingNote, JSON.stringify(record.fleetPrices), record.usePerKm, record.extraRates ? JSON.stringify(record.extraRates) : null, record.nightChargeInr, record.status, record.isActive, record.createdAt, record.updatedAt]
+            `insert into local_packages (id, code, name, duration_hours, included_km, covers, inclusions_note, status, created_at, updated_at)
+             values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+             on conflict (code) do update set
+               name = excluded.name,
+               duration_hours = excluded.duration_hours,
+               included_km = excluded.included_km,
+               covers = excluded.covers,
+               inclusions_note = excluded.inclusions_note,
+               status = excluded.status,
+               updated_at = excluded.updated_at`,
+            [
+              record.id,
+              record.packageCode,
+              record.name,
+              record.durationHours,
+              record.includedKm,
+              record.covers,
+              record.parkingNote,
+              record.status,
+              record.createdAt,
+              record.updatedAt,
+            ],
           );
           return record;
         },
         async update(record: LocalSightseeingPackageRecord) {
           await query(
             client,
-            `update local_sightseeing_packages set package_code=$2, name=$3, duration_hours=$4, included_km=$5, covers=$6, parking_note=$7, fleet_prices=$8, use_per_km=$9, extra_rates=$10, night_charge_inr=$11, status=$12, is_active=$13, updated_at=$14 where id=$1`,
-            [record.id, record.packageCode, record.name, record.durationHours, record.includedKm, record.covers, record.parkingNote, JSON.stringify(record.fleetPrices), record.usePerKm, record.extraRates ? JSON.stringify(record.extraRates) : null, record.nightChargeInr, record.status, record.isActive, record.updatedAt]
+            `update local_packages set
+               code = $2,
+               name = $3,
+               duration_hours = $4,
+               included_km = $5,
+               covers = $6,
+               inclusions_note = $7,
+               status = $8,
+               updated_at = $9
+             where id = $1`,
+            [
+              record.id,
+              record.packageCode,
+              record.name,
+              record.durationHours,
+              record.includedKm,
+              record.covers,
+              record.parkingNote,
+              record.status,
+              record.updatedAt,
+            ],
           );
           return record;
         },
         async getById(id: string) {
-          const rows = isUuid(id)
-            ? await query(client, "select * from local_sightseeing_packages where id = $1::uuid", [id])
-            : await query(client, "select * from local_sightseeing_packages where package_code = $1", [id]);
+          if (!isUuid(id)) return null;
+          const rows = await query(client, `${LOCAL_PACKAGES_BASE_SELECT} where lp.id = $1::uuid`, [id]);
           return rows[0] ? mapLocalPackage(rows[0]) : null;
         },
         async getByCode(code: string) {
           const rows = isUuid(code)
-            ? await query(client, "select * from local_sightseeing_packages where id = $1::uuid", [code])
-            : await query(client, "select * from local_sightseeing_packages where package_code = $1", [code]);
+            ? await query(client, `${LOCAL_PACKAGES_BASE_SELECT} where lp.id = $1::uuid or lp.code = $1`, [code])
+            : await query(client, `${LOCAL_PACKAGES_BASE_SELECT} where lp.code = $1`, [code]);
           return rows[0] ? mapLocalPackage(rows[0]) : null;
         },
         async list(filter = {}) {
@@ -1040,20 +1532,24 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           const params: unknown[] = [];
           if (filter.status && filter.status !== "all") {
             params.push(filter.status);
-            clauses.push(`status = $${params.length}`);
+            clauses.push(`lp.status = $${params.length}`);
           }
           if (filter.q) {
             params.push(`%${filter.q}%`);
-            clauses.push(`(name ilike $${params.length} or package_code ilike $${params.length})`);
+            clauses.push(`(lp.name ilike $${params.length} or lp.code ilike $${params.length})`);
           }
           const where = clauses.length ? `where ${clauses.join(" and ")}` : "";
-          const rows = await query(client, `select * from local_sightseeing_packages ${where} order by duration_hours asc`, params);
+          const rows = await query(client, `${LOCAL_PACKAGES_BASE_SELECT} ${where} order by lp.duration_hours asc`, params);
           const page = filter.page ?? 1;
           const limit = filter.limit ?? 50;
           return { items: rows.slice((page - 1) * limit, page * limit).map(mapLocalPackage), total: rows.length };
         },
         async delete(id: string) {
-          await query(client, "delete from local_sightseeing_packages where id=$1", [id]);
+          if (isUuid(id)) {
+            await query(client, "delete from local_packages where id = $1::uuid", [id]);
+          } else {
+            await query(client, "delete from local_packages where code = $1", [id]);
+          }
         },
       },
       cancellationPolicies: {
@@ -1277,118 +1773,36 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
         },
       },
       promos: {
-        async getByCode(code: string) {
-          const rows = await query(client, "select * from promo_codes where code=$1", [code.trim().toUpperCase()]);
-          return rows[0] ? mapPromo(rows[0]) : null;
+        /**
+         * Promo codes were officially retired in canonical migration 0038_fare_system_clean_rebuild.sql
+         * in favor of server-authoritative fare rules and explicit extra charges.
+         * Read methods return intentional, documented empty states (null or empty array) so legacy callers
+         * receive valid empty responses rather than HTTP 500 runtime database relation errors.
+         * Mutating operations fail fast with an explicit AppError explaining the retirement.
+         */
+        async getByCode(_code: string) {
+          return null;
         },
-        async getById(id: string) {
-          const rows = await query(client, "select * from promo_codes where id=$1", [id]);
-          return rows[0] ? mapPromo(rows[0]) : null;
+        async getById(_id: string) {
+          return null;
         },
         async list() {
-          const rows = await query(client, "select * from promo_codes order by code");
-          return rows.map(mapPromo);
+          return [];
         },
         async getFeatured() {
-          const rows = await query(
-            client,
-            `select * from promo_codes
-             where is_broadcast = true
-               and is_active = true
-               and (valid_from is null or valid_from <= now())
-               and (valid_to is null or valid_to >= now())
-               and (max_redemptions is null or redemption_count < max_redemptions)
-             order by valid_from desc nulls last
-             limit 1`,
-          );
-          return rows[0] ? mapPromo(rows[0]) : null;
+          return null;
         },
-        async consume(code: string) {
-          const rows = await query(
-            client,
-            `update promo_codes
-             set redemption_count = redemption_count + 1
-             where code=$1
-               and is_active = true
-               and (valid_from is null or valid_from <= now())
-               and (valid_to is null or valid_to >= now())
-               and (max_redemptions is null or redemption_count < max_redemptions)
-             returning *`,
-            [code.trim().toUpperCase()],
-          );
-          return rows[0] ? mapPromo(rows[0]) : null;
+        async consume(_code: string) {
+          return null;
         },
-        async create(record: PromoCodeRecord) {
-          try {
-            await query(
-              client,
-              `insert into promo_codes (id, code, discount_amount, min_total, description, is_active, max_redemptions, redemption_count, valid_from, valid_to, allow_group_vehicles, is_broadcast)
-               values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
-              [
-                record.id, record.code, record.discountAmount, record.minTotal, record.description, record.isActive,
-                record.maxRedemptions, record.redemptionCount, record.validFrom, record.validTo,
-                record.allowGroupVehicles, record.isBroadcast,
-              ],
-            );
-            return record;
-          } catch (error: any) {
-            if (
-              error?.code === "23505" &&
-              (error?.constraint === "idx_promo_codes_single_broadcast" ||
-                String(error?.message).includes("idx_promo_codes_single_broadcast"))
-            ) {
-              throw new AppError("BROADCAST_CONFLICT", "Another code is already broadcast. Turn it off first.", 409);
-            }
-            throw error;
-          }
+        async create(_record: PromoCodeRecord) {
+          throw new AppError("PROMOS_RETIRED", "Promo codes were retired in migration 0038. Use fare_rules or extra_charges.", 410);
         },
-        async update(record: PromoCodeRecord) {
-          try {
-            await query(
-              client,
-              `update promo_codes set
-                 code=$2,
-                 discount_amount=$3,
-                 min_total=$4,
-                 description=$5,
-                 is_active=$6,
-                 max_redemptions=$7,
-                 redemption_count=$8,
-                 valid_from=$9,
-                 valid_to=$10,
-                 allow_group_vehicles=$11,
-                 is_broadcast=$12
-               where id=$1`,
-              [
-                record.id,
-                record.code,
-                record.discountAmount,
-                record.minTotal,
-                record.description,
-                record.isActive,
-                record.maxRedemptions,
-                record.redemptionCount,
-                record.validFrom,
-                record.validTo,
-                record.allowGroupVehicles,
-                record.isBroadcast,
-              ],
-            );
-            return record;
-          } catch (error: any) {
-            if (
-              error?.code === "23505" &&
-              (error?.constraint === "idx_promo_codes_single_broadcast" ||
-                String(error?.message).includes("idx_promo_codes_single_broadcast"))
-            ) {
-              throw new AppError("BROADCAST_CONFLICT", "Another code is already broadcast. Turn it off first.", 409);
-            }
-            throw error;
-          }
+        async update(_record: PromoCodeRecord) {
+          throw new AppError("PROMOS_RETIRED", "Promo codes were retired in migration 0038. Use fare_rules or extra_charges.", 410);
         },
-        async delete(id: string) {
-          const res = await query(client, "delete from promo_codes where id=$1", [id]);
-          return ((res as any).rowCount ?? 0) > 0;
+        async delete(_id: string) {
+          throw new AppError("PROMOS_RETIRED", "Promo codes were retired in migration 0038. Use fare_rules or extra_charges.", 410);
         },
       },
       audit: {
@@ -1809,23 +2223,6 @@ function mapReview(row: Record<string, unknown>): ReviewRecord {
     publishedAt: row.published_at ? new Date(String(row.published_at)).toISOString() : null,
     guestAccessToken: row.guest_access_token ? String(row.guest_access_token) : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
-  };
-}
-
-function mapPromo(row: Record<string, unknown>): PromoCodeRecord {
-  return {
-    id: String(row.id),
-    code: String(row.code),
-    discountAmount: num(row.discount_amount),
-    minTotal: num(row.min_total),
-    description: String(row.description),
-    isActive: Boolean(row.is_active),
-    maxRedemptions: row.max_redemptions === null || row.max_redemptions === undefined ? null : num(row.max_redemptions),
-    redemptionCount: num(row.redemption_count),
-    validFrom: row.valid_from ? new Date(String(row.valid_from)).toISOString() : null,
-    validTo: row.valid_to ? new Date(String(row.valid_to)).toISOString() : null,
-    allowGroupVehicles: Boolean(row.allow_group_vehicles),
-    isBroadcast: Boolean(row.is_broadcast),
   };
 }
 

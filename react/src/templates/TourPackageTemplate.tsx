@@ -116,7 +116,7 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
   const packageDestination = pkg.destination || packageName;
 
   // Resolve starting gross price and 28% token
-  const grossPrice = Number(pkg.from || pkg.startingPriceInr || pkg.fleetPrices?.sedan || 3499);
+  const grossPrice = Number(pkg.from || pkg.startingPriceInr || pkg.fleetPrices?.sedan || 0);
   const advanceAmount = Math.round(grossPrice * 0.28);
   const balanceAmount = grossPrice - advanceAmount;
 
@@ -188,9 +188,11 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
   const packageIncludes = pkg.includes && pkg.includes.length > 0 ? pkg.includes : defaultIncludes;
   const packageExcludes = pkg.excludes && pkg.excludes.length > 0 ? pkg.excludes : defaultExcludes;
 
-  const bookStep1Url = `/book.html?trip=package&package=${encodeURIComponent(packageSlug)}&from=${encodeURIComponent(packageSource)}&to=${encodeURIComponent(packageDestination)}&step=1`;
+  const bookStep1Url = `/book.html?category=tour_package&product=${encodeURIComponent(packageSlug)}&from=${encodeURIComponent(packageSource)}&to=${encodeURIComponent(packageDestination)}`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-    `Hello Agra SK Baghel Tour and Travels, I wish to reserve the tour package "${packageName}" (Starting ₹${grossPrice.toLocaleString("en-IN")}).`
+    grossPrice > 0
+      ? `Hello Agra SK Baghel Tour and Travels, I wish to reserve the tour package "${packageName}" (Starting ₹${grossPrice.toLocaleString("en-IN")}).`
+      : `Hello Agra SK Baghel Tour and Travels, I wish to reserve the tour package "${packageName}".`
   )}`;
 
   const canonicalUrl = `${CANONICAL_DOMAIN}/en/packages/${packageSlug}/`;
@@ -496,14 +498,21 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
                 </span>
                 <div className="flex items-baseline gap-2 mt-1">
                   <span className="font-headline-hero text-headline-hero text-ink-charcoal font-serif font-semibold">
-                    ₹{grossPrice.toLocaleString("en-IN")}
+                    {grossPrice > 0 ? `₹${grossPrice.toLocaleString("en-IN")}` : "Custom Quote"}
                   </span>
                   <span className="text-body-md text-on-surface-variant font-medium">All-Inclusive</span>
                 </div>
-                <div className="flex items-center gap-2 mt-2 p-2.5 rounded-lg bg-surface border border-border-warm/60 text-body-sm text-secondary">
-                  <span className="material-symbols-outlined text-success-jade text-icon-20">verified</span>
-                  <span>Pay only <strong>₹{advanceAmount.toLocaleString("en-IN")}</strong> now (28% advance token). Balance ₹{balanceAmount.toLocaleString("en-IN")} on drop.</span>
-                </div>
+                {grossPrice > 0 ? (
+                  <div className="flex items-center gap-2 mt-2 p-2.5 rounded-lg bg-surface border border-border-warm/60 text-body-sm text-secondary">
+                    <span className="material-symbols-outlined text-success-jade text-icon-20">verified</span>
+                    <span>Pay only <strong>₹{advanceAmount.toLocaleString("en-IN")}</strong> now (28% advance token). Balance ₹{balanceAmount.toLocaleString("en-IN")} on drop.</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 mt-2 p-2.5 rounded-lg bg-surface border border-border-warm/60 text-body-sm text-secondary">
+                    <span className="material-symbols-outlined text-terracotta-sandstone text-icon-20">info</span>
+                    <span>Live quotation generated upon vehicle and date selection. Zero upfront token until confirmed.</span>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
@@ -568,12 +577,8 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
               const resolved = resolveTierKey(pkg.fleetPrices, tier);
               let tierFare = Number(resolved.value || 0);
 
-              if (!tierFare) {
-                if (tier === "sedan") tierFare = grossPrice;
-                else if (tier === "ertiga") tierFare = Math.round(grossPrice * 1.35);
-                else if (tier === "innova-crysta") tierFare = Math.round(grossPrice * 1.7);
-                else if (tier === "tempo-traveller") tierFare = Math.round(grossPrice * 2.6);
-                else tierFare = Math.round(grossPrice * 3.6);
+              if (!tierFare && tier === "sedan") {
+                tierFare = grossPrice;
               }
 
               const token = Math.round(tierFare * 0.28);
@@ -610,17 +615,23 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
                         All-Inclusive Fixed Price
                       </span>
                       <span className="font-headline-md text-headline-md text-terracotta-sandstone font-serif font-semibold">
-                        ₹{tierFare.toLocaleString("en-IN")}
+                        {tierFare > 0 ? `₹${tierFare.toLocaleString("en-IN")}` : "On request"}
                       </span>
-                      <span className="text-label-md text-secondary">
-                        ₹{token.toLocaleString("en-IN")} token to lock (28%)
-                      </span>
+                      {tierFare > 0 ? (
+                        <span className="text-label-md text-secondary">
+                          ₹{token.toLocaleString("en-IN")} token to lock (28%)
+                        </span>
+                      ) : (
+                        <span className="text-label-md text-secondary">
+                          Live quote upon booking
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   <a
                     className="mt-space-md w-full inline-flex items-center justify-center gap-1 bg-terracotta-deep text-white py-2.5 rounded text-label-lg font-label-lg shadow-sm hover:bg-terracotta-sunlit transition-all text-center"
-                    href={`/book.html?trip=package&package=${encodeURIComponent(packageSlug)}&vehicle=${tier}&from=${encodeURIComponent(packageSource)}&to=${encodeURIComponent(packageDestination)}&step=1`}
+                    href={`/book.html?category=tour_package&product=${encodeURIComponent(packageSlug)}&car=${tier}&from=${encodeURIComponent(packageSource)}&to=${encodeURIComponent(packageDestination)}`}
                   >
                     <span>Select {tier === "innova-crysta" ? "Innova" : tier.split("-")[0]}</span>
                     <span className="material-symbols-outlined text-icon-16">arrow_forward</span>

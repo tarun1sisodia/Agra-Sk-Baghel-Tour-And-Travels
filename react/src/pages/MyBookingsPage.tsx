@@ -79,6 +79,12 @@ export function MyBookingsPage() {
           <button type="button" onClick={() => void signInWithSeedCustomer().catch((cause) => setError(cause.message))} className="w-full rounded-xl border border-primary/25 bg-sandstone-wash/60 px-5 py-2.5 text-xs font-bold text-primary hover:bg-sandstone-wash transition-colors cursor-pointer">⚡ 1-Click Seed Customer Login</button>
           <a href="/login?returnTo=/my-bookings" className="text-xs text-on-surface-variant hover:text-primary transition-colors underline">Sign in with email & password</a>
         </div>
+        <div className="mt-6 border-t border-border-warm/60 pt-4">
+          <p className="text-xs text-on-surface-variant">Looking for a recent guest booking?</p>
+          <a href="/booking/confirmation" className="mt-1 inline-block text-xs font-bold text-primary hover:underline">
+            View Recent Guest Booking Voucher →
+          </a>
+        </div>
         {error && <p className="mt-3 text-sm text-red-700" role="alert">{error}</p>}
       </section>
     </main>

@@ -38,6 +38,7 @@ import {
   getDefaultPickupDate,
   getDefaultReturnDate,
 } from "./dateTime";
+import { normalizeBookingUrlParams } from "./urlNormalizer";
 import type {
   CustomerFormState,
   SelectedCarState,
@@ -76,30 +77,15 @@ export function CleanBookingPage() {
     return new URLSearchParams();
   }, []);
 
-  const rawTrip = (searchParams.get("trip") || searchParams.get("tripType") || "").toLowerCase();
-  const rawCat = (searchParams.get("category") || "").toLowerCase();
+  const normalizedParams = useMemo(() => normalizeBookingUrlParams(searchParams), [searchParams]);
 
-  let initialCategory: CategoryCode = "outstation";
-  if (rawCat === "local_package" || rawCat === "local" || rawTrip === "local") {
-    initialCategory = "local_package";
-  } else if (rawCat === "transfer" || rawTrip === "transfer" || rawTrip === "airport-transfer") {
-    initialCategory = "transfer";
-  } else if (rawCat === "tour_package" || rawCat === "package" || rawTrip === "package") {
-    initialCategory = "tour_package";
-  } else if (rawCat === "outstation" || rawTrip === "outstation") {
-    initialCategory = "outstation";
-  }
-
-  let initialTripType: "one_way" | "round_trip" = "one_way";
-  if (rawTrip.includes("round") || searchParams.get("tripType") === "round-trip" || searchParams.get("trip") === "round_trip") {
-    initialTripType = "round_trip";
-  }
-
-  const initialPassengers = Number(searchParams.get("passengers") || searchParams.get("pax") || searchParams.get("passengerCount")) || 2;
-  const initialProductParam = (searchParams.get("product") || searchParams.get("package") || searchParams.get("pkg") || searchParams.get("route") || "").trim().toLowerCase();
-  const initialFrom = (searchParams.get("from") || "").trim().toLowerCase();
-  const initialTo = (searchParams.get("to") || "").trim().toLowerCase();
-  const initialVehicle = (searchParams.get("vehicle") || searchParams.get("car") || "").trim().toLowerCase();
+  const initialCategory = normalizedParams.category;
+  const initialTripType = normalizedParams.trip;
+  const initialPassengers = normalizedParams.pax;
+  const initialProductParam = (normalizedParams.product || "").toLowerCase();
+  const initialFrom = (normalizedParams.from || "").toLowerCase();
+  const initialTo = (normalizedParams.to || "").toLowerCase();
+  const initialVehicle = (normalizedParams.car || "").toLowerCase();
 
   // 2. Selection Parameters
   const [catalog, setCatalog] = useState<PublishedCatalogResponse | null>(null);
@@ -111,10 +97,15 @@ export function CleanBookingPage() {
   const [passengerCount, setPassengerCount] = useState<number>(initialPassengers);
 
   // Date and Time (IST)
-  const [pickupDate, setPickupDate] = useState<string>(getDefaultPickupDate());
-  const [pickupTime, setPickupTime] = useState<string>("09:00");
-  const [returnDate, setReturnDate] = useState<string>(getDefaultReturnDate(getDefaultPickupDate(), 1));
-  const [returnTime, setReturnTime] = useState<string>("18:00");
+  const [pickupDate, setPickupDate] = useState<string>(
+    normalizedParams.date || getDefaultPickupDate()
+  );
+  const [pickupTime, setPickupTime] = useState<string>(normalizedParams.time || "09:00");
+  const [returnDate, setReturnDate] = useState<string>(
+    normalizedParams.return_date ||
+      getDefaultReturnDate(normalizedParams.date || getDefaultPickupDate(), 1)
+  );
+  const [returnTime, setReturnTime] = useState<string>(normalizedParams.return_time || "18:00");
 
   // 3. Live Quote Options State
   const [options, setOptions] = useState<OptionsResponse | null>(null);
@@ -380,6 +371,16 @@ export function CleanBookingPage() {
 
     try {
       const bookingRes = await createBooking(bookingPayload);
+
+      // Protect guest token in sessionStorage; never expose in URL search params
+      if (bookingRes.guest_access_token) {
+        sessionStorage.setItem(
+          `arenaai:guest_token:${bookingRes.booking_id}`,
+          bookingRes.guest_access_token
+        );
+      }
+      sessionStorage.setItem("arenaai:last_booking_id", bookingRes.booking_id);
+
       setBookingSuccess({
         booking_id: bookingRes.booking_id,
         ticket_id: bookingRes.ticket_id,
@@ -405,14 +406,22 @@ export function CleanBookingPage() {
               email: customer.email || undefined,
             },
             theme: { color: "#9F3C16" },
+            modal: {
+              ondismiss: () => {
+                window.location.href = `/booking/confirmation?id=${bookingRes.booking_id}`;
+              },
+            },
             handler: () => {
-              window.location.href = `/my-bookings?ticket=${bookingRes.ticket_id}`;
+              window.location.href = `/booking/confirmation?id=${bookingRes.booking_id}`;
             },
           });
           rzp.open();
+        } else {
+          window.location.href = `/booking/confirmation?id=${bookingRes.booking_id}`;
         }
       } catch (payErr: any) {
         console.warn("Payment initiation deferred:", payErr);
+        window.location.href = `/booking/confirmation?id=${bookingRes.booking_id}`;
       }
     } catch (err: any) {
       if (err instanceof CleanFareApiError && err.code === "PRICE_CHANGED") {

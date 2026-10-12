@@ -939,4 +939,39 @@ export class FareAdminService {
     );
     return res.rows;
   }
+
+  async retryPublishEvent(id: string, actor: AdminActor, requestId = "unknown") {
+    if (actor.role !== "super_admin" && actor.role !== "content_editor") {
+      throw new AppError("FORBIDDEN", "Forbidden: insufficient permissions to retry publishing events", 403);
+    }
+    const res = await this.pool.query(
+      `
+      UPDATE site_publish_events
+      SET status = 'pending',
+          attempt_count = 0,
+          next_attempt_at = NOW(),
+          last_error = NULL
+      WHERE id = $1
+      RETURNING *
+      `,
+      [id]
+    );
+    if (res.rows.length === 0) {
+      throw new AppError("NOT_FOUND", "Publishing event not found", 404);
+    }
+    const updated = res.rows[0];
+    await this.auditRepo.recordAudit({
+      actor_id: actor.id,
+      actor_role: actor.role,
+      resource_type: "site_publish_events",
+      resource_id: id,
+      action: "retry",
+      before_state: null,
+      after_state: updated,
+      request_id: requestId,
+    });
+    return updated;
+  }
+
 }
+

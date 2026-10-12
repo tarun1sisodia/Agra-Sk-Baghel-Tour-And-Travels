@@ -111,6 +111,7 @@ import { LocationIqService } from "./modules/routes/locationiq.service.js";
 import { ReviewsRepository } from "./modules/reviews/reviews.repository.js";
 import { ReviewsService } from "./modules/reviews/reviews.service.js";
 import { registerReviewsRoutes } from "./modules/reviews/reviews.routes.js";
+import { PublicationWorker } from "./modules/publishing/publication-worker.js";
 
 export type AppOptions = {
   env: Env;
@@ -123,6 +124,7 @@ export type BuiltApp = {
   app: FastifyInstance;
   db: Repositories;
   notifications: ReturnType<typeof createNotificationService>;
+  publicationWorker?: PublicationWorker;
 };
 
 export async function buildApp(options: AppOptions): Promise<BuiltApp> {
@@ -325,11 +327,18 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
   await registerAdminRoutes(app, createAdminController(adminService, paymentService, bookingService));
 
   // --- Clean Fare System (fare-system-final-spec.md) Mounts ---
+  let publicationWorker: PublicationWorker | undefined;
   const farePool: pg.Pool | null =
     (db.pool as pg.Pool | undefined) ??
     (env.DATABASE_URL ? new pg.Pool(createPoolConfig(env.DATABASE_URL)) : null);
 
   if (farePool) {
+    publicationWorker = new PublicationWorker({
+      pool: farePool,
+      deployHookUrl: env.PAGES_DEPLOY_HOOK_URL,
+      customerSiteUrl: process.env.CUSTOMER_SITE_URL || process.env.SITE_URL || "https://agraskbagheltourandtravels.com",
+      logger: options.logger,
+    });
     const fareCatalogRepo = new FareCatalogRepository(farePool);
     const quotesService = new QuotesService(fareCatalogRepo);
     await registerQuotesRoutes(app, quotesService);
@@ -431,7 +440,7 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
     },
   });
 
-  return { app, db, notifications };
+  return { app, db, notifications, publicationWorker };
 }
 
 function createPaymentProviders(env: Env): PaymentProviderRegistry {

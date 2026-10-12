@@ -93,11 +93,11 @@ function mapCatalogueRoute(item: CatalogueRoute): RouteItem {
     stateTaxNote: "Interstate commercial permits clear",
     pricingModel: item.pricingModel,
     fares: {
-      sedan: item.fares?.sedan || 2500,
-      ertiga: item.fares?.ertiga || 3200,
-      crysta: item.fares?.innova || 4500,
-      tempo: item.fares?.tempo || 9500,
-      urbania: item.fares?.urbania || 14000,
+      sedan: Number(item.fares?.sedan ?? 0),
+      ertiga: Number(item.fares?.ertiga ?? 0),
+      crysta: Number(item.fares?.innova ?? 0),
+      tempo: Number(item.fares?.tempo ?? 0),
+      urbania: Number(item.fares?.urbania ?? 0),
     },
   };
 }
@@ -201,11 +201,11 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
           : "Interstate commercial permits clear",
         pricingModel: item.pm,
         fares: {
-          sedan: item.fs || 2500,
-          ertiga: item.fe || 3200,
-          crysta: item.fi || 4500,
-          tempo: item.ft > 100 ? item.ft : (dist > 0 ? dist * (item.ft || 17) : 9500),
-          urbania: item.fu > 100 ? item.fu : (dist > 0 ? dist * (item.fu || 25) : 14000),
+          sedan: item.fs ?? 0,
+          ertiga: item.fe ?? 0,
+          crysta: item.fi ?? 0,
+          tempo: item.ft > 100 ? item.ft : (dist > 0 && item.ft ? dist * item.ft : 0),
+          urbania: item.fu > 100 ? item.fu : (dist > 0 && item.fu ? dist * item.fu : 0),
         },
       };
     });
@@ -442,19 +442,19 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                     <div className="p-0.5">
                       <span className="font-label-caps text-label-caps text-secondary uppercase block font-semibold">Sedan</span>
                       <span className="font-price-display text-sm sm:text-base text-primary font-bold">
-                        ₹{route.fares.sedan.toLocaleString("en-IN")}
+                        {route.fares.sedan > 0 ? `₹${route.fares.sedan.toLocaleString("en-IN")}` : "On request"}
                       </span>
                     </div>
                     <div className="p-0.5">
                       <span className="font-label-caps text-label-caps text-secondary uppercase block font-semibold">Ertiga</span>
                       <span className="font-price-display text-sm sm:text-base text-ink-charcoal font-bold">
-                        ₹{route.fares.ertiga.toLocaleString("en-IN")}
+                        {route.fares.ertiga > 0 ? `₹${route.fares.ertiga.toLocaleString("en-IN")}` : "On request"}
                       </span>
                     </div>
                     <div className="p-0.5">
                       <span className="font-label-caps text-label-caps text-secondary uppercase block font-semibold">Innova</span>
                       <span className="font-price-display text-sm sm:text-base text-ink-charcoal font-bold">
-                        ₹{route.fares.crysta.toLocaleString("en-IN")}
+                        {route.fares.crysta > 0 ? `₹${route.fares.crysta.toLocaleString("en-IN")}` : "On request"}
                       </span>
                     </div>
                     <div className="p-0.5">
@@ -462,7 +462,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                         Tempo <span className="text-label-caps text-terracotta-sandstone font-normal">(RT)</span>
                       </span>
                       <span className="font-price-display text-sm sm:text-base text-ink-charcoal font-bold">
-                        ₹{route.fares.tempo.toLocaleString("en-IN")}
+                        {route.fares.tempo > 0 ? `₹${route.fares.tempo.toLocaleString("en-IN")}` : "On request"}
                       </span>
                     </div>
                     <div className="p-0.5">
@@ -470,7 +470,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                         Urbania <span className="text-label-caps text-terracotta-sandstone font-normal">(RT)</span>
                       </span>
                       <span className="font-price-display text-sm sm:text-base text-ink-charcoal font-bold">
-                        ₹{route.fares.urbania.toLocaleString("en-IN")}
+                        {route.fares.urbania > 0 ? `₹${route.fares.urbania.toLocaleString("en-IN")}` : "On request"}
                       </span>
                     </div>
                   </div>

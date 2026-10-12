@@ -115,9 +115,10 @@ export function HomeBookingWidget() {
     const activeReturnDate = returnDate || localTomorrow();
     if (mode === "local") {
       const tourSlug = selectedTour?.slug ?? localTourId;
-      return `/book?trip=local&pkg=${encodeURIComponent(tourSlug)}&vehicle=${selectedVehicle}&date=${encodeURIComponent(activePickupDate)}`;
+      return `/book.html?category=local_package&product=${encodeURIComponent(tourSlug)}&car=${encodeURIComponent(selectedVehicle)}&date=${encodeURIComponent(activePickupDate)}`;
     }
-    return `/book?from=${encodeURIComponent(origin)}&to=${encodeURIComponent(destination)}&vehicle=${selectedVehicle}&trip=${mode === "round" ? "round-trip" : "one-way"}&date=${encodeURIComponent(activePickupDate)}${mode === "round" ? `&returnDate=${encodeURIComponent(activeReturnDate)}` : ""}`;
+    const trip = mode === "round" ? "round_trip" : "one_way";
+    return `/book.html?category=outstation&from=${encodeURIComponent(origin)}&to=${encodeURIComponent(destination)}&car=${encodeURIComponent(selectedVehicle)}&trip=${trip}&date=${encodeURIComponent(activePickupDate)}${mode === "round" ? `&return_date=${encodeURIComponent(activeReturnDate)}` : ""}`;
   }
 
   return (

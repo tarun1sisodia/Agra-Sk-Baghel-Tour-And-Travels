@@ -160,11 +160,11 @@ export function RouteTemplate({ language = "en", route }: RouteTemplateProps) {
 
   // Primary starting fare from sedan
   const sedanResolution = resolveTierKey(route.fares, "sedan");
-  const baseSedanFare = Number(sedanResolution.value || 2500);
-  const primaryFare = tripType === "round-trip" && !isLocal ? Math.round(baseSedanFare * 1.8) : baseSedanFare;
-  const advanceToken = Math.round(primaryFare * 0.28);
+  const baseSedanFare = Number(sedanResolution.value || 0);
+  const primaryFare = baseSedanFare;
+  const advanceToken = primaryFare > 0 ? Math.round(primaryFare * 0.25) : 0;
 
-  const bookingUrl = `/book?from=${encodeURIComponent(fromEn)}&to=${encodeURIComponent(toEn)}&vehicle=sedan&route=${encodeURIComponent(route.id)}&tripType=${tripType}`;
+  const bookingUrl = `/book.html?category=outstation&product=${encodeURIComponent(route.id)}&trip=${tripType === "round-trip" ? "round_trip" : "one_way"}&from=${encodeURIComponent(fromEn)}&to=${encodeURIComponent(toEn)}&car=sedan`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
     `Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about taxi booking from ${fromEn} to ${toEn} (${tripType === "round-trip" ? "Round Trip" : "One Way"}).`
   )}`;
@@ -301,14 +301,28 @@ export function RouteTemplate({ language = "en", route }: RouteTemplateProps) {
                     Starting Corridor Fare (Sedan {tripType === "round-trip" ? "• Round-Trip" : "• One-Way"})
                   </span>
                   <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="font-headline-hero text-headline-hero text-ink-charcoal font-serif font-semibold">
-                      ₹{primaryFare.toLocaleString("en-IN")}
-                    </span>
-                    <span className="text-body-md text-on-surface-variant font-medium">All-Inclusive</span>
+                    {primaryFare > 0 ? (
+                      <>
+                        <span className="font-headline-hero text-headline-hero text-ink-charcoal font-serif font-semibold">
+                          ₹{primaryFare.toLocaleString("en-IN")}
+                        </span>
+                        <span className="text-body-md text-on-surface-variant font-medium">All-Inclusive</span>
+                      </>
+                    ) : (
+                      <span className="font-headline-md text-headline-sm text-ink-charcoal font-serif font-semibold">
+                        Custom Route / Live Quote
+                      </span>
+                    )}
                   </div>
-                  <span className="text-body-sm text-secondary">
-                    Lock with only ₹{advanceToken.toLocaleString("en-IN")} (28% advance deposit)
-                  </span>
+                  {primaryFare > 0 && advanceToken > 0 ? (
+                    <span className="text-body-sm text-secondary">
+                      Lock with only ₹{advanceToken.toLocaleString("en-IN")} (advance deposit)
+                    </span>
+                  ) : (
+                    <span className="text-body-sm text-secondary">
+                      Exact fare computed dynamically on booking
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-sm">

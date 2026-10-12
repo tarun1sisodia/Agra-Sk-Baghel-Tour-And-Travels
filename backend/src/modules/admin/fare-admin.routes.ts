@@ -284,4 +284,12 @@ export function registerFareAdminRoutes(app: FastifyInstance, adminService: Fare
     const events = await adminService.listPublishEvents(actor);
     return { success: true, publish_events: events };
   });
-}
+
+  mountPost(["/admin/publishing/events/:id/retry", "/admin/fares/publishing/events/:id/retry"], async (req: FastifyRequest<any>, reply: FastifyReply) => {
+    const actor = getActor(req);
+    const { id } = req.params as { id: string };
+    const event = await adminService.retryPublishEvent(id, actor, req.id);
+    return reply.send({ success: true, event });
+  });
+} 
+
