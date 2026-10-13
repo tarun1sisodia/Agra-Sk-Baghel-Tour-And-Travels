@@ -10,13 +10,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.117.2",
+    "@supabase/supabase-js": "^2.117.3",
     "clsx": "^2.1.1",
-    "lucide-react": "^1.46.0",
+    "lucide-react": "^1.55.0",
     "motion": "^12.43.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "react-router-dom": "^7.18.3",
+    "react-router-dom": "^7.18.4",
     "tailwind-merge": "^3.7.0",
     "zod": "^4.6.5"
   },
