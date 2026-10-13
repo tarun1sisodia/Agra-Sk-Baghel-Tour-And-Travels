@@ -1,35 +1,12 @@
-# Main branch verification — 65bc666d8096
+# Main branch verification — 8fed5bf22d74
 
 - **Result:** PASS
-- **Commit:** [65bc666d80963f596c07a73d035f59ae48f0d20b](https://github.com/tarun1sisodia/ArenaAI/commit/65bc666d80963f596c07a73d035f59ae48f0d20b)
-- **Checked at:** 2026-10-12T15:56:48Z
-- **Workflow run:** [38273701716](https://github.com/tarun1sisodia/ArenaAI/actions/runs/38273701716)
+- **Commit:** [8fed5bf22d74622ed655ea88985186a6670b6912](https://github.com/tarun1sisodia/ArenaAI/commit/8fed5bf22d74622ed655ea88985186a6670b6912)
+- **Checked at:** 2026-10-13T02:02:30Z
+- **Workflow run:** [38334902216](https://github.com/tarun1sisodia/ArenaAI/actions/runs/38334902216)
 
 ## Changed files
 
-- M	backend/scripts/seed-canonical-catalog.ts
-- M	backend/scripts/seed-routes.ts
-- M	backend/src/app.ts
-- M	backend/src/modules/catalog/catalog.service.ts
-- M	backend/src/modules/reviews/reviews.repository.ts
-- A	backend/tests/unit/catalog-manifest.test.ts
-- A	dates_docs/2026-10-12/02_CHANGE_LEDGER.md
-- A	dates_docs/2026-10-12/04_PROGRESS_TRACKER.md
-- A	dates_docs/2026-10-12/PROGRESS.md
-- A	dates_docs/2026-10-12/V2_UNIFIED_REMEDIATION_MASTER_PLAN.md
-- M	docs/agent/02_CHANGE_LEDGER.md
-- M	docs/project/04_PROGRESS_TRACKER.md
-- M	docs/project/PROGRESS.md
-- M	react/public/routes-manifest.json
-- M	react/scripts/build-manifest.ts
-- M	react/src/components/home/ReviewsMarquee.tsx
-- M	react/src/components/routes/InstantRouteCalculator.tsx
-- M	react/src/pages/ContactPage.tsx
-- M	react/src/pages/HomePage.tsx
-- M	react/src/pages/RoutesPage.tsx
-- M	react/src/pages/ServicesPage.tsx
-- M	react/src/services/api.ts
-- M	react/src/services/catalogManifest.ts
 
 ## Verification command
 
@@ -40,30 +17,35 @@ npm run install:all && npm run verify
 ## Verification result
 
 ```text
+
+[90mstdout[2m | tests/unit/publication-worker.test.ts[2m > [22m[2mPublicationWorker (Section 12.17: PB-04 to PB-06)[2m > [22m[2mPB-06: Hook accepted but page not live: event remains triggered until verification passes
+[22m[39m{ eventId: [32m'ev-3'[39m, deploymentRef: [32m'cf-deploy-delayed'[39m } deploy hook accepted; publication status moved to triggered
+
+[90mstderr[2m | tests/unit/publication-worker.test.ts[2m > [22m[2mPublicationWorker (Section 12.17: PB-04 to PB-06)[2m > [22m[2mhandles missing deployHookUrl gracefully without crashing
 [22m[39m{ eventId: [32m'ev-no-hook'[39m } publication worker skipped: deploy hook not configured
 
- [32m✓[39m tests/unit/publication-worker.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 12[2mms[22m[39m
- [32m✓[39m tests/unit/contracts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
- [32m✓[39m tests/unit/clean-routes-alias.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 120[2mms[22m[39m
- [32m✓[39m tests/unit/catalog-manifest.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 167[2mms[22m[39m
- [32m✓[39m tests/unit/locationiq.service.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1609[2mms[22m[39m
+ [32m✓[39m tests/unit/publication-worker.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/unit/contracts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/clean-routes-alias.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+ [32m✓[39m tests/unit/catalog-manifest.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 114[2mms[22m[39m
+ [32m✓[39m tests/unit/locationiq.service.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1607[2mms[22m[39m
    [33m[2m✓[22m[39m LocationIQ Service Unit Tests (AA-09 to AA-11)[2m > [22mAA-10: Mocked LocationIQ returns 230,456 m and 14,730 s -> 230.5 km and 246 min [33m 803[2mms[22m[39m
    [33m[2m✓[22m[39m LocationIQ Service Unit Tests (AA-09 to AA-11)[2m > [22mAA-11: Routing failure throws ROUTING_FAILED [33m 802[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
 [2m      Tests [22m [1m[32m192 passed[39m[22m[90m (192)[39m
-[2m   Start at [22m 15:56:04
-[2m   Duration [22m 8.21s[2m (transform 939ms, setup 0ms, collect 2.13s, tests 3.93s, environment 2ms, prepare 696ms)[22m
+[2m   Start at [22m 02:01:56
+[2m   Duration [22m 6.92s[2m (transform 676ms, setup 0ms, collect 1.57s, tests 3.73s, environment 1ms, prepare 499ms)[22m
 
 
 > skb-react@0.1.0 test:catalog-sources
 > node --experimental-strip-types --test scripts/catalog-sources.test.ts
 
 ▶ catalog source resolution (P0-T03 / P0-T04)
-  ✔ does not default missing production variables to the staging API (1.46627ms)
-  ✔ derives the implemented content manifest path from the API base (0.275154ms)
-  ✔ prefers the exact ROUTE_CATALOG_MANIFEST_URL spelling over a constructed fallback (0.247452ms)
-✔ catalog source resolution (P0-T03 / P0-T04) (3.333218ms)
+  ✔ does not default missing production variables to the staging API (0.904203ms)
+  ✔ derives the implemented content manifest path from the API base (0.210968ms)
+  ✔ prefers the exact ROUTE_CATALOG_MANIFEST_URL spelling over a constructed fallback (0.163816ms)
+✔ catalog source resolution (P0-T03 / P0-T04) (2.13012ms)
 ℹ tests 3
 ℹ suites 1
 ℹ pass 3
@@ -71,7 +53,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 120.715767
+ℹ duration_ms 86.072789
 
 > sk-baghel-tour-travels@0.1.0 customer:seo
 > npm --prefix react run test:seo
@@ -119,55 +101,50 @@ in "node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cann
 [32m✓[39m 2547 modules transformed.
 rendering chunks...
 [2mdist/[22m[32mindex.html                                   [39m[1m[2m  4.42 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[35mindex-gw6HbWNe.css                    [39m[1m[2m380.79 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[35mindex-S83c8WKR.css                    [39m[1m[2m380.83 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mprices-CuO5rt3Z.js                    [39m[1m[2m  0.25 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mfleets-Bm1BgLTI.js                    [39m[1m[2m  0.45 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mrazorpay-D3zIqEa0.js                  [39m[1m[2m  0.56 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mvehicle-tiers-Bhu6VwvC.js             [39m[1m[2m  0.65 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mDynamicPackageDetailPage-OeJ2Y-YB.js  [39m[1m[2m  1.10 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mcustomerAuthApi-DS-VfGyF.js           [39m[1m[2m  3.59 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mDynamicPackageDetailPage-yHHozfYg.js  [39m[1m[2m  1.10 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mcustomerAuthApi-D0vO7W2F.js           [39m[1m[2m  3.59 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mMonumentsPage-B1x9cUg0.js             [39m[1m[2m  4.13 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mEditorialPageTemplate-8EEKnLyA.js     [39m[1m[2m  4.55 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mNotFoundPage-CNwNYIVg.js              [39m[1m[2m  5.29 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mAuthCallbackPage-CHL_t6Qf.js          [39m[1m[2m  5.31 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mLoginPage-DVuPdf15.js                 [39m[1m[2m  6.27 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mRentalPage-DyUyE6GX.js                [39m[1m[2m  6.69 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mMyBookingsPage-CLl3w3tP.js            [39m[1m[2m  7.43 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mEditorialPageTemplate-B2R3VIyD.js     [39m[1m[2m  4.55 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mNotFoundPage-DeH_Hk3p.js              [39m[1m[2m  5.29 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mAuthCallbackPage-BemxQUg9.js          [39m[1m[2m  5.31 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mLoginPage-csfcJO-w.js                 [39m[1m[2m  6.27 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mRentalPage-D-yc-9kC.js                [39m[1m[2m  6.69 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mMyBookingsPage-C6Q12YY6.js            [39m[1m[2m  7.43 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mvendor-icons--spl11uJ.js              [39m[1m[2m  8.03 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mPrivacyPage-UtbdrMCN.js               [39m[1m[2m 10.20 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPaymentResumePage-CpmgtAuk.js         [39m[1m[2m 10.33 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mSeoLandingPage-4cwLTYle.js            [39m[1m[2m 11.01 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mPaymentResumePage-BA8p34bH.js         [39m[1m[2m 10.33 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mSeoLandingPage-Cm5avH-L.js            [39m[1m[2m 11.01 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mTermsPage-Di9V5tu5.js                 [39m[1m[2m 11.44 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mFaqPage-CRQGJ-hi.js                   [39m[1m[2m 12.01 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mBookingConfirmationPage-Miryu8KX.js   [39m[1m[2m 12.02 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mMarketingPage-ByWOdwb1.js             [39m[1m[2m 14.16 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mProductDetailPage-D1zyb_Nh.js         [39m[1m[2m 14.16 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mServicesPage-DMGEGU7r.js              [39m[1m[2m 15.90 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mContactPage-7lkPQrFG.js               [39m[1m[2m 21.35 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mFaqPage-ZsQ94PN5.js                   [39m[1m[2m 12.01 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mBookingConfirmationPage-DA_xke_e.js   [39m[1m[2m 12.02 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mMarketingPage-BHCVniXR.js             [39m[1m[2m 14.16 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mProductDetailPage-TlnFsgFV.js         [39m[1m[2m 14.22 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mServicesPage-DumkU9f5.js              [39m[1m[2m 15.90 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mContactPage-DEFb1NdX.js               [39m[1m[2m 21.35 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mBookingPage-DbSjbbLd.js               [39m[1m[2m 24.70 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mRouteDetailPage-Dtkr-yDC.js           [39m[1m[2m 27.43 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mVehicleDetailPage-B_DEA6Cy.js         [39m[1m[2m 28.65 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mFleetPage-D89pLURy.js                 [39m[1m[2m 29.56 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mRouteDetailPage-QmISUBfT.js           [39m[1m[2m 27.43 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mVehicleDetailPage-BDHpvXha.js         [39m[1m[2m 28.65 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mFleetPage-CKDZZTz6.js                 [39m[1m[2m 29.91 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mPagination-DAYTBdV9.js                [39m[1m[2m 31.94 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPackageDetailPage-B6q_VSNH.js         [39m[1m[2m 32.12 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mAboutPage-B9GFBBZb.js                 [39m[1m[2m 35.57 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mRoutesPage-CeBSCPGQ.js                [39m[1m[2m 47.17 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPackagesPage-Cx3rjX_w.js              [39m[1m[2m 70.75 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mPackageDetailPage-PtnKXXRr.js         [39m[1m[2m 32.12 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mAboutPage-DZ6VvIOP.js                 [39m[1m[2m 35.57 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mRoutesPage-CTk8O-T4.js                [39m[1m[2m 47.17 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mPackagesPage-EuoENiM-.js              [39m[1m[2m 71.00 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mcleanFareApi-9Y0s2om7.js              [39m[1m[2m 97.20 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mvendor-motion-T3eR97Ln.js             [39m[1m[2m129.66 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mvendor-react-dzjnOsT9.js              [39m[1m[2m192.35 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mvendor-supabase-DaueY-7D.js           [39m[1m[2m224.50 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mindex-DvkV8Df1.js                     [39m[1m[2m241.82 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mindex-hRaKABXz.js                     [39m[1m[2m241.85 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mdata-catalogue-YjuurHFu.js            [39m[1m[2m352.50 kB[22m[1m[22m
-[32m✓ built in 4.68s[39m
+[32m✓ built in 3.90s[39m
 🚀 Starting Static HTML Pre-Renderer (SSG)...
-⚠️ SEO error [h1-count] /en/taxis/rent/: Expected exactly one H1, found 0.
-⚠️ SEO error [h1-count] /en/transfers/agc-station-transfer/: Expected exactly one H1, found 0.
-⚠️ SEO error [h1-count] /en/transfers/af-station-transfer/: Expected exactly one H1, found 0.
-⚠️ SEO error [h1-count] /en/transfers/kheria-airport-transfer/: Expected exactly one H1, found 0.
-⚠️ SEO error [h1-count] /en/transfers/delhi-igi-oneway-transfer/: Expected exactly one H1, found 0.
 ✅ Generated sitemap.xml (50 URLs with source-owned lastmod values where available, priorities & xhtml:link alternates) and robots.txt pointing to https://skbagheltravels-customer.coccoder999.workers.dev/sitemap.xml
-✅ SSG Pre-Rendering Complete: 59 pages rendered + 14 redirects written (3.50 MB total) in 2.87s.
+✅ SSG Pre-Rendering Complete: 59 pages rendered + 14 redirects written (3.58 MB total) in 2.09s.
 
 > sk-baghel-tour-travels@0.1.0 admin:build
 > npm --prefix admin run build
@@ -178,40 +155,40 @@ rendering chunks...
 
 [36mvite v7.3.6 [32mbuilding client environment for production...[36m[39m
 transforming...
-[32m✓[39m 2406 modules transformed.
+[32m✓[39m 2407 modules transformed.
 rendering chunks...
 computing gzip size...
 [2mdist/[22m[32mindex.html                                    [39m[1m[2m  1.63 kB[22m[1m[22m[2m │ gzip:  0.63 kB[22m
-[2mdist/[22m[2massets/[22m[35mindex-B2w4Cm6H.css                     [39m[1m[2m 56.17 kB[22m[1m[22m[2m │ gzip: 10.53 kB[22m
-[2mdist/[22m[2massets/[22m[36mTable-KFtX_8XN.js                      [39m[1m[2m  0.87 kB[22m[1m[22m[2m │ gzip:  0.37 kB[22m
-[2mdist/[22m[2massets/[22m[36mStatusBadge-AimITl9x.js                [39m[1m[2m  1.32 kB[22m[1m[22m[2m │ gzip:  0.54 kB[22m
-[2mdist/[22m[2massets/[22m[36mDialog-ZBd2uju6.js                     [39m[1m[2m  1.92 kB[22m[1m[22m[2m │ gzip:  0.94 kB[22m
-[2mdist/[22m[2massets/[22m[36mFleetPricingGrid-wj-MmpRz.js           [39m[1m[2m  2.30 kB[22m[1m[22m[2m │ gzip:  1.00 kB[22m
-[2mdist/[22m[2massets/[22m[36mcleanAdminApi-Dk-5p8ut.js              [39m[1m[2m  2.35 kB[22m[1m[22m[2m │ gzip:  0.60 kB[22m
-[2mdist/[22m[2massets/[22m[36mLocationAutocompleteInput-cTkK-xCf.js  [39m[1m[2m  2.65 kB[22m[1m[22m[2m │ gzip:  1.16 kB[22m
-[2mdist/[22m[2massets/[22m[36mRentalRequestsPage-Du2QuHGD.js         [39m[1m[2m  6.14 kB[22m[1m[22m[2m │ gzip:  2.21 kB[22m
-[2mdist/[22m[2massets/[22m[36mReviewsPage-nEjyh4G1.js                [39m[1m[2m  6.19 kB[22m[1m[22m[2m │ gzip:  2.34 kB[22m
-[2mdist/[22m[2massets/[22m[36mSignoffPage-Dc95jwd_.js                [39m[1m[2m  6.47 kB[22m[1m[22m[2m │ gzip:  2.43 kB[22m
-[2mdist/[22m[2massets/[22m[36mPublishingPage-GNlqNTXN.js             [39m[1m[2m  6.57 kB[22m[1m[22m[2m │ gzip:  2.07 kB[22m
-[2mdist/[22m[2massets/[22m[36mAuditPage-7DuhuW1F.js                  [39m[1m[2m  7.00 kB[22m[1m[22m[2m │ gzip:  2.40 kB[22m
-[2mdist/[22m[2massets/[22m[36mInquiriesPage-CLyV_1j-.js              [39m[1m[2m  7.14 kB[22m[1m[22m[2m │ gzip:  2.59 kB[22m
-[2mdist/[22m[2massets/[22m[36mRoundTripRatesPage-CYCv92lE.js         [39m[1m[2m  8.76 kB[22m[1m[22m[2m │ gzip:  2.99 kB[22m
-[2mdist/[22m[2massets/[22m[36mFareSettingsPage-Cd8UWhc5.js           [39m[1m[2m  8.98 kB[22m[1m[22m[2m │ gzip:  2.98 kB[22m
-[2mdist/[22m[2massets/[22m[36mFinancePage-CP1GfUAu.js                [39m[1m[2m  9.75 kB[22m[1m[22m[2m │ gzip:  3.55 kB[22m
-[2mdist/[22m[2massets/[22m[36mExtraChargesPage-DkTZivqx.js           [39m[1m[2m 13.91 kB[22m[1m[22m[2m │ gzip:  3.69 kB[22m
-[2mdist/[22m[2massets/[22m[36mVehiclesPage-CTXfBF5T.js               [39m[1m[2m 14.40 kB[22m[1m[22m[2m │ gzip:  3.68 kB[22m
-[2mdist/[22m[2massets/[22m[36mRoutesPage-Bi-z6_6J.js                 [39m[1m[2m 16.20 kB[22m[1m[22m[2m │ gzip:  4.80 kB[22m
-[2mdist/[22m[2massets/[22m[36mLocalTransfersPage-6UUruYWe.js         [39m[1m[2m 18.29 kB[22m[1m[22m[2m │ gzip:  4.65 kB[22m
-[2mdist/[22m[2massets/[22m[36mPoliciesPage-CSsZuqJG.js               [39m[1m[2m 19.02 kB[22m[1m[22m[2m │ gzip:  4.44 kB[22m
-[2mdist/[22m[2massets/[22m[36mBookingsPage-CbuTN9xk.js               [39m[1m[2m 20.99 kB[22m[1m[22m[2m │ gzip:  6.28 kB[22m
+[2mdist/[22m[2massets/[22m[35mindex-B_9-iav2.css                     [39m[1m[2m 56.55 kB[22m[1m[22m[2m │ gzip: 10.57 kB[22m
+[2mdist/[22m[2massets/[22m[36mTable-Z08m7GKh.js                      [39m[1m[2m  0.87 kB[22m[1m[22m[2m │ gzip:  0.37 kB[22m
+[2mdist/[22m[2massets/[22m[36mStatusBadge-Co8I4bgZ.js                [39m[1m[2m  1.32 kB[22m[1m[22m[2m │ gzip:  0.54 kB[22m
+[2mdist/[22m[2massets/[22m[36mDialog-BeEzZN2r.js                     [39m[1m[2m  1.92 kB[22m[1m[22m[2m │ gzip:  0.94 kB[22m
+[2mdist/[22m[2massets/[22m[36mcleanAdminApi-J1vaf8hT.js              [39m[1m[2m  2.35 kB[22m[1m[22m[2m │ gzip:  0.60 kB[22m
+[2mdist/[22m[2massets/[22m[36mLocationAutocompleteInput-D4CFb7OC.js  [39m[1m[2m  2.65 kB[22m[1m[22m[2m │ gzip:  1.16 kB[22m
+[2mdist/[22m[2massets/[22m[36mCanonicalFleetPricingGrid-DybWpm_m.js  [39m[1m[2m  5.42 kB[22m[1m[22m[2m │ gzip:  2.00 kB[22m
+[2mdist/[22m[2massets/[22m[36mRentalRequestsPage-Cgwapz82.js         [39m[1m[2m  6.14 kB[22m[1m[22m[2m │ gzip:  2.21 kB[22m
+[2mdist/[22m[2massets/[22m[36mReviewsPage-DHY-PTYD.js                [39m[1m[2m  6.19 kB[22m[1m[22m[2m │ gzip:  2.34 kB[22m
+[2mdist/[22m[2massets/[22m[36mSignoffPage-kllJYrR8.js                [39m[1m[2m  6.47 kB[22m[1m[22m[2m │ gzip:  2.43 kB[22m
+[2mdist/[22m[2massets/[22m[36mPublishingPage-DknWGBtH.js             [39m[1m[2m  6.57 kB[22m[1m[22m[2m │ gzip:  2.07 kB[22m
+[2mdist/[22m[2massets/[22m[36mAuditPage-DdDuyLu2.js                  [39m[1m[2m  7.00 kB[22m[1m[22m[2m │ gzip:  2.40 kB[22m
+[2mdist/[22m[2massets/[22m[36mInquiriesPage-CPh3XxKq.js              [39m[1m[2m  7.14 kB[22m[1m[22m[2m │ gzip:  2.59 kB[22m
+[2mdist/[22m[2massets/[22m[36mRoundTripRatesPage-DqW7Xaw5.js         [39m[1m[2m  8.76 kB[22m[1m[22m[2m │ gzip:  2.99 kB[22m
+[2mdist/[22m[2massets/[22m[36mFareSettingsPage-DT6ix06V.js           [39m[1m[2m  8.98 kB[22m[1m[22m[2m │ gzip:  2.98 kB[22m
+[2mdist/[22m[2massets/[22m[36mFinancePage-D6cyJH_j.js                [39m[1m[2m  9.75 kB[22m[1m[22m[2m │ gzip:  3.55 kB[22m
+[2mdist/[22m[2massets/[22m[36mExtraChargesPage-66mXUV4H.js           [39m[1m[2m 13.91 kB[22m[1m[22m[2m │ gzip:  3.69 kB[22m
+[2mdist/[22m[2massets/[22m[36mVehiclesPage-CWEwkCdS.js               [39m[1m[2m 14.40 kB[22m[1m[22m[2m │ gzip:  3.68 kB[22m
+[2mdist/[22m[2massets/[22m[36mRoutesPage-B7hibrEZ.js                 [39m[1m[2m 16.20 kB[22m[1m[22m[2m │ gzip:  4.80 kB[22m
+[2mdist/[22m[2massets/[22m[36mLocalTransfersPage-BQWmO9GP.js         [39m[1m[2m 18.22 kB[22m[1m[22m[2m │ gzip:  4.63 kB[22m
+[2mdist/[22m[2massets/[22m[36mPoliciesPage-Dugl7WDt.js               [39m[1m[2m 19.02 kB[22m[1m[22m[2m │ gzip:  4.44 kB[22m
+[2mdist/[22m[2massets/[22m[36mBookingsPage-DddBoWOA.js               [39m[1m[2m 20.99 kB[22m[1m[22m[2m │ gzip:  6.29 kB[22m
+[2mdist/[22m[2massets/[22m[36mTourPackagesPage-BFEfuy38.js           [39m[1m[2m 24.28 kB[22m[1m[22m[2m │ gzip:  7.45 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-lucide-DOygubfB.js              [39m[1m[2m 24.44 kB[22m[1m[22m[2m │ gzip:  8.53 kB[22m
-[2mdist/[22m[2massets/[22m[36mTourPackagesPage-DmHK_FsI.js           [39m[1m[2m 24.52 kB[22m[1m[22m[2m │ gzip:  7.48 kB[22m
-[2mdist/[22m[2massets/[22m[36mCatalogPage-DpEu0pGC.js                [39m[1m[2m 28.57 kB[22m[1m[22m[2m │ gzip:  8.36 kB[22m
+[2mdist/[22m[2massets/[22m[36mCatalogPage-Cv553BlC.js                [39m[1m[2m 28.57 kB[22m[1m[22m[2m │ gzip:  8.36 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-router-BvnVwLd0.js              [39m[1m[2m 38.19 kB[22m[1m[22m[2m │ gzip: 13.75 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-motion-ETqTANL-.js              [39m[1m[2m133.36 kB[22m[1m[22m[2m │ gzip: 44.17 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-react-YWPnaJPF.js               [39m[1m[2m221.70 kB[22m[1m[22m[2m │ gzip: 68.96 kB[22m
-[2mdist/[22m[2massets/[22m[36mindex-D1zkiH8s.js                      [39m[1m[2m324.25 kB[22m[1m[22m[2m │ gzip: 88.97 kB[22m
-[32m✓ built in 4.26s[39m
+[2mdist/[22m[2massets/[22m[36mindex-C0KjoPXe.js                      [39m[1m[2m324.27 kB[22m[1m[22m[2m │ gzip: 88.97 kB[22m
+[32m✓ built in 3.14s[39m
 
 > sk-baghel-tour-travels@0.1.0 backend:build
 > npm --prefix backend run build
