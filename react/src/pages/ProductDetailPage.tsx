@@ -70,6 +70,7 @@ export function ProductDetailPage({ category, code }: ProductDetailPageProps) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center bg-bg">
         <div className="text-center">
+          <h1 className="sr-only">{CATEGORY_TITLES[category] || "Cab Service"}</h1>
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
           <p className="mt-3 font-mono text-xs uppercase tracking-widest text-ink-soft">
             Loading service specification…

@@ -104,6 +104,40 @@
   - Added test suite with 5 test cases covering PB-04 (pending -> processing -> triggered -> succeeded), PB-05 (backoff retry and failure limit), PB-06 (verification pending), admin retry, and missing hook handling.
   - Monorepo verification: All 184 backend tests passing, `npm run typecheck` across `react/`, `admin/`, and `backend/` green.
 
+### 2026-10-13 — Canonical Catalog & Fleet Migration, Admin Pricing Integration, and Booking Flow Completion
+
+- **Admin Canonical Fleet & Pricing Normalization (`admin/`)**:
+  - `admin/src/modules/local-packages/local-packages.types.ts`: Purged hardcoded `fleetPrices` defaults (`sedan: 1900`, `ertiga: 2600`, etc.) and hardcoded extraRates in `EMPTY_LOCAL_PACKAGE`.
+  - `admin/src/modules/transfer-routes/transfer-routes.types.ts`: Purged hardcoded `fleetPrices` defaults in `EMPTY_TRANSFER_ROUTE`.
+  - `admin/src/modules/tour-packages/TourPackageFormDialog.tsx`: Reset `startingPriceInr` dynamically to minimum configured fare or 0 when unconfigured, replaced placeholder `3499` with `0`.
+  - `admin/src/pages/LocalTransfersPage.tsx`: Standardized clean cloning of live `fleetPrices` avoiding synthetic fallback maps.
+  - `admin/src/modules/fleets/CanonicalFleetPricingGrid.tsx`: Fixed Badge tone prop.
+- **Backend Clean Seeding (`backend/`)**:
+  - `backend/scripts/seed-canonical-catalog.ts`: Removed unsafe positional index fallbacks (`?? vehicleModels[0]?.id`) ensuring stable canonical model lookups without unexpected overrides.
+  - Verified backend fare engine (`product.resolver.ts`, `tour-package.calculator.ts`): Replaced silent `PACKAGE_UPGRADES` auto-offsets with strict fail-closed validation (`TIER_NOT_PRICED` error) when fixed product tiers are unconfigured.
+- **Customer Frontend Dynamic Catalog & Freshness Policy (`react/`)**:
+  - `react/src/services/catalogManifest.ts`: Implemented 10-minute cache TTL with `invalidateCatalogManifestCache()`, purged `3499` default in `toTourPackage`, added live `loadPublishedPackages` loader.
+  - `react/src/services/catalog.ts`: Updated `getJson` to support unnested API responses; removed `3499` fallback in `fetchCatalogItemBySlug`.
+  - `react/src/pages/HomePage.tsx`: Purged fabricated route fallbacks (`item.fs || 3499` and static 4-route fallback array), added skeleton loader and empty state; rebuilt "Choose your vehicle" dynamically from `liveFleet`; rebuilt "Guided Tours" carousel from `loadPublishedPackages()`.
+  - `react/src/components/home/FleetSection.tsx`: Rebuilt to consume `fetchLiveFleet()` with zero hardcoded rates.
+  - `react/src/pages/FleetPage.tsx`: Integrated live local sightseeing fares (`fetchPublishedLocalTransfers()`) and live fleet per-km rates with zero hardcoded overrides.
+  - `react/src/pages/TransferDetailPage.tsx`: Removed synthetic vehicle fare multipliers (`* 1.2`, `* 1.5`, etc.); now renders configured fares or honest "On request".
+  - `react/src/pages/PackagesPage.tsx`: Removed static `PACKAGE_METADATA.vehiclePrices` overrides, driving all package vehicle fares strictly from `pkg.fleetPrices`.
+  - `react/src/templates/sections/LatestPackagesSection.tsx`: Replaced `3499` fallback with honest live pricing or "On request".
+  - `react/src/pages/ProductDetailPage.tsx`: Added accessible sr-only `h1` in loading container for 100% SSG single-H1 compliance.
+  - `react/src/app/ServerApp.tsx`: Purged fallback pricing (`3499`, `800`, `1900`) from SEO titles/descriptions, and corrected route priority so rich dossier renderers execute before generic slug match.
+- **Verification Across Monorepo**:
+  - Ran `npm run verify` across the monorepo:
+    * `skb-react@0.1.0 typecheck`: PASSED (0 errors)
+    * `skb-admin@0.1.0 typecheck`: PASSED (0 errors)
+    * `@sk-baghel/backend@0.1.0 typecheck`: PASSED (0 errors)
+    * Vitest backend unit test suite: 12 test files passed, 192 tests passed (100% green)
+    * Catalog source resolution tests: 3 passed
+    * SEO lifecycle test: PASSED
+    * Customer production build + SSG pre-renderer: 59 pages pre-rendered, sitemap.xml (50 URLs) + robots.txt emitted cleanly in 8.83s
+    * Admin production build: PASSED (Vite chunking clean)
+    * Backend production build: PASSED (tsc build clean)
+
 ### 2026-10-12 — Customer Site Legacy Scan Audit & Approved Remediation Blueprint
 
 

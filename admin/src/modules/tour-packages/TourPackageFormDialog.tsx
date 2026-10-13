@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Input, Label, NumberInput } from "@/components/ui/Input";
 import { LocationAutocompleteInput } from "@/components/admin/LocationAutocompleteInput";
-import { FleetPricingGrid } from "@/modules/fleets";
+import { CanonicalFleetPricingGrid } from "@/modules/fleets";
 import { TourPackageGalleryUploader } from "./TourPackageGalleryUploader";
 import { INCLUSION_PRESETS, EXCLUSION_PRESETS } from "./tour-packages.constants";
 import type { TourPackageFormState, TourPackageItem } from "./tour-packages.types";
-import type { VehicleTier } from "@/contracts/vehicle-tiers";
 
 interface TourPackageFormDialogProps {
   open: boolean;
@@ -56,12 +55,22 @@ export function TourPackageFormDialog({
     setForm((prev) => ({ ...prev, packageCode: autoSlug }));
   }
 
-  function setFleetPrice(tier: VehicleTier, value: number) {
-    setForm((prev) => ({
-      ...prev,
-      fleetPrices: { ...prev.fleetPrices, [tier]: value },
-      startingPriceInr: tier === prev.baseTierCode ? value : prev.startingPriceInr,
-    }));
+  function setFleetPrice(modelKeyOrId: string, value: number | undefined) {
+    setForm((prev) => {
+      const updated = { ...prev.fleetPrices };
+      if (value !== undefined && value > 0) {
+        updated[modelKeyOrId] = value;
+      } else {
+        delete updated[modelKeyOrId];
+      }
+      const validPrices = Object.values(updated).filter((p): p is number => typeof p === "number" && p > 0);
+      const startingPriceInr = validPrices.length > 0 ? Math.min(...validPrices) : 0;
+      return {
+        ...prev,
+        fleetPrices: updated,
+        startingPriceInr,
+      };
+    });
   }
 
   function addInclusion(text: string) {
@@ -101,7 +110,7 @@ export function TourPackageFormDialog({
       open={open}
       onClose={onClose}
       title={editing ? `Edit: ${editing.name}` : "New Tour Package"}
-      description="Configure fixed commercial fares across the 5 canonical vehicle tiers, durations, and inclusions."
+      description="Configure fixed commercial fares across active canonical vehicle models, durations, and inclusions."
     >
       <div className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
         <div className="grid gap-3 sm:grid-cols-2">
@@ -161,12 +170,12 @@ export function TourPackageFormDialog({
           </div>
         </div>
 
-        {/* 5-tier canonical fleet pricing editor */}
-        <FleetPricingGrid
+        {/* Canonical fleet pricing editor */}
+        <CanonicalFleetPricingGrid
           prices={form.fleetPrices}
           onChange={setFleetPrice}
-          title="5 Canonical Fleet Fares (₹ INR)"
-          description="Fixed commercial package prices across the 5 standard bookable vehicle classes."
+          title="Canonical Fleet Fares (₹ INR)"
+          description="Fixed commercial package prices across configured vehicle models. Unconfigured models will not be bookable."
         />
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -183,7 +192,7 @@ export function TourPackageFormDialog({
             <NumberInput
               value={form.startingPriceInr}
               onChange={(v) => setForm((p) => ({ ...p, startingPriceInr: v }))}
-              placeholder="3499"
+              placeholder="0"
             />
           </div>
         </div>

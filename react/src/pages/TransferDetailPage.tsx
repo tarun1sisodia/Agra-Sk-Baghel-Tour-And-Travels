@@ -116,11 +116,21 @@ export function TransferDetailPage({ item }: TransferDetailPageProps) {
     name: `${item.name} Taxi Service`,
     description: item.directionNote || `Point-to-point transfer: ${item.name}. Distance: ${item.distanceText || "Direct"}. AC cab with verified chauffeur.`,
     offers: [
-      { name: "Sedan", price: item.fleetPrices?.sedan ?? startingFare },
-      { name: "Ertiga", price: item.fleetPrices?.ertiga ?? Math.round(startingFare * 1.2) },
-      { name: "Innova Crysta", price: item.fleetPrices?.innova ?? Math.round(startingFare * 1.5) },
-      { name: "Tempo Traveller", price: item.fleetPrices?.tempo ?? Math.round(startingFare * 2.5) },
-      { name: "Force Urbania", price: item.fleetPrices?.urbania ?? Math.round(startingFare * 3.5) },
+      ...(item.fleetPrices?.sedan || startingFare > 0
+        ? [{ name: "Sedan", price: item.fleetPrices?.sedan ?? startingFare }]
+        : []),
+      ...(item.fleetPrices?.ertiga
+        ? [{ name: "Ertiga", price: item.fleetPrices.ertiga }]
+        : []),
+      ...(item.fleetPrices?.innova
+        ? [{ name: "Innova Crysta", price: item.fleetPrices.innova }]
+        : []),
+      ...(item.fleetPrices?.tempo
+        ? [{ name: "Tempo Traveller", price: item.fleetPrices.tempo }]
+        : []),
+      ...(item.fleetPrices?.urbania
+        ? [{ name: "Force Urbania", price: item.fleetPrices.urbania }]
+        : []),
     ],
   });
 
@@ -268,8 +278,12 @@ export function TransferDetailPage({ item }: TransferDetailPageProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-md">
             {FLEET_SPECIFICATIONS.map((fleet) => {
               const resolved = resolveTierKey(item.fleetPrices, fleet.id);
-              const tierPrice = Number(resolved.value ?? (fleet.id === "sedan" ? startingFare : fleet.id === "ertiga" ? Math.round(startingFare * 1.3) : fleet.id === "innova-crysta" ? Math.round(startingFare * 1.6) : fleet.id === "tempo-traveller" ? Math.round(startingFare * 2.5) : Math.round(startingFare * 3.5)));
-              const tierToken = Math.round(tierPrice * 0.28);
+              const tierPrice = resolved.value && Number(resolved.value) > 0
+                ? Number(resolved.value)
+                : fleet.id === "sedan" && startingFare > 0
+                ? startingFare
+                : null;
+              const tierToken = tierPrice ? Math.round(tierPrice * 0.28) : null;
               const tierBookingUrl = `/book.html?from=Agra&to=${encodeURIComponent(item.name)}&vehicle=${fleet.id}`;
 
               return (
@@ -300,12 +314,25 @@ export function TransferDetailPage({ item }: TransferDetailPageProps) {
 
                     <div className="flex flex-col pt-2">
                       <span className="text-label-md font-label-caps text-secondary uppercase font-semibold">Fixed Transfer Fare</span>
-                      <span className="font-headline-md text-headline-md text-terracotta-sandstone font-serif font-bold">
-                        ₹{tierPrice.toLocaleString("en-IN")}
-                      </span>
-                      <span className="text-label-md text-secondary">
-                        ₹{tierToken.toLocaleString("en-IN")} token to lock
-                      </span>
+                      {tierPrice !== null ? (
+                        <>
+                          <span className="font-headline-md text-headline-md text-terracotta-sandstone font-serif font-bold">
+                            ₹{tierPrice.toLocaleString("en-IN")}
+                          </span>
+                          <span className="text-label-md text-secondary">
+                            ₹{tierToken!.toLocaleString("en-IN")} token to lock
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="font-headline-md text-headline-md text-secondary font-serif font-bold">
+                            On request
+                          </span>
+                          <span className="text-label-md text-secondary">
+                            Contact for customized quote
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
 

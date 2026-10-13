@@ -2,9 +2,8 @@ import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Input, Label, NumberInput } from "@/components/ui/Input";
 import { LocationAutocompleteInput } from "@/components/admin/LocationAutocompleteInput";
-import { FleetPricingGrid } from "@/modules/fleets";
+import { CanonicalFleetPricingGrid } from "@/modules/fleets";
 import type { TransferRouteFormState, TransferRouteItem } from "./transfer-routes.types";
-import type { VehicleTier } from "@/contracts/vehicle-tiers";
 
 interface TransferRouteFormDialogProps {
   open: boolean;
@@ -49,11 +48,19 @@ export function TransferRouteFormDialog({
     setForm((prev) => ({ ...prev, routeCode: autoSlug }));
   }
 
-  function setFleetPrice(tier: VehicleTier, val: number) {
-    setForm((p) => ({
-      ...p,
-      fleetPrices: { ...p.fleetPrices, [tier]: val },
-    }));
+  function setFleetPrice(modelKeyOrId: string, val: number | undefined) {
+    setForm((p) => {
+      const updated = { ...p.fleetPrices };
+      if (val !== undefined && val > 0) {
+        updated[modelKeyOrId] = val;
+      } else {
+        delete updated[modelKeyOrId];
+      }
+      return {
+        ...p,
+        fleetPrices: updated,
+      };
+    });
   }
 
   return (
@@ -61,7 +68,7 @@ export function TransferRouteFormDialog({
       open={open}
       onClose={onClose}
       title={editing ? `Edit: ${editing.name}` : "New Airport / Station Transfer"}
-      description="Configure point-to-point station or airport transfers with fixed fares across the 5 canonical fleet tiers."
+      description="Configure point-to-point station or airport transfers with fixed fares across canonical vehicle models."
     >
       <div className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
         <div className="grid gap-3 sm:grid-cols-2">
@@ -120,12 +127,12 @@ export function TransferRouteFormDialog({
           />
         </div>
 
-        {/* 5-tier canonical fleet pricing */}
-        <FleetPricingGrid
+        {/* Canonical fleet pricing */}
+        <CanonicalFleetPricingGrid
           prices={form.fleetPrices}
           onChange={setFleetPrice}
-          title="Fixed Transfer Fares across 5 Canonical Fleets (₹ INR)"
-          description="Fixed doorstep pickup / drop fares including all driver charges and local tolls."
+          title="Fixed Transfer Fares across Canonical Fleet (₹ INR)"
+          description="Fixed doorstep pickup / drop fares including all driver charges and local tolls. Unconfigured models remain unavailable."
         />
 
         <div className="flex justify-end gap-2 pt-2 border-t border-hairline">

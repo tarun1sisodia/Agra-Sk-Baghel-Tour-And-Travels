@@ -40,10 +40,23 @@ const CACHE_STORAGE_KEY = "arena_catalog_manifest_v3";
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes bounded TTL
 
 let inMemoryManifest: CatalogManifestData | null = null;
+let inMemoryManifestCachedAt = 0;
 let fetchPromise: Promise<CatalogManifestData | null> | null = null;
 
+export function invalidateCatalogManifestCache(): void {
+  inMemoryManifest = null;
+  inMemoryManifestCachedAt = 0;
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.removeItem(CACHE_STORAGE_KEY);
+    } catch {}
+  }
+}
+
 export async function fetchCatalogManifest(): Promise<CatalogManifestData | null> {
-  if (inMemoryManifest) return inMemoryManifest;
+  if (inMemoryManifest && Date.now() - inMemoryManifestCachedAt < CACHE_TTL_MS) {
+    return inMemoryManifest;
+  }
   if (fetchPromise) return fetchPromise;
 
   fetchPromise = (async () => {
@@ -85,6 +98,7 @@ export async function fetchCatalogManifest(): Promise<CatalogManifestData | null
       // Handle 304 Not Modified
       if (res.status === 304 && localEnvelope?.data) {
         inMemoryManifest = { ...localEnvelope.data, isStale: false };
+        inMemoryManifestCachedAt = Date.now();
         try {
           window.localStorage.setItem(
             CACHE_STORAGE_KEY,
@@ -102,6 +116,7 @@ export async function fetchCatalogManifest(): Promise<CatalogManifestData | null
           data.etag = etag;
           data.isStale = false;
           inMemoryManifest = data;
+          inMemoryManifestCachedAt = Date.now();
           if (typeof window !== "undefined") {
             try {
               window.localStorage.setItem(
@@ -126,6 +141,7 @@ export async function fetchCatalogManifest(): Promise<CatalogManifestData | null
         ...localEnvelope.data,
         isStale,
       };
+      inMemoryManifestCachedAt = localEnvelope.cachedAt || Date.now();
       return inMemoryManifest;
     }
 
@@ -206,11 +222,14 @@ export function toTourPackage(item: any): TourPackage {
     }
   }
 
+  const priceValues = Object.values(fleetPrices).filter((v) => typeof v === "number" && v > 0);
+  const minFleetPrice = priceValues.length > 0 ? Math.min(...priceValues) : 0;
   const startingPrice = Number(
     item.startingPriceInr ||
-    fleetPrices.sedan ||
+    item.starting_price_inr ||
+    minFleetPrice ||
     item.from ||
-    3499
+    0
   );
   const slug = String(item.slug ?? item.packageCode ?? item.package_code ?? item.id);
   const inclusions = Array.isArray(item.inclusions) && item.inclusions.length > 0

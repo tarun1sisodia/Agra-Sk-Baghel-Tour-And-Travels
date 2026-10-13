@@ -107,11 +107,11 @@ async function getJson<T>(path: string): Promise<T> {
     if (!res.ok) {
       throw new Error(`Catalog request failed (${res.status})`);
     }
-    const json = (await res.json().catch(() => ({}))) as { data?: T };
-    if (!json || !("data" in json)) {
+    const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    if (!json || typeof json !== "object") {
       throw new Error("Catalog response was malformed.");
     }
-    const result = json.data as T;
+    const result = ("data" in json ? json.data : json) as T;
     catalogCache.set(path, { data: result, timestamp: Date.now() });
     if (typeof window !== "undefined") {
       try {
@@ -195,7 +195,10 @@ export async function fetchCatalogItemBySlug(slug: string): Promise<PublicCatalo
     // Fallback to dedicated tour-packages endpoint
     const res = await getJson<Record<string, unknown>>(`/api/v1/tour-packages/by-code/${encodeURIComponent(slug)}`);
     if (res && res.name) {
-      const startingPrice = Number(res.startingPriceInr || (res.fleetPrices as any)?.sedan || 3499);
+      const fp = res.fleetPrices as Record<string, number> | undefined;
+      const fpValues = fp ? Object.values(fp).filter((v) => typeof v === "number" && v > 0) : [];
+      const minPrice = fpValues.length > 0 ? Math.min(...fpValues) : 0;
+      const startingPrice = Number(res.startingPriceInr || res.starting_price_inr || minPrice || 0);
       return {
         id: String(res.id ?? slug),
         type: "package",

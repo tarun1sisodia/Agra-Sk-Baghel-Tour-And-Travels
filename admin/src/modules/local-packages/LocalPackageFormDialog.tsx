@@ -2,9 +2,8 @@ import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Input, Label, NumberInput } from "@/components/ui/Input";
 import { LocationAutocompleteInput } from "@/components/admin/LocationAutocompleteInput";
-import { FleetPricingGrid, FLEET_KEYS, CANONICAL_FLEET_SPECS } from "@/modules/fleets";
+import { CanonicalFleetPricingGrid, FLEET_KEYS, CANONICAL_FLEET_SPECS } from "@/modules/fleets";
 import type { LocalPackageFormState, LocalPackageItem } from "./local-packages.types";
-import type { VehicleTier } from "@/contracts/vehicle-tiers";
 
 interface LocalPackageFormDialogProps {
   open: boolean;
@@ -49,11 +48,19 @@ export function LocalPackageFormDialog({
     setForm((prev) => ({ ...prev, packageCode: autoSlug }));
   }
 
-  function setFleetPrice(tier: VehicleTier, val: number) {
-    setForm((p) => ({
-      ...p,
-      fleetPrices: { ...p.fleetPrices, [tier]: val },
-    }));
+  function setFleetPrice(modelKeyOrId: string, val: number | undefined) {
+    setForm((p) => {
+      const updated = { ...p.fleetPrices };
+      if (val !== undefined && val > 0) {
+        updated[modelKeyOrId] = val;
+      } else {
+        delete updated[modelKeyOrId];
+      }
+      return {
+        ...p,
+        fleetPrices: updated,
+      };
+    });
   }
 
   function setExtraRate(tier: string, field: "per_km" | "per_hr", val: number) {
@@ -142,12 +149,12 @@ export function LocalPackageFormDialog({
           />
         </div>
 
-        {/* 5-tier canonical fleet pricing */}
-        <FleetPricingGrid
+        {/* Canonical fleet pricing */}
+        <CanonicalFleetPricingGrid
           prices={form.fleetPrices}
           onChange={setFleetPrice}
-          title="Base Package Fares across 5 Canonical Fleets (₹ INR)"
-          description="Fixed package fare covering the specified hours and kilometers."
+          title="Base Package Fares across Canonical Fleet (₹ INR)"
+          description="Fixed package fare covering the specified hours and kilometers. Unconfigured models will not be bookable."
         />
 
         {/* Extra km and extra hr rate inputs */}

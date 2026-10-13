@@ -3,6 +3,7 @@ import type { SupportedLanguage } from "../config";
 import { contact } from "../data/contact";
 import { WhatsAppIcon } from "../components/icons";
 import { fetchLiveFleet, type PublicFleetVehicle } from "../services/catalog";
+import { fetchPublishedLocalTransfers } from "../services/catalogManifest";
 
 export interface FleetPageProps {
   language?: SupportedLanguage;
@@ -217,6 +218,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
   // Live fleet from the admin "Fleet & Fare Rules" editor — names, seats,
   // per-km rates and availability flow through automatically.
   const [liveFleet, setLiveFleet] = useState<PublicFleetVehicle[]>([]);
+  const [localPrices, setLocalPrices] = useState<Record<string, number>>({});
 
   useEffect(() => {
     let isMounted = true;
@@ -227,6 +229,23 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
       .catch(() => {
         /* static fleet remains the fallback */
       });
+
+    fetchPublishedLocalTransfers()
+      .then((pkgs) => {
+        if (!isMounted || !Array.isArray(pkgs)) return;
+        const p8 = pkgs.find(
+          (p: any) =>
+            p?.code?.includes("8hr") ||
+            p?.packageCode?.includes("8hr") ||
+            p?.durationHours === 8 ||
+            p?.duration_hours === 8
+        );
+        if (p8?.fleetPrices) {
+          setLocalPrices(p8.fleetPrices);
+        }
+      })
+      .catch(() => {});
+
     return () => {
       isMounted = false;
     };
@@ -237,12 +256,14 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
     return FLEET_DATA.map((veh) => {
       const live = liveFleet.find((v) => TIER_TO_ID[v.tier] === veh.id || TIER_TO_ID[v.id] === veh.id);
       if (!live) return veh;
+      const liveLocal = localPrices[veh.id] || (live.tier ? localPrices[live.tier] : undefined);
       return {
         ...veh,
         name: live.name || veh.name,
         rates: {
           ...veh.rates,
           outstationPerKm: live.perKm > 0 ? live.perKm : veh.rates.outstationPerKm,
+          local8h80km: typeof liveLocal === "number" && liveLocal > 0 ? liveLocal : veh.rates.local8h80km,
         },
         specs: {
           ...veh.specs,
@@ -252,7 +273,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
         highlightBadge: live.active ? veh.highlightBadge : "ON REQUEST • DESK CONFIRMATION",
       };
     });
-  }, [liveFleet]);
+  }, [liveFleet, localPrices]);
 
   const filteredVehicles = useMemo(() => {
     if (activeCategory === "all") return fleet;

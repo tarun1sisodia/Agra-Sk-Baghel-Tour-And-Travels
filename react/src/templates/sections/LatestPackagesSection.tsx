@@ -83,8 +83,10 @@ export function LatestPackagesSection({
             const highlight = p.inclusionsHighlight || p.inclusions_highlight || "Private sanitized AC cab, dedicated chauffeur, and curated sightseeing.";
             const fleetPrices = p.fleetPrices || p.fleet_prices || {};
             const sedanResolved = resolveTierKey(fleetPrices, "sedan");
-            const startingFare = Number(p.startingPriceInr || p.starting_price_inr || sedanResolved.value || 3499);
-            const token = Math.round(startingFare * 0.28);
+            const fpValues = Object.values(fleetPrices).filter((v) => typeof v === "number" && v > 0) as number[];
+            const minFleetPrice = fpValues.length > 0 ? Math.min(...fpValues) : 0;
+            const startingFare = Number(p.startingPriceInr || p.starting_price_inr || sedanResolved.value || minFleetPrice || 0);
+            const token = startingFare > 0 ? Math.round(startingFare * 0.28) : 0;
             const packageUrl = `/packages/${p.slug}/`;
             const bookUrl = `/book.html?trip=package&package=${encodeURIComponent(p.slug)}&step=1`;
             const rawImg = p.gallery?.[0]?.url || p.image || "/assets/packages/taj-dawn.webp";
@@ -128,15 +130,25 @@ export function LatestPackagesSection({
 
                     <div className="flex flex-col pt-2 border-t border-border-warm/30">
                       <span className="text-xs uppercase text-secondary font-semibold">Starting Tour Fare</span>
-                      <div className="flex items-baseline gap-1 mt-0.5">
-                        <span className="font-headline-md text-headline-sm text-terracotta-sandstone font-serif font-bold">
-                          ₹{startingFare.toLocaleString("en-IN")}
-                        </span>
-                        <span className="text-xs text-on-surface-variant">All-Inclusive</span>
-                      </div>
-                      <span className="text-xs text-secondary">
-                        Lock with only ₹{token.toLocaleString("en-IN")} (28% advance deposit)
-                      </span>
+                      {startingFare > 0 ? (
+                        <>
+                          <div className="flex items-baseline gap-1 mt-0.5">
+                            <span className="font-headline-md text-headline-sm text-terracotta-sandstone font-serif font-bold">
+                              ₹{startingFare.toLocaleString("en-IN")}
+                            </span>
+                            <span className="text-xs text-on-surface-variant">All-Inclusive</span>
+                          </div>
+                          <span className="text-xs text-secondary">
+                            Lock with only ₹{token.toLocaleString("en-IN")} (28% advance deposit)
+                          </span>
+                        </>
+                      ) : (
+                        <div className="flex items-baseline gap-1 mt-0.5">
+                          <span className="font-headline-md text-headline-sm text-secondary font-serif font-bold">
+                            On request
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
 

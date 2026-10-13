@@ -201,39 +201,42 @@ function getSeoBase(
     : undefined);
 
   if (resolvedDossierTour) {
-    const fare = Number(resolvedDossierTour.startingPriceInr || resolvedDossierTour.fleetPrices?.sedan || 3499);
-    const priceSuffix = ` @ ₹${fare.toLocaleString("en-IN")} | SK Baghel`;
+    const fare = Number(resolvedDossierTour.startingPriceInr || resolvedDossierTour.fleetPrices?.sedan || 0);
+    const priceSuffix = fare > 0 ? ` @ ₹${fare.toLocaleString("en-IN")} | SK Baghel` : " | SK Baghel";
     const maxName = Math.max(10, 60 - priceSuffix.length);
     const titleName = resolvedDossierTour.name.length > maxName ? `${resolvedDossierTour.name.slice(0, maxName - 1).trimEnd()}…` : resolvedDossierTour.name;
+    const descPrefix = fare > 0 ? `${resolvedDossierTour.name} from ₹${fare.toLocaleString("en-IN")}. ` : `${resolvedDossierTour.name}. `;
     return {
       title: `${titleName}${priceSuffix}`,
-      description: `${resolvedDossierTour.name} from ₹${fare.toLocaleString("en-IN")}. ${resolvedDossierTour.inclusionsHighlight || "Private sanitized AC cab, dedicated verified chauffeur & monument sightseeing."}`.slice(0, 155),
+      description: `${descPrefix}${resolvedDossierTour.inclusionsHighlight || "Private sanitized AC cab, dedicated verified chauffeur & monument sightseeing."}`.slice(0, 155),
       ogImage: "/assets/brand/og-banner.webp",
       keywords: [resolvedDossierTour.name, "Agra tour package", "private guided tour Agra", "SK Baghel Tour & Travels"],
     };
   }
 
   if (resolvedDossierTransfer) {
-    const fare = Number(resolvedDossierTransfer.fleetPrices?.sedan ?? 800);
-    const priceSuffix = ` Taxi @ ₹${fare.toLocaleString("en-IN")} | SK Baghel`;
+    const fare = Number(resolvedDossierTransfer.fleetPrices?.sedan ?? 0);
+    const priceSuffix = fare > 0 ? ` Taxi @ ₹${fare.toLocaleString("en-IN")} | SK Baghel` : " Taxi | SK Baghel";
     const maxName = Math.max(10, 60 - priceSuffix.length);
     const titleName = resolvedDossierTransfer.name.length > maxName ? `${resolvedDossierTransfer.name.slice(0, maxName - 1).trimEnd()}…` : resolvedDossierTransfer.name;
+    const descPrefix = fare > 0 ? `${resolvedDossierTransfer.name} from ₹${fare.toLocaleString("en-IN")}. ` : `${resolvedDossierTransfer.name}. `;
     return {
       title: `${titleName}${priceSuffix}`,
-      description: `${resolvedDossierTransfer.name} from ₹${fare.toLocaleString("en-IN")}. ${resolvedDossierTransfer.directionNote || "Doorstep pickup, zero surge pricing, verified commercial chauffeur & delay tracking."}`.slice(0, 155),
+      description: `${descPrefix}${resolvedDossierTransfer.directionNote || "Doorstep pickup, zero surge pricing, verified commercial chauffeur & delay tracking."}`.slice(0, 155),
       ogImage: "/assets/brand/og-banner.webp",
       keywords: [resolvedDossierTransfer.name, "Agra airport transfer", "Agra station taxi", "SK Baghel Tour & Travels"],
     };
   }
 
   if (resolvedDossierLocal) {
-    const fare = Number(resolvedDossierLocal.fleetPrices?.sedan ?? 1900);
-    const priceSuffix = ` @ ₹${fare.toLocaleString("en-IN")} | SK Baghel`;
+    const fare = Number(resolvedDossierLocal.fleetPrices?.sedan ?? 0);
+    const priceSuffix = fare > 0 ? ` @ ₹${fare.toLocaleString("en-IN")} | SK Baghel` : " | SK Baghel";
     const maxName = Math.max(10, 60 - priceSuffix.length);
     const titleName = resolvedDossierLocal.name.length > maxName ? `${resolvedDossierLocal.name.slice(0, maxName - 1).trimEnd()}…` : resolvedDossierLocal.name;
+    const descPrefix = fare > 0 ? `${resolvedDossierLocal.name} from ₹${fare.toLocaleString("en-IN")} ` : `${resolvedDossierLocal.name} `;
     return {
       title: `${titleName}${priceSuffix}`,
-      description: `${resolvedDossierLocal.name} from ₹${fare.toLocaleString("en-IN")} (${resolvedDossierLocal.durationHours} hrs / ${resolvedDossierLocal.includedKm} km). Covering ${resolvedDossierLocal.covers}. AC cab with driver.`.slice(0, 155),
+      description: `${descPrefix}(${resolvedDossierLocal.durationHours} hrs / ${resolvedDossierLocal.includedKm} km). Covering ${resolvedDossierLocal.covers}. AC cab with driver.`.slice(0, 155),
       ogImage: "/assets/brand/og-banner.webp",
       keywords: [resolvedDossierLocal.name, "Agra local sightseeing cab", "Agra full day taxi", "SK Baghel Tour & Travels"],
     };
@@ -550,7 +553,7 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
   const normalizedPath = pathname.replace(/^\/(?:en|hi)(?=\/|$)/, "").replace(/\/$/, "");
   const cleanProductMatch = (() => {
     const taxiMatch = normalizedPath.match(/^\/(?:taxi|taxis)\/([a-z0-9_-]+)(?:\.html)?$/i);
-    if (taxiMatch) return { category: "outstation" as CategoryCode, code: taxiMatch[1] };
+    if (taxiMatch && taxiMatch[1].toLowerCase() !== "rent") return { category: "outstation" as CategoryCode, code: taxiMatch[1] };
 
     const sightseeingMatch = normalizedPath.match(/^\/local-sightseeing\/([a-z0-9_-]+)(?:\.html)?$/i);
     if (sightseeingMatch) return { category: "local_package" as CategoryCode, code: sightseeingMatch[1] };
@@ -639,8 +642,6 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
           <LoginPage />
         ) : isBooking ? (
           <BookingPage />
-        ) : cleanProductMatch ? (
-          <ProductDetailPage category={cleanProductMatch.category} code={cleanProductMatch.code} />
         ) : isHome ? (
           <HomePage language={language} />
         ) : matchedRoute ? (
@@ -659,6 +660,8 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
           <LocalPackageDetailPage language={language} item={dossierLocalPackage} />
         ) : dossierMonument ? (
           <MonumentDetailPage language={language} item={dossierMonument} />
+        ) : cleanProductMatch ? (
+          <ProductDetailPage category={cleanProductMatch.category} code={cleanProductMatch.code} />
         ) : matchedVehicle ? (
           <VehicleDetailPage language={language} vehicle={matchedVehicle} />
         ) : isSeoLanding ? (

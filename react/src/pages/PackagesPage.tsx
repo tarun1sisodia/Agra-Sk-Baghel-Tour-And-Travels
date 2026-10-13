@@ -37,7 +37,7 @@ const PACKAGE_METADATA: Record<string, {
   durationIcon: string;
   stops: string[];
   inclusions: string[];
-  vehiclePrices: { label: string; price: string }[];
+  vehiclePrices?: { label: string; price: string }[];
   suitedFor: string;
   recommendedFleet: string;
 }> = {
@@ -480,19 +480,13 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
           "Dedicated verified chauffeur",
           "All highway tolls & parking fees included",
         ],
-        vehiclePrices: pkg.from && Number(pkg.from) > 0
-          ? [
-              { label: "Sedan", price: `₹${Number(pkg.from).toLocaleString("en-IN")}` },
-              { label: "SUV / Tempo", price: "On request" },
-            ]
-          : [{ label: "All Tiers", price: "On request" }],
         suitedFor: "Travelers & Groups",
         recommendedFleet: "Sedan / Ertiga / Innova",
       };
 
       const fp = pkg.fleetPrices;
       const hasLivePrices = fp && Object.keys(fp).length > 0;
-      const vehiclePrices = hasLivePrices
+      const vehiclePrices: { label: string; price: string }[] = hasLivePrices
         ? [
             ...(fp.sedan ? [{ label: "Sedan", price: `₹${Number(fp.sedan).toLocaleString("en-IN")}` }] : []),
             ...(fp.ertiga ? [{ label: "Ertiga", price: `₹${Number(fp.ertiga).toLocaleString("en-IN")}` }] : []),
@@ -500,7 +494,9 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
             ...(fp.tempo ? [{ label: "Tempo", price: `₹${Number(fp.tempo).toLocaleString("en-IN")}` }] : []),
             ...(fp.urbania ? [{ label: "Urbania", price: `₹${Number(fp.urbania).toLocaleString("en-IN")}` }] : []),
           ]
-        : meta.vehiclePrices;
+        : pkg.from && Number(pkg.from) > 0
+        ? [{ label: "Starting From", price: `₹${Number(pkg.from).toLocaleString("en-IN")}` }]
+        : [{ label: "All Vehicles", price: "On request" }];
 
       return {
         pkg,

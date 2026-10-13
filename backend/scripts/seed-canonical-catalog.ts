@@ -18,22 +18,24 @@ async function run() {
     console.log("Seeding canonical Clean Fare System catalog records...");
     await client.query("BEGIN");
 
-    // Fetch vehicle models to associate fare_rules
-    const vmRes = await client.query("SELECT id, display_name, vehicle_group_id FROM vehicle_models");
-    const vehicleModels: Array<{ id: string; display_name: string; vehicle_group_id: string }> = vmRes.rows;
+    // Fetch vehicle models to associate fare_rules by canonical name/make
+    const vmRes = await client.query("SELECT id, model_name, display_name, vehicle_group_id FROM vehicle_models");
+    const vehicleModels: Array<{ id: string; model_name: string; display_name: string; vehicle_group_id: string }> = vmRes.rows;
 
     const getModelId = (nameSubstr: string): string | null => {
+      const target = nameSubstr.toLowerCase();
       const found = vehicleModels.find((m) =>
-        m.display_name.toLowerCase().includes(nameSubstr.toLowerCase())
+        m.display_name.toLowerCase().includes(target) ||
+        m.model_name.toLowerCase().includes(target)
       );
       return found?.id ?? null;
     };
 
-    const sedanModelId = getModelId("Dzire") ?? vehicleModels[0]?.id;
-    const ertigaModelId = getModelId("Ertiga") ?? vehicleModels[1]?.id;
-    const innovaModelId = getModelId("Innova") ?? vehicleModels[2]?.id;
-    const tempoModelId = getModelId("Traveller") ?? vehicleModels[3]?.id;
-    const urbaniaModelId = getModelId("Urbania") ?? vehicleModels[4]?.id;
+    const sedanModelId = getModelId("Dzire") ?? getModelId("Sedan");
+    const ertigaModelId = getModelId("Ertiga");
+    const innovaModelId = getModelId("Innova") ?? getModelId("Crysta");
+    const tempoModelId = getModelId("Traveller") ?? getModelId("Tempo");
+    const urbaniaModelId = getModelId("Urbania");
 
     // 1. Tour Packages (Clean Fare System Schema)
     const tourPackages = [

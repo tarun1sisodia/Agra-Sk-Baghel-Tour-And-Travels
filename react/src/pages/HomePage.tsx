@@ -15,8 +15,54 @@ import {
   sanitizeInquiryName,
 } from "../services/api";
 import { fetchLiveFleet, type PublicFleetVehicle } from "../services/catalog";
-import { loadRoutesManifest, type CompressedRoute } from "../services/catalogManifest";
+import { loadRoutesManifest, loadPublishedPackages, type CompressedRoute } from "../services/catalogManifest";
+import type { TourPackage } from "../data";
 import { onUserInteractionOrIdle } from "../utils/deferredRevalidation";
+
+const FLEET_PRESENTATION: Record<string, { label: string; sub: string; note: string; img: string }> = {
+  sedan: {
+    label: "Sedan Cabs",
+    sub: "Dzire / Etios",
+    note: "Ideal for 1-4 passengers and expressway trips",
+    img: "/assets/fleet/sedan.webp",
+  },
+  ertiga: {
+    label: "Ertiga MPV",
+    sub: "Maruti Ertiga",
+    note: "6-passenger seating for families with luggage",
+    img: "/assets/fleet/ertiga.webp",
+  },
+  innova: {
+    label: "Innova Crysta",
+    sub: "Toyota Crysta",
+    note: "Premium outstation ride with captain seats",
+    img: "/assets/fleet/innova.webp",
+  },
+  "innova-crysta": {
+    label: "Innova Crysta",
+    sub: "Toyota Crysta",
+    note: "Premium outstation ride with captain seats",
+    img: "/assets/fleet/innova.webp",
+  },
+  tempo: {
+    label: "Tempo Traveller",
+    sub: "12–17 Seater",
+    note: "Reclining seats, rear AC, and separate luggage bay",
+    img: "/assets/fleet/tempo.webp",
+  },
+  "tempo-traveller": {
+    label: "Tempo Traveller",
+    sub: "12–17 Seater",
+    note: "Reclining seats, rear AC, and separate luggage bay",
+    img: "/assets/fleet/tempo.webp",
+  },
+  urbania: {
+    label: "Force Urbania",
+    sub: "10–13 Luxury Seats",
+    note: "Luxury van with individual recline and USB charging",
+    img: "/assets/fleet/urbania.webp",
+  },
+};
 
 export interface HomePageProps {
   language?: SupportedLanguage;
@@ -66,7 +112,11 @@ export function HomePage({ language = "en" }: HomePageProps) {
   const [inquiryError, setInquiryError] = useState<string | null>(null);
 
   const [liveFleet, setLiveFleet] = useState<PublicFleetVehicle[]>([]);
+  const [fleetLoading, setFleetLoading] = useState(true);
   const [manifestRoutes, setManifestRoutes] = useState<Record<string, CompressedRoute>>({});
+  const [routesLoading, setRoutesLoading] = useState(true);
+  const [publishedPackages, setPublishedPackages] = useState<TourPackage[]>([]);
+  const [packagesLoading, setPackagesLoading] = useState(true);
   const [popularTripMode, setPopularTripMode] = useState<"oneway" | "round">("oneway");
 
   useEffect(() => {
@@ -75,13 +125,28 @@ export function HomePage({ language = "en" }: HomePageProps) {
       .then((f) => {
         if (active && f.length > 0) setLiveFleet(f);
       })
-      .catch(() => { });
+      .catch(() => { })
+      .finally(() => {
+        if (active) setFleetLoading(false);
+      });
 
     loadRoutesManifest()
       .then((m) => {
         if (active && m) setManifestRoutes(m);
       })
-      .catch(() => { });
+      .catch(() => { })
+      .finally(() => {
+        if (active) setRoutesLoading(false);
+      });
+
+    loadPublishedPackages()
+      .then((pkgs) => {
+        if (active && pkgs) setPublishedPackages(pkgs);
+      })
+      .catch(() => { })
+      .finally(() => {
+        if (active) setPackagesLoading(false);
+      });
 
     return () => {
       active = false;
@@ -90,29 +155,23 @@ export function HomePage({ language = "en" }: HomePageProps) {
 
   const popularRoutesList = useMemo(() => {
     const entries = Object.entries(manifestRoutes);
-    if (entries.length > 0) {
-      return entries.slice(0, 4).map(([slug, item]) => {
-        const durationHrs = Math.floor(item.m / 60);
-        const durationMins = item.m % 60;
-        return {
-          slug,
-          from: item.o,
-          to: item.d,
-          badge: item.c.split("->")[0]?.trim() || "Outstation Corridor",
-          km: `${item.km} km`,
-          time: `${durationHrs}h${durationMins ? ` ${durationMins}m` : ""}`,
-          note: item.c || "Direct Highway Corridor",
-          price: item.fs || 3499,
-          icon: "directions_car",
-        };
-      });
-    }
-    return [
-      { slug: "agra-to-delhi", from: "Agra", to: "Delhi", badge: "Most Popular", km: "230 km", time: "3h 30m", note: "Yamuna Expressway, IGI Airport drop", price: 3499, icon: "flight" },
-      { slug: "agra-to-jaipur", from: "Agra", to: "Jaipur", badge: "Golden Triangle", km: "240 km", time: "4h 30m", note: "Via NH-21, optional Fatehpur Sikri stop", price: 3699, icon: "castle" },
-      { slug: "agra-to-fatehbad-tax-one-way", from: "Agra", to: "Fatehabad", badge: "Expressway", km: "35 km", time: "45m", note: "Fast one-way expressway drop", price: 1200, icon: "near_me" },
-      { slug: "khandoli-to-jewar-one-way", from: "Khandoli", to: "Jewar", badge: "Airport Link", km: "115 km", time: "1h 45m", note: "Jewar International Airport corridor", price: 2400, icon: "flight_land" },
-    ];
+    if (entries.length === 0) return [];
+
+    return entries.slice(0, 4).map(([slug, item]) => {
+      const durationHrs = Math.floor(item.m / 60);
+      const durationMins = item.m % 60;
+      return {
+        slug,
+        from: item.o,
+        to: item.d,
+        badge: item.c ? item.c.split("->")[0]?.trim() : "Outstation Corridor",
+        km: `${item.km} km`,
+        time: `${durationHrs}h${durationMins ? ` ${durationMins}m` : ""}`,
+        note: item.c || "Direct Highway Corridor",
+        price: item.fs && item.fs > 0 ? item.fs : null,
+        icon: "directions_car",
+      };
+    });
   }, [manifestRoutes]);
 
   const copyCoupon = () => {
@@ -346,51 +405,65 @@ export function HomePage({ language = "en" }: HomePageProps) {
 
           {/* Horizontal route rows */}
           <div className="divide-y divide-border-warm/40">
-            {popularRoutesList.map((route) => (
-              <div key={route.slug} className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-3 group">
-                {/* Route identity */}
-                <div className="flex items-center gap-4 min-w-0">
-                  <span className="material-symbols-outlined text-on-surface-variant text-icon-22 shrink-0">{route.icon}</span>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="font-title-md text-headline-sm font-bold text-on-surface group-hover:text-primary transition-colors">
-                        {route.from} → {route.to}
-                      </span>
-                      <span className="px-1.5 py-0.5 rounded bg-sandstone-wash text-primary font-label-caps text-label-caps uppercase font-bold shrink-0">
-                        {route.badge}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 font-body-sm text-label-lg text-on-surface-variant">
-                      <span>{route.km}</span>
-                      <span className="w-1 h-1 rounded-full bg-on-surface-variant/40" />
-                      <span>{route.time}</span>
-                      <span className="w-1 h-1 rounded-full bg-on-surface-variant/40" />
-                      <span className="truncate">{route.note}</span>
+            {routesLoading && popularRoutesList.length === 0 ? (
+              [1, 2, 3, 4].map((i) => (
+                <div key={i} className="py-4 animate-pulse flex items-center justify-between">
+                  <div className="h-6 w-48 bg-surface-container rounded" />
+                  <div className="h-6 w-20 bg-surface-container rounded" />
+                </div>
+              ))
+            ) : popularRoutesList.length > 0 ? (
+              popularRoutesList.map((route) => (
+                <div key={route.slug} className="flex flex-col sm:flex-row sm:items-center justify-between py-4 gap-3 group">
+                  {/* Route identity */}
+                  <div className="flex items-center gap-4 min-w-0">
+                    <span className="material-symbols-outlined text-on-surface-variant text-icon-22 shrink-0">{route.icon}</span>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="font-title-md text-headline-sm font-bold text-on-surface group-hover:text-primary transition-colors">
+                          {route.from} → {route.to}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded bg-sandstone-wash text-primary font-label-caps text-label-caps uppercase font-bold shrink-0">
+                          {route.badge}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 font-body-sm text-label-lg text-on-surface-variant">
+                        <span>{route.km}</span>
+                        <span className="w-1 h-1 rounded-full bg-on-surface-variant/40" />
+                        <span>{route.time}</span>
+                        <span className="w-1 h-1 rounded-full bg-on-surface-variant/40" />
+                        <span className="truncate">{route.note}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                {/* Price + CTA */}
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="text-right">
-                    <span className="font-label-caps text-label-caps text-on-surface-variant block">
-                      {popularTripMode === "oneway" ? "Sedan One-Way" : "Round-Trip Rate"}
-                    </span>
-                    <span className="font-price-display text-lg font-bold text-primary">
-                      {popularTripMode === "oneway"
-                        ? `₹${route.price.toLocaleString("en-IN")}`
-                        : "From ₹10/km"}
-                    </span>
+                  {/* Price + CTA */}
+                  <div className="flex items-center gap-4 shrink-0">
+                    <div className="text-right">
+                      <span className="font-label-caps text-label-caps text-on-surface-variant block">
+                        {popularTripMode === "oneway" ? "Sedan One-Way" : "Round-Trip Rate"}
+                      </span>
+                      <span className="font-price-display text-lg font-bold text-primary">
+                        {popularTripMode === "oneway"
+                          ? (route.price ? `₹${route.price.toLocaleString("en-IN")}` : "On request")
+                          : "Round-trip • ₹10/km basis"}
+                      </span>
+                    </div>
+                    <a
+                      className="min-h-[44px] px-4 py-2.5 rounded-lg bg-primary hover:bg-primary-container text-white font-label-md font-bold transition-all duration-200 whitespace-nowrap active:scale-[0.98] shadow-xs inline-flex items-center justify-center"
+                      href={`/book?category=outstation&from=${encodeURIComponent(route.from)}&to=${encodeURIComponent(route.to)}&route=${encodeURIComponent(route.slug)}&trip=${popularTripMode === "oneway" ? "one-way" : "round-trip"}`}
+                      aria-label={`Book cab from ${route.from} to ${route.to}`}
+                    >
+                      <span className="text-white font-bold">Book ↗</span>
+                    </a>
                   </div>
-                  <a
-                    className="min-h-[44px] px-4 py-2.5 rounded-lg bg-primary hover:bg-primary-container text-white font-label-md font-bold transition-all duration-200 whitespace-nowrap active:scale-[0.98] shadow-xs inline-flex items-center justify-center"
-                    href={`/book?category=outstation&from=${encodeURIComponent(route.from)}&to=${encodeURIComponent(route.to)}&route=${encodeURIComponent(route.slug)}&trip=${popularTripMode === "oneway" ? "one-way" : "round-trip"}`}
-                    aria-label={`Book cab from ${route.from} to ${route.to}`}
-                  >
-                    <span className="text-white font-bold">Book ↗</span>
-                  </a>
                 </div>
+              ))
+            ) : (
+              <div className="py-8 text-center bg-surface-container-low rounded-xl p-6">
+                <p className="text-on-surface-variant">No outstation routes currently configured.</p>
+                <a href="/routes" className="text-primary font-semibold hover:underline mt-2 inline-block">Browse all destinations ↗</a>
               </div>
-            ))}
+            )}
           </div>
 
           <div className="mt-6 flex justify-center">
@@ -494,6 +567,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
         </section>
 
         {/* ── FLEET ── 3-col grid with real images, proper card height (NOT 5-col cramped) */}
+        {/* ── FLEET ── dynamic from canonical liveFleet ── */}
         <section
           className="w-full py-space-3xl max-w-[1280px] mx-auto px-margin-mobile lg:px-margin"
           id="fleet"
@@ -501,82 +575,78 @@ export function HomePage({ language = "en" }: HomePageProps) {
           <div className="mb-space-xl">
             <h2 className="font-headline-lg text-headline-lg text-on-surface">Choose your vehicle</h2>
             <p className="font-body-md text-body-md text-on-surface-variant mt-1.5 max-w-xl">
-              Clean AC vehicles with verified drivers. Fares include fuel, driver allowance, and tolls. Rates shown are one-way Agra to Delhi.
+              Clean AC vehicles with verified drivers. Fares include fuel, driver allowance, and tolls on published routes. Standard outstation billing is on an active per-km basis.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-md">
-            {[
-              {
-                id: "sedan", label: "Sedan", sub: "Dzire / Etios", note: "Ideal for 1-4 passengers and expressway trips",
-                seats: "4+1", luggage: "2 Large Bags", rate: "₹10/km", price: "₹3,499",
-                img: "/assets/fleet/sedan.webp",
-              },
-              {
-                id: "ertiga", label: "Ertiga MPV", sub: "Maruti Ertiga", note: "6-passenger seating for families with luggage",
-                seats: "6+1", luggage: "3 Large Bags", rate: "₹14/km", price: "₹4,800",
-                img: "/assets/fleet/ertiga.webp",
-              },
-              {
-                id: "innova", label: "Innova Crysta", sub: "Toyota Crysta", note: "Premium outstation ride with captain seats",
-                seats: "6+1 Captain", luggage: "4 Large Bags", rate: "₹18/km", price: "₹6,499",
-                img: "/assets/fleet/innova.webp",
-              },
-              {
-                id: "tempo", label: "Tempo Traveller", sub: "12–17 Seater", note: "Reclining seats, rear AC, and separate luggage bay",
-                seats: "12–17 Seater", luggage: "Rear Cargo Bay", rate: "₹25/km", price: "₹9,500",
-                img: "/assets/fleet/tempo.webp",
-              },
-              {
-                id: "urbania", label: "Force Urbania", sub: "10–13 Luxury Seats", note: "Luxury van with individual recline and USB charging",
-                seats: "10–13 Luxury", luggage: "Huge Cargo Bay", rate: "₹34/km", price: "₹12,500",
-                img: "/assets/fleet/urbania.webp",
-              },
-            ].map((v) => (
-              <div key={v.id} className="bg-surface-container-lowest rounded-xl overflow-hidden border border-border-warm/40 flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer hover:ring-1 hover:ring-primary">
-                <div className="h-44 w-full overflow-hidden relative bg-surface-container-low">
-                  <img
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    src={v.img}
-                    srcSet={`/assets/fleet/${v.id}-480.webp 480w, /assets/fleet/${v.id}-768.webp 768w, /assets/fleet/${v.id}.webp 1200w`}
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"
-                    width={384}
-                    height={176}
-                    loading="lazy"
-                    decoding="async"
-                    alt={v.label}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight/60 via-transparent to-transparent" />
+            {fleetLoading && liveFleet.length === 0 ? (
+              [1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="bg-surface-container-lowest rounded-xl h-72 animate-pulse border border-border-warm/30" />
+              ))
+            ) : liveFleet.length > 0 ? (
+              liveFleet
+                .filter((v) => v.active !== false)
+                .map((v) => {
+                  const key = v.tier || v.id;
+                  const copy = FLEET_PRESENTATION[key] || FLEET_PRESENTATION[v.id] || {
+                    label: v.name,
+                    sub: v.name,
+                    note: "Dedicated sanitized AC cab with verified chauffeur.",
+                    img: "/assets/fleet/sedan.webp",
+                  };
+                  const displayRate = v.perKm > 0 ? `₹${v.perKm}/km` : "On request";
 
-                </div>
-                <div className="p-3.5 flex-1 flex flex-col gap-2">
-                  <div>
-                    <h3 className="font-title-md text-title-lg font-bold text-on-surface">{v.label}</h3>
-                    <p className="font-body-sm text-label-lg text-on-surface-variant mt-0.5">{v.note}</p>
-                  </div>
-                  <div className="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant border-t border-border-warm/40 pt-2">
-                    <span>{v.seats} seats</span>
-                    <span className="text-primary font-semibold">{v.rate}</span>
-                  </div>
-                  <a
-                    className="w-full min-h-[44px] flex items-center justify-center py-2.5 text-center rounded-lg bg-primary hover:bg-primary-container text-white font-label-lg text-label-md transition-all font-semibold mt-auto shadow-xs active:scale-[0.98]"
-                    href={`/book?vehicle=${v.id}`}
-                    aria-label={`Select vehicle: ${v.label}`}
-                  >
-                    <span className="text-white">Select {v.label.split(" ")[0]}</span>
-                  </a>
-                </div>
+                  return (
+                    <div key={v.id || v.tier} className="bg-surface-container-lowest rounded-xl overflow-hidden border border-border-warm/40 flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer hover:ring-1 hover:ring-primary">
+                      <div className="h-44 w-full overflow-hidden relative bg-surface-container-low">
+                        <img
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          src={copy.img}
+                          srcSet={`${copy.img.replace(".webp", "-480.webp")} 480w, ${copy.img.replace(".webp", "-768.webp")} 768w, ${copy.img} 1200w`}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"
+                          width={384}
+                          height={176}
+                          loading="lazy"
+                          decoding="async"
+                          alt={v.name || copy.label}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight/60 via-transparent to-transparent" />
+                      </div>
+                      <div className="p-3.5 flex-1 flex flex-col gap-2">
+                        <div>
+                          <h3 className="font-title-md text-title-lg font-bold text-on-surface">{v.name || copy.label}</h3>
+                          <p className="font-body-sm text-label-lg text-on-surface-variant mt-0.5">{copy.note}</p>
+                        </div>
+                        <div className="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant border-t border-border-warm/40 pt-2">
+                          <span>{v.seats ? `${v.seats} seats` : "Comfort seating"}</span>
+                          <span className="text-primary font-semibold">{displayRate}</span>
+                        </div>
+                        <a
+                          className="w-full min-h-[44px] flex items-center justify-center py-2.5 text-center rounded-lg bg-primary hover:bg-primary-container text-white font-label-lg text-label-md transition-all font-semibold mt-auto shadow-xs active:scale-[0.98]"
+                          href={`/book?vehicle=${encodeURIComponent(v.tier || v.id)}`}
+                          aria-label={`Select vehicle: ${v.name || copy.label}`}
+                        >
+                          <span className="text-white">Select {(v.name || copy.label).split(" ")[0]}</span>
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })
+            ) : (
+              <div className="col-span-full py-8 text-center bg-surface-container-low rounded-xl p-6">
+                <p className="text-on-surface-variant">Fleet inventory is updating. Explore booking or contact our desk.</p>
               </div>
-            ))}
+            )}
 
-            {/* 6th cell — CTA tile (avoids empty cell) */}
+            {/* CTA tile */}
             <a
               href="/fleet"
               className="bg-sandstone-wash rounded-xl border border-border-warm/40 flex flex-col items-center justify-center p-8 gap-3 hover:bg-terracotta-sandstone/10 transition-colors group"
             >
               <span className="material-symbols-outlined text-primary text-icon-36 group-hover:scale-110 transition-transform">garage</span>
               <p className="font-title-md text-title-lg text-on-surface font-bold text-center">See entire fleet</p>
-              <p className="font-body-sm text-label-lg text-on-surface-variant text-center">Compare specs, photos & per-km rates</p>
+              <p className="font-body-sm text-label-lg text-on-surface-variant text-center">Compare specs, photos &amp; per-km rates</p>
               <span className="inline-flex items-center gap-1 text-primary font-label-lg text-label-md font-semibold mt-1">
                 <span>Explore fleet</span>
                 <span className="material-symbols-outlined text-icon-14">east</span>
@@ -607,96 +677,69 @@ export function HomePage({ language = "en" }: HomePageProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-space-md">
-              {[
-                {
-                  badge: "Same Day", badgeColor: "bg-ink-midnight/80 text-tertiary-fixed",
-                  price: "₹3,499", priceColor: "bg-terracotta-deep",
-                  img: "/assets/packages/agra-fort.webp",
-                  avifSrcSet: "/assets/packages/agra-fort-480.avif 480w, /assets/packages/agra-fort-768.avif 768w, /assets/packages/agra-fort.avif 1200w",
-                  srcSet: "/assets/packages/agra-fort-480.webp 480w, /assets/packages/agra-fort-768.webp 768w, /assets/packages/agra-fort.webp 1200w",
-                  alt: "Taj Mahal Tour",
-                  title: "Same Day Agra — Taj Mahal & Agra Fort",
-                  body: "Full-day sightseeing covering Taj Mahal, Agra Fort, and Mehtab Bagh with hotel pickup.",
-                  itinerary: ["Taj Mahal & Agra Fort", "Itimad-ud-Daulah", "Mehtab Bagh sunset"],
-                  href: "/packages/agra-sightseeing",
-                  cta: "View Tour",
-                },
-                {
-                  badge: "Dawn Special", badgeColor: "bg-ink-midnight/80 text-gold-accent",
-                  price: "₹5,200", priceColor: "bg-terracotta-deep",
-                  img: "/assets/packages/taj-dawn.webp",
-                  avifSrcSet: "/assets/packages/taj-dawn-480.avif 480w, /assets/packages/taj-dawn-768.avif 768w, /assets/packages/taj-dawn.avif 1200w",
-                  srcSet: "/assets/packages/taj-dawn-480.webp 480w, /assets/packages/taj-dawn-768.webp 768w, /assets/packages/taj-dawn.webp 1200w",
-                  alt: "Taj Sunrise Tour",
-                  title: "Taj Mahal Sunrise Guided Tour",
-                  body: "Early morning entry to the Taj Mahal at dawn to beat crowds and heat, with licensed monument guide.",
-                  itinerary: ["Taj Mahal dawn entry", "Agra Fort royal chambers", "Licensed guide option"],
-                  href: "/packages/taj-mahal-sunrise-tour",
-                  cta: "View Tour",
-                },
-                {
-                  badge: "Pilgrimage", badgeColor: "bg-ink-midnight/80 text-tertiary-fixed",
-                  price: "₹4,200", priceColor: "bg-terracotta-deep",
-                  img: "/assets/packages/mathura.webp",
-                  avifSrcSet: "/assets/packages/mathura-480.avif 480w, /assets/packages/mathura-768.avif 768w, /assets/packages/mathura.avif 1200w",
-                  srcSet: "/assets/packages/mathura-480.webp 480w, /assets/packages/mathura-768.webp 768w, /assets/packages/mathura.webp 1200w",
-                  alt: "Mathura Vrindavan",
-                  title: "Mathura & Vrindavan Darshan",
-                  body: "Same-day temple circuit covering Krishna Janmabhoomi, Banke Bihari, and Prem Mandir.",
-                  itinerary: ["Krishna Janmabhoomi", "Banke Bihari & Prem Mandir", "Evening aarti included"],
-                  href: "/packages/mathura-vrindavan",
-                  cta: "View Tour",
-                },
-              ].map((pkg) => (
-                <div key={pkg.title} className="bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col group shadow-sm hover:shadow-md transition-all border border-border-warm/40">
-                  <div className="relative h-40 w-full overflow-hidden">
-                    <picture>
-                      <source
-                        type="image/avif"
-                        srcSet={pkg.avifSrcSet}
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"
-                      />
-                      <img
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        src={pkg.img}
-                        srcSet={pkg.srcSet}
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"
-                        width={384}
-                        height={160}
-                        loading="lazy"
-                        decoding="async"
-                        alt={pkg.alt}
-                      />
-                    </picture>
-                    <span className={`absolute top-2 left-2 px-1.5 py-0.5 rounded ${pkg.badgeColor} font-label-caps text-label-caps uppercase font-bold backdrop-blur-sm`}>
-                      {pkg.badge}
-                    </span>
-                    <div className={`absolute bottom-2 right-2 px-2 py-0.5 rounded ${pkg.priceColor} text-white font-price-display text-sm font-bold`}>
-                      {pkg.price}
+              {packagesLoading && publishedPackages.length === 0 ? (
+                [1, 2, 3].map((i) => (
+                  <div key={i} className="bg-surface-container-lowest rounded-xl h-64 animate-pulse border border-border-warm/30" />
+                ))
+              ) : publishedPackages.length > 0 ? (
+                publishedPackages.slice(0, 3).map((pkg) => {
+                  const duration = pkg.duration || `${pkg.days ?? 1} Day Tour`;
+                  const fromPrice = pkg.from && Number(pkg.from) > 0 ? `From ₹${Number(pkg.from).toLocaleString("en-IN")}` : "On request";
+                  const image = pkg.image || (pkg.gallery && pkg.gallery[0] ? pkg.gallery[0].url : "/assets/packages/taj-dawn.webp");
+                  const stops = pkg.places && pkg.places.length > 0 ? pkg.places.slice(0, 3) : ["Taj Mahal & Agra Fort", "Heritage Monuments", "Local Artisan Quarters"];
+
+                  return (
+                    <div key={pkg.slug || pkg.id} className="bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col group shadow-sm hover:shadow-md transition-all border border-border-warm/40">
+                      <div className="relative h-40 w-full overflow-hidden bg-surface-container">
+                        <img
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          src={image}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"
+                          width={384}
+                          height={160}
+                          loading="lazy"
+                          decoding="async"
+                          alt={pkg.name}
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = "/assets/packages/taj-dawn.webp";
+                          }}
+                        />
+                        <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-ink-midnight/80 text-tertiary-fixed font-label-caps text-label-caps uppercase font-bold backdrop-blur-sm">
+                          {pkg.kicker || duration}
+                        </span>
+                        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-terracotta-deep text-white font-price-display text-sm font-bold">
+                          {fromPrice}
+                        </div>
+                      </div>
+                      <div className="p-3.5 flex-1 flex flex-col gap-2">
+                        <h3 className="font-title-md text-title-lg font-bold text-on-surface group-hover:text-primary transition-colors leading-snug">{pkg.name}</h3>
+                        <p className="font-body-sm text-body-md text-on-surface-variant leading-relaxed line-clamp-2">{pkg.blurb}</p>
+                        <ul className="space-y-1 mt-1">
+                          {stops.map((item) => (
+                            <li key={item} className="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant">
+                              <span className="w-1 h-1 rounded-full bg-gold-accent shrink-0" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                        <a
+                          className="mt-auto pt-2 border-t border-border-warm/40 inline-flex items-center gap-1 font-label-lg text-label-md text-primary hover:text-primary-container font-bold transition-colors min-h-[44px] py-2"
+                          href={`/packages/${encodeURIComponent(pkg.slug)}`}
+                          aria-label={`View tour: ${pkg.name}`}
+                        >
+                          <span>View Tour</span>
+                          <span className="material-symbols-outlined text-icon-13">east</span>
+                        </a>
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-3.5 flex-1 flex flex-col gap-2">
-                    <h3 className="font-title-md text-title-lg font-bold text-on-surface group-hover:text-primary transition-colors leading-snug">{pkg.title}</h3>
-                    <p className="font-body-sm text-body-md text-on-surface-variant leading-relaxed">{pkg.body}</p>
-                    <ul className="space-y-1 mt-1">
-                      {pkg.itinerary.map((item) => (
-                        <li key={item} className="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant">
-                          <span className="w-1 h-1 rounded-full bg-gold-accent shrink-0" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                    <a
-                      className="mt-auto pt-2 border-t border-border-warm/40 inline-flex items-center gap-1 font-label-lg text-label-md text-primary hover:text-primary-container font-bold transition-colors min-h-[44px] py-2"
-                      href={pkg.href}
-                      aria-label={`View tour: ${pkg.title}`}
-                    >
-                      <span>{pkg.cta}</span>
-                      <span className="material-symbols-outlined text-icon-13">east</span>
-                    </a>
-                  </div>
+                  );
+                })
+              ) : (
+                <div className="col-span-full py-8 text-center bg-surface-container rounded-xl p-6">
+                  <p className="text-on-surface-variant">No tours currently published. Check our complete packages catalogue.</p>
+                  <a href="/packages" className="text-primary font-semibold hover:underline mt-2 inline-block">View all packages ↗</a>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </section>
