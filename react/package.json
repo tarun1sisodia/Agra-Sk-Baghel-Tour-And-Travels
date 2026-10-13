@@ -10,7 +10,7 @@
     "react:build": "tsc --noEmit && node --experimental-strip-types scripts/build-manifest.ts && vite build && node --experimental-strip-types scripts/prerender.ts",
     "manifest": "node --experimental-strip-types scripts/build-manifest.ts",
     "check-catalog-sources": "node --experimental-strip-types scripts/check-catalog-sources.ts",
-    "test:catalog-sources": "node --experimental-strip-types --test scripts/catalog-sources.test.ts",
+    "test:catalog-sources": "node --experimental-strip-types --test scripts/catalog-sources.test.ts scripts/catalog-fallback.test.ts",
     "prerender": "node --experimental-strip-types scripts/prerender.ts",
     "sitemap": "node --experimental-strip-types scripts/generate-sitemap.ts",
     "test:seo": "node --experimental-strip-types scripts/test-seo-lifecycle.ts",

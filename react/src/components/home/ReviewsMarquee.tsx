@@ -10,8 +10,15 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { reviews as fallbackReviews, type Review } from "../../data/catalogue";
 import { fetchPublicReviews } from "../../services/api";
+
+export interface Review {
+  name: string;
+  place: string;
+  rating: number;
+  quote: string;
+  role?: string;
+}
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -85,25 +92,45 @@ function ReviewCard({ review }: ReviewCardProps) {
 }
 
 export function ReviewsMarquee() {
-  const [reviewsList, setReviewsList] = useState<readonly Review[]>(fallbackReviews);
+  const [reviewsList, setReviewsList] = useState<readonly Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
-    fetchPublicReviews().then((live) => {
-      if (!active || !live || live.length === 0) return;
-      const mapped: Review[] = live.slice(0, 30).map((r) => ({
-        name: r.display_name,
-        place: r.tour_name || r.route_text || "Agra & Outstation",
-        rating: Math.min(5, Math.max(1, r.rating || 5)),
-        quote: r.review_text,
-        role: r.social_platform && r.social_url ? r.social_platform : undefined,
-      }));
-      if (mapped.length >= 2) {
-        setReviewsList(mapped);
-      }
-    }).catch(() => {
-      // Graceful fallback to static reviews
-    });
+    setLoading(true);
+    fetchPublicReviews()
+      .then((live) => {
+        if (!active) return;
+        if (live && live.length > 0) {
+          const approved = live
+            .slice(0, 30)
+            .map((r) => ({
+              name: r.display_name,
+              place: r.tour_name || r.route_text || "Agra & Outstation",
+              rating: Math.min(5, Math.max(1, r.rating || 5)),
+              quote: r.review_text,
+              role: r.social_platform && r.social_url ? r.social_platform : undefined,
+            }));
+          if (approved.length >= 2) {
+            setReviewsList(approved);
+            setError(null);
+          } else {
+            setReviewsList([]);
+          }
+        } else {
+          setReviewsList([]);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setError("Unable to load reviews.");
+          setReviewsList([]);
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
     return () => {
       active = false;
     };
@@ -131,63 +158,100 @@ export function ReviewsMarquee() {
         <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
           3,800+ Expeditions. <br className="hidden sm:inline" />
         </h2>
-        <div className="flex items-center justify-center gap-2 mt-2">
-         
-        </div>
       </div>
 
-      {/* Marquee Tracks Container */}
-      <div className="flex flex-col gap-3 sm:gap-4 w-full">
-        {/* Row 1 — Scrolls Left */}
-        <div className="flex overflow-hidden group">
-          <div className="flex gap-3 sm:gap-4 animate-marquee group-hover:[animation-play-state:paused]">
-            {row1.map((rev, idx) => (
-              <ReviewCard key={`r1-a-${idx}`} review={rev} />
-            ))}
-            {row1.map((rev, idx) => (
-              <ReviewCard key={`r1-b-${idx}`} review={rev} />
-            ))}
+      {loading ? (
+        <div className="flex gap-4 overflow-hidden py-4 px-4 max-w-[1280px] mx-auto" aria-busy="true" aria-label="Loading traveler reviews">
+          {Array.from({ length: 4 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="w-[310px] sm:w-[350px] shrink-0 bg-surface-container-lowest p-4 rounded-xl border border-border-warm/60 animate-pulse flex flex-col justify-between h-[150px]"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-full bg-surface-container-high" />
+                <div className="h-4 w-28 bg-surface-container-high rounded" />
+              </div>
+              <div className="h-10 bg-surface-container-low rounded mb-3" />
+              <div className="h-3 w-20 bg-surface-container-high rounded" />
+            </div>
+          ))}
+        </div>
+      ) : reviewsList.length === 0 ? (
+        <div className="max-w-[720px] mx-auto px-4 py-8 text-center bg-surface-container-lowest rounded-2xl border border-border-warm/60 shadow-xs">
+          <div className="w-12 h-12 rounded-full bg-gold-accent/15 text-gold-bronze flex items-center justify-center mx-auto mb-3">
+            <span className="material-symbols-outlined text-icon-24">verified</span>
           </div>
-          <div
-            className="flex gap-3 sm:gap-4 animate-marquee group-hover:[animation-play-state:paused]"
-            aria-hidden="true"
-          >
-            {row1.map((rev, idx) => (
-              <ReviewCard key={`r1-c-${idx}`} review={rev} />
-            ))}
-            {row1.map((rev, idx) => (
-              <ReviewCard key={`r1-d-${idx}`} review={rev} />
-            ))}
+          <h3 className="font-headline-md text-base text-ink-charcoal font-bold mb-1">
+            Verified Passenger Reviews
+          </h3>
+          <p className="font-body-md text-xs text-on-surface-variant max-w-md mx-auto mb-4 leading-relaxed">
+            We display authentic, consented feedback collected from verified travelers after journey completion. No synthetic or unapproved reviews are published.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
+            <span className="inline-flex items-center gap-1 text-success-jade font-semibold">
+              <span className="material-symbols-outlined text-icon-14">check_circle</span>
+              100% Genuine Passenger Feedback
+            </span>
+            <span className="inline-flex items-center gap-1 text-primary font-semibold">
+              <span className="material-symbols-outlined text-icon-14">shield</span>
+              Zero Synthetic Reviews Policy
+            </span>
           </div>
         </div>
+      ) : (
+        /* Marquee Tracks Container */
+        <div className="flex flex-col gap-3 sm:gap-4 w-full">
+          {/* Row 1 — Scrolls Left */}
+          <div className="flex overflow-hidden group">
+            <div className="flex gap-3 sm:gap-4 animate-marquee group-hover:[animation-play-state:paused]">
+              {row1.map((rev, idx) => (
+                <ReviewCard key={`r1-a-${idx}`} review={rev} />
+              ))}
+              {row1.map((rev, idx) => (
+                <ReviewCard key={`r1-b-${idx}`} review={rev} />
+              ))}
+            </div>
+            <div
+              className="flex gap-3 sm:gap-4 animate-marquee group-hover:[animation-play-state:paused]"
+              aria-hidden="true"
+            >
+              {row1.map((rev, idx) => (
+                <ReviewCard key={`r1-c-${idx}`} review={rev} />
+              ))}
+              {row1.map((rev, idx) => (
+                <ReviewCard key={`r1-d-${idx}`} review={rev} />
+              ))}
+            </div>
+          </div>
 
-        {/* Row 2 — Scrolls Right */}
-        <div className="flex overflow-hidden group">
-          <div
-            className="flex gap-3 sm:gap-4 animate-marquee group-hover:[animation-play-state:paused]"
-            style={{ animationDirection: "reverse" }}
-          >
-            {row2.map((rev, idx) => (
-              <ReviewCard key={`r2-a-${idx}`} review={rev} />
-            ))}
-            {row2.map((rev, idx) => (
-              <ReviewCard key={`r2-b-${idx}`} review={rev} />
-            ))}
-          </div>
-          <div
-            className="flex gap-3 sm:gap-4 animate-marquee group-hover:[animation-play-state:paused]"
-            style={{ animationDirection: "reverse" }}
-            aria-hidden="true"
-          >
-            {row2.map((rev, idx) => (
-              <ReviewCard key={`r2-c-${idx}`} review={rev} />
-            ))}
-            {row2.map((rev, idx) => (
-              <ReviewCard key={`r2-d-${idx}`} review={rev} />
-            ))}
+          {/* Row 2 — Scrolls Right */}
+          <div className="flex overflow-hidden group">
+            <div
+              className="flex gap-3 sm:gap-4 animate-marquee group-hover:[animation-play-state:paused]"
+              style={{ animationDirection: "reverse" }}
+            >
+              {row2.map((rev, idx) => (
+                <ReviewCard key={`r2-a-${idx}`} review={rev} />
+              ))}
+              {row2.map((rev, idx) => (
+                <ReviewCard key={`r2-b-${idx}`} review={rev} />
+              ))}
+            </div>
+            <div
+              className="flex gap-3 sm:gap-4 animate-marquee group-hover:[animation-play-state:paused]"
+              style={{ animationDirection: "reverse" }}
+              aria-hidden="true"
+            >
+              {row2.map((rev, idx) => (
+                <ReviewCard key={`r2-c-${idx}`} review={rev} />
+              ))}
+              {row2.map((rev, idx) => (
+                <ReviewCard key={`r2-d-${idx}`} review={rev} />
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }

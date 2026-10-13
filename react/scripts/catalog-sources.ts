@@ -112,3 +112,11 @@ export function assertFailClosedCatalogEnv(env: EnvMap = process.env): void {
 export function catalogSourceUsesStagingHost(url: string | undefined): boolean {
   return Boolean(url?.includes(FORBIDDEN_STAGING_HOST));
 }
+
+export function assertSnapshotPolicy(fetched: boolean, failClosed: boolean, path: string): void {
+  if (!fetched && failClosed) {
+    throw new Error(
+      `[Manifest Builder] Fail-closed build failed to fetch snapshot for ${path}. Refusing to silently preserve stale snapshot in production release.`,
+    );
+  }
+}

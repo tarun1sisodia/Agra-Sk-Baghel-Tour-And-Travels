@@ -1,5 +1,4 @@
 import type { TourPackage } from "../data";
-import { packages as staticPackages } from "../data";
 import { getApiBaseUrl } from "./api";
 import { resolveCatalogMediaUrl } from "./catalog";
 
@@ -163,26 +162,7 @@ export async function loadRoutesManifest(): Promise<Record<string, CompressedRou
 }
 
 export async function loadPublishedPackages(): Promise<TourPackage[]> {
-  const bySlug = new Map<string, TourPackage>();
-
-  // 1. Static baseline
-  for (const p of staticPackages) {
-    bySlug.set(p.slug, p);
-  }
-
-  // 2. Manifest snapshot if available
-  try {
-    const manifest = await fetchCatalogManifest();
-    if (manifest?.packages && manifest.packages.length > 0) {
-      for (const p of manifest.packages) {
-        bySlug.set(p.slug, p);
-      }
-    }
-  } catch {
-    // Ignore fallback
-  }
-
-  // 3. Live tour-packages manifest from Fastify API
+  // 1. Live tour-packages manifest from Fastify API (Primary source of truth)
   try {
     const apiBase = getApiBaseUrl();
     const controller = new AbortController();
@@ -195,17 +175,28 @@ export async function loadPublishedPackages(): Promise<TourPackage[]> {
     if (res.ok) {
       const json = await res.json();
       const items = Array.isArray(json?.data) ? json.data : [];
-      for (const item of items) {
-        if (item.status && item.status !== "published") continue;
-        const mapped = toDossierTourPackage(item);
-        bySlug.set(mapped.slug, mapped);
+      const published = items
+        .filter((item: any) => !item.status || item.status === "published")
+        .map((item: any) => toDossierTourPackage(item));
+      if (published.length > 0) {
+        return published;
       }
     }
   } catch {
-    // Ignore and return existing map
+    // API unavailable or network timeout; fall through to verified manifest snapshot
   }
 
-  return Array.from(bySlug.values());
+  // 2. Verified manifest snapshot emitted during build
+  try {
+    const manifest = await fetchCatalogManifest();
+    if (manifest?.packages && manifest.packages.length > 0) {
+      return manifest.packages;
+    }
+  } catch {
+    // Manifest snapshot unavailable
+  }
+
+  return [];
 }
 
 export function toTourPackage(item: any): TourPackage {
@@ -361,14 +352,15 @@ export async function fetchPublishedLocalTransfers(): Promise<any[]> {
   return [];
 }
 
-/** Fetch vehicle fleet specifications */
+/** Fetch vehicle fleet specifications from canonical endpoint */
 export async function fetchFleet(): Promise<any[]> {
   try {
     const apiBase = getApiBaseUrl();
-    const res = await fetch(`${apiBase}/api/v1/routes/fleets`, { headers: { Accept: "application/json" } });
+    const res = await fetch(`${apiBase}/api/v1/fleet`, { headers: { Accept: "application/json" } });
     if (res.ok) {
       const json = await res.json();
-      return Array.isArray(json?.data) ? json.data : [];
+      const payload = json?.data ?? json;
+      return Array.isArray(payload?.vehicles) ? payload.vehicles : Array.isArray(payload) ? payload : [];
     }
   } catch {
     // Return empty on offline/static

@@ -22,16 +22,16 @@ interface ServiceCategory {
   description: string;
   image: string;
   highlights: string[];
-  vehicleTypes: string;
+  vehicleTypes?: string;
   idealFor: string;
-  tariffSummary: string;
+  tariffSummary?: string;
   bookingUrl: string;
   secondaryUrl?: string;
   secondaryLabel?: string;
   inquiryText: string;
 }
 
-const CANONICAL_CATEGORIES: ServiceCategory[] = [
+const CANONICAL_CATEGORIES: Omit<ServiceCategory, "vehicleTypes" | "tariffSummary">[] = [
   {
     id: "outstation",
     number: "01",
@@ -47,9 +47,7 @@ const CANONICAL_CATEGORIES: ServiceCategory[] = [
       "Doorstep pickup anywhere in Agra city & direct drop to Delhi NCR terminals",
       "All-India commercial tourist permits with flight delay arrival tracking",
     ],
-    vehicleTypes: "Sedan (Dzire), MPV (Ertiga), Luxury SUV (Innova Crysta), Tempo (12–26 Seater)",
     idealFor: "Executive business passengers, interstate family travel, and Golden Triangle circuits.",
-    tariffSummary: "Verified Point-to-Point Fares · All Tolls & Chauffeur Included",
     bookingUrl: "/book?category=outstation",
     secondaryUrl: "/routes",
     secondaryLabel: "Explore Outstation Routes",
@@ -70,9 +68,7 @@ const CANONICAL_CATEGORIES: ServiceCategory[] = [
       "Dedicated AC vehicle and chauffeur on standby at every monument gate",
       "Zero commission shopping halts; 100% guest-focused heritage itinerary",
     ],
-    vehicleTypes: "Executive Sedan, Ertiga MPV, Innova Crysta, Tempo Traveller",
     idealFor: "Heritage lovers, families, photographers, and independent voyagers.",
-    tariffSummary: "Published Package Rates · Flexible Sightseeing Hours",
     bookingUrl: "/book?category=local",
     secondaryUrl: "/packages",
     secondaryLabel: "View Tour Packages",
@@ -93,9 +89,7 @@ const CANONICAL_CATEGORIES: ServiceCategory[] = [
       "Luggage handling assistance and direct curbside drop-off",
       "Direct transit via Yamuna Expressway for Delhi IGI flights",
     ],
-    vehicleTypes: "Executive Sedan, Ertiga MPV, Innova Crysta",
     idealFor: "International flight passengers, executive arrivals at Agra Cantt station.",
-    tariffSummary: "Fixed Terminal Transfers · Zero Parking or Roadside Extras",
     bookingUrl: "/book?category=transfer",
     secondaryUrl: "/book",
     secondaryLabel: "Book Fast Transfer",
@@ -116,9 +110,7 @@ const CANONICAL_CATEGORIES: ServiceCategory[] = [
       "Same-Day Agra by Gatimaan Superfast Express with private AC cab",
       "Golden Triangle 3-Day Circuit (Delhi – Agra – Jaipur)",
     ],
-    vehicleTypes: "Executive Sedan, Innova Crysta, 12–26 Seater Tempo Traveller, Force Urbania VIP",
     idealFor: "First-time international visitors, families, and curated luxury holidays.",
-    tariffSummary: "All-Inclusive Circuits · Licensed Guides & Chauffeur",
     bookingUrl: "/book?category=tour",
     secondaryUrl: "/packages",
     secondaryLabel: "Explore Handcrafted Tours",
@@ -128,6 +120,7 @@ const CANONICAL_CATEGORIES: ServiceCategory[] = [
 
 export function ServicesPage({ language = "en" }: ServicesPageProps) {
   const [liveFleet, setLiveFleet] = useState<PublicFleetVehicle[]>([]);
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -143,18 +136,44 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
     };
   }, []);
 
-  const categories = useMemo(() => {
+  const categories = useMemo<ServiceCategory[]>(() => {
     const activeVehicles = liveFleet.filter((v) => v.active);
     const sedan = activeVehicles.find((v) => v.id === "sedan" || v.tier === "sedan");
+    const activeSummary =
+      activeVehicles.length > 0
+        ? activeVehicles.map((v) => v.name).join(", ")
+        : "Executive Sedan, Ertiga MPV, Innova Crysta, Tempo Traveller";
 
     return CANONICAL_CATEGORIES.map((cat) => {
-      if (cat.id === "outstation" && sedan && sedan.perKm > 0) {
-        return {
-          ...cat,
-          tariffSummary: `Starting ₹${sedan.perKm}/km for Round-Trip · Verified Point-to-Point Fares`,
-        };
+      let tariffSummary = "Published Package Rates · Server-Authoritative Fares";
+      let vehicleTypes = activeSummary;
+
+      if (cat.id === "outstation") {
+        tariffSummary =
+          sedan && sedan.perKm > 0
+            ? `Starting ₹${sedan.perKm}/km for Round-Trip · Verified Point-to-Point Fares`
+            : "Verified Point-to-Point Outstation Fares · Tolls Included";
+      } else if (cat.id === "local-sightseeing") {
+        tariffSummary = "Published 8 Hr & 12 Hr Packages · Zero Surge Guarantee";
+        const localVehicles = activeVehicles.filter((v) => ["sedan", "ertiga", "innova", "tempo"].includes(v.tier || v.id));
+        if (localVehicles.length > 0) {
+          vehicleTypes = localVehicles.map((v) => v.name).join(", ");
+        }
+      } else if (cat.id === "transfers") {
+        tariffSummary = "Fixed Platform & Terminal Transfers · Zero Parking Extras";
+        const transferVehicles = activeVehicles.filter((v) => ["sedan", "ertiga", "innova"].includes(v.tier || v.id));
+        if (transferVehicles.length > 0) {
+          vehicleTypes = transferVehicles.map((v) => v.name).join(", ");
+        }
+      } else if (cat.id === "tour-packages") {
+        tariffSummary = "All-Inclusive Circuits · Licensed Guides & Chauffeur";
       }
-      return cat;
+
+      return {
+        ...cat,
+        vehicleTypes,
+        tariffSummary,
+      };
     });
   }, [liveFleet]);
 
@@ -234,114 +253,140 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
           </p>
         </div>
 
-        {categories.map((cat, idx) => (
-          <article
-            key={cat.id}
-            id={cat.id}
-            style={{ "--reveal-delay": `${(idx % 2) * 120}ms` } as React.CSSProperties}
-            className="scroll-mt-24 group relative rounded-2xl overflow-hidden border border-border-warm/70 bg-ink-charcoal text-ivory-surface shadow-md lift reveal"
-          >
-            {/* Full-Bleed Atmospheric Image & Backdrop */}
-            <div className="relative w-full min-h-[460px] sm:min-h-[500px] lg:min-h-[560px] flex flex-col justify-between overflow-hidden">
-              <img
-                src={cat.image}
-                alt={cat.name}
-                loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 group-focus-within:scale-105"
-              />
-              {/* Deep Luxury Editorial Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight via-ink-midnight/80 to-ink-midnight/35" />
-              <div className="absolute inset-0 bg-radial-[at_top_right] from-transparent via-black/20 to-black/60 pointer-events-none" />
+        {categories.map((cat, idx) => {
+          const isExpanded = expandedCardId === cat.id;
 
-              {/* Top Banner: Category Number & Pill */}
-              <div className="relative z-10 p-5 sm:p-6 lg:p-8 flex items-center justify-between border-b border-white/10 backdrop-blur-xs">
-                <div className="flex items-center gap-3">
-                  <span className="font-price-display text-2xl sm:text-3xl text-primary-fixed-dim font-bold">
-                    {cat.number}
-                  </span>
-                  <div className="h-4 w-px bg-white/20" />
-                  <span className="font-label-caps text-terracotta-sunlit uppercase font-bold tracking-widest text-xs">
-                    {cat.subtitle}
-                  </span>
-                </div>
-                <span className="hidden sm:inline-flex items-center px-3 py-1 rounded-full bg-black/40 border border-gold-accent/40 text-gold-accent font-label-caps text-label-md font-bold tracking-wider backdrop-blur-md">
-                  {cat.tag}
-                </span>
-              </div>
+          return (
+            <article
+              key={cat.id}
+              id={cat.id}
+              style={{ "--reveal-delay": `${(idx % 2) * 120}ms` } as React.CSSProperties}
+              className="scroll-mt-24 group relative rounded-2xl overflow-hidden border border-border-warm/70 bg-ink-charcoal text-ivory-surface shadow-md lift reveal focus-within:ring-2 focus-within:ring-primary/60"
+            >
+              {/* Full-Bleed Atmospheric Image & Backdrop */}
+              <div className="relative w-full min-h-[460px] sm:min-h-[500px] lg:min-h-[560px] flex flex-col justify-between overflow-hidden">
+                <img
+                  src={cat.image}
+                  alt={cat.name}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 group-focus-within:scale-105"
+                />
+                {/* Deep Luxury Editorial Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight via-ink-midnight/80 to-ink-midnight/40" />
+                <div className="absolute inset-0 bg-radial-[at_top_right] from-transparent via-black/20 to-black/60 pointer-events-none" />
 
-              {/* Bottom Card Content: Title, Description, Highlights & CTAs */}
-              <div className="relative z-10 p-5 sm:p-6 lg:p-8 flex flex-col justify-end bg-gradient-to-t from-ink-midnight via-ink-midnight/95 to-transparent pt-12 sm:pt-16">
-                <div className="max-w-4xl">
-                  <h3 className="font-headline-hero text-2xl sm:text-3xl lg:text-4xl text-ivory-surface font-semibold mb-2.5 leading-tight">
+                {/* Top Banner: Category Number, Subtitle & Prominent TOP Title */}
+                <div className="relative z-10 p-5 sm:p-6 lg:p-8 flex flex-col gap-2.5 border-b border-white/10 backdrop-blur-xs bg-ink-midnight/40">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="font-price-display text-2xl sm:text-3xl text-primary-fixed-dim font-bold">
+                        {cat.number}
+                      </span>
+                      <div className="h-4 w-px bg-white/20" />
+                      <span className="font-label-caps text-terracotta-sunlit uppercase font-bold tracking-widest text-xs">
+                        {cat.subtitle}
+                      </span>
+                    </div>
+                    <span className="hidden sm:inline-flex items-center px-3 py-1 rounded-full bg-black/40 border border-gold-accent/40 text-gold-accent font-label-caps text-label-md font-bold tracking-wider backdrop-blur-md">
+                      {cat.tag}
+                    </span>
+                  </div>
+
+                  <h3 className="font-headline-hero text-2xl sm:text-3xl lg:text-4xl text-ivory-surface font-semibold leading-tight mt-0.5">
                     {cat.name}
                   </h3>
-                  <p className="font-body-md text-ivory-surface/85 text-sm sm:text-base leading-relaxed mb-4 max-w-3xl">
-                    {cat.description}
-                  </p>
 
-                  {/* Highlights Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 mb-4 py-3 border-y border-white/15">
-                    {cat.highlights.map((highlight) => (
-                      <div key={highlight} className="flex items-start gap-2 text-ivory-surface/90 text-xs sm:text-sm">
-                        <span className="material-symbols-outlined text-success-jade text-icon-16 shrink-0 mt-0.5">
-                          check_circle
-                        </span>
-                        <span>{highlight}</span>
+                  {/* Accessible Mobile Tap Interaction Toggle */}
+                  <button
+                    type="button"
+                    onClick={() => setExpandedCardId(isExpanded ? null : cat.id)}
+                    aria-expanded={isExpanded}
+                    aria-controls={`details-${cat.id}`}
+                    className="sm:hidden self-start mt-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-gold-accent text-xs font-bold font-label-caps flex items-center gap-1.5 transition-colors hover:bg-white/20 active:scale-95"
+                  >
+                    <span>{isExpanded ? "Hide Details" : "Tap for Details & Booking"}</span>
+                    <span className="material-symbols-outlined text-icon-14">
+                      {isExpanded ? "expand_less" : "expand_more"}
+                    </span>
+                  </button>
+                </div>
+
+                {/* Detailed Information: Intentional Reveal on Scroll & Hover/Focus on Desktop; Tap on Mobile */}
+                <div
+                  id={`details-${cat.id}`}
+                  className={`relative z-10 p-5 sm:p-6 lg:p-8 flex flex-col justify-end bg-gradient-to-t from-ink-midnight via-ink-midnight/95 to-transparent pt-6 sm:pt-10 transition-all duration-300 ${
+                    isExpanded ? "block" : "hidden sm:block sm:opacity-95 group-hover:opacity-100 group-focus-within:opacity-100"
+                  }`}
+                >
+                  <div className="max-w-4xl">
+                    <p className="font-body-md text-ivory-surface/85 text-sm sm:text-base leading-relaxed mb-4 max-w-3xl">
+                      {cat.description}
+                    </p>
+
+                    {/* Highlights Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 mb-4 py-3 border-y border-white/15">
+                      {cat.highlights.map((highlight) => (
+                        <div key={highlight} className="flex items-start gap-2 text-ivory-surface/90 text-xs sm:text-sm">
+                          <span className="material-symbols-outlined text-success-jade text-icon-16 shrink-0 mt-0.5">
+                            check_circle
+                          </span>
+                          <span>{highlight}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Fleet & Suitability Specs */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 text-xs text-ivory-surface/75">
+                      <div className="bg-white/5 rounded-lg p-2.5 border border-white/10">
+                        <strong className="block text-gold-accent font-label-caps uppercase text-label-caps tracking-wider mb-1">
+                          Active Fleet Options
+                        </strong>
+                        <span className="text-ivory-surface/90">{cat.vehicleTypes}</span>
                       </div>
-                    ))}
-                  </div>
-
-                  {/* Fleet & Suitability Specs */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5 text-xs text-ivory-surface/75">
-                    <div className="bg-white/5 rounded-lg p-2.5 border border-white/10">
-                      <strong className="block text-gold-accent font-label-caps uppercase text-label-caps tracking-wider mb-1">
-                        Active Fleet Options
-                      </strong>
-                      <span className="text-ivory-surface/90">{cat.vehicleTypes}</span>
-                    </div>
-                    <div className="bg-white/5 rounded-lg p-2.5 border border-white/10">
-                      <strong className="block text-gold-accent font-label-caps uppercase text-label-caps tracking-wider mb-1">
-                        Best Suited For
-                      </strong>
-                      <span className="text-ivory-surface/90">{cat.idealFor}</span>
-                    </div>
-                  </div>
-
-                  {/* Action Dock: Tariff Pill + Dual Action Buttons */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-terracotta-sunlit text-icon-18">
-                        verified
-                      </span>
-                      <span className="font-label-caps text-ivory-surface/80 text-xs tracking-wider">
-                        {cat.tariffSummary}
-                      </span>
+                      <div className="bg-white/5 rounded-lg p-2.5 border border-white/10">
+                        <strong className="block text-gold-accent font-label-caps uppercase text-label-caps tracking-wider mb-1">
+                          Best Suited For
+                        </strong>
+                        <span className="text-ivory-surface/90">{cat.idealFor}</span>
+                      </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <PrimaryButton href={cat.bookingUrl} size="md">
-                        Reserve Service
-                      </PrimaryButton>
-                      {cat.secondaryUrl && (
-                        <a
-                          href={cat.secondaryUrl}
-                          className={EDITORIAL_BUTTONS.secondary}
-                        >
-                          {cat.secondaryLabel || "View Details"}
-                        </a>
-                      )}
-                      <WhatsAppButton
-                        size="md"
-                        inquiryText={cat.inquiryText}
-                        label="WhatsApp Consultation"
-                      />
+                    {/* Action Dock: Tariff Pill + Dual Action Buttons */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-terracotta-sunlit text-icon-18">
+                          verified
+                        </span>
+                        <span className="font-label-caps text-ivory-surface/80 text-xs tracking-wider">
+                          {cat.tariffSummary}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <PrimaryButton href={cat.bookingUrl} size="md">
+                          Reserve Service
+                        </PrimaryButton>
+                        {cat.secondaryUrl && (
+                          <a
+                            href={cat.secondaryUrl}
+                            className={EDITORIAL_BUTTONS.secondary}
+                          >
+                            {cat.secondaryLabel || "View Details"}
+                          </a>
+                        )}
+                        <WhatsAppButton
+                          size="md"
+                          inquiryText={cat.inquiryText}
+                          label="WhatsApp Consultation"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </section>
 
       {/* ── 3. WHY CHOOSE US (4 ASSURANCES) ── */}

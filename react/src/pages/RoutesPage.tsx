@@ -5,7 +5,6 @@ import { WhatsAppIcon } from "../components/icons";
 import { InstantRouteCalculator } from "../components/routes/InstantRouteCalculator";
 import { Pagination } from "../components/ui/Pagination";
 import { loadRoutesManifest } from "../services/catalogManifest";
-import { routes as staticCatalogRoutes, type Route as CatalogueRoute } from "../data/catalogue";
 import { LatestRoutesSection } from "../templates/sections/LatestRoutesSection";
 
 export interface RoutesPageProps {
@@ -52,57 +51,6 @@ interface ManifestRouteData {
   toll: 1 | 0;
 }
 
-function mapCatalogueRoute(item: CatalogueRoute): RouteItem {
-  const isLocal = (item as any).kind === "local" || (item as any).kind === "local-tour" || item.pricingModel === "day120" || item.pricingModel === "12hr-120km" || item.pricingModel === "8hr-80km";
-  const isTempo = item.pricingModel === "tempo";
-  let category: RouteCategory = "expressway";
-  const cLower = (item.corridor || "").toLowerCase();
-  if (cLower.includes("expressway") || cLower.includes("delhi") || cLower.includes("gurgaon") || cLower.includes("noida")) {
-    category = "expressway";
-  } else if (cLower.includes("jaipur") || cLower.includes("golden") || cLower.includes("rajasthan")) {
-    category = "golden-triangle";
-  } else if (cLower.includes("mathura") || cLower.includes("vrindavan") || cLower.includes("haridwar") || cLower.includes("ayodhya") || cLower.includes("ganga")) {
-    category = "pilgrimage";
-  } else if (cLower.includes("lucknow") || cLower.includes("gwalior") || cLower.includes("heritage")) {
-    category = "heritage";
-  } else if (isLocal) {
-    category = "local";
-  } else if (isTempo) {
-    category = "tempo";
-  }
-
-  const origin = item.origin || (item.from ? item.from.replace(/-/g, " ") : "Agra");
-  const destination = item.destination || (item.to ? item.to.replace(/-/g, " ") : "Outstation");
-
-  return {
-    id: item.id,
-    name: `${origin} → ${destination}`,
-    origin,
-    destination,
-    category,
-    categoryBadge: item.corridor ? item.corridor.replace("->", "→") : (isLocal ? "LOCAL 120KM PACKAGE" : "OUTSTATION CORRIDOR"),
-    distanceKm: item.km > 0 ? item.km : 180,
-    duration: item.duration || "4h 00m",
-    highway: item.corridor || "Direct Highway Corridor",
-    description: isLocal
-      ? `Dedicated 120 km full-day local & outstation chauffeur service connecting ${origin} to ${destination}.`
-      : isTempo
-      ? `Spacious 9-26 seater Tempo Traveller & Force Urbania group rental connecting ${origin} to ${destination}.`
-      : `Point-to-point AC outstation cab directly connecting ${origin} to ${destination} with transparent pricing.`,
-    tollNote: item.toll === 1 ? "Highway tolls included in one-way fare" : "Tolls as per actuals",
-    stateTaxNote: "Interstate commercial permits clear",
-    pricingModel: item.pricingModel,
-    fares: {
-      sedan: Number(item.fares?.sedan ?? 0),
-      ertiga: Number(item.fares?.ertiga ?? 0),
-      crysta: Number(item.fares?.innova ?? 0),
-      tempo: Number(item.fares?.tempo ?? 0),
-      urbania: Number(item.fares?.urbania ?? 0),
-    },
-  };
-}
-
-
 const ROUTE_FAQS = [
   {
     q: "How does one-way outstation taxi billing work?",
@@ -124,6 +72,8 @@ const ROUTE_FAQS = [
 
 export function RoutesPage({ language = "en" }: RoutesPageProps) {
   const [manifest, setManifest] = useState<Record<string, ManifestRouteData> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -138,20 +88,35 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
 
   useEffect(() => {
     let isMounted = true;
+    setLoading(true);
     loadRoutesManifest()
       .then((data) => {
-        if (isMounted && data && Object.keys(data).length > 0) {
+        if (!isMounted) return;
+        if (data && Object.keys(data).length > 0) {
           setManifest(data as any);
+          setLoadError(null);
+        } else {
+          setManifest({});
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (isMounted) {
+          setManifest({});
+          setLoadError("Unable to load live verified routes.");
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
     return () => {
       isMounted = false;
     };
   }, []);
 
   const allRoutes = useMemo<RouteItem[]>(() => {
-    if (!manifest) return staticCatalogRoutes.map(mapCatalogueRoute);
+    if (!manifest || Object.keys(manifest).length === 0) return [];
     return Object.entries(manifest).map(([slug, item]) => {
       const isLocal = item.pm === "day120";
       const isTempo = item.pm === "tempo";
@@ -399,9 +364,13 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
         <div className="max-w-[1280px] mx-auto px-margin-mobile lg:px-margin">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-on-surface-variant font-medium mb-4">
             <span>
-              Showing <strong className="text-on-surface">{filteredRoutes.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}–{Math.min(currentPage * itemsPerPage, filteredRoutes.length)}</strong> of <strong className="text-on-surface">{filteredRoutes.length}</strong> verified corridors
+              {loading ? (
+                <span>Loading verified published corridors...</span>
+              ) : (
+                <>Showing <strong className="text-on-surface">{filteredRoutes.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}–{Math.min(currentPage * itemsPerPage, filteredRoutes.length)}</strong> of <strong className="text-on-surface">{filteredRoutes.length}</strong> verified corridors</>
+              )}
             </span>
-            {searchQuery && (
+            {searchQuery && !loading && (
               <button
                 type="button"
                 onClick={() => { setSearchQuery(""); setCurrentPage(1); }}
@@ -412,123 +381,181 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
             )}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
-            {paginatedRoutes.map((route) => (
-              <div
-                key={route.id}
-                className="bg-surface-container-lowest rounded-xl p-3.5 sm:p-4.5 shadow-xs border border-border-warm/70 flex flex-col justify-between hover:shadow-md transition-all"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">
-                    <span className="px-2 py-0.5 rounded bg-sandstone-wash text-primary font-label-caps text-body-sm uppercase font-bold tracking-wider">
-                      {route.categoryBadge}
-                    </span>
-                    <span className="font-label-caps text-body-sm text-on-surface-variant flex items-center gap-1 font-semibold">
-                      <span className="material-symbols-outlined text-icon-13 text-success-jade">check_circle</span>
-                      {route.tollNote}
-                    </span>
+          {loading ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5" aria-busy="true" aria-label="Loading verified routes">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <div
+                  key={idx}
+                  className="bg-surface-container-lowest rounded-xl p-4 shadow-xs border border-border-warm/60 animate-pulse flex flex-col justify-between min-h-[220px]"
+                >
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="h-5 w-24 bg-surface-container-high rounded" />
+                      <div className="h-4 w-32 bg-surface-container-high rounded" />
+                    </div>
+                    <div className="h-6 w-3/4 bg-surface-container-high rounded mb-3" />
+                    <div className="h-4 w-1/2 bg-surface-container-high rounded mb-4" />
+                    <div className="h-14 bg-surface-container-low rounded-lg mb-4" />
                   </div>
-
-                  <h3 className="font-headline-md text-sm sm:text-base text-on-surface font-bold mb-1.5">
-                    <a href={`/routes/${route.id}/`} className="hover:text-primary transition-colors">
-                      {route.name}
-                    </a>
-                  </h3>
-
-                  <div className="flex items-center gap-3 font-body-sm text-body-md text-on-surface-variant mb-2 flex-wrap">
-                    <span className="flex items-center gap-1 font-medium">
-                      <span className="material-symbols-outlined text-icon-14 text-primary">pin_drop</span>
-                      {route.distanceKm} km
-                    </span>
-                    <span className="flex items-center gap-1 font-medium">
-                      <span className="material-symbols-outlined text-icon-14 text-primary">schedule</span>
-                      {route.duration}
-                    </span>
-                    <span className="flex items-center gap-1 font-medium">
-                      <span className="material-symbols-outlined text-icon-14 text-primary">route</span>
-                      {route.highway}
-                    </span>
-                  </div>
-
-                  <p className="font-body-sm text-body-md text-on-surface-variant mb-3 leading-relaxed">
-                    {route.description}
-                  </p>
-
-                  {/* Fare Grid (5-column: Sedan, Ertiga, Innova, Tempo, Urbania) */}
-                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 mb-3 p-2 rounded-lg bg-surface-container-low border border-border-warm/40 text-center">
-                    <div className="p-0.5">
-                      <span className="font-label-caps text-label-caps text-secondary uppercase block font-semibold">Sedan</span>
-                      <span className="font-price-display text-sm sm:text-base text-primary font-bold">
-                        {route.fares.sedan > 0 ? `₹${route.fares.sedan.toLocaleString("en-IN")}` : "On request"}
-                      </span>
-                    </div>
-                    <div className="p-0.5">
-                      <span className="font-label-caps text-label-caps text-secondary uppercase block font-semibold">Ertiga</span>
-                      <span className="font-price-display text-sm sm:text-base text-ink-charcoal font-bold">
-                        {route.fares.ertiga > 0 ? `₹${route.fares.ertiga.toLocaleString("en-IN")}` : "On request"}
-                      </span>
-                    </div>
-                    <div className="p-0.5">
-                      <span className="font-label-caps text-label-caps text-secondary uppercase block font-semibold">Innova</span>
-                      <span className="font-price-display text-sm sm:text-base text-ink-charcoal font-bold">
-                        {route.fares.crysta > 0 ? `₹${route.fares.crysta.toLocaleString("en-IN")}` : "On request"}
-                      </span>
-                    </div>
-                    <div className="p-0.5">
-                      <span className="font-label-caps text-label-caps text-secondary uppercase block font-semibold">
-                        Tempo <span className="text-label-caps text-terracotta-sandstone font-normal">(RT)</span>
-                      </span>
-                      <span className="font-price-display text-sm sm:text-base text-ink-charcoal font-bold">
-                        {route.fares.tempo > 0 ? `₹${route.fares.tempo.toLocaleString("en-IN")}` : "On request"}
-                      </span>
-                    </div>
-                    <div className="p-0.5">
-                      <span className="font-label-caps text-label-caps text-secondary uppercase block font-semibold">
-                        Urbania <span className="text-label-caps text-terracotta-sandstone font-normal">(RT)</span>
-                      </span>
-                      <span className="font-price-display text-sm sm:text-base text-ink-charcoal font-bold">
-                        {route.fares.urbania > 0 ? `₹${route.fares.urbania.toLocaleString("en-IN")}` : "On request"}
-                      </span>
-                    </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-border-warm/40">
+                    <div className="h-4 w-28 bg-surface-container-high rounded" />
+                    <div className="h-8 w-24 bg-surface-container-high rounded-lg" />
                   </div>
                 </div>
-
-                <div className="flex items-center justify-between gap-3 pt-2.5 border-t border-border-warm/60">
-                  <span className="font-label-caps text-label-caps text-on-surface-variant uppercase font-semibold">
-                    {route.stateTaxNote}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <a
-                      className="px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-caps text-xs transition-colors font-semibold inline-flex items-center gap-1"
-                      href={`/routes/${route.id}/`}
-                    >
-                      <span>Details</span>
-                      <span className="material-symbols-outlined text-icon-13">info</span>
-                    </a>
-                    <a
-                      className="px-3 py-1.5 rounded-lg bg-black hover:bg-neutral-900 border border-white/10 text-white font-label-caps text-xs transition-colors font-bold inline-flex items-center gap-1.5 active:scale-[0.98]"
-                      style={{ color: "#ffffff" }}
-                      href={`https://wa.me/919762817598?text=Booking%20Route%20${encodeURIComponent(route.name)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <WhatsAppIcon className="w-3.5 h-3.5 shrink-0 text-white" />
-                      <span className="text-white" style={{ color: "#ffffff" }}>WhatsApp</span>
-                    </a>
-                    <a
-                      className="px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary-container text-white font-label-caps text-xs transition-all shadow-xs font-bold flex items-center gap-1"
-                      href={`/book?category=outstation&from=${encodeURIComponent(route.origin || route.name.split("→")[0]?.trim() || "Agra")}&to=${encodeURIComponent(route.destination || route.name.split("→")[1]?.trim() || "")}&route=${encodeURIComponent(route.id)}`}
-                    >
-                      <span>Book Cab</span>
-                      <span className="material-symbols-outlined text-icon-13">arrow_forward</span>
-                    </a>
-                  </div>
-                </div>
+              ))}
+            </div>
+          ) : filteredRoutes.length === 0 ? (
+            <div className="text-center py-12 px-4 rounded-2xl bg-surface-container-lowest border border-border-warm/60 max-w-xl mx-auto shadow-xs">
+              <div className="w-12 h-12 rounded-full bg-sandstone-wash text-primary flex items-center justify-center mx-auto mb-3">
+                <span className="material-symbols-outlined text-icon-24">route</span>
               </div>
-            ))}
-          </div>
+              <h3 className="font-headline-md text-base text-ink-charcoal font-bold mb-1">
+                {searchQuery ? "No matching corridors found" : "No published routes available"}
+              </h3>
+              <p className="font-body-md text-xs text-on-surface-variant max-w-md mx-auto mb-4 leading-relaxed">
+                {searchQuery
+                  ? `We could not find any verified corridors matching "${searchQuery}". Clear your search query or switch corridor filter.`
+                  : "Route manifest is undergoing synchronization with dispatch. For immediate point-to-point fares, contact dispatch directly."}
+              </p>
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => { setSearchQuery(""); setSelectedFilter("all"); setCurrentPage(1); }}
+                  className="px-4 py-2 rounded-lg bg-primary text-white text-xs font-bold font-label-caps hover:bg-primary-container transition-colors"
+                >
+                  Reset Filters
+                </button>
+              ) : (
+                <a
+                  href={`https://wa.me/${contact.phone.replace(/[^0-9]/g, "")}?text=Hello%20Agra%20SK%20Baghel%20Desk%2C%20I%20would%20like%20to%20inquire%20about%20a%20custom%20route.`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-xs font-bold font-label-caps hover:bg-primary-container transition-colors"
+                >
+                  <span>Inquire via WhatsApp Desk</span>
+                  <span className="material-symbols-outlined text-icon-14">arrow_forward</span>
+                </a>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+              {paginatedRoutes.map((route) => (
+                <div
+                  key={route.id}
+                  className="bg-surface-container-lowest rounded-xl p-3.5 sm:p-4.5 shadow-xs border border-border-warm/70 flex flex-col justify-between hover:shadow-md transition-all"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">
+                      <span className="px-2 py-0.5 rounded bg-sandstone-wash text-primary font-label-caps text-body-sm uppercase font-bold tracking-wider">
+                        {route.categoryBadge}
+                      </span>
+                      <span className="font-label-caps text-body-sm text-on-surface-variant flex items-center gap-1 font-semibold">
+                        <span className="material-symbols-outlined text-icon-13 text-success-jade">check_circle</span>
+                        {route.tollNote}
+                      </span>
+                    </div>
+
+                    <h3 className="font-headline-md text-sm sm:text-base text-on-surface font-bold mb-1.5">
+                      <a href={`/routes/${route.id}/`} className="hover:text-primary transition-colors">
+                        {route.name}
+                      </a>
+                    </h3>
+
+                    <div className="flex items-center gap-3 font-body-sm text-body-md text-on-surface-variant mb-2 flex-wrap">
+                      <span className="flex items-center gap-1 font-medium">
+                        <span className="material-symbols-outlined text-icon-14 text-primary">pin_drop</span>
+                        {route.distanceKm} km
+                      </span>
+                      <span className="flex items-center gap-1 font-medium">
+                        <span className="material-symbols-outlined text-icon-14 text-primary">schedule</span>
+                        {route.duration}
+                      </span>
+                      <span className="flex items-center gap-1 font-medium">
+                        <span className="material-symbols-outlined text-icon-14 text-primary">route</span>
+                        {route.highway}
+                      </span>
+                    </div>
+
+                    <p className="font-body-sm text-body-md text-on-surface-variant mb-3 leading-relaxed">
+                      {route.description}
+                    </p>
+
+                    {/* Fare Grid (5-column: Sedan, Ertiga, Innova, Tempo, Urbania) */}
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 mb-3 p-2 rounded-lg bg-surface-container-low border border-border-warm/40 text-center">
+                      <div className="p-0.5">
+                        <span className="font-label-caps text-label-caps text-secondary uppercase block font-semibold">Sedan</span>
+                        <span className="font-price-display text-sm sm:text-base text-primary font-bold">
+                          {route.fares.sedan > 0 ? `₹${route.fares.sedan.toLocaleString("en-IN")}` : "On request"}
+                        </span>
+                      </div>
+                      <div className="p-0.5">
+                        <span className="font-label-caps text-label-caps text-secondary uppercase block font-semibold">Ertiga</span>
+                        <span className="font-price-display text-sm sm:text-base text-ink-charcoal font-bold">
+                          {route.fares.ertiga > 0 ? `₹${route.fares.ertiga.toLocaleString("en-IN")}` : "On request"}
+                        </span>
+                      </div>
+                      <div className="p-0.5">
+                        <span className="font-label-caps text-label-caps text-secondary uppercase block font-semibold">Innova</span>
+                        <span className="font-price-display text-sm sm:text-base text-ink-charcoal font-bold">
+                          {route.fares.crysta > 0 ? `₹${route.fares.crysta.toLocaleString("en-IN")}` : "On request"}
+                        </span>
+                      </div>
+                      <div className="p-0.5">
+                        <span className="font-label-caps text-label-caps text-secondary uppercase block font-semibold">
+                          Tempo <span className="text-label-caps text-terracotta-sandstone font-normal">(RT)</span>
+                        </span>
+                        <span className="font-price-display text-sm sm:text-base text-ink-charcoal font-bold">
+                          {route.fares.tempo > 0 ? `₹${route.fares.tempo.toLocaleString("en-IN")}` : "On request"}
+                        </span>
+                      </div>
+                      <div className="p-0.5">
+                        <span className="font-label-caps text-label-caps text-secondary uppercase block font-semibold">
+                          Urbania <span className="text-label-caps text-terracotta-sandstone font-normal">(RT)</span>
+                        </span>
+                        <span className="font-price-display text-sm sm:text-base text-ink-charcoal font-bold">
+                          {route.fares.urbania > 0 ? `₹${route.fares.urbania.toLocaleString("en-IN")}` : "On request"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3 pt-2.5 border-t border-border-warm/60">
+                    <span className="font-label-caps text-label-caps text-on-surface-variant uppercase font-semibold">
+                      {route.stateTaxNote}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <a
+                        className="px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-caps text-xs transition-colors font-semibold inline-flex items-center gap-1"
+                        href={`/routes/${route.id}/`}
+                      >
+                        <span>Details</span>
+                        <span className="material-symbols-outlined text-icon-13">info</span>
+                      </a>
+                      <a
+                        className="px-3 py-1.5 rounded-lg bg-black hover:bg-neutral-900 border border-white/10 text-white font-label-caps text-xs transition-colors font-bold inline-flex items-center gap-1.5 active:scale-[0.98]"
+                        style={{ color: "#ffffff" }}
+                        href={`https://wa.me/919762817598?text=Booking%20Route%20${encodeURIComponent(route.name)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <WhatsAppIcon className="w-3.5 h-3.5 shrink-0 text-white" />
+                        <span className="text-white" style={{ color: "#ffffff" }}>WhatsApp</span>
+                      </a>
+                      <a
+                        className="px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary-container text-white font-label-caps text-xs transition-all shadow-xs font-bold flex items-center gap-1"
+                        href={`/book?category=outstation&from=${encodeURIComponent(route.origin || route.name.split("→")[0]?.trim() || "Agra")}&to=${encodeURIComponent(route.destination || route.name.split("→")[1]?.trim() || "")}&route=${encodeURIComponent(route.id)}`}
+                      >
+                        <span>Book Cab</span>
+                        <span className="material-symbols-outlined text-icon-13">arrow_forward</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        {filteredRoutes.length > itemsPerPage && (
+        {!loading && filteredRoutes.length > itemsPerPage && (
           <Pagination
             totalItems={filteredRoutes.length}
             itemsPerPage={itemsPerPage}
@@ -575,7 +602,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                   <span className="px-2 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone text-label-caps font-bold uppercase">
                     Railway Transfer
                   </span>
-                  <span className="text-body-sm text-primary font-bold">From ₹800</span>
+                  <span className="text-body-sm text-primary font-bold">Fixed Transfer Fare</span>
                 </div>
                 <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
                   Agra Cantt Station (AGC) Drop/Pickup
@@ -601,7 +628,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                   <span className="px-2 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone text-label-caps font-bold uppercase">
                     Airport Corridor
                   </span>
-                  <span className="text-body-sm text-primary font-bold">From ₹3,499</span>
+                  <span className="text-body-sm text-primary font-bold">Tolls Included</span>
                 </div>
                 <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
                   Delhi IGI Airport (DEL) Direct Transfer
@@ -627,7 +654,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                   <span className="px-2 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone text-label-caps font-bold uppercase">
                     Airport Drop
                   </span>
-                  <span className="text-body-sm text-primary font-bold">From ₹900</span>
+                  <span className="text-body-sm text-primary font-bold">Terminal Drop</span>
                 </div>
                 <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
                   Agra Airport (Kheria AGR) Transfer
@@ -653,7 +680,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                   <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-label-caps font-bold uppercase">
                     8 Hr / 80 KM
                   </span>
-                  <span className="text-body-sm text-primary font-bold">From ₹1,900</span>
+                  <span className="text-body-sm text-primary font-bold">Full Day City Charter</span>
                 </div>
                 <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
                   Agra Standard Sightseeing Charter
@@ -679,7 +706,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                   <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-label-caps font-bold uppercase">
                     12 Hr / 120 KM
                   </span>
-                  <span className="text-body-sm text-primary font-bold">From ₹2,200</span>
+                  <span className="text-body-sm text-primary font-bold">Extended Heritage</span>
                 </div>
                 <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
                   Agra Extended Heritage &amp; Fatehpur Sikri
@@ -705,7 +732,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                   <span className="px-2 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone text-label-caps font-bold uppercase">
                     Station Transfer
                   </span>
-                  <span className="text-body-sm text-primary font-bold">From ₹800</span>
+                  <span className="text-body-sm text-primary font-bold">Fixed Transfer Fare</span>
                 </div>
                 <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
                   Agra Fort Railway Station (AF) Transfer

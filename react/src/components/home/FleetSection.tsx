@@ -23,20 +23,35 @@ const FLEET_IMAGE_MAP: Record<string, string> = {
 
 export function FleetSection({ language = "en" }: FleetSectionProps) {
   const [fleet, setFleet] = useState<PublicFleetVehicle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     let active = true;
+    setLoading(true);
     fetchLiveFleet()
       .then((data) => {
-        if (active && data.length > 0) setFleet(data);
+        if (!active) return;
+        if (data && data.length > 0) {
+          setFleet(data);
+          setError(false);
+        } else {
+          setFleet([]);
+        }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (active) setError(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
     return () => {
       active = false;
     };
   }, []);
 
   const langPrefix = `/${language}`;
+  const activeVehicles = fleet.filter((v) => v.active !== false);
 
   return (
     <section className="home-section fleet-section" aria-labelledby="fleet-heading">
@@ -53,10 +68,32 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
             Full fleet ↗
           </a>
         </div>
-        <div className="fleet-grid">
-          {fleet
-            .filter((v) => v.active !== false)
-            .map((v) => {
+
+        {loading ? (
+          <div className="fleet-grid" aria-busy="true" aria-label="Loading fleet options">
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <article key={idx} className="vehicle-card animate-pulse">
+                <div className="vehicle-photo bg-surface-container-high h-[200px]" />
+                <div className="vehicle-body p-4">
+                  <div className="h-5 w-28 bg-surface-container-high rounded mb-2" />
+                  <div className="h-4 w-20 bg-surface-container-low rounded mb-4" />
+                  <div className="h-8 bg-surface-container-low rounded" />
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : activeVehicles.length === 0 ? (
+          <div className="p-8 text-center rounded-xl bg-surface-container-lowest border border-border-warm/60">
+            <p className="text-body-md text-on-surface-variant mb-3">
+              Fleet availability and active dispatch tariffs are currently being refreshed.
+            </p>
+            <a className="vehicle-action-link inline-flex" href="https://wa.me/919762817598">
+              <span>Connect on WhatsApp for immediate vehicle dispatch ↗</span>
+            </a>
+          </div>
+        ) : (
+          <div className="fleet-grid">
+            {activeVehicles.map((v) => {
               const img = FLEET_IMAGE_MAP[v.tier] || FLEET_IMAGE_MAP[v.id] || "/assets/fleet/sedan.webp";
               const rateDisplay = v.perKm > 0 ? `₹${v.perKm}/km` : "On request";
 
@@ -95,7 +132,8 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
                 </article>
               );
             })}
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );

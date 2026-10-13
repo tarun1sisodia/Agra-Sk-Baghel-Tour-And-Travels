@@ -1,5 +1,29 @@
 # ArenaAI Agent Change Ledger
 
+## 2026-10-14
+
+### 2026-10-14 — Phase V2 Exit-Gate: Canonical-Data Integration Verification & Fallback Elimination
+
+- **Runtime Catalogue Authority (`react/src/services/catalogManifest.ts`, `react/src/pages/RoutesPage.tsx`)**:
+  - Removed `staticPackages` fallback from `loadPublishedPackages()`; packages now read from live Fastify `/api/v1/tour-packages` and fall back only to the verified build-time manifest snapshot.
+  - Purged `staticCatalogRoutes` and `mapCatalogueRoute` from `RoutesPage.tsx`. Added explicit loading state with skeleton shimmer and empty/error state when no routes are returned.
+  - Fixed `fetchFleet()` in `catalogManifest.ts` to call canonical `/api/v1/fleet`.
+  - Replaced hardcoded price badges in RoutesPage Section 2b with verified corridor tariff indicators.
+- **Fail-Closed Snapshot Freshness Policy (`react/scripts/build-manifest.ts`, `react/scripts/catalog-sources.ts`)**:
+  - Added `assertSnapshotPolicy(fetched, failClosed, path)`. In production releases (`CATALOG_FAIL_CLOSED=1` or `CF_PAGES=1`), an un-fetched remote snapshot throws an error, failing the build fast and preventing silent publication of stale snapshots.
+- **Services Page Acceptance (`react/src/pages/ServicesPage.tsx`)**:
+  - Moved category titles into a prominent top banner above the image backdrop for all 4 categories.
+  - Separated static editorial copy from live catalogue facts by deriving active vehicle types and tariffs dynamically from `fetchLiveFleet()`.
+  - Added accessible mobile tap interaction (`expandedCardId`, `aria-expanded`) toggle alongside scroll reveals and desktop hover/focus reveal.
+- **Fleet & Reviews Fallback Audit (`react/src/components/home/ReviewsMarquee.tsx`, `react/src/pages/FleetPage.tsx`, `react/src/components/home/FleetSection.tsx`)**:
+  - Completely purged synthetic `fallbackReviews` from `ReviewsMarquee.tsx`. Added skeleton shimmer loading and an authentic trust assurance empty card when live reviews are empty or syncing.
+  - Purged silent fallback to static `FLEET_DATA` in `FleetPage.tsx` and `FleetSection.tsx`. Added explicit loading skeletons and dispatch desk verification empty/error states with retry.
+  - Fixed missing `fleet` in `filteredVehicles` memo dependency array in `FleetPage.tsx`.
+- **Regression Testing & Monorepo Verification**:
+  - Added `react/scripts/catalog-fallback.test.ts` verifying all fallback-elimination invariant contracts.
+  - Updated `react/scripts/catalog-sources.test.ts` testing `assertSnapshotPolicy` (9/9 tests pass).
+  - Executed full monorepo `npm run verify`: passed 100% (3 typechecks, 192 backend unit tests, catalog sources tests, SEO lifecycle, 3 production builds with 59 SSG pages).
+
 ## 2026-10-12
 
 ### 2026-10-12 — Phase V2: Unified Master Remediation (Backend, Admin, Customer Site)

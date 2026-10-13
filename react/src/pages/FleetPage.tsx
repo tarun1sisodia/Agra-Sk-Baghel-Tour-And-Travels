@@ -219,15 +219,31 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
   // per-km rates and availability flow through automatically.
   const [liveFleet, setLiveFleet] = useState<PublicFleetVehicle[]>([]);
   const [localPrices, setLocalPrices] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
+    setLoading(true);
     fetchLiveFleet()
       .then((fleet) => {
-        if (isMounted) setLiveFleet(fleet);
+        if (!isMounted) return;
+        if (fleet && fleet.length > 0) {
+          setLiveFleet(fleet);
+          setLoadError(null);
+        } else {
+          setLiveFleet([]);
+          setLoadError("No active vehicles configured in dispatch catalogue.");
+        }
       })
       .catch(() => {
-        /* static fleet remains the fallback */
+        if (isMounted) {
+          setLiveFleet([]);
+          setLoadError("Unable to connect to dispatch fleet service.");
+        }
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
       });
 
     fetchPublishedLocalTransfers()
@@ -252,7 +268,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
   }, []);
 
   const fleet = useMemo(() => {
-    if (liveFleet.length === 0) return FLEET_DATA;
+    if (liveFleet.length === 0) return [];
     return FLEET_DATA.map((veh) => {
       const live = liveFleet.find((v) => TIER_TO_ID[v.tier] === veh.id || TIER_TO_ID[v.id] === veh.id);
       if (!live) return veh;
@@ -278,7 +294,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
   const filteredVehicles = useMemo(() => {
     if (activeCategory === "all") return fleet;
     return fleet.filter((v) => v.category === activeCategory);
-  }, [activeCategory]);
+  }, [activeCategory, fleet]);
 
   return (
     <div className="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen">
@@ -406,7 +422,71 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
       {/* 3. COMPREHENSIVE FLEET SHOWROOM */}
       <section className="w-full py-12 sm:py-space-2xl bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-6 sm:gap-space-xl">
-          {filteredVehicles.map((veh) => (
+          {loading ? (
+            <div className="flex flex-col gap-6" aria-busy="true" aria-label="Loading fleet showroom">
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <div
+                  key={idx}
+                  className="bg-surface-container-lowest rounded-xl shadow-xs border border-border-warm/70 p-6 animate-pulse grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[260px]"
+                >
+                  <div className="lg:col-span-5 bg-surface-container-high rounded-lg min-h-[200px]" />
+                  <div className="lg:col-span-7 flex flex-col justify-between">
+                    <div>
+                      <div className="h-6 w-1/3 bg-surface-container-high rounded mb-3" />
+                      <div className="h-4 w-3/4 bg-surface-container-high rounded mb-4" />
+                      <div className="h-16 bg-surface-container-low rounded-lg mb-4" />
+                    </div>
+                    <div className="h-8 w-1/2 bg-surface-container-high rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredVehicles.length === 0 ? (
+            <div className="text-center py-12 px-4 rounded-2xl bg-surface-container-lowest border border-border-warm/60 max-w-xl mx-auto shadow-xs">
+              <div className="w-12 h-12 rounded-full bg-sandstone-wash text-primary flex items-center justify-center mx-auto mb-3">
+                <span className="material-symbols-outlined text-icon-24">directions_car</span>
+              </div>
+              <h3 className="font-headline-md text-base text-ink-charcoal font-bold mb-1">
+                Active Fleet Verification Under Update
+              </h3>
+              <p className="font-body-md text-xs text-on-surface-variant max-w-md mx-auto mb-4 leading-relaxed">
+                {loadError || "Vehicle availability and live kilometer tariffs are undergoing synchronization with our Taj Ganj dispatch desk. Contact dispatch for immediate cab reservation."}
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoading(true);
+                    fetchLiveFleet()
+                      .then((data) => {
+                        if (data && data.length > 0) {
+                          setLiveFleet(data);
+                          setLoadError(null);
+                        } else {
+                          setLiveFleet([]);
+                          setLoadError("No active vehicles returned.");
+                        }
+                      })
+                      .catch(() => setLoadError("Unable to load dispatch fleet."))
+                      .finally(() => setLoading(false));
+                  }}
+                  className="px-4 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface text-xs font-bold font-label-caps transition-colors"
+                >
+                  Retry Verification
+                </button>
+                <a
+                  href="https://wa.me/919762817598?text=Hello%20Agra%20SK%20Baghel%20Desk%2C%20I%20would%20like%20to%20check%20cab%20availability."
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-xs font-bold font-label-caps hover:bg-primary-container transition-colors"
+                >
+                  <span>Inquire via WhatsApp Desk</span>
+                  <span className="material-symbols-outlined text-icon-14">arrow_forward</span>
+                </a>
+              </div>
+            </div>
+          ) : (
+            filteredVehicles.map((veh) => (
             <article
               key={veh.id}
               className="bg-surface-container-lowest rounded-xl shadow-xs border border-border-warm/70 overflow-hidden grid grid-cols-1 lg:grid-cols-12 items-stretch transition-all duration-300 hover:shadow-md"
@@ -545,9 +625,10 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                 </div>
               </div>
             </article>
-          ))}
-        </div>
-      </section>
+          ))
+        )}
+      </div>
+    </section>
 
       {/* 4. COMPREHENSIVE COMPARISON TABLE (Compact -20%) */}
       <section id="spec-comparison" className="w-full bg-sandstone-wash/30 py-8 sm:py-space-xl border-y border-border-warm/70">

@@ -3,6 +3,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   assertFailClosedCatalogEnv,
+  assertSnapshotPolicy,
   isFailClosedCatalogBuild,
   listCatalogSources,
   redactCatalogUrl,
@@ -58,7 +59,7 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   const apiBase = resolveCatalogApiBase(process.env);
   const catalogSources = Object.fromEntries(listCatalogSources(process.env).map((source) => [source.name, source]));
   if (!apiBase) {
-    console.info("[Manifest Builder] No VITE_API_BASE_URL/CATALOG_API_URL; using the local static catalog only (not a live release).");
+    console.info("[Manifest Builder] No VITE_API_BASE_URL/CATALOG_API_URL; using the local static catalog only (not a release build).");
   }
 
   async function fetchCatalogJson(url: string): Promise<unknown> {
@@ -90,6 +91,7 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   }
 
   function writeSnapshot(path: string, value: unknown, fetched: boolean): void {
+    assertSnapshotPolicy(fetched, failClosed, path);
     if (!fetched) {
       if (existsSync(path)) {
         console.info(`[Manifest Builder] Preserved existing snapshot at ${path} because the remote source was not fetched.`);
