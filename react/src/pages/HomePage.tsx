@@ -15,7 +15,13 @@ import {
   sanitizeInquiryName,
 } from "../services/api";
 import { fetchLiveFleet, type PublicFleetVehicle } from "../services/catalog";
-import { loadRoutesManifest, loadPublishedPackages, type CompressedRoute } from "../services/catalogManifest";
+import {
+  loadRoutesManifest,
+  loadPublishedPackages,
+  fetchPublishedTransferRoutes,
+  fetchPublishedLocalTransfers,
+  type CompressedRoute,
+} from "../services/catalogManifest";
 import type { TourPackage } from "../data";
 import { onUserInteractionOrIdle } from "../utils/deferredRevalidation";
 
@@ -117,6 +123,8 @@ export function HomePage({ language = "en" }: HomePageProps) {
   const [routesLoading, setRoutesLoading] = useState(true);
   const [publishedPackages, setPublishedPackages] = useState<TourPackage[]>([]);
   const [packagesLoading, setPackagesLoading] = useState(true);
+  const [transferRoutes, setTransferRoutes] = useState<any[]>([]);
+  const [localPackages, setLocalPackages] = useState<any[]>([]);
   const [popularTripMode, setPopularTripMode] = useState<"oneway" | "round">("oneway");
 
   useEffect(() => {
@@ -148,6 +156,18 @@ export function HomePage({ language = "en" }: HomePageProps) {
         if (active) setPackagesLoading(false);
       });
 
+    fetchPublishedTransferRoutes()
+      .then((transfers) => {
+        if (active && transfers && transfers.length > 0) setTransferRoutes(transfers);
+      })
+      .catch(() => { });
+
+    fetchPublishedLocalTransfers()
+      .then((locals) => {
+        if (active && locals && locals.length > 0) setLocalPackages(locals);
+      })
+      .catch(() => { });
+
     return () => {
       active = false;
     };
@@ -173,6 +193,85 @@ export function HomePage({ language = "en" }: HomePageProps) {
       };
     });
   }, [manifestRoutes]);
+
+  const sedanRate = useMemo(() => {
+    const found = liveFleet.find((f) => f.tier === "sedan" || f.id === "sedan");
+    return found && found.perKm && found.perKm > 0 ? found.perKm : 10;
+  }, [liveFleet]);
+
+  const tempoRate = useMemo(() => {
+    const found = liveFleet.find((f) => f.tier === "tempo" || f.id === "tempo" || f.id === "tempo-traveller");
+    return found && found.perKm && found.perKm > 0 ? found.perKm : null;
+  }, [liveFleet]);
+
+  // Authoritative dynamic pricing badges for Cab & Tour Services
+  const cabServiceTags = useMemo(() => {
+    const delhiRoute = Object.values(manifestRoutes).find((r) => r.d?.toLowerCase().includes("delhi") || r.o?.toLowerCase().includes("delhi"));
+    const jaipurRoute = Object.values(manifestRoutes).find((r) => r.d?.toLowerCase().includes("jaipur") || r.o?.toLowerCase().includes("jaipur"));
+    const delhiDropTag = delhiRoute?.fs ? `Delhi ₹${delhiRoute.fs.toLocaleString("en-IN")}` : "Delhi Express Drop";
+    const jaipurDropTag = jaipurRoute?.fs ? `Jaipur ₹${jaipurRoute.fs.toLocaleString("en-IN")}` : "Jaipur Corridor";
+
+    const roundTripTag1 = `From ₹${sedanRate}/km`;
+    const roundTripTag2 = "300 km/day minimum";
+
+    const standardLocal = localPackages.find((p) => p.slug?.includes("standard") || p.durationHours === 8);
+    const extendedLocal = localPackages.find((p) => p.slug?.includes("extended") || p.durationHours === 12);
+    const p8Price = standardLocal?.fleetPrices?.sedan || standardLocal?.from || 1900;
+    const p12Price = extendedLocal?.fleetPrices?.sedan || extendedLocal?.from || 2200;
+    const localTag1 = `8h / 80km ₹${p8Price.toLocaleString("en-IN")}`;
+    const localTag2 = `12h / 120km ₹${p12Price.toLocaleString("en-IN")}`;
+
+    const agraCanttTransfer = transferRoutes.find((t) => t.slug?.includes("agc") || t.routeCode?.includes("agc"));
+    const delhiIgiTransfer = transferRoutes.find((t) => t.slug?.includes("delhi-igi") || t.routeCode?.includes("delhi-igi"));
+    const canttPrice = agraCanttTransfer?.fleetPrices?.sedan || 800;
+    const igiPrice = delhiIgiTransfer?.fleetPrices?.sedan || (delhiRoute?.fs ? delhiRoute.fs : 3499);
+    const transferTag1 = `Agra Cantt ₹${canttPrice.toLocaleString("en-IN")}`;
+    const transferTag2 = `Delhi IGI ₹${igiPrice.toLocaleString("en-IN")}`;
+
+    const tempoTag1 = tempoRate ? `From ₹${tempoRate}/km` : "9–26 Seater";
+    const tempoTag2 = "Luxury Urbania";
+
+    const sameDayTour = publishedPackages.find((p) => p.slug?.includes("same-day") || p.days === 1);
+    const triangleTour = publishedPackages.find((p) => p.slug?.includes("triangle") || (p.days != null && p.days > 1));
+    const sameDayPrice = sameDayTour?.from ? Number(sameDayTour.from) : 3499;
+    const trianglePrice = triangleTour?.from ? Number(triangleTour.from) : 18500;
+    const tourTag1 = `Same Day ₹${sameDayPrice.toLocaleString("en-IN")}`;
+    const tourTag2 = `Triangle ₹${trianglePrice.toLocaleString("en-IN")}`;
+
+    return {
+      oneway: [delhiDropTag, jaipurDropTag],
+      roundtrip: [roundTripTag1, roundTripTag2],
+      local: [localTag1, localTag2],
+      transfers: [transferTag1, transferTag2],
+      tempo: [tempoTag1, tempoTag2],
+      tours: [tourTag1, tourTag2],
+    };
+  }, [manifestRoutes, transferRoutes, localPackages, publishedPackages, sedanRate, tempoRate]);
+
+  // Authoritative dynamic pricing badges for Direct Charters & Transfers section
+  const directTransferPrices = useMemo(() => {
+    const agraCantt = transferRoutes.find((t) => t.slug?.includes("agc") || t.routeCode?.includes("agc"));
+    const delhiIgi = transferRoutes.find((t) => t.slug?.includes("delhi-igi") || t.routeCode?.includes("delhi-igi"));
+    const kheria = transferRoutes.find((t) => t.slug?.includes("kheria") || t.routeCode?.includes("kheria"));
+    const standardLocal = localPackages.find((p) => p.slug?.includes("standard") || p.durationHours === 8);
+    const extendedLocal = localPackages.find((p) => p.slug?.includes("extended") || p.durationHours === 12);
+    const delhiRoute = Object.values(manifestRoutes).find((r) => r.d?.toLowerCase().includes("delhi") || r.o?.toLowerCase().includes("delhi"));
+
+    const canttPrice = agraCantt?.fleetPrices?.sedan || 800;
+    const igiPrice = delhiIgi?.fleetPrices?.sedan || (delhiRoute?.fs ? delhiRoute.fs : 3499);
+    const kheriaPrice = kheria?.fleetPrices?.sedan || 900;
+    const standardPrice = standardLocal?.fleetPrices?.sedan || standardLocal?.from || 1900;
+    const extendedPrice = extendedLocal?.fleetPrices?.sedan || extendedLocal?.from || 2200;
+
+    return {
+      cantt: `From ₹${canttPrice.toLocaleString("en-IN")}`,
+      delhiIgi: `From ₹${igiPrice.toLocaleString("en-IN")}`,
+      kheria: `From ₹${kheriaPrice.toLocaleString("en-IN")}`,
+      standardLocal: `From ₹${standardPrice.toLocaleString("en-IN")}`,
+      extendedLocal: `From ₹${extendedPrice.toLocaleString("en-IN")}`,
+      tajGuide: `Cab from ₹${canttPrice.toLocaleString("en-IN")}`,
+    };
+  }, [transferRoutes, localPackages, manifestRoutes]);
 
   const copyCoupon = () => {
     if (featuredPromo && typeof navigator !== "undefined" && navigator.clipboard) {
@@ -445,7 +544,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                       <span className="font-price-display text-lg font-bold text-primary">
                         {popularTripMode === "oneway"
                           ? (route.price ? `₹${route.price.toLocaleString("en-IN")}` : "On request")
-                          : "Round-trip • ₹10/km basis"}
+                          : `Round-trip • ₹${sedanRate}/km basis`}
                       </span>
                     </div>
                     <a
@@ -498,42 +597,42 @@ export function HomePage({ language = "en" }: HomePageProps) {
                   icon: "directions_car",
                   title: "One-Way Outstation Drop",
                   body: "Fixed one-way fares with expressway tolls and driver allowance included. Zero return fare.",
-                  tags: ["Delhi ₹3,499", "Jaipur ₹3,699"],
+                  tags: cabServiceTags.oneway,
                   href: "/routes",
                 },
                 {
                   icon: "sync_alt",
                   title: "Outstation Round-Trip",
                   body: "Multi-day cab rentals with 300 km/day billing. Driver night charges included.",
-                  tags: ["300 km/day minimum", "All-India Permit"],
+                  tags: cabServiceTags.roundtrip,
                   href: "/book",
                 },
                 {
                   icon: "account_balance",
                   title: "Local Sightseeing",
                   body: "8-hour (80 km) and 12-hour (120 km) packages for Taj Mahal, Agra Fort, and local markets.",
-                  tags: ["8h / 80km ₹1,900", "12h / 120km ₹2,200"],
+                  tags: cabServiceTags.local,
                   href: "/packages",
                 },
                 {
                   icon: "flight_takeoff",
                   title: "Airport & Station Transfers",
                   body: "On-time pickup and drop at Delhi IGI Airport, Agra Cantt, and railway stations.",
-                  tags: ["Agra Cantt ₹800", "Delhi IGI ₹3,499"],
+                  tags: cabServiceTags.transfers,
                   href: "/book",
                 },
                 {
                   icon: "airport_shuttle",
                   title: "Tempo Traveller & Urbania",
                   body: "9 to 26-seater group vehicles with pushback seats, rear AC, and separate luggage bay.",
-                  tags: ["9–26 Seater", "Luxury Urbania"],
+                  tags: cabServiceTags.tempo,
                   href: "/fleet",
                 },
                 {
                   icon: "wb_twilight",
                   title: "Curated Tour Packages",
                   body: "Same-day Agra circuits and Golden Triangle routes with licensed tour guide options.",
-                  tags: ["Same Day ₹3,499", "Triangle ₹18,500"],
+                  tags: cabServiceTags.tours,
                   href: "/packages",
                 },
               ].map((svc, idx) => (
@@ -888,27 +987,27 @@ export function HomePage({ language = "en" }: HomePageProps) {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-xs">
               <a href="/en/transfers/agc-station-drop/" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
                 <span className="font-bold text-ink-charcoal truncate">Agra Cantt Drop</span>
-                <span className="text-primary font-semibold mt-1">From ₹800</span>
+                <span className="text-primary font-semibold mt-1">{directTransferPrices.cantt}</span>
               </a>
               <a href="/en/transfers/delhi-igi-oneway/" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
                 <span className="font-bold text-ink-charcoal truncate">Delhi IGI Transfer</span>
-                <span className="text-primary font-semibold mt-1">From ₹3,499</span>
+                <span className="text-primary font-semibold mt-1">{directTransferPrices.delhiIgi}</span>
               </a>
               <a href="/en/transfers/kheria-airport/" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
                 <span className="font-bold text-ink-charcoal truncate">Agra Airport (AGR)</span>
-                <span className="text-primary font-semibold mt-1">From ₹900</span>
+                <span className="text-primary font-semibold mt-1">{directTransferPrices.kheria}</span>
               </a>
               <a href="/en/local-packages/agra-standard-sightseeing/" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
                 <span className="font-bold text-ink-charcoal truncate">Agra 8Hr / 80KM</span>
-                <span className="text-primary font-semibold mt-1">From ₹1,900</span>
+                <span className="text-primary font-semibold mt-1">{directTransferPrices.standardLocal}</span>
               </a>
               <a href="/en/local-packages/agra-extended-city-tour/" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
                 <span className="font-bold text-ink-charcoal truncate">Agra 12Hr City Tour</span>
-                <span className="text-primary font-semibold mt-1">From ₹2,200</span>
+                <span className="text-primary font-semibold mt-1">{directTransferPrices.extendedLocal}</span>
               </a>
               <a href="/en/monuments/taj-mahal/" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
                 <span className="font-bold text-ink-charcoal truncate">Taj Mahal Guide</span>
-                <span className="text-primary font-semibold mt-1">Cab from ₹800</span>
+                <span className="text-primary font-semibold mt-1">{directTransferPrices.tajGuide}</span>
               </a>
             </div>
           </div>

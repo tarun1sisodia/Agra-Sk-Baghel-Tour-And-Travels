@@ -1,6 +1,8 @@
 import type { TourPackage } from "../data";
 import { getApiBaseUrl } from "./api";
 import { resolveCatalogMediaUrl } from "./catalog";
+import generatedPublishedLocalPackages from "../data/generated-published-local-packages.json";
+import generatedPublishedTransferRoutes from "../data/generated-published-transfer-routes.json";
 
 export interface CompressedRoute {
   o: string;              // Origin
@@ -329,12 +331,13 @@ export async function fetchPublishedTransferRoutes(): Promise<any[]> {
     const res = await fetch(`${apiBase}/api/v1/transfers`, { headers: { Accept: "application/json" } });
     if (res.ok) {
       const json = await res.json();
-      return Array.isArray(json?.data) ? json.data : [];
+      const list = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+      if (list.length > 0) return list;
     }
   } catch {
     // Return empty on offline/static
   }
-  return [];
+  return (generatedPublishedTransferRoutes as any[]) || [];
 }
 
 /** Fetch published local tours */
@@ -344,12 +347,13 @@ export async function fetchPublishedLocalTransfers(): Promise<any[]> {
     const res = await fetch(`${apiBase}/api/v1/local-tours`, { headers: { Accept: "application/json" } });
     if (res.ok) {
       const json = await res.json();
-      return Array.isArray(json?.data) ? json.data : [];
+      const list = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+      if (list.length > 0) return list;
     }
   } catch {
     // Return empty on offline/static
   }
-  return [];
+  return (generatedPublishedLocalPackages as any[]) || [];
 }
 
 /** Fetch vehicle fleet specifications from canonical endpoint */

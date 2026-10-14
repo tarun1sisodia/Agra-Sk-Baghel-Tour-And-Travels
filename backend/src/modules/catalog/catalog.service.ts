@@ -200,7 +200,42 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
       }
     }
 
-    // 5. Incorporate baseline catalog_items (packages and tours)
+    // 5. Incorporate dedicated transfer_routes table (authoritative for airport and railway transfers)
+    if (deps.db.transferRoutes) {
+      const dbTransfers = await deps.db.transferRoutes.list({ status: "published", limit: 500 });
+      for (const item of dbTransfers.items || []) {
+        if (item.status !== "published" || item.isActive === false) continue;
+        const startingPrice = item.fleetPrices?.sedan != null ? Number(item.fleetPrices.sedan) : null;
+        const slug = item.routeCode;
+        packageMap.set(slug, {
+          id: item.id,
+          slug,
+          name: item.name,
+          title: item.name,
+          type: "transfer",
+          category: "transfer",
+          kicker: "Airport & Station Transfer",
+          duration: item.distanceText || "Direct Transfer",
+          from: startingPrice,
+          startingPriceInr: startingPrice,
+          image: "/assets/fleet/sedan.webp",
+          places: [item.name],
+          blurb: item.directionNote || item.name,
+          description: item.directionNote || item.name,
+          includes: [
+            "Private AC vehicle",
+            "Doorstep pickup & drop",
+            "Tolls & terminal parking included",
+          ],
+          excludes: ["Waiting beyond grace period", "Multiple detours"],
+          fleetPrices: item.fleetPrices || {},
+          status: item.status,
+          updatedAt: item.updatedAt,
+        });
+      }
+    }
+
+    // 6. Incorporate baseline catalog_items (packages and tours)
     const allPublished = allDbItems.filter((i) => i.status === "published" && i.availability !== "unavailable");
     const baselinePackages = await Promise.all(
       allPublished
@@ -253,11 +288,15 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
 
     const packages = Array.from(packageMap.values());
 
-    // 6. Vehicles: derived from fareCatalogRepo if available, else active canonical tiers
+    // 7. Vehicles: derived from fareCatalogRepo if available, else active canonical tiers
     let vehicles: any[] = [];
     if (deps.fareCatalogRepo) {
       try {
-        const dbModels = await deps.fareCatalogRepo.getVehicleModels();
+        const [dbModels, outstationRules] = await Promise.all([
+          deps.fareCatalogRepo.getVehicleModels(),
+          deps.fareCatalogRepo.getFareRules("outstation"),
+        ]);
+        const ruleMap = new Map(outstationRules.map((r) => [r.vehicle_model_id, r.amount]));
         vehicles = dbModels
           .filter((v) => v.is_active)
           .map((v) => ({
@@ -266,7 +305,7 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
             name: v.display_name,
             seats: v.passenger_capacity,
             bags: v.luggage_capacity ?? 2,
-            perKm: null,
+            perKm: ruleMap.get(v.id) ?? null,
             alwaysRoundTrip: ["tempo_traveller", "luxury"].includes(v.group_code),
           }));
       } catch {

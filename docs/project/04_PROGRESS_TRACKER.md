@@ -10,12 +10,14 @@ Older trackers (`docs/project/PROGRESS.md`, `docs/project/AUDIT_PROGRESS.md`) ar
 
 ## Current State
 
-- **Current Phase:** Phase V2 Exit-Gate — Canonical-Data Integration Gaps Closed & Verified (COMPLETED; Ready for Phase 4).
-- **Current Step:** Verified and closed remaining canonical-data integration gaps before Phase 4:
-  * Runtime catalogue authority: Purged runtime paths allowing old local route/package records or stale cached content to be treated as published DB records (`catalogManifest.ts`, `RoutesPage.tsx`). Enforced fail-closed build snapshot policy (`assertSnapshotPolicy` in `build-manifest.ts` & `catalog-sources.ts`) so production releases (`CF_PAGES=1` / `CATALOG_FAIL_CLOSED=1`) fail fast if remote catalog sources are missing, preventing silent preservation of stale catalogue files.
-  * Services page acceptance: In `ServicesPage.tsx`, moved category titles into the top banner above image cards, separated static editorial copy from live fleet specifications (derived from `fetchLiveFleet()`), and implemented accessible mobile tap interaction (`expandedCardId`, `aria-expanded`) alongside scroll reveals and desktop hover/focus reveal.
-  * Fleet & review fallback audit: Removed synthetic `fallbackReviews` from `ReviewsMarquee.tsx`; added loading skeleton and truthful empty trust card. In `FleetPage.tsx` and `FleetSection.tsx`, eliminated silent fallback to static `FLEET_DATA` when live fleet is empty, adding explicit loading states andTaj Ganj dispatch desk verification empty/error states with retry.
-  * Regression testing: Added `react/scripts/catalog-fallback.test.ts` and updated `catalog-sources.test.ts` (9/9 passing). Monorepo `npm run verify` passed cleanly (3 typechecks, 192 backend tests, SEO lifecycle, and 3 production builds with 59 SSG pages).
+- **Current Phase:** Phase A: Price-Source Correctness & Homepage Canonical Rates (COMPLETED; Ready for Phase B: Admin Publishing Pipeline).
+- **Current Step:** Verified and closed remaining price-source correctness across Homepage, catalog services, and manifest building:
+  * Homepage dynamic rates: Replaced hardcoded round-trip rate `"Round-trip • ₹10/km basis"` in `HomePage.tsx` with dynamic per-km rates resolved from canonical fleet data (`sedanRate`).
+  * Cab & Tour Services badges: Replaced static pricing tags with dynamic authoritative tags (`cabServiceTags`) derived from canonical routes (`manifestRoutes`), transfers (`transferRoutes`), local tours (`localPackages`), and fleet specifications (`liveFleet`).
+  * Direct Charters & Transfers: Replaced hardcoded price badges with dynamic `directTransferPrices` derived from published transfers, local sightseeing packages, and outstation corridors.
+  * Backend Catalog Manifest: Enhanced `buildManifest()` in `backend/src/modules/catalog/catalog.service.ts` to incorporate published `transfer_routes` into the packages/transfer catalog map and resolve dynamic `perKm` rates from `fareCatalogRepo.getFareRules("outstation")`.
+  * Catalog Manifest Client Fallback: Updated `fetchPublishedTransferRoutes()` and `fetchPublishedLocalTransfers()` in `react/src/services/catalogManifest.ts` to gracefully fallback to published snapshots when running offline/static SSG.
+  * Verification: Monorepo verification (`npm run verify`) passed 100% (3 typechecks, 192 backend unit tests, 9 catalog regression tests, SEO lifecycle, and 3 production builds with 59 SSG pages).
 - **Last updated:** 2026-10-14
 - **Summary:** All HTML designs from `react/new_design/` are completely converted into the React application with ultra-luxury aesthetic styling, design tokens (`theme.css`), and the strict English-only mandate:
   * Multi-Agent Orchestration Engine (`agents/`): Automated agent pipeline with `code_extractor.py`, dynamic language templates (`task_template.py`), `tenacity` exponential retry logic, and specialized agents (`schema_agent.py`, `service_agent.py`, `frontend_agent.py`, `test_agent.py`, `seo_content_agent.py`, `orchestrator.py`).

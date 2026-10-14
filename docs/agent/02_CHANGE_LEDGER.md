@@ -2,6 +2,20 @@
 
 ## 2026-10-14
 
+### 2026-10-14 — Phase A: Price-Source Correctness & Homepage Canonical Rates
+
+- **Homepage Dynamic Price Resolution (`react/src/pages/HomePage.tsx`)**:
+  - Replaced hardcoded round-trip rate `"Round-trip • ₹10/km basis"` with dynamic `sedanRate` resolved directly from `liveFleet` (`fetchLiveFleet()`).
+  - Replaced static badge arrays in Cab & Tour Services with `cabServiceTags` dynamically computed from `manifestRoutes`, `transferRoutes`, `localPackages`, and `liveFleet`.
+  - Replaced static price indicators in the Direct Charters & Transfers section with `directTransferPrices` derived from published transfers and local sightseeing packages.
+- **Backend Catalog Manifest Enhancement (`backend/src/modules/catalog/catalog.service.ts`)**:
+  - Wired `deps.db.transferRoutes` into `buildManifest()` so published airport and railway transfers are canonically part of the published packages map.
+  - Derived vehicle `perKm` rates in the manifest directly from `fareCatalogRepo.getFareRules("outstation")`.
+- **Catalog Client Resilience (`react/src/services/catalogManifest.ts`)**:
+  - Enhanced `fetchPublishedTransferRoutes()` and `fetchPublishedLocalTransfers()` to fall back to build-time snapshots (`generatedPublishedTransferRoutes`, `generatedPublishedLocalPackages`) during offline or static builds.
+- **Monorepo Verification**:
+  - Executed `npm run verify`: 3 typechecks (react, admin, backend) 0 errors, 192 backend unit tests passed, 9 catalog regression tests passed, SEO lifecycle passed, and 3 production builds succeeded with 59 SSG pages.
+
 ### 2026-10-14 — Phase V2 Exit-Gate: Canonical-Data Integration Verification & Fallback Elimination
 
 - **Runtime Catalogue Authority (`react/src/services/catalogManifest.ts`, `react/src/pages/RoutesPage.tsx`)**:
