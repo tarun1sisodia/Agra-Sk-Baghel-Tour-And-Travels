@@ -2,6 +2,31 @@
 
 ## 2026-10-14
 
+### 2026-10-14 — Phase V2.6: Homepage-Only UI/UX Audit & Comprehensive Remediation
+
+- **Baseline Visual Audit Across 7 Viewports (`reports/HOMEPAGE_UI_AUDIT.md`)**:
+  - Scanned customer homepage at `320px`, `360px`, `390px`, `768px`, `1024px`, `1280px`, and `1440px`.
+  - Identified and cataloged 10 defect areas with reproduction steps, severity, affected files, and visual evidence artifacts.
+- **HomeBookingWidget Overhaul (`react/src/components/home/HomeBookingWidget.tsx`, `react/src/styles/global.css`)**:
+  - Eliminated brittle 3-layer overlapping DOM elements (`input[opacity=0]`, `span`, `button[z-index=3]`); replaced with an accessible direct `<input type="date">` styled inside `.booking-reference__date-control` with dedicated calendar icon and calendar picker activation (`showPicker()`).
+  - Structured responsive flex/grid rows ensuring stable dimensions down to 320px across One Way, Round Trip, and Local Tour modes.
+  - Connected Local Tour mode directly to canonical published packages (`fetchPublishedLocalTransfers()`), removing arbitrary static filters and hardcoded cards.
+- **Backend Fleet API SQL Error Fix (`backend/src/db/postgres.ts`, `backend/src/modules/fares/fleet/fleet.service.ts`)**:
+  - Fixed SQL query in `postgres.ts:2233` where querying `fare_rules` failed on missing `created_at` column following migration 0038 schema rebuild.
+  - Rewired `/api/v1/fleet` to query canonical `vehicle_groups`, `vehicle_models`, and `fare_rules`, returning both backwards-compatible vehicle lists and canonical group hierarchies (**Sedan**, **SUV**, **Luxury**, **Tempo Traveller**).
+- **Fleet Showcase Redesign (`react/src/components/home/FleetSection.tsx`, `react/src/pages/HomePage.tsx`)**:
+  - Built an animated group-switching showcase with category selector pills, real vehicle photos, seat/luggage capacities, per-km rates, and canonical `/book?vehicle=...` deep-linking.
+  - Replaced the rigid inline static 3-column fleet cards in `HomePage.tsx` with `<FleetSection language={language} />`.
+- **Truthful Editorial & Dynamic Pricing Resolution (`react/src/pages/HomePage.tsx`, `react/src/components/home/FamousPlacesSection.tsx`)**:
+  - Removed all synthetic fallback rates (`|| 1900`, `|| 2200`, `|| 800`, `|| 3499`, `|| 18500`, `sedanRate = 10`) across routes, services, and transfers; unpriced items display truthful "On request" copy.
+  - Replaced fabricated stops `["Taj Mahal & Agra Fort", "Heritage Monuments", "Local Artisan Quarters"]` in guided tours with genuine package places and inclusions.
+  - Updated Direct Charters Directory links to canonical `/book` parameters.
+  - Preserved selected destination parameter in `FamousPlacesSection.tsx` booking links and WhatsApp messages.
+  - Replaced unsubstantiated numerical statistics in trust tickers with truthful verified editorial copy.
+- **Visual Regression Gate & Monorepo Verification**:
+  - Executed automated browser subagent verification across all 7 viewports (`320px` to `1440px`), verifying trip mode transitions and vehicle group tabs (Sedan, SUV, Tempo Traveller).
+  - Passed root `npm run verify` (3 typechecks, 192 backend unit tests, 9 catalog regression tests, SEO lifecycle tests, and 3 production builds with 59 SSG pages).
+
 ### 2026-10-14 — Phase A: Price-Source Correctness & Homepage Canonical Rates
 
 - **Homepage Dynamic Price Resolution (`react/src/pages/HomePage.tsx`)**:

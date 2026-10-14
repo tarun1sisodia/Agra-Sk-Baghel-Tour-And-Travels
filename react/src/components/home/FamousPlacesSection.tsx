@@ -580,7 +580,11 @@ export function FamousPlacesSection() {
                 <div className="mt-auto pt-3 border-t border-border-warm/40 flex items-center justify-between gap-2">
                   <a
                     className="flex-1 min-h-[44px] py-2.5 px-3 rounded-lg bg-primary hover:bg-primary-container text-white font-label-lg text-xs font-semibold transition-all shadow-xs text-center active:scale-[0.98] inline-flex items-center justify-center gap-1"
-                    href={`/book?from=Agra&to=${encodeURIComponent(place.name)}`}
+                    href={
+                      place.id === "taj-mahal" || place.id === "agra-fort"
+                        ? `/book?category=local_package&product=agra-8h-80km`
+                        : `/book?category=outstation&from=Agra&to=${encodeURIComponent(place.name)}`
+                    }
                     aria-label={`Book cab from Agra to ${place.name}`}
                   >
                     <span className="text-white">Book Cab</span>

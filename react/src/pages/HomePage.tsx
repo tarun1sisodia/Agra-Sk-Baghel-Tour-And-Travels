@@ -6,6 +6,7 @@ import { FamousPlacesSection } from "../components/home/FamousPlacesSection";
 import { HomeHeroSlideshow } from "../components/home/HomeHeroSlideshow";
 import { WhatsAppIcon } from "../components/icons";
 import { HomeBookingWidget } from "../components/home/HomeBookingWidget";
+import { FleetSection } from "../components/home/FleetSection";
 import { useCustomerAuth } from "../auth/customerAuth";
 import {
   fetchFeaturedPromo,
@@ -177,7 +178,18 @@ export function HomePage({ language = "en" }: HomePageProps) {
     const entries = Object.entries(manifestRoutes);
     if (entries.length === 0) return [];
 
-    return entries.slice(0, 4).map(([slug, item]) => {
+    // Prioritize canonical primary corridors in order
+    const prioritySlugs = ["agra-to-delhi", "agra-to-jaipur", "agra-to-mathura", "agra-to-lucknow"];
+    const sorted = [...entries].sort(([slugA], [slugB]) => {
+      const idxA = prioritySlugs.indexOf(slugA);
+      const idxB = prioritySlugs.indexOf(slugB);
+      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+      if (idxA !== -1) return -1;
+      if (idxB !== -1) return 1;
+      return 0;
+    });
+
+    return sorted.slice(0, 4).map(([slug, item]) => {
       const durationHrs = Math.floor(item.m / 60);
       const durationMins = item.m % 60;
       return {
@@ -196,7 +208,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
 
   const sedanRate = useMemo(() => {
     const found = liveFleet.find((f) => f.tier === "sedan" || f.id === "sedan");
-    return found && found.perKm && found.perKm > 0 ? found.perKm : 10;
+    return found && found.perKm && found.perKm > 0 ? found.perKm : null;
   }, [liveFleet]);
 
   const tempoRate = useMemo(() => {
@@ -204,39 +216,39 @@ export function HomePage({ language = "en" }: HomePageProps) {
     return found && found.perKm && found.perKm > 0 ? found.perKm : null;
   }, [liveFleet]);
 
-  // Authoritative dynamic pricing badges for Cab & Tour Services
+  // Authoritative dynamic pricing badges for Cab & Tour Services — zero guessed fallbacks
   const cabServiceTags = useMemo(() => {
     const delhiRoute = Object.values(manifestRoutes).find((r) => r.d?.toLowerCase().includes("delhi") || r.o?.toLowerCase().includes("delhi"));
     const jaipurRoute = Object.values(manifestRoutes).find((r) => r.d?.toLowerCase().includes("jaipur") || r.o?.toLowerCase().includes("jaipur"));
     const delhiDropTag = delhiRoute?.fs ? `Delhi ₹${delhiRoute.fs.toLocaleString("en-IN")}` : "Delhi Express Drop";
     const jaipurDropTag = jaipurRoute?.fs ? `Jaipur ₹${jaipurRoute.fs.toLocaleString("en-IN")}` : "Jaipur Corridor";
 
-    const roundTripTag1 = `From ₹${sedanRate}/km`;
+    const roundTripTag1 = sedanRate ? `From ₹${sedanRate}/km` : "Transparent ₹/km";
     const roundTripTag2 = "300 km/day minimum";
 
-    const standardLocal = localPackages.find((p) => p.slug?.includes("standard") || p.durationHours === 8);
+    const standardLocal = localPackages.find((p) => p.slug?.includes("standard") || p.durationHours === 8 || p.packageCode === "agra-8h-80km");
     const extendedLocal = localPackages.find((p) => p.slug?.includes("extended") || p.durationHours === 12);
-    const p8Price = standardLocal?.fleetPrices?.sedan || standardLocal?.from || 1900;
-    const p12Price = extendedLocal?.fleetPrices?.sedan || extendedLocal?.from || 2200;
-    const localTag1 = `8h / 80km ₹${p8Price.toLocaleString("en-IN")}`;
-    const localTag2 = `12h / 120km ₹${p12Price.toLocaleString("en-IN")}`;
+    const p8Price = standardLocal?.fleetPrices?.sedan ?? standardLocal?.fleetPrices?.dzire ?? standardLocal?.from ?? null;
+    const p12Price = extendedLocal?.fleetPrices?.sedan ?? extendedLocal?.fleetPrices?.dzire ?? extendedLocal?.from ?? null;
+    const localTag1 = p8Price ? `8h / 80km ₹${p8Price.toLocaleString("en-IN")}` : "8h / 80km Local Sightseeing";
+    const localTag2 = p12Price ? `12h / 120km ₹${p12Price.toLocaleString("en-IN")}` : "12h / 120km Extended Tour";
 
-    const agraCanttTransfer = transferRoutes.find((t) => t.slug?.includes("agc") || t.routeCode?.includes("agc"));
+    const agraCanttTransfer = transferRoutes.find((t) => t.slug?.includes("cantt") || t.routeCode?.includes("cantt") || t.routeCode === "agra-cantt-to-hotel");
     const delhiIgiTransfer = transferRoutes.find((t) => t.slug?.includes("delhi-igi") || t.routeCode?.includes("delhi-igi"));
-    const canttPrice = agraCanttTransfer?.fleetPrices?.sedan || 800;
-    const igiPrice = delhiIgiTransfer?.fleetPrices?.sedan || (delhiRoute?.fs ? delhiRoute.fs : 3499);
-    const transferTag1 = `Agra Cantt ₹${canttPrice.toLocaleString("en-IN")}`;
-    const transferTag2 = `Delhi IGI ₹${igiPrice.toLocaleString("en-IN")}`;
+    const canttPrice = agraCanttTransfer?.fleetPrices?.sedan ?? agraCanttTransfer?.starting_price_inr ?? null;
+    const igiPrice = delhiIgiTransfer?.fleetPrices?.sedan ?? delhiRoute?.fs ?? null;
+    const transferTag1 = canttPrice ? `Agra Cantt ₹${canttPrice.toLocaleString("en-IN")}` : "Agra Cantt Station Drop";
+    const transferTag2 = igiPrice ? `Delhi IGI ₹${igiPrice.toLocaleString("en-IN")}` : "Delhi Airport Transfer";
 
-    const tempoTag1 = tempoRate ? `From ₹${tempoRate}/km` : "9–26 Seater";
-    const tempoTag2 = "Luxury Urbania";
+    const tempoTag1 = tempoRate ? `From ₹${tempoRate}/km` : "9–26 Seater Fleet";
+    const tempoTag2 = "Chilled AC • Pushback";
 
     const sameDayTour = publishedPackages.find((p) => p.slug?.includes("same-day") || p.days === 1);
     const triangleTour = publishedPackages.find((p) => p.slug?.includes("triangle") || (p.days != null && p.days > 1));
-    const sameDayPrice = sameDayTour?.from ? Number(sameDayTour.from) : 3499;
-    const trianglePrice = triangleTour?.from ? Number(triangleTour.from) : 18500;
-    const tourTag1 = `Same Day ₹${sameDayPrice.toLocaleString("en-IN")}`;
-    const tourTag2 = `Triangle ₹${trianglePrice.toLocaleString("en-IN")}`;
+    const sameDayPrice = sameDayTour?.from ? Number(sameDayTour.from) : null;
+    const trianglePrice = triangleTour?.from ? Number(triangleTour.from) : null;
+    const tourTag1 = sameDayPrice ? `Same Day ₹${sameDayPrice.toLocaleString("en-IN")}` : "Same Day Excursions";
+    const tourTag2 = trianglePrice ? `Triangle ₹${trianglePrice.toLocaleString("en-IN")}` : "Golden Triangle Package";
 
     return {
       oneway: [delhiDropTag, jaipurDropTag],
@@ -248,28 +260,28 @@ export function HomePage({ language = "en" }: HomePageProps) {
     };
   }, [manifestRoutes, transferRoutes, localPackages, publishedPackages, sedanRate, tempoRate]);
 
-  // Authoritative dynamic pricing badges for Direct Charters & Transfers section
+  // Authoritative dynamic pricing badges for Direct Charters & Transfers section — zero hardcoded numbers
   const directTransferPrices = useMemo(() => {
-    const agraCantt = transferRoutes.find((t) => t.slug?.includes("agc") || t.routeCode?.includes("agc"));
+    const agraCantt = transferRoutes.find((t) => t.slug?.includes("cantt") || t.routeCode?.includes("cantt") || t.routeCode === "agra-cantt-to-hotel");
     const delhiIgi = transferRoutes.find((t) => t.slug?.includes("delhi-igi") || t.routeCode?.includes("delhi-igi"));
     const kheria = transferRoutes.find((t) => t.slug?.includes("kheria") || t.routeCode?.includes("kheria"));
-    const standardLocal = localPackages.find((p) => p.slug?.includes("standard") || p.durationHours === 8);
+    const standardLocal = localPackages.find((p) => p.slug?.includes("standard") || p.durationHours === 8 || p.packageCode === "agra-8h-80km");
     const extendedLocal = localPackages.find((p) => p.slug?.includes("extended") || p.durationHours === 12);
     const delhiRoute = Object.values(manifestRoutes).find((r) => r.d?.toLowerCase().includes("delhi") || r.o?.toLowerCase().includes("delhi"));
 
-    const canttPrice = agraCantt?.fleetPrices?.sedan || 800;
-    const igiPrice = delhiIgi?.fleetPrices?.sedan || (delhiRoute?.fs ? delhiRoute.fs : 3499);
-    const kheriaPrice = kheria?.fleetPrices?.sedan || 900;
-    const standardPrice = standardLocal?.fleetPrices?.sedan || standardLocal?.from || 1900;
-    const extendedPrice = extendedLocal?.fleetPrices?.sedan || extendedLocal?.from || 2200;
+    const canttPrice = agraCantt?.fleetPrices?.sedan ?? agraCantt?.starting_price_inr ?? null;
+    const igiPrice = delhiIgi?.fleetPrices?.sedan ?? delhiRoute?.fs ?? null;
+    const kheriaPrice = kheria?.fleetPrices?.sedan ?? null;
+    const standardPrice = standardLocal?.fleetPrices?.sedan ?? standardLocal?.fleetPrices?.dzire ?? standardLocal?.from ?? null;
+    const extendedPrice = extendedLocal?.fleetPrices?.sedan ?? extendedLocal?.fleetPrices?.dzire ?? extendedLocal?.from ?? null;
 
     return {
-      cantt: `From ₹${canttPrice.toLocaleString("en-IN")}`,
-      delhiIgi: `From ₹${igiPrice.toLocaleString("en-IN")}`,
-      kheria: `From ₹${kheriaPrice.toLocaleString("en-IN")}`,
-      standardLocal: `From ₹${standardPrice.toLocaleString("en-IN")}`,
-      extendedLocal: `From ₹${extendedPrice.toLocaleString("en-IN")}`,
-      tajGuide: `Cab from ₹${canttPrice.toLocaleString("en-IN")}`,
+      cantt: canttPrice ? `From ₹${canttPrice.toLocaleString("en-IN")}` : "On request",
+      delhiIgi: igiPrice ? `From ₹${igiPrice.toLocaleString("en-IN")}` : "On request",
+      kheria: kheriaPrice ? `From ₹${kheriaPrice.toLocaleString("en-IN")}` : "On request",
+      standardLocal: standardPrice ? `From ₹${standardPrice.toLocaleString("en-IN")}` : "On request",
+      extendedLocal: extendedPrice ? `From ₹${extendedPrice.toLocaleString("en-IN")}` : "On request",
+      tajGuide: canttPrice ? `Cab from ₹${canttPrice.toLocaleString("en-IN")}` : "On request",
     };
   }, [transferRoutes, localPackages, manifestRoutes]);
 
@@ -445,7 +457,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
               { icon: "verified_user", title: "Govt-Registered", sub: "Tourist Vehicle Permit" },
               { icon: "badge", title: "Verified Chauffeurs", sub: "Police Background Check" },
               { icon: "receipt_long", title: "Tax Invoice", sub: "Tax invoice available on request" },
-              { icon: "star", title: "4.9 / 5 Rating", sub: "3,800+ Verified Trips" },
+              { icon: "verified", title: "Top-Rated Service", sub: "Verified Customer Reviews" },
               { icon: "support_agent", title: "24×7 Dispatch", sub: "Live Agra Control Desk" },
             ]).map((item, idx) => (
               <div key={idx} className="flex items-center gap-2.5 shrink-0 px-4">
@@ -544,7 +556,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                       <span className="font-price-display text-lg font-bold text-primary">
                         {popularTripMode === "oneway"
                           ? (route.price ? `₹${route.price.toLocaleString("en-IN")}` : "On request")
-                          : `Round-trip • ₹${sedanRate}/km basis`}
+                          : (sedanRate ? `Round-trip • ₹${sedanRate}/km basis` : "Round-trip • On request")}
                       </span>
                     </div>
                     <a
@@ -665,94 +677,8 @@ export function HomePage({ language = "en" }: HomePageProps) {
           </div>
         </section>
 
-        {/* ── FLEET ── 3-col grid with real images, proper card height (NOT 5-col cramped) */}
-        {/* ── FLEET ── dynamic from canonical liveFleet ── */}
-        <section
-          className="w-full py-space-3xl max-w-[1280px] mx-auto px-margin-mobile lg:px-margin"
-          id="fleet"
-        >
-          <div className="mb-space-xl">
-            <h2 className="font-headline-lg text-headline-lg text-on-surface">Choose your vehicle</h2>
-            <p className="font-body-md text-body-md text-on-surface-variant mt-1.5 max-w-xl">
-              Clean AC vehicles with verified drivers. Fares include fuel, driver allowance, and tolls on published routes. Standard outstation billing is on an active per-km basis.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-md">
-            {fleetLoading && liveFleet.length === 0 ? (
-              [1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="bg-surface-container-lowest rounded-xl h-72 animate-pulse border border-border-warm/30" />
-              ))
-            ) : liveFleet.length > 0 ? (
-              liveFleet
-                .filter((v) => v.active !== false)
-                .map((v) => {
-                  const key = v.tier || v.id;
-                  const copy = FLEET_PRESENTATION[key] || FLEET_PRESENTATION[v.id] || {
-                    label: v.name,
-                    sub: v.name,
-                    note: "Dedicated sanitized AC cab with verified chauffeur.",
-                    img: "/assets/fleet/sedan.webp",
-                  };
-                  const displayRate = v.perKm > 0 ? `₹${v.perKm}/km` : "On request";
-
-                  return (
-                    <div key={v.id || v.tier} className="bg-surface-container-lowest rounded-xl overflow-hidden border border-border-warm/40 flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer hover:ring-1 hover:ring-primary">
-                      <div className="h-44 w-full overflow-hidden relative bg-surface-container-low">
-                        <img
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          src={copy.img}
-                          srcSet={`${copy.img.replace(".webp", "-480.webp")} 480w, ${copy.img.replace(".webp", "-768.webp")} 768w, ${copy.img} 1200w`}
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"
-                          width={384}
-                          height={176}
-                          loading="lazy"
-                          decoding="async"
-                          alt={v.name || copy.label}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight/60 via-transparent to-transparent" />
-                      </div>
-                      <div className="p-3.5 flex-1 flex flex-col gap-2">
-                        <div>
-                          <h3 className="font-title-md text-title-lg font-bold text-on-surface">{v.name || copy.label}</h3>
-                          <p className="font-body-sm text-label-lg text-on-surface-variant mt-0.5">{copy.note}</p>
-                        </div>
-                        <div className="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant border-t border-border-warm/40 pt-2">
-                          <span>{v.seats ? `${v.seats} seats` : "Comfort seating"}</span>
-                          <span className="text-primary font-semibold">{displayRate}</span>
-                        </div>
-                        <a
-                          className="w-full min-h-[44px] flex items-center justify-center py-2.5 text-center rounded-lg bg-primary hover:bg-primary-container text-white font-label-lg text-label-md transition-all font-semibold mt-auto shadow-xs active:scale-[0.98]"
-                          href={`/book?vehicle=${encodeURIComponent(v.tier || v.id)}`}
-                          aria-label={`Select vehicle: ${v.name || copy.label}`}
-                        >
-                          <span className="text-white">Select {(v.name || copy.label).split(" ")[0]}</span>
-                        </a>
-                      </div>
-                    </div>
-                  );
-                })
-            ) : (
-              <div className="col-span-full py-8 text-center bg-surface-container-low rounded-xl p-6">
-                <p className="text-on-surface-variant">Fleet inventory is updating. Explore booking or contact our desk.</p>
-              </div>
-            )}
-
-            {/* CTA tile */}
-            <a
-              href="/fleet"
-              className="bg-sandstone-wash rounded-xl border border-border-warm/40 flex flex-col items-center justify-center p-8 gap-3 hover:bg-terracotta-sandstone/10 transition-colors group"
-            >
-              <span className="material-symbols-outlined text-primary text-icon-36 group-hover:scale-110 transition-transform">garage</span>
-              <p className="font-title-md text-title-lg text-on-surface font-bold text-center">See entire fleet</p>
-              <p className="font-body-sm text-label-lg text-on-surface-variant text-center">Compare specs, photos &amp; per-km rates</p>
-              <span className="inline-flex items-center gap-1 text-primary font-label-lg text-label-md font-semibold mt-1">
-                <span>Explore fleet</span>
-                <span className="material-symbols-outlined text-icon-14">east</span>
-              </span>
-            </a>
-          </div>
-        </section>
+        {/* ── FLEET ── Canonical Fleet Showcase (Sedan, SUV, Luxury, Tempo Traveller) ── */}
+        <FleetSection language={language} />
 
         {/* ── TOUR PACKAGES ── 3-col card grid (different from routes & services above) */}
         <section
@@ -785,7 +711,11 @@ export function HomePage({ language = "en" }: HomePageProps) {
                   const duration = pkg.duration || `${pkg.days ?? 1} Day Tour`;
                   const fromPrice = pkg.from && Number(pkg.from) > 0 ? `From ₹${Number(pkg.from).toLocaleString("en-IN")}` : "On request";
                   const image = pkg.image || (pkg.gallery && pkg.gallery[0] ? pkg.gallery[0].url : "/assets/packages/taj-dawn.webp");
-                  const stops = pkg.places && pkg.places.length > 0 ? pkg.places.slice(0, 3) : ["Taj Mahal & Agra Fort", "Heritage Monuments", "Local Artisan Quarters"];
+                  const stops = (pkg.places && pkg.places.length > 0)
+                    ? pkg.places.slice(0, 3)
+                    : (pkg.includes && pkg.includes.length > 0)
+                      ? pkg.includes.slice(0, 3)
+                      : [];
 
                   return (
                     <div key={pkg.slug || pkg.id} className="bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col group shadow-sm hover:shadow-md transition-all border border-border-warm/40">
@@ -813,14 +743,16 @@ export function HomePage({ language = "en" }: HomePageProps) {
                       <div className="p-3.5 flex-1 flex flex-col gap-2">
                         <h3 className="font-title-md text-title-lg font-bold text-on-surface group-hover:text-primary transition-colors leading-snug">{pkg.name}</h3>
                         <p className="font-body-sm text-body-md text-on-surface-variant leading-relaxed line-clamp-2">{pkg.blurb}</p>
-                        <ul className="space-y-1 mt-1">
-                          {stops.map((item) => (
-                            <li key={item} className="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant">
-                              <span className="w-1 h-1 rounded-full bg-gold-accent shrink-0" />
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
+                        {stops.length > 0 && (
+                          <ul className="space-y-1 mt-1">
+                            {stops.map((item) => (
+                              <li key={item} className="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant">
+                                <span className="w-1 h-1 rounded-full bg-gold-accent shrink-0" />
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                         <a
                           className="mt-auto pt-2 border-t border-border-warm/40 inline-flex items-center gap-1 font-label-lg text-label-md text-primary hover:text-primary-container font-bold transition-colors min-h-[44px] py-2"
                           href={`/packages/${encodeURIComponent(pkg.slug)}`}
@@ -980,32 +912,32 @@ export function HomePage({ language = "en" }: HomePageProps) {
                   Popular Station Drops, Airport Transfers &amp; Heritage Guides
                 </h3>
               </div>
-              <a href="/en/packages/" className="text-xs text-primary font-bold hover:underline shrink-0">
+              <a href="/packages" className="text-xs text-primary font-bold hover:underline shrink-0">
                 View All Packages →
               </a>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-xs">
-              <a href="/en/transfers/agc-station-drop/" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
+              <a href="/book?category=transfer&product=agra-cantt-to-hotel" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
                 <span className="font-bold text-ink-charcoal truncate">Agra Cantt Drop</span>
                 <span className="text-primary font-semibold mt-1">{directTransferPrices.cantt}</span>
               </a>
-              <a href="/en/transfers/delhi-igi-oneway/" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
+              <a href="/book?category=transfer&product=delhi-igi-airport" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
                 <span className="font-bold text-ink-charcoal truncate">Delhi IGI Transfer</span>
                 <span className="text-primary font-semibold mt-1">{directTransferPrices.delhiIgi}</span>
               </a>
-              <a href="/en/transfers/kheria-airport/" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
+              <a href="/book?category=transfer&product=kheria-airport-transfer" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
                 <span className="font-bold text-ink-charcoal truncate">Agra Airport (AGR)</span>
                 <span className="text-primary font-semibold mt-1">{directTransferPrices.kheria}</span>
               </a>
-              <a href="/en/local-packages/agra-standard-sightseeing/" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
+              <a href="/book?category=local_package&product=agra-8h-80km" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
                 <span className="font-bold text-ink-charcoal truncate">Agra 8Hr / 80KM</span>
                 <span className="text-primary font-semibold mt-1">{directTransferPrices.standardLocal}</span>
               </a>
-              <a href="/en/local-packages/agra-extended-city-tour/" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
+              <a href="/book?category=local_package&product=agra-12h-city" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
                 <span className="font-bold text-ink-charcoal truncate">Agra 12Hr City Tour</span>
                 <span className="text-primary font-semibold mt-1">{directTransferPrices.extendedLocal}</span>
               </a>
-              <a href="/en/monuments/taj-mahal/" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
+              <a href="/book?category=local_package&product=agra-8h-80km" className="p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-xs">
                 <span className="font-bold text-ink-charcoal truncate">Taj Mahal Guide</span>
                 <span className="text-primary font-semibold mt-1">{directTransferPrices.tajGuide}</span>
               </a>
