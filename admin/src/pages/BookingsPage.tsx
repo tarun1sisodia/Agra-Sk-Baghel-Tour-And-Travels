@@ -23,7 +23,7 @@ import { Tabs } from "@/components/ui/Tabs";
 import { Table, TBody, THead, TD, TH, TRow } from "@/components/ui/Table";
 import { AlertTriangle, RotateCw } from "lucide-react";
 import { LocationAutocompleteInput } from "@/components/admin/LocationAutocompleteInput";
-import { createAdminBooking, fetchAdminBookings, transitionAdminBooking } from "@/lib/api";
+import { createAdminBooking, fetchAdminBookings, transitionAdminBooking, unmaskAdminBooking } from "@/lib/api";
 import { VEHICLE_LABELS, can, type AdminUser, type Booking, type BookingStatus } from "@/lib/types";
 import { cn, formatDate, formatINR, maskEmail, maskPhone, timeAgo } from "@/lib/utils";
 
@@ -77,6 +77,17 @@ export function BookingsPage({ user }: { user: AdminUser }) {
   const [vehicle, setVehicle] = useState("all");
   const [selected, setSelected] = useState<Booking | null>(null);
   const [unmasked, setUnmasked] = useState(false);
+  const [unmaskedData, setUnmaskedData] = useState<{ customerPhone: string; customerEmail: string | null } | null>(null);
+  const [unmasking, setUnmasking] = useState(false);
+  const [unmaskError, setUnmaskError] = useState<string | null>(null);
+
+  // Unmask state is cleared when drawer closes or selection changes
+  useEffect(() => {
+    setUnmasked(false);
+    setUnmaskedData(null);
+    setUnmasking(false);
+    setUnmaskError(null);
+  }, [selected?.id]);
 
   // New Booking Modal State
   const tomorrow = new Date(Date.now() + 24 * 3600 * 1000).toISOString().slice(0, 10);
@@ -153,6 +164,33 @@ export function BookingsPage({ user }: { user: AdminUser }) {
   const canRead = can(user.role, "bookings:read");
   const canTransition = can(user.role, "bookings:transition");
   const canUnmask = can(user.role, "bookings:unmask");
+
+  const handleToggleUnmask = async () => {
+    if (!selected) return;
+    if (unmasked) {
+      setUnmasked(false);
+      setUnmaskedData(null);
+      setUnmaskError(null);
+      return;
+    }
+
+    setUnmasking(true);
+    setUnmaskError(null);
+    try {
+      const res = await unmaskAdminBooking(selected.id);
+      setUnmaskedData({
+        customerPhone: res.customerPhone,
+        customerEmail: res.customerEmail,
+      });
+      setUnmasked(true);
+    } catch (err) {
+      setUnmasked(false);
+      setUnmaskedData(null);
+      setUnmaskError(err instanceof Error ? err.message : "Failed to unmask customer PII.");
+    } finally {
+      setUnmasking(false);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -449,11 +487,20 @@ export function BookingsPage({ user }: { user: AdminUser }) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setUnmasked((v) => !v)}
+                        onClick={handleToggleUnmask}
+                        disabled={unmasking}
                         aria-pressed={unmasked}
                       >
-                        {unmasked ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                        {unmasked ? "Mask PII" : "Unmask (audited)"}
+                        {unmasking ? (
+                          <span className="inline-flex items-center gap-1.5 text-xs text-ink-faint">
+                            <RotateCw className="h-3 w-3 animate-spin" /> Auditing...
+                          </span>
+                        ) : (
+                          <>
+                            {unmasked ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                            {unmasked ? "Mask PII" : "Unmask (audited)"}
+                          </>
+                        )}
                       </Button>
                     ) : (
                       <Badge tone="neutral"><Lock className="h-3 w-3" /> PII locked</Badge>
@@ -463,13 +510,24 @@ export function BookingsPage({ user }: { user: AdminUser }) {
                     <p className="font-medium text-ink">{selected.customerName}</p>
                     <p className="flex items-center gap-2 font-mono text-[12px] text-ink-soft">
                       <Phone className="h-3.5 w-3.5 text-gold" />
-                      {unmasked && canUnmask ? selected.customerPhone : maskPhone(selected.customerPhone)}
+                      <span data-testid="customer-phone">
+                        {unmasked && unmaskedData ? unmaskedData.customerPhone : maskPhone(selected.customerPhone)}
+                      </span>
                     </p>
                     <p className="font-mono text-[12px] text-ink-soft">
-                      {unmasked && canUnmask ? selected.customerEmail : maskEmail(selected.customerEmail)}
+                      <span data-testid="customer-email">
+                        {unmasked && unmaskedData
+                          ? (unmaskedData.customerEmail || "—")
+                          : (selected.customerEmail ? maskEmail(selected.customerEmail) : "—")}
+                      </span>
                     </p>
-                    {unmasked && canUnmask && (
-                      <p className="text-[11px] italic text-gold-text">
+                    {unmaskError && (
+                      <p className="text-[12px] text-destructive" role="alert" data-testid="unmask-error">
+                        {unmaskError}
+                      </p>
+                    )}
+                    {unmasked && unmaskedData && (
+                      <p className="text-[11px] italic text-gold-text" data-testid="unmask-audit-notice">
                         Unmasked view recorded in audit trail as BOOKING_UNMASK_VIEWED.
                       </p>
                     )}

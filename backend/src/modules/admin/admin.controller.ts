@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { requireUser } from "../../middlewares/authGuard.js";
 import { sendSuccess } from "../../middlewares/errorHandler.js";
-import { ADMIN_ROLES, requireRole } from "../../middlewares/roleGuard.js";
+import { ADMIN_ROLES, DISPATCH_ROLES, requireRole } from "../../middlewares/roleGuard.js";
 import type { createBookingService } from "../bookings/booking.service.js";
 import type { createPaymentService } from "../payments/payment.service.js";
 import {
@@ -42,6 +42,14 @@ export function createAdminController(
         requestId: request.id,
       });
       return sendSuccess(reply, updated);
+    },
+
+    async unmaskBooking(request: FastifyRequest, reply: FastifyReply) {
+      requireRole(request, DISPATCH_ROLES);
+      const { id } = BookingIdParamSchema.parse(request.params);
+      const actor = requireUser(request);
+      const data = await service.unmaskBooking(id, actor, request.id);
+      return sendSuccess(reply, data);
     },
 
     async auditLogs(request: FastifyRequest, reply: FastifyReply) {

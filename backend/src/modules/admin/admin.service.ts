@@ -5,7 +5,7 @@ import { newId } from "../../shared/ids.js";
 import { triggerFrontendRebuild } from "../../shared/deploy-hook.js";
 import type { FareRuleRecord, InquiryListFilter, PaymentListFilter, Repositories } from "../../db/types.js";
 import { maskEmail, maskPhone } from "../../shared/privacy.js";
-import type { BookingRecord, InquiryStatus } from "../../types/domain.js";
+import type { BookingRecord, InquiryStatus, UserRole } from "../../types/domain.js";
 import { projectBooking } from "../bookings/booking.service.js";
 import {
   AIRPORT_TRANSFERS,
@@ -70,6 +70,49 @@ export function createAdminService(deps: { db: Repositories; clock?: Clock }) {
         pageSize: filter.pageSize ?? 20,
         items,
         bookings: items,
+      };
+    },
+
+    async unmaskBooking(
+      bookingId: string,
+      actor: { id: string; role: UserRole },
+      requestId?: string,
+    ) {
+      const booking = await deps.db.bookings.getById(bookingId);
+      if (!booking) {
+        throw Errors.notFound("BOOKING_NOT_FOUND", "Booking not found.");
+      }
+
+      if (!deps.db.audit?.append) {
+        throw Errors.internal("Audit system unavailable; unmasking aborted.");
+      }
+
+      // Persist BOOKING_UNMASK_VIEWED audit log BEFORE returning PII.
+      // If append throws, this function fails closed (no PII returned).
+      const now = deps.clock ? deps.clock.now() : new Date();
+      await deps.db.audit.append({
+        id: newId(),
+        actorId: toUuid(actor.id),
+        actorRole: actor.role,
+        resourceType: "booking",
+        resourceId: booking.id,
+        action: "BOOKING_UNMASK_VIEWED",
+        before: null,
+        after: {
+          unmasked: true,
+          ticketId: booking.ticketId,
+        },
+        reason: "Administrative unmask view",
+        requestId: requestId || newId(),
+        createdAt: toIso(now),
+      });
+
+      return {
+        id: booking.id,
+        ticketId: booking.ticketId,
+        customerName: booking.customerName,
+        customerPhone: booking.customerPhone,
+        customerEmail: booking.customerEmail,
       };
     },
 

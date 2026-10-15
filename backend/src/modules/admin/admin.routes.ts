@@ -20,6 +20,16 @@ export async function registerAdminRoutes(
     handler: controller.transitionBooking,
   });
 
+  app.post("/api/v1/ops/admin/bookings/:id/unmask", {
+    config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
+    handler: controller.unmaskBooking,
+  });
+
+  app.get("/api/v1/ops/admin/bookings/:id/unmask", {
+    config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
+    handler: controller.unmaskBooking,
+  });
+
   app.post("/api/v1/ops/admin/refunds", {
     config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
     handler: controller.refund,

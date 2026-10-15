@@ -146,6 +146,18 @@ export async function transitionAdminBooking(
   return json.data;
 }
 
+export async function unmaskAdminBooking(
+  id: string,
+): Promise<{ id: string; customerPhone: string; customerEmail: string | null }> {
+  const json = await apiFetch(
+    `/api/v1/ops/admin/bookings/${encodeURIComponent(id)}/unmask`,
+    {
+      method: "POST",
+    },
+  );
+  return json.data;
+}
+
 export async function refundAdminBooking(
   bookingId: string,
   reason: string,
