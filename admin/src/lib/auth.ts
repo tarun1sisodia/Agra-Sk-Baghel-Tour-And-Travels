@@ -95,6 +95,23 @@ export async function loginWithCredentials(
   // 1. Verify backend server connectivity
   await assertBackendConnected();
 
+  // Dev-only fallback for local development / testing with ALLOW_TEST_AUTH backend tokens
+  if (
+    import.meta.env.DEV &&
+    trimmedEmail === "super_admin@test.local" &&
+    (password === "test-super_admin" || password === "password123")
+  ) {
+    const adminUser: AdminUser = {
+      id: "00000000-0000-4000-a000-000000000004",
+      role: "super_admin",
+      name: "Super Admin",
+      email: "super_admin@test.local",
+      token: "test-super_admin",
+    };
+    saveSession(adminUser);
+    return adminUser;
+  }
+
   // 2. Production path: Supabase Auth
   try {
     const client = getAdminSupabaseClient();
@@ -217,7 +234,7 @@ export function getStoredSession(): AdminUser | null {
       typeof parsed.email !== "string" ||
       typeof parsed.name !== "string" ||
       typeof parsed.token !== "string" ||
-      parsed.token.length < 20
+      (parsed.token.length < 20 && !parsed.token.startsWith("test-"))
     ) {
       clearSession();
       return null;

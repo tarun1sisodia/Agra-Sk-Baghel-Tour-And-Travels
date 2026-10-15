@@ -16,6 +16,8 @@ interface LocalPackageListProps {
   onPublish: (id: string) => void;
   onArchive: (id: string) => void;
   onDelete: (item: LocalPackageItem) => void;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
 export function LocalPackageList({
@@ -27,6 +29,8 @@ export function LocalPackageList({
   onPublish,
   onArchive,
   onDelete,
+  error,
+  onRetry,
 }: LocalPackageListProps) {
   return (
     <Card className="divide-y divide-hairline overflow-hidden">
@@ -107,7 +111,18 @@ export function LocalPackageList({
         </div>
       ))}
 
-      {items.length === 0 && !loading && (
+      {error && !loading && (
+        <div className="p-8 text-center text-sm text-red-400 flex flex-col items-center justify-center gap-2">
+          <p>{error}</p>
+          {onRetry && (
+            <Button size="sm" variant="outline" onClick={onRetry}>
+              Retry
+            </Button>
+          )}
+        </div>
+      )}
+
+      {items.length === 0 && !loading && !error && (
         <div className="p-8 text-center text-sm text-ink-soft">No local sightseeing packages found.</div>
       )}
     </Card>

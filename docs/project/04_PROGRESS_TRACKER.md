@@ -10,18 +10,16 @@ Older trackers (`docs/project/PROGRESS.md`, `docs/project/AUDIT_PROGRESS.md`) ar
 
 ## Current State
 
-- **Current Phase:** Phase V2.6: Homepage-Only UI/UX Audit & Comprehensive Remediation (COMPLETED).
-- **Current Step:** Completed comprehensive baseline audit and remediation for the customer homepage across all 7 viewports (320px, 360px, 390px, 768px, 1024px, 1280px, 1440px), resolving all 10 defect areas:
-  * Baseline Audit: Captured baseline evidence across 7 viewports and published detailed defect analysis in `reports/HOMEPAGE_UI_AUDIT.md`.
-  * Date Picker & Booking Widget (Phase 1): Completely eliminated brittle 3-layer overlay in `HomeBookingWidget.tsx`; styled native accessible date input inside `.booking-reference__date-control`; stabilized flex/grid dimensions across One Way, Round Trip, and Local Tour modes; wired Local Tour mode to canonical `fetchPublishedLocalTransfers()`.
-  * Hero Section (Phase 2): Protected headline clamp and contrast overlay, eliminated fixed header collision.
-  * Popular Routes & Services (Phase 3 & 4): Removed hardcoded rates (`sedanRate = 10`, `|| 1900`, `|| 2200`); strictly resolved fares from canonical routes and fleet models; unpriced corridors display "On request".
-  * Canonical Fleet Showcase (Phase 5): Replaced rigid static 3-column cards with animated group-switching `FleetSection.tsx` for Sedan, SUV, Luxury, and Tempo Traveller; fixed backend `/api/v1/fleet` SQL query in `postgres.ts` to support rebuilt `fare_rules` schema without crashing; verified vehicle photos, passenger/luggage capacities, per-km rates, and canonical book links.
-  * Guided Tours (Phase 6): Replaced synthetic stops fallback with truthful package highlights (`pkg.places` / `pkg.includes` / empty) and "On request" pricing.
-  * Famous Places & Monuments (Phase 7): Preserved selected destination in booking handoff (`/book?category=...`) and WhatsApp messages.
-  * Direct Charters & Transfers (Phase 8): Connected all charter directory links to canonical booking and catalogue endpoints with zero hardcoded prices.
-  * Trust & Editorial Substantiation (Phase 9): Replaced unverified metrics with truthful editorial badges ("Verified Commercial Drivers", "Transparent Fare Quotes").
-  * Visual Regression & Monorepo Verification (Phase 10): Executed automated browser subagent verification across all 7 viewports with full tab and trip mode interactions; monorepo verification (`npm run verify`) passed 100% (3 typechecks, 192 backend unit tests, 9 catalog regression tests, SEO lifecycle, and 3 production builds with 59 SSG pages).
+- **Current Phase:** Admin Operations Desk: Catalog Creation Workflows & Permission Authorization (COMPLETED).
+- **Current Step:** Resolved missing admin creation actions for Tour Packages, Local Packages, and Airport & Station Transfers:
+  * Root Cause: In `admin/src/lib/types.ts`, `PERMISSIONS` defined `catalog:edit` and `catalog:publish` but omitted `catalog:create`. Added `"catalog:create": ["super_admin"]` and typed `AdminPermission` union for build-time safety.
+  * UI Workflows Verified:
+    - Tour Packages (`/tour-packages`): "New Tour Package" button renders for `super_admin` and opens creation modal dialog with canonical fleet pricing matrix.
+    - Local Sightseeing Packages (`/local-transfers` tab 1): "New Local Package" button renders and opens modal dialog.
+    - Airport & Station Transfers (`/local-transfers` tab 2): "New Transfer Route" button renders dynamically on tab selection and opens modal dialog.
+    - Outstation Routes (`/routes`): "+ Add Outstation Route" button renders and opens creation dialog.
+  * Failure Visibility: Replaced console-only error catching with actionable error banners and retry callbacks on all three catalogue pages; user input is preserved on save failures.
+  * Verification: Automated browser subagent visual verification with screenshots; script `scripts/verify-admin-permissions.mjs` verifying 24 `can()` checks; backend test suite `backend/tests/unit/admin-catalog-create.test.ts` (9 tests); full `npm run verify` passed (3 typechecks, 201 backend tests, 9 catalog regression tests, SEO lifecycle, 3 builds).
 - **Last updated:** 2026-10-14
 - **Summary:** All HTML designs from `react/new_design/` are completely converted into the React application with ultra-luxury aesthetic styling, design tokens (`theme.css`), and the strict English-only mandate:
   * Multi-Agent Orchestration Engine (`agents/`): Automated agent pipeline with `code_extractor.py`, dynamic language templates (`task_template.py`), `tenacity` exponential retry logic, and specialized agents (`schema_agent.py`, `service_agent.py`, `frontend_agent.py`, `test_agent.py`, `seo_content_agent.py`, `orchestrator.py`).

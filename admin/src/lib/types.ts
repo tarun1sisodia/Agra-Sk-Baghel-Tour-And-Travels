@@ -258,13 +258,29 @@ export const ROLE_LABELS: Record<AdminRole, string> = {
   super_admin: "Super Admin",
 };
 
+export type AdminPermission =
+  | "bookings:read"
+  | "bookings:transition"
+  | "bookings:unmask"
+  | "finance:read"
+  | "finance:refund"
+  | "catalog:create"
+  | "catalog:edit"
+  | "catalog:publish"
+  | "reviews:moderate"
+  | "reviews:publish"
+  | "inquiries:manage"
+  | "fares:read"
+  | "audit:read";
+
 /** Permission matrix from ADMIN_PRD.md §4 */
-export const PERMISSIONS: Record<string, AdminRole[]> = {
+export const PERMISSIONS: Record<AdminPermission, AdminRole[]> = {
   "bookings:read": ["super_admin"],
   "bookings:transition": ["super_admin"],
   "bookings:unmask": ["super_admin"],
   "finance:read": ["super_admin"],
   "finance:refund": ["super_admin"],
+  "catalog:create": ["super_admin"],
   "catalog:edit": ["super_admin"],
   "catalog:publish": ["super_admin"],
   "reviews:moderate": ["super_admin"],
@@ -274,7 +290,7 @@ export const PERMISSIONS: Record<string, AdminRole[]> = {
   "audit:read": ["super_admin"],
 };
 
-export function can(role: AdminRole, permission: string): boolean {
+export function can(role: AdminRole, permission: AdminPermission): boolean {
   return (PERMISSIONS[permission] ?? []).includes(role);
 }
 

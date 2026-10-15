@@ -2,6 +2,34 @@
 
 ## 2026-10-14
 
+### 2026-10-14 — Fix Missing Admin Create Actions for Tour Packages, Local Packages, and Transfers
+
+- **Root Cause Resolution (`admin/src/lib/types.ts`)**:
+  - Identified that `PERMISSIONS` defined `catalog:edit` and `catalog:publish`, but omitted `catalog:create`.
+  - Added `"catalog:create": ["super_admin"]` to the centralized `PERMISSIONS` matrix, granting catalog creation authority strictly to the existing supported `super_admin` role.
+  - Hardened permission type safety by defining `AdminPermission` union type and typing `can(role: AdminRole, permission: AdminPermission): boolean` so undeclared or misspelled permissions are caught at build time.
+- **Creation UI & Failure Visibility Enhancements**:
+  - **Tour Packages (`admin/src/pages/TourPackagesPage.tsx`, `admin/src/modules/tour-packages/TourPackageList.tsx`)**:
+    - Replaced console-only error catching with an actionable error banner displaying backend error messages and a Retry button.
+    - Preserved form inputs on save errors to prevent discarding user work.
+    - Verified "New Tour Package" button renders for `super_admin` and opens the creation modal containing title, slug, duration, days/nights, and canonical fleet pricing grid.
+  - **Local Sightseeing Packages (`admin/src/pages/LocalTransfersPage.tsx`, `admin/src/modules/local-packages/LocalPackageList.tsx`)**:
+    - Added visible error banner and retry callback so API errors are not conflated with empty catalogs.
+    - Verified "New Local Package" button renders for `super_admin` and opens the local sightseeing creation dialog with duration, included distance, sights covered, and canonical fleet pricing.
+  - **Airport & Station Transfers (`admin/src/pages/LocalTransfersPage.tsx`, `admin/src/modules/transfer-routes/TransferRouteList.tsx`)**:
+    - Added visible error banner and retry callback.
+    - Verified tab switching to "Airport & Station Transfers" dynamically presents the "New Transfer Route" creation button and opens the transfer route modal dialog.
+  - **Outstation Route Catalog (`admin/src/modules/routes/RouteCatalogPanel.tsx`)**:
+    - Verified that existing `can(user.role, "catalog:create")` check renders "+ Add Outstation Route" button and opens creation dialog correctly.
+- **Local Dev / Verification Session Seeding (`admin/src/App.tsx`, `admin/src/lib/auth.ts`)**:
+  - Enhanced `getStoredSession()` to recognize dev test tokens (`test-*`).
+  - Added dev-only bypass (`import.meta.env.DEV`) for test credentials in `loginWithCredentials` and URL parameter `?dev_auth=super_admin` in `App.tsx` matching backend's `ALLOW_TEST_AUTH`.
+- **Automated Tests & Monorepo Verification**:
+  - Created `backend/tests/unit/admin-catalog-create.test.ts` with 9 tests covering Zod schemas (`CreateTourPackageSchema`, `CreateLocalPackageSchema`, `CreateTransferRouteSchema`) and controller 201 Created responses.
+  - Created `scripts/verify-admin-permissions.mjs` verifying that `catalog:create` is granted to `super_admin`, forbidden to `dispatcher`, and all 24 `can()` checks across admin UI map to declared permissions.
+  - Executed browser subagent testing verifying all creation buttons, tab transitions, and creation dialogs with captured screenshots (`tour_packages_list`, `tour_package_dialog`, `local_packages_list`, `local_package_dialog`, `transfer_routes_list`, `transfer_route_dialog`, `routes_list`, `outstation_route_dialog`).
+  - Verified full repository health via `npm run verify`: 3 typechecks passed (0 errors), 201 backend unit tests passed, 9 catalog regression tests passed, SEO tests passed, and 3 production builds succeeded.
+
 ### 2026-10-14 — Phase V2.6: Homepage-Only UI/UX Audit & Comprehensive Remediation
 
 - **Baseline Visual Audit Across 7 Viewports (`reports/HOMEPAGE_UI_AUDIT.md`)**:

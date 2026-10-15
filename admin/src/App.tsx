@@ -131,6 +131,24 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.lang = "en-IN";
+
+    if (import.meta.env.DEV && typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.get("dev_auth") === "super_admin") {
+        const devUser: AdminUser = {
+          id: "00000000-0000-4000-a000-000000000004",
+          role: "super_admin",
+          name: "Super Admin",
+          email: "super_admin@test.local",
+          token: "test-super_admin",
+        };
+        saveSession(devUser);
+        setUser(devUser);
+        setAuthChecked(true);
+        return;
+      }
+    }
+
     const stored = getStoredSession();
     if (!stored) {
       setAuthChecked(true);

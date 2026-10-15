@@ -356,6 +356,8 @@ export function LocalTransfersPage({ user }: { user: AdminUser }) {
           onPublish={handlePublishLocal}
           onArchive={handleArchiveLocal}
           onDelete={handleDeleteLocal}
+          error={error}
+          onRetry={loadData}
         />
       ) : (
         <TransferRouteList
@@ -367,6 +369,8 @@ export function LocalTransfersPage({ user }: { user: AdminUser }) {
           onPublish={handlePublishTransfer}
           onArchive={handleArchiveTransfer}
           onDelete={handleDeleteTransfer}
+          error={error}
+          onRetry={loadData}
         />
       )}
 

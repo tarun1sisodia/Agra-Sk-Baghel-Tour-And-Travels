@@ -29,12 +29,19 @@ export function TourPackagesPage({ user }: { user: AdminUser }) {
   const [editing, setEditing] = useState<TourPackageItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<TourPackageItem | null>(null);
   const [form, setForm] = useState<TourPackageFormState>(EMPTY_TOUR_PACKAGE);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const load = () => {
     setLoading(true);
+    setLoadError(null);
     fetchAdminTourPackages({ status, q })
-      .then(setItems)
-      .catch(console.error)
+      .then((data) => {
+        setItems(data);
+        setLoadError(null);
+      })
+      .catch((err) => {
+        setLoadError(err?.message || "Failed to load tour packages.");
+      })
       .finally(() => setLoading(false));
   };
 
@@ -185,6 +192,8 @@ export function TourPackagesPage({ user }: { user: AdminUser }) {
         onPublish={handlePublish}
         onArchive={handleArchive}
         onDelete={setDeleteTarget}
+        error={loadError}
+        onRetry={load}
       />
 
       <TourPackageFormDialog
