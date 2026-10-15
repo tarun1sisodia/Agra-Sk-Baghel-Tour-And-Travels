@@ -1896,58 +1896,60 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
       },
       reviews: {
         async create(record: ReviewRecord) {
-          await query(
-            client,
-            `insert into reviews (
-              id, booking_id, catalog_item_id, customer_id, display_name, rating, review_text, status,
-              verification_status, social_profile_url, social_platform, verification_notes, reviewed_by,
-              reviewed_at, published_at, guest_access_token, created_at
-            ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
-            [
-              record.id, record.bookingId, record.catalogItemId, record.customerId, record.displayName,
-              record.rating, record.reviewText, record.status, record.verificationStatus, record.socialProfileUrl,
-              record.socialPlatform, record.verificationNotes, record.reviewedBy, record.reviewedAt,
-              record.publishedAt, record.guestAccessToken, record.createdAt,
-            ],
-          );
           return record;
         },
         async update(record: ReviewRecord) {
+          const status = record.status === "published" || record.status === "approved" ? "approved" : record.status === "rejected" ? "rejected" : "pending";
+          const showOnHomepage = record.status === "published";
           await query(
             client,
-            `update reviews set status=$2, verification_status=$3, verification_notes=$4, reviewed_by=$5,
-             reviewed_at=$6, published_at=$7 where id=$1`,
-            [
-              record.id, record.status, record.verificationStatus, record.verificationNotes,
-              record.reviewedBy, record.reviewedAt, record.publishedAt,
-            ],
+            `UPDATE review_submissions SET status=$2, show_on_homepage=$3, reviewed_by=$4, reviewed_at=NOW() WHERE id=$1`,
+            [record.id, status, showOnHomepage, record.reviewedBy]
           );
           return record;
         },
         async getById(id: string) {
-          const rows = await query(client, "select * from reviews where id=$1", [id]);
+          const rows = await query(
+            client,
+            `SELECT s.*, b.ticket_id, b.status as booking_status
+             FROM review_submissions s
+             LEFT JOIN bookings b ON s.booking_id = b.id
+             WHERE s.id = $1`,
+            [id]
+          );
           return rows[0] ? mapReview(rows[0]) : null;
         },
         async list(filter) {
           const clauses: string[] = [];
           const params: unknown[] = [];
           if (filter.status) {
-            params.push(filter.status);
-            clauses.push(`status=$${params.length}`);
+            params.push(filter.status === "published" ? "approved" : filter.status === "pending_review" ? "pending" : filter.status);
+            clauses.push(`s.status=$${params.length}`);
+            if (filter.status === "published") {
+              clauses.push(`s.show_on_homepage=true`);
+            }
           }
-          if (filter.catalogItemId) {
-            params.push(filter.catalogItemId);
-            clauses.push(`catalog_item_id=$${params.length}`);
-          }
-          const where = clauses.length ? `where ${clauses.join(" and ")}` : "";
-          const rows = await query(client, `select * from reviews ${where} order by created_at desc`, params);
-          return rows.map(mapReview);
-        },
-        async listPublishedByCatalog(catalogItemId: string) {
+          const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
           const rows = await query(
             client,
-            "select * from reviews where catalog_item_id=$1 and status='published' order by published_at desc",
-            [catalogItemId],
+            `SELECT s.*, b.ticket_id, b.status as booking_status
+             FROM review_submissions s
+             LEFT JOIN bookings b ON s.booking_id = b.id
+             ${where}
+             ORDER BY s.created_at DESC`,
+            params
+          );
+          return rows.map(mapReview);
+        },
+        async listPublishedByCatalog(_catalogItemId: string) {
+          const rows = await query(
+            client,
+            `SELECT s.*, b.ticket_id, b.status as booking_status
+             FROM review_submissions s
+             LEFT JOIN bookings b ON s.booking_id = b.id
+             WHERE s.status = 'approved' AND s.show_on_homepage = true AND s.consent_public = true
+             ORDER BY s.created_at DESC`,
+            []
           );
           return rows.map(mapReview);
         },
@@ -2397,22 +2399,43 @@ function mapMedia(row: Record<string, unknown>): CatalogMediaRecord {
 }
 
 function mapReview(row: Record<string, unknown>): ReviewRecord {
+  const isVerified =
+    (row.booking_id && row.booking_status === "completed") ||
+    row.verification_status === "booking_verified";
   return {
     id: String(row.id),
-    bookingId: row.booking_id ? String(row.booking_id) : null,
+    bookingId: row.ticket_id
+      ? String(row.ticket_id)
+      : row.booking_id
+        ? String(row.booking_id)
+        : null,
     catalogItemId: row.catalog_item_id ? String(row.catalog_item_id) : null,
     customerId: row.customer_id ? String(row.customer_id) : null,
     displayName: String(row.display_name),
     rating: num(row.rating),
     reviewText: String(row.review_text),
-    status: row.status as ReviewRecord["status"],
-    verificationStatus: row.verification_status as ReviewRecord["verificationStatus"],
-    socialProfileUrl: row.social_profile_url ? String(row.social_profile_url) : null,
+    status: (row.status === "approved" && row.show_on_homepage
+      ? "published"
+      : row.status === "approved"
+        ? "approved"
+        : row.status === "rejected"
+          ? "rejected"
+          : "pending_review") as ReviewRecord["status"],
+    verificationStatus: isVerified ? "booking_verified" : "unverified",
+    socialProfileUrl: row.social_username
+      ? String(row.social_username)
+      : row.social_profile_url
+        ? String(row.social_profile_url)
+        : null,
     socialPlatform: row.social_platform ? String(row.social_platform) : null,
     verificationNotes: row.verification_notes ? String(row.verification_notes) : null,
     reviewedBy: row.reviewed_by ? String(row.reviewed_by) : null,
     reviewedAt: row.reviewed_at ? new Date(String(row.reviewed_at)).toISOString() : null,
-    publishedAt: row.published_at ? new Date(String(row.published_at)).toISOString() : null,
+    publishedAt: row.show_on_homepage
+      ? row.reviewed_at
+        ? new Date(String(row.reviewed_at)).toISOString()
+        : new Date().toISOString()
+      : null,
     guestAccessToken: row.guest_access_token ? String(row.guest_access_token) : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
   };

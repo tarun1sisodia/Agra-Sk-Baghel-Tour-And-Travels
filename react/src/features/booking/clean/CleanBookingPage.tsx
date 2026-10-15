@@ -275,7 +275,8 @@ export function CleanBookingPage() {
             if (initialVehicle) {
               const vehicleMatch = allVehicles.find((v) =>
                 v.quote.vehicle.group_code.toLowerCase() === initialVehicle ||
-                v.display_name.toLowerCase().includes(initialVehicle)
+                v.display_name.toLowerCase().includes(initialVehicle) ||
+                v.vehicle_model_id?.toLowerCase() === initialVehicle
               );
               if (vehicleMatch) return { vehicle: vehicleMatch, quote: vehicleMatch.quote };
             }

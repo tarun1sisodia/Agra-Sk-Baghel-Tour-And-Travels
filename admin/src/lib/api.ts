@@ -29,7 +29,6 @@ import type {
   PaymentProvider,
   PaymentStatus,
   Review,
-  ReviewStatus,
   TripType,
   VehicleTier,
   RouteCatalogItem, RouteFleet, RouteTripType,
@@ -526,38 +525,64 @@ export async function createAdminBooking(payload: {
 
 /* ── Review moderation ────────────────────────────────────────────────────── */
 
-export async function fetchAdminReviews(catalogItems?: { id: string; title: string }[]): Promise<Review[]> {
-  const json = await apiFetch(`/api/v1/ops/admin/reviews`);
-  const items = json?.data?.items || json?.data || [];
+export async function fetchAdminReviews(): Promise<Review[]> {
+  const json = await apiFetch(`/api/v1/admin/review-submissions`);
+  const items = json?.submissions || json?.data?.items || json?.data || [];
   if (!Array.isArray(items)) return [];
 
-  const titleById = new Map((catalogItems ?? []).map((c) => [c.id, c.title]));
-
   return items.map((r: any) => ({
-    id: r.id,
-    customerName: r.displayName || "Customer",
-    ticketId: r.bookingId || "—",
-    route: (r.catalogItemId && titleById.get(r.catalogItemId)) || "General",
+    id: String(r.id),
+    customerName: r.display_name || r.displayName || r.customerName || "Customer",
+    ticketId: r.ticket_id || r.booking_ticket_id || (r.booking_id ? `TKT-${String(r.booking_id).slice(0, 8)}` : "—"),
+    route: r.tour_name || r.route_text || r.route || "General Trip",
     rating: Number(r.rating) || 0,
-    text: r.reviewText || "",
-    status: (r.status as ReviewStatus) || "pending_review",
-    submittedAt: r.createdAt || r.publishedAt || new Date().toISOString(),
-    verifiedBooking:
-      r.verificationStatus === "booking_verified" || r.verificationStatus === "manually_verified",
+    text: r.review_text || r.reviewText || r.text || "",
+    status: (r.status === "pending_review" ? "pending" : r.status) || "pending",
+    showOnHomepage: Boolean(r.show_on_homepage ?? r.showOnHomepage),
+    showInGallery: Boolean(r.show_in_gallery ?? r.showInGallery),
+    consentPublic: Boolean(r.consent_public ?? r.consentPublic ?? true),
+    bookingStatus: r.booking_status || r.bookingStatus || null,
+    verifiedBooking: Boolean(r.is_verified_booking ?? r.verifiedBooking),
+    socialPlatform: r.social_platform || r.socialPlatform || null,
+    socialUsername: r.social_username || r.socialUsername || null,
+    socialUrl: r.social_url || r.socialUrl || null,
+    rejectionReason: r.rejection_reason || r.rejectionReason || null,
+    submittedAt: r.created_at || r.createdAt || r.submittedAt || new Date().toISOString(),
+    reviewedBy: r.reviewed_by || r.reviewedBy || null,
+    reviewedAt: r.reviewed_at || r.reviewedAt || null,
+    images: Array.isArray(r.images) ? r.images : [],
   }));
 }
 
 export async function actOnReview(
   id: string,
-  action: "approve" | "reject" | "publish" | "archive",
-): Promise<{ id: string; status: ReviewStatus }> {
-  const json = await apiFetch(`/api/v1/ops/admin/reviews/${encodeURIComponent(id)}/${action}`, {
-    method: "POST",
-    body: JSON.stringify(
-      action === "reject" ? { reason: "Rejected by staff during moderation." } : {},
-    ),
+  action: "approve" | "reject" | "publish" | "unpublish",
+  reason?: string
+): Promise<{ id: string; status: "pending" | "approved" | "rejected"; showOnHomepage: boolean }> {
+  const payload: any = {};
+  if (action === "approve") {
+    payload.status = "approved";
+  } else if (action === "reject") {
+    payload.status = "rejected";
+    payload.rejection_reason = reason || "Rejected during moderation.";
+    payload.show_on_homepage = false;
+  } else if (action === "publish") {
+    payload.status = "approved";
+    payload.show_on_homepage = true;
+  } else if (action === "unpublish") {
+    payload.show_on_homepage = false;
+  }
+
+  const json = await apiFetch(`/api/v1/admin/review-submissions/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
   });
-  return { id: json?.data?.id ?? id, status: json?.data?.status ?? "pending_review" };
+  const sub = json?.submission || json?.data?.submission || json?.data || {};
+  return {
+    id: sub.id ?? id,
+    status: sub.status ?? (action === "reject" ? "rejected" : "approved"),
+    showOnHomepage: Boolean(sub.show_on_homepage),
+  };
 }
 
 

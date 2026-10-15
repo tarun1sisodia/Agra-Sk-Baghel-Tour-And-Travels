@@ -13,24 +13,5 @@ export async function registerReviewRoutes(
     config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
     handler: controller.submit,
   });
-  app.get("/api/v1/ops/admin/reviews", {
-    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
-    handler: controller.listAdmin,
-  });
-  app.post("/api/v1/ops/admin/reviews/:id/approve", {
-    config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
-    handler: controller.approve,
-  });
-  app.post("/api/v1/ops/admin/reviews/:id/reject", {
-    config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
-    handler: controller.reject,
-  });
-  app.post("/api/v1/ops/admin/reviews/:id/publish", {
-    config: { rateLimit: { max: 20, timeWindow: "1 minute" } },
-    handler: controller.publish,
-  });
-  app.post("/api/v1/ops/admin/reviews/:id/archive", {
-    config: { rateLimit: { max: 20, timeWindow: "1 minute" } },
-    handler: controller.archive,
-  });
+  // Admin moderation endpoints are served canonically by registerReviewsRoutes
 }

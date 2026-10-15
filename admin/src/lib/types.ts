@@ -149,14 +149,14 @@ export interface CatalogItem {
   tripType: CatalogTripType | null;
 }
 
+export type ReviewModerationStatus = "pending" | "approved" | "rejected";
 export type ReviewStatus =
-  | "pending_review"
+  | "pending"
   | "approved"
   | "rejected"
+  | "pending_review"
   | "published"
-  | "archived"
-  | "pending"
-  | "draft";
+  | "archived";
 
 export interface Review {
   id: string;
@@ -165,9 +165,20 @@ export interface Review {
   route: string;
   rating: number;
   text: string;
-  status: ReviewStatus;
-  submittedAt: string;
+  status: ReviewModerationStatus;
+  showOnHomepage: boolean;
+  showInGallery: boolean;
+  consentPublic: boolean;
+  bookingStatus: string | null;
   verifiedBooking: boolean;
+  socialPlatform?: string | null;
+  socialUsername?: string | null;
+  socialUrl?: string | null;
+  rejectionReason?: string | null;
+  submittedAt: string;
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
+  images?: Array<{ id: string; storage_key: string; status: string; alt_text?: string | null }>;
 }
 
 export type InquiryStatus =

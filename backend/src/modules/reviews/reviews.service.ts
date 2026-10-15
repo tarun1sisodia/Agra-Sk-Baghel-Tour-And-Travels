@@ -76,6 +76,9 @@ export class ReviewsService {
     if (!booking) {
       throw new AppError("NOT_FOUND", "Booking not found", 404);
     }
+    if (booking.status && booking.status !== "completed") {
+      throw new AppError("INVALID_STATE", "Review links can only be generated for completed bookings", 400);
+    }
 
     const token = crypto.randomBytes(32).toString("hex");
     const tokenHash = this.hashToken(token);
@@ -281,10 +284,26 @@ export class ReviewsService {
       throw new AppError("VALIDATION_ERROR", "Review cannot be placed publicly without customer consent", 400);
     }
 
+    // Completed ticket verification rule for publishing:
+    if (action.show_on_homepage && action.status !== "rejected") {
+      if (before.booking_id) {
+        const linkedBooking = await this.deps.bookingsRepo.getById(before.booking_id);
+        if (linkedBooking && linkedBooking.status && linkedBooking.status !== "completed") {
+          throw new AppError(
+            "VALIDATION_ERROR",
+            "Cannot publish review: associated booking is not in completed status",
+            400
+          );
+        }
+      }
+    }
+
+    const showOnHomepage = action.status === "rejected" ? false : action.show_on_homepage;
+
     const updated = await this.deps.reviewsRepo.updateSubmission(id, {
       status: action.status,
-      show_on_homepage: action.show_on_homepage,
-      show_in_gallery: action.show_in_gallery,
+      show_on_homepage: showOnHomepage,
+      show_in_gallery: action.status === "rejected" ? false : action.show_in_gallery,
       review_text: action.review_text ? escapeHtml(action.review_text) : undefined,
       display_name: action.display_name?.trim(),
       reviewed_by: actor.id,
@@ -314,11 +333,52 @@ export class ReviewsService {
     return updated;
   }
 
+  // ===== Admin Listings =====
+  async listAdminSubmissions(
+    filter: { status?: string; limit?: number; offset?: number } = {},
+    actor: { id: string; role: UserRole }
+  ) {
+    if (actor.role !== "super_admin" && actor.role !== "review_moderator") {
+      throw new AppError("FORBIDDEN", "Review moderator role required", 403);
+    }
+    const rows = await this.deps.reviewsRepo.listAdminSubmissions(filter);
+    return rows.map((r) => ({
+      id: r.id,
+      link_id: r.link_id,
+      booking_id: r.booking_id,
+      ticket_id: r.booking_ticket_id || null,
+      booking_status: r.booking_status || null,
+      is_verified_booking: Boolean(r.is_verified_booking),
+      display_name: r.display_name,
+      rating: r.rating,
+      review_text: r.review_text,
+      tour_name: r.tour_name,
+      route_text: r.route_text,
+      social_platform: r.social_platform,
+      social_username: r.social_username,
+      social_url: formatSocialUrl(r.social_platform, r.social_username),
+      consent_public: r.consent_public,
+      status: r.status,
+      show_on_homepage: r.show_on_homepage,
+      show_in_gallery: r.show_in_gallery,
+      reviewed_by: r.reviewed_by,
+      reviewed_at: r.reviewed_at,
+      rejection_reason: r.rejection_reason,
+      created_at: r.created_at,
+      images: (r.images || []).map((img) => ({
+        id: img.id,
+        storage_key: img.storage_key,
+        status: img.status,
+        alt_text: img.alt_text,
+      })),
+    }));
+  }
+
   // ===== Public Listings =====
   async getPublicReviews(): Promise<any[]> {
     // RV-05, RV-06, RV-09, RV-24: Approved, consented, show_on_homepage only
     const rows = await this.deps.reviewsRepo.getPublicReviews();
-    return rows.map((r) => ({
+    return rows.map((r: any) => ({
       id: r.id,
       display_name: r.display_name,
       rating: r.rating,
@@ -327,6 +387,7 @@ export class ReviewsService {
       route_text: r.route_text,
       social_url: formatSocialUrl(r.social_platform, r.social_username),
       social_platform: r.social_platform,
+      is_verified: Boolean(r.is_verified),
       created_at: r.created_at,
     }));
   }

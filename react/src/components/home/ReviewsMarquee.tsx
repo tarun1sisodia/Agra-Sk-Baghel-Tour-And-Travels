@@ -18,6 +18,7 @@ export interface Review {
   rating: number;
   quote: string;
   role?: string;
+  is_verified?: boolean;
 }
 
 function getInitials(name: string): string {
@@ -56,10 +57,12 @@ function ReviewCard({ review }: ReviewCardProps) {
               </span>
             </div>
           </div>
-          <span className="px-2 py-0.5 rounded-full bg-success-jade/10 text-success-jade font-label-caps text-label-caps uppercase font-bold flex items-center gap-0.5 shrink-0">
-            <span className="material-symbols-outlined text-icon-11">verified</span>
-            Verified
-          </span>
+          {review.is_verified && (
+            <span className="px-2 py-0.5 rounded-full bg-success-jade/10 text-success-jade font-label-caps text-label-caps uppercase font-bold flex items-center gap-0.5 shrink-0">
+              <span className="material-symbols-outlined text-icon-11">verified</span>
+              Verified
+            </span>
+          )}
         </div>
 
         <p className="font-body-md text-title-md italic text-on-surface-variant leading-relaxed line-clamp-3">
@@ -112,7 +115,7 @@ export function ReviewsMarquee() {
               quote: r.review_text,
               role: r.social_platform && r.social_url ? r.social_platform : undefined,
             }));
-          if (approved.length >= 2) {
+          if (approved.length >= 1) {
             setReviewsList(approved);
             setError(null);
           } else {
@@ -136,9 +139,9 @@ export function ReviewsMarquee() {
     };
   }, []);
 
-  const mid = Math.ceil(reviewsList.length / 2);
-  const row1 = reviewsList.slice(0, mid);
-  const row2 = reviewsList.slice(mid);
+  const mid = reviewsList.length <= 1 ? 1 : Math.ceil(reviewsList.length / 2);
+  const row1 = reviewsList.length <= 1 ? reviewsList : reviewsList.slice(0, mid);
+  const row2 = reviewsList.length <= 1 ? reviewsList : reviewsList.slice(mid);
 
   return (
     <section
@@ -156,7 +159,7 @@ export function ReviewsMarquee() {
           OUR TRAVELER REVIEWS
         </div>
         <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
-          3,800+ Expeditions. <br className="hidden sm:inline" />
+          Verified Traveler Experiences
         </h2>
       </div>
 

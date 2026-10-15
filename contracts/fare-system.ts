@@ -366,6 +366,7 @@ export const PublicReviewItem = z.object({
   trip_summary: z.string(),
   social_platform: z.string().nullable(),
   social_url: z.string().nullable(),
+  is_verified: z.boolean().default(false),
   submitted_at: z.string(),
 });
 export type PublicReviewItem = z.infer<typeof PublicReviewItem>;

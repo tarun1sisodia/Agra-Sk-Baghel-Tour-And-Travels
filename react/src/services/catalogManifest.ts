@@ -331,8 +331,7 @@ export async function fetchPublishedTransferRoutes(): Promise<any[]> {
     const res = await fetch(`${apiBase}/api/v1/transfers`, { headers: { Accept: "application/json" } });
     if (res.ok) {
       const json = await res.json();
-      const list = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
-      if (list.length > 0) return list;
+      return Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
     }
   } catch {
     // Return empty on offline/static
@@ -347,8 +346,7 @@ export async function fetchPublishedLocalTransfers(): Promise<any[]> {
     const res = await fetch(`${apiBase}/api/v1/local-tours`, { headers: { Accept: "application/json" } });
     if (res.ok) {
       const json = await res.json();
-      const list = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
-      if (list.length > 0) return list;
+      return Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
     }
   } catch {
     // Return empty on offline/static

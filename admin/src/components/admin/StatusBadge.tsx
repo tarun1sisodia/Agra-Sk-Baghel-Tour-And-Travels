@@ -26,6 +26,7 @@ const map: Record<string, { label: string; tone: "neutral" | "gold" | "success" 
   published: { label: "Published", tone: "success", icon: CheckCircle2 },
   archived: { label: "Archived", tone: "neutral", icon: Clock },
   // Reviews
+  pending: { label: "Pending", tone: "gold", icon: Clock },
   pending_review: { label: "Pending", tone: "gold", icon: Clock },
   approved: { label: "Approved", tone: "teal", icon: CheckCircle2 },
   rejected: { label: "Rejected", tone: "error", icon: XCircle },

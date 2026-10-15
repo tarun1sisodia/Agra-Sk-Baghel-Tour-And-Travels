@@ -116,6 +116,35 @@ export function registerReviewsRoutes(app: FastifyInstance, reviewsService: Revi
   app.post("/admin/bookings/:id/review-request", createBookingLinkHandler);
   app.post("/api/v1/admin/bookings/:id/review-request", createBookingLinkHandler);
 
+  // Admin review submissions listing (canonical + compatibility alias)
+  const listAdminSubmissionsHandler = async (req: FastifyRequest, reply: any) => {
+    const actor = getActor(req);
+    const query = req.query as { status?: string; limit?: string; offset?: string };
+    try {
+      const submissions = await reviewsService.listAdminSubmissions(
+        {
+          status: query?.status,
+          limit: query?.limit ? Number(query.limit) : undefined,
+          offset: query?.offset ? Number(query.offset) : undefined,
+        },
+        actor
+      );
+      return reply.send({
+        success: true,
+        submissions,
+        data: { items: submissions },
+      });
+    } catch (err: any) {
+      if (err instanceof AppError) {
+        return reply.status(err.statusCode).send({ error: err.code, message: err.message });
+      }
+      throw err;
+    }
+  };
+  app.get("/admin/review-submissions", listAdminSubmissionsHandler);
+  app.get("/api/v1/admin/review-submissions", listAdminSubmissionsHandler);
+  app.get("/api/v1/ops/admin/reviews", listAdminSubmissionsHandler);
+
   // Admin moderation
   const moderateSubmissionHandler = async (req: FastifyRequest<{ Params: { id: string } }>, reply: any) => {
     const actor = getActor(req);
@@ -132,4 +161,63 @@ export function registerReviewsRoutes(app: FastifyInstance, reviewsService: Revi
   };
   app.patch("/admin/review-submissions/:id", moderateSubmissionHandler);
   app.patch("/api/v1/admin/review-submissions/:id", moderateSubmissionHandler);
+
+  // Ops compatibility actions: /api/v1/ops/admin/reviews/:id/:action
+  const opsActionHandler = async (
+    req: FastifyRequest<{ Params: { id: string } }>,
+    reply: any,
+    action: "approve" | "reject" | "publish" | "archive" | "unpublish"
+  ) => {
+    const actor = getActor(req);
+    const { id } = req.params;
+    const body = (req.body as any) || {};
+
+    let modAction: any = {};
+    if (action === "approve") {
+      modAction = { status: "approved" };
+    } else if (action === "reject") {
+      modAction = {
+        status: "rejected",
+        rejection_reason: body.reason || "Rejected during staff moderation.",
+      };
+    } else if (action === "publish") {
+      modAction = { status: "approved", show_on_homepage: true };
+    } else if (action === "archive" || action === "unpublish") {
+      modAction = { show_on_homepage: false };
+    }
+
+    try {
+      const updated = await reviewsService.moderateSubmission(id, modAction, actor, req.id);
+      return reply.send({
+        success: true,
+        data: {
+          id: updated.id,
+          status: updated.status,
+          show_on_homepage: updated.show_on_homepage,
+        },
+        submission: updated,
+      });
+    } catch (err: any) {
+      if (err instanceof AppError) {
+        return reply.status(err.statusCode).send({ error: err.code, message: err.message });
+      }
+      throw err;
+    }
+  };
+
+  app.post("/api/v1/ops/admin/reviews/:id/approve", (req: any, reply: any) =>
+    opsActionHandler(req, reply, "approve")
+  );
+  app.post("/api/v1/ops/admin/reviews/:id/reject", (req: any, reply: any) =>
+    opsActionHandler(req, reply, "reject")
+  );
+  app.post("/api/v1/ops/admin/reviews/:id/publish", (req: any, reply: any) =>
+    opsActionHandler(req, reply, "publish")
+  );
+  app.post("/api/v1/ops/admin/reviews/:id/archive", (req: any, reply: any) =>
+    opsActionHandler(req, reply, "archive")
+  );
+  app.post("/api/v1/ops/admin/reviews/:id/unpublish", (req: any, reply: any) =>
+    opsActionHandler(req, reply, "unpublish")
+  );
 }

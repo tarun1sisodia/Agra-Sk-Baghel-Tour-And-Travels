@@ -304,6 +304,7 @@ export interface PublicReview {
   route_text?: string | null;
   social_url?: string | null;
   social_platform?: string | null;
+  is_verified?: boolean;
   created_at: string;
 }
 

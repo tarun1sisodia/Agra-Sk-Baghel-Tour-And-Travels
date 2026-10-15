@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { type VehicleId } from "../../data/catalogue";
-import { STATIC_DESTINATIONS } from "../search/LocationCombobox";
+import { useEffect, useRef, useState, useMemo, type ReactNode } from "react";
 import { localTomorrow } from "../../fares";
-import { fetchPublishedLocalTransfers } from "../../services/catalogManifest";
+import { fetchPublishedCatalog } from "../../services/cleanFareApi";
+import type {
+  PublishedCatalogResponse,
+  PublishedProductSummary,
+} from "../../contracts/fare-system.js";
+import { STATIC_DESTINATIONS } from "../search/LocationCombobox";
 
 const modes = [
   { id: "oneway", label: "One Way", icon: "car" },
@@ -11,14 +14,21 @@ const modes = [
 ] as const;
 type BookingMode = (typeof modes)[number]["id"];
 
-const fleetIds: VehicleId[] = ["sedan", "ertiga", "innova", "tempo", "urbania"];
-const fleetLabels: Record<VehicleId, string> = {
-  sedan: "Sedan",
-  ertiga: "Ertiga",
-  innova: "Crysta",
-  tempo: "Tempo",
-  urbania: "Urbania",
-};
+export type CanonicalVehicleGroupCode = "sedan" | "suv" | "luxury" | "tempo_traveller";
+
+interface VehicleGroupOption {
+  code: CanonicalVehicleGroupCode;
+  label: string;
+  icon: IconName;
+  defaultSub: string;
+}
+
+const CANONICAL_VEHICLE_GROUPS: VehicleGroupOption[] = [
+  { code: "sedan", label: "Sedan", icon: "sedan", defaultSub: "Dzire / Etios" },
+  { code: "suv", label: "SUV", icon: "car", defaultSub: "Ertiga / Crysta" },
+  { code: "luxury", label: "Luxury", icon: "car", defaultSub: "BMW / Mercedes" },
+  { code: "tempo_traveller", label: "Tempo", icon: "bus", defaultSub: "12-26 Seater" },
+];
 
 export interface PublishedLocalTour {
   id: string;
@@ -29,6 +39,16 @@ export interface PublishedLocalTour {
   description?: string;
   image: string;
   startingPrice: number | null;
+}
+
+interface ParsedRoute {
+  id: string;
+  code: string;
+  name: string;
+  origin: string;
+  destination: string;
+  distanceKm?: number | null;
+  startingPrice?: number | null;
 }
 
 type IconName = "car" | "swap" | "pin" | "calendar" | "sedan" | "van" | "bus" | "shield" | "rupee" | "clock" | "support" | "arrow";
@@ -50,9 +70,49 @@ function SvgIcon({ name, size = 18 }: { name: IconName; size?: number }) {
   return <svg className="booking-svg-icon" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
 }
 
-function CityInput({ id, label, value, onChange, onFocus }: { id: string; label: string; value: string; onChange: (value: string) => void; onFocus: () => void }) {
+function parseRouteCities(route: PublishedProductSummary): ParsedRoute {
+  const parts = route.name.split(/\s+to\s+/i);
+  let origin = (parts[0] || "").trim();
+  let destination = (parts[1] || "").trim();
+
+  if (!destination && route.code.includes("-")) {
+    const codeParts = route.code.split("-");
+    origin = codeParts[0].charAt(0).toUpperCase() + codeParts[0].slice(1);
+    destination = codeParts.slice(1).join(" ").charAt(0).toUpperCase() + codeParts.slice(1).join(" ").slice(1);
+  }
+
+  return {
+    id: route.id,
+    code: route.code,
+    name: route.name,
+    origin: origin || "Agra",
+    destination: destination || "Delhi",
+    distanceKm: route.distance_km,
+    startingPrice: route.starting_price_inr,
+  };
+}
+
+function CityInput({
+  id,
+  label,
+  value,
+  onChange,
+  onFocus,
+  suggestions,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  onFocus: () => void;
+  suggestions: string[];
+}) {
   const [focused, setFocused] = useState(false);
-  const suggestions = STATIC_DESTINATIONS.filter((item) => item.name.toLowerCase().includes(value.trim().toLowerCase())).slice(0, 5);
+  const normalizedValue = value.trim().toLowerCase();
+  const filtered = suggestions
+    .filter((item) => !normalizedValue || item.toLowerCase().includes(normalizedValue))
+    .slice(0, 6);
+
   return (
     <div className="booking-reference__text-input-wrap">
       <SvgIcon name="pin" size={20} />
@@ -61,25 +121,28 @@ function CityInput({ id, label, value, onChange, onFocus }: { id: string; label:
         aria-label={label}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        onFocus={() => { setFocused(true); onFocus(); }}
-        onBlur={() => setTimeout(() => setFocused(false), 200)}
+        onFocus={() => {
+          setFocused(true);
+          onFocus();
+        }}
+        onBlur={() => setTimeout(() => setFocused(false), 250)}
         placeholder="Enter city or location"
         autoComplete="off"
       />
-      {focused && value && suggestions.length > 0 && (
+      {focused && filtered.length > 0 && (
         <div className="booking-reference__suggestions" role="listbox" aria-label={`${label} suggestions`}>
-          {suggestions.map((item) => (
+          {filtered.map((item) => (
             <button
               type="button"
               role="option"
-              key={item.id}
+              key={item}
               onMouseDown={(event) => {
                 event.preventDefault();
-                onChange(item.name);
+                onChange(item);
                 setFocused(false);
               }}
             >
-              {item.name}
+              {item}
             </button>
           ))}
         </div>
@@ -99,10 +162,10 @@ export function HomeBookingWidget() {
   const [pickupDate, setPickupDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [minDate, setMinDate] = useState("");
-  const [selectedVehicle, setSelectedVehicle] = useState<VehicleId>("sedan");
+  const [selectedVehicle, setSelectedVehicle] = useState<CanonicalVehicleGroupCode>("sedan");
   const [localTourCode, setLocalTourCode] = useState<string>("");
-  const [publishedTours, setPublishedTours] = useState<PublishedLocalTour[]>([]);
-  const [isLoadingTours, setIsLoadingTours] = useState(true);
+  const [catalog, setCatalog] = useState<PublishedCatalogResponse | null>(null);
+  const [isLoadingCatalog, setIsLoadingCatalog] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const pickupInputRef = useRef<HTMLInputElement>(null);
   const returnInputRef = useRef<HTMLInputElement>(null);
@@ -116,43 +179,124 @@ export function HomeBookingWidget() {
 
   useEffect(() => {
     let isMounted = true;
-    async function loadCanonicalTours() {
-      setIsLoadingTours(true);
+    async function loadLiveCatalog() {
+      setIsLoadingCatalog(true);
       try {
-        const raw = await fetchPublishedLocalTransfers();
+        const data = await fetchPublishedCatalog();
         if (!isMounted) return;
-        const mapped: PublishedLocalTour[] = (raw || [])
-          .filter((t: any) => t && t.status !== "draft" && t.isActive !== false)
-          .map((t: any) => {
-            const code = t.packageCode || t.code || t.slug || t.id;
-            const starting = t.fleetPrices?.dzire ?? t.fleetPrices?.sedan ?? t.starting_price_inr ?? null;
-            return {
-              id: t.id,
-              code: String(code),
-              name: String(t.name || t.title || "Agra Local Sightseeing"),
-              durationText: t.durationHours ? `${t.durationHours} Hours / ${t.includedKm ?? 80} KM` : (t.durationText || t.duration || "Day Tour"),
-              covers: t.covers || t.note || "Agra Monuments & Local Heritage",
-              description: t.description || "",
-              image: t.image || t.image_url || "/assets/booking/agra-fort.webp",
-              startingPrice: starting != null ? Number(starting) : null,
-            };
-          });
-        setPublishedTours(mapped);
-        if (mapped.length > 0) {
-          setLocalTourCode(mapped[0].code);
+        setCatalog(data);
+
+        // Pre-select first local tour if available
+        const localItems = (data.products || []).filter((p) => p.category === "local_package");
+        if (localItems.length > 0) {
+          setLocalTourCode(localItems[0].code);
         }
-      } catch {
-        if (isMounted) setPublishedTours([]);
+      } catch (err) {
+        console.error("Failed to fetch published catalog for home booking widget:", err);
+        if (isMounted) setCatalog(null);
       } finally {
-        if (isMounted) setIsLoadingTours(false);
+        if (isMounted) setIsLoadingCatalog(false);
       }
     }
-    loadCanonicalTours();
-    return () => { isMounted = false; };
+    loadLiveCatalog();
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  // Outstation routes derived from live catalog
+  const outstationRoutes = useMemo<ParsedRoute[]>(() => {
+    const prods = (catalog?.products || []).filter((p) => p.category === "outstation");
+    return prods.map(parseRouteCities);
+  }, [catalog]);
+
+  // Derived suggestions for Origin and Destination from active routes
+  const publishedOrigins = useMemo<string[]>(() => {
+    const set = new Set<string>();
+    for (const r of outstationRoutes) {
+      if (r.origin) set.add(r.origin);
+    }
+    if (set.size === 0) {
+      STATIC_DESTINATIONS.slice(0, 6).forEach((d) => set.add(d.name));
+    }
+    return Array.from(set);
+  }, [outstationRoutes]);
+
+  const publishedDestinations = useMemo<string[]>(() => {
+    const set = new Set<string>();
+    const currentOrigin = origin.trim().toLowerCase();
+    for (const r of outstationRoutes) {
+      if (!currentOrigin || r.origin.toLowerCase() === currentOrigin) {
+        if (r.destination) set.add(r.destination);
+      }
+    }
+    if (set.size === 0) {
+      for (const r of outstationRoutes) {
+        if (r.destination) set.add(r.destination);
+      }
+    }
+    if (set.size === 0) {
+      STATIC_DESTINATIONS.slice(0, 6).forEach((d) => set.add(d.name));
+    }
+    return Array.from(set);
+  }, [outstationRoutes, origin]);
+
+  // Exact or smart matched outstation route
+  const matchedRoute = useMemo<ParsedRoute | null>(() => {
+    if (!origin.trim() || !destination.trim()) return null;
+    const o = origin.trim().toLowerCase();
+    const d = destination.trim().toLowerCase();
+
+    return (
+      outstationRoutes.find((r) => r.origin.toLowerCase() === o && r.destination.toLowerCase() === d) ||
+      outstationRoutes.find((r) => {
+        const name = r.name.toLowerCase();
+        const code = r.code.toLowerCase();
+        return (name.includes(o) && name.includes(d)) || (code.includes(o) && code.includes(d));
+      }) ||
+      null
+    );
+  }, [outstationRoutes, origin, destination]);
+
+  // Local sightseeing packages from live catalog
+  const publishedTours = useMemo<PublishedLocalTour[]>(() => {
+    const localItems = (catalog?.products || []).filter((p) => p.category === "local_package");
+    return localItems.map((p) => {
+      const durationText = p.duration_minutes
+        ? `${Math.round(p.duration_minutes / 60)} Hours${p.distance_km ? ` / ${p.distance_km} KM` : ""}`
+        : (p.distance_km ? `${p.distance_km} KM` : "Day Tour");
+      return {
+        id: p.id,
+        code: p.code,
+        name: p.name,
+        durationText,
+        covers: p.description || "Agra Monuments & Local Heritage",
+        description: p.description || "",
+        image: p.image_url || "/assets/booking/agra-fort.webp",
+        startingPrice: p.starting_price_inr,
+      };
+    });
+  }, [catalog]);
 
   const selectedTour = publishedTours.find((tour) => tour.code === localTourCode) ?? publishedTours[0];
   const thumbSrc = selectedTour?.image || "/assets/booking/agra-fort.webp";
+
+  // Vehicle groups from catalog or canonical fallback
+  const vehicleGroups = useMemo<VehicleGroupOption[]>(() => {
+    if (catalog?.groups && catalog.groups.length > 0) {
+      return catalog.groups.map((g) => {
+        const code = g.group_code as CanonicalVehicleGroupCode;
+        const matched = CANONICAL_VEHICLE_GROUPS.find((cg) => cg.code === code);
+        return {
+          code,
+          label: g.name || matched?.label || code,
+          icon: (code === "sedan" ? "sedan" : code === "tempo_traveller" ? "bus" : "car") as IconName,
+          defaultSub: matched?.defaultSub || "Commercial Fleet",
+        };
+      });
+    }
+    return CANONICAL_VEHICLE_GROUPS;
+  }, [catalog]);
 
   function validate(): boolean {
     const next: Record<string, string> = {};
@@ -163,7 +307,7 @@ export function HomeBookingWidget() {
       if (!destination.trim()) next.destination = "Enter destination.";
     } else {
       if (!selectedTour && publishedTours.length > 0) next.localTour = "Select a local tour.";
-      if (publishedTours.length === 0 && !isLoadingTours) next.localTour = "No local tours published yet.";
+      if (publishedTours.length === 0 && !isLoadingCatalog) next.localTour = "No local tours published yet.";
     }
     if (!activePickupDate) next.pickupDate = mode === "local" ? "Select tour date." : "Select pickup date.";
     if (mode === "round" && (!activeReturnDate || activeReturnDate < activePickupDate)) {
@@ -178,10 +322,11 @@ export function HomeBookingWidget() {
     const activeReturnDate = returnDate || localTomorrow();
     if (mode === "local") {
       const tourCode = selectedTour?.code ?? localTourCode;
-      return `/book.html?category=local_package&product=${encodeURIComponent(tourCode)}&car=${encodeURIComponent(selectedVehicle)}&date=${encodeURIComponent(activePickupDate)}`;
+      return `/book.html?category=local_package&product=${encodeURIComponent(tourCode)}&trip=one_way&car=${encodeURIComponent(selectedVehicle)}&date=${encodeURIComponent(activePickupDate)}`;
     }
     const trip = mode === "round" ? "round_trip" : "one_way";
-    return `/book.html?category=outstation&from=${encodeURIComponent(origin)}&to=${encodeURIComponent(destination)}&car=${encodeURIComponent(selectedVehicle)}&trip=${trip}&date=${encodeURIComponent(activePickupDate)}${mode === "round" ? `&return_date=${encodeURIComponent(activeReturnDate)}` : ""}`;
+    const productParam = matchedRoute ? `&product=${encodeURIComponent(matchedRoute.code)}` : "";
+    return `/book.html?category=outstation&trip=${trip}${productParam}&from=${encodeURIComponent(origin)}&to=${encodeURIComponent(destination)}&car=${encodeURIComponent(selectedVehicle)}&date=${encodeURIComponent(activePickupDate)}${mode === "round" ? `&return_date=${encodeURIComponent(activeReturnDate)}` : ""}`;
   }
 
   return (
@@ -227,7 +372,7 @@ export function HomeBookingWidget() {
             {mode === "local" ? (
               <div className="booking-reference__field booking-reference__field--tour">
                 <label htmlFor="home-local-tour">Select Local Tour</label>
-                {isLoadingTours ? (
+                {isLoadingCatalog ? (
                   <div className="booking-reference__select booking-reference__select--with-icon">
                     <span className="booking-reference__thumb skeleton-loader" />
                     <span style={{ fontSize: "13px", color: "#746b63" }}>Loading published tours…</span>
@@ -247,14 +392,14 @@ export function HomeBookingWidget() {
                     >
                       {publishedTours.map((tour) => (
                         <option key={tour.code} value={tour.code}>
-                          {tour.name} {tour.startingPrice ? `(From ₹${tour.startingPrice})` : `(${tour.durationText})`}
+                          {tour.name} {tour.startingPrice ? `(From ₹${tour.startingPrice.toLocaleString("en-IN")})` : `(${tour.durationText})`}
                         </option>
                       ))}
                     </select>
                   </div>
                 ) : (
                   <div className="booking-reference__empty-notice">
-                    <span>No scheduled tours published. Reach us for custom local trips.</span>
+                    <span>No local sightseeing packages published currently. Reach us for custom day tours.</span>
                   </div>
                 )}
                 <FieldError>{errors.localTour}</FieldError>
@@ -269,6 +414,7 @@ export function HomeBookingWidget() {
                     value={origin}
                     onChange={setOrigin}
                     onFocus={() => setErrors({})}
+                    suggestions={publishedOrigins}
                   />
                   <FieldError>{errors.origin}</FieldError>
                 </div>
@@ -280,6 +426,7 @@ export function HomeBookingWidget() {
                     value={destination}
                     onChange={setDestination}
                     onFocus={() => setErrors({})}
+                    suggestions={publishedDestinations}
                   />
                   <FieldError>{errors.destination}</FieldError>
                 </div>
@@ -335,7 +482,8 @@ export function HomeBookingWidget() {
                     value={returnDate}
                     min={pickupDate || minDate || undefined}
                     onChange={(event) => {
-                      setReturnDate(event.target.value);
+                      const val = event.target.value;
+                      setReturnDate(val);
                       setErrors((prev) => {
                         const c = { ...prev };
                         delete c.returnDate;
@@ -349,24 +497,45 @@ export function HomeBookingWidget() {
             )}
           </div>
 
+          {mode !== "local" && (
+            <div className="booking-reference__route-info" style={{ minHeight: "18px", marginTop: "-4px" }}>
+              {matchedRoute ? (
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#a63e14", fontSize: "11px", fontWeight: 600 }}>
+                  <SvgIcon name="car" size={14} />
+                  <span>
+                    Direct Route • {matchedRoute.distanceKm ? `${matchedRoute.distanceKm} km • ` : ""}
+                    {matchedRoute.startingPrice ? `From ₹${matchedRoute.startingPrice.toLocaleString("en-IN")}` : "Available for instant booking"}
+                  </span>
+                </div>
+              ) : origin.trim() && destination.trim() && !isLoadingCatalog ? (
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#746b63", fontSize: "11px", fontWeight: 500 }}>
+                  <SvgIcon name="pin" size={14} />
+                  <span>Custom outstation route • Instant fare calculated on booking desk</span>
+                </div>
+              ) : null}
+            </div>
+          )}
+
           <div className="booking-reference__bottom-row">
             <div className="booking-reference__field booking-reference__field--fleet">
-              <label>Vehicle Model</label>
-              <div className="booking-reference__vehicles" role="radiogroup" aria-label="Vehicle type">
-                {fleetIds.map((id) => (
+              <label>Vehicle Class</label>
+              <div
+                className="booking-reference__vehicles"
+                role="radiogroup"
+                aria-label="Vehicle type"
+                style={{ gridTemplateColumns: `repeat(${vehicleGroups.length}, minmax(0, 1fr))` }}
+              >
+                {vehicleGroups.map((g) => (
                   <button
                     type="button"
                     role="radio"
-                    aria-checked={selectedVehicle === id}
-                    className={`booking-reference__vehicle ${selectedVehicle === id ? "is-active" : ""}`}
-                    key={id}
-                    onClick={() => setSelectedVehicle(id)}
+                    aria-checked={selectedVehicle === g.code}
+                    className={`booking-reference__vehicle ${selectedVehicle === g.code ? "is-active" : ""}`}
+                    key={g.code}
+                    onClick={() => setSelectedVehicle(g.code)}
                   >
-                    <SvgIcon
-                      name={id === "urbania" ? "bus" : id === "tempo" || id === "innova" ? "van" : id === "sedan" ? "sedan" : "car"}
-                      size={22}
-                    />
-                    <span>{fleetLabels[id]}</span>
+                    <SvgIcon name={g.icon} size={22} />
+                    <span>{g.label}</span>
                   </button>
                 ))}
               </div>
@@ -406,7 +575,7 @@ export function HomeBookingWidget() {
                   <span>
                     <strong>{tour.name}</strong>
                     <small>{tour.durationText}</small>
-                    <em>{tour.startingPrice ? `From ₹${tour.startingPrice}` : tour.covers}</em>
+                    <em>{tour.startingPrice ? `From ₹${tour.startingPrice.toLocaleString("en-IN")}` : tour.covers}</em>
                   </span>
                   <i aria-hidden="true">{isCardActive ? "●" : "○"}</i>
                 </button>

@@ -141,10 +141,10 @@ class MockReviewsRepository extends ReviewsRepository {
     return i;
   }
 
-  override async getPublicReviews(): Promise<ReviewSubmissionEntity[]> {
-    return Array.from(this.submissions.values()).filter(
-      (s) => s.status === "approved" && s.consent_public && s.show_on_homepage
-    );
+  override async getPublicReviews(): Promise<Array<ReviewSubmissionEntity & { is_verified: boolean }>> {
+    return Array.from(this.submissions.values())
+      .filter((s) => s.status === "approved" && s.consent_public && s.show_on_homepage)
+      .map((s) => ({ ...s, is_verified: Boolean(s.booking_id) }));
   }
 
   override async getPublicGallery(): Promise<any[]> {
@@ -161,6 +161,18 @@ class MockReviewsRepository extends ReviewsRepository {
       }
     }
     return res;
+  }
+
+  override async listAdminSubmissions(filter?: any): Promise<any[]> {
+    return Array.from(this.submissions.values())
+      .filter((s) => !filter?.status || filter.status === "all" || s.status === filter.status)
+      .map((s) => ({
+        ...s,
+        booking_ticket_id: s.booking_id ? `TKT-${s.booking_id}` : null,
+        booking_status: s.booking_id ? "completed" : null,
+        is_verified_booking: Boolean(s.booking_id),
+        images: Array.from(this.images.values()).filter((i) => i.submission_id === s.id),
+      }));
   }
 }
 
@@ -569,5 +581,76 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
 
     const reviews = await reviewsService.getPublicReviews();
     expect(reviews.find((r) => r.display_name === "Pending Guy")).toBeUndefined();
+  });
+
+  it("RV-25: Incomplete booking cannot generate review link", async () => {
+    bookingsRepo.bookings.set("b-incomplete", {
+      id: "b-incomplete",
+      ticket_id: "TKT-INCOMPLETE",
+      status: "confirmed",
+      category: "outstation",
+      customer_email: "incomplete@example.com",
+    });
+
+    await expect(
+      reviewsService.createBookingLink("b-incomplete")
+    ).rejects.toMatchObject({ code: "INVALID_STATE" });
+  });
+
+  it("RV-26: Publication with non-completed linked booking rejected", async () => {
+    bookingsRepo.bookings.set("b-in-progress", {
+      id: "b-in-progress",
+      ticket_id: "TKT-IN-PROGRESS",
+      status: "completed", // initial to allow link creation
+      category: "outstation",
+    });
+    const { token } = await reviewsService.createBookingLink("b-in-progress");
+    const sub = await reviewsService.submitReview(token, {
+      display_name: "Rider",
+      review_text: "Checking status guard",
+      consent_public: true,
+    });
+
+    // Booking status changed/regressed to driver_assigned
+    bookingsRepo.bookings.set("b-in-progress", {
+      id: "b-in-progress",
+      ticket_id: "TKT-IN-PROGRESS",
+      status: "driver_assigned",
+      category: "outstation",
+    });
+
+    await expect(
+      reviewsService.moderateSubmission(
+        sub.id,
+        { status: "approved", show_on_homepage: true },
+        { id: "mod-1", role: "review_moderator" },
+        "req-fail"
+      )
+    ).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
+  });
+
+  it("RV-27: Admin list submissions returns ticket ID and completed verification flag", async () => {
+    bookingsRepo.bookings.set("b-completed-99", {
+      id: "b-completed-99",
+      ticket_id: "TKT-COMPLETED-99",
+      status: "completed",
+      category: "outstation",
+    });
+    const { token } = await reviewsService.createBookingLink("b-completed-99");
+    await reviewsService.submitReview(token, {
+      display_name: "Verified Passenger",
+      review_text: "Top tier service",
+      consent_public: true,
+    });
+
+    const list = await reviewsService.listAdminSubmissions(
+      { status: "all" },
+      { id: "mod-1", role: "review_moderator" }
+    );
+    expect(list.length).toBeGreaterThan(0);
+    const item = list.find((i) => i.display_name === "Verified Passenger");
+    expect(item).toBeDefined();
+    expect(item?.ticket_id).toBe("TKT-b-completed-99");
+    expect(item?.is_verified_booking).toBe(true);
   });
 });

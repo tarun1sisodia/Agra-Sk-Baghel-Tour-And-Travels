@@ -124,7 +124,7 @@ async function getJson<T>(path: string): Promise<T> {
     return result;
   } catch (err) {
     clearTimeout(timer);
-    if (cached) return cached.data as T;
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) return cached.data as T;
     throw err;
   }
 }

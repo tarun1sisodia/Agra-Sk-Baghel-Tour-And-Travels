@@ -66,6 +66,7 @@
 
 | Date | Change | Owner |
 |---|---|---|
+| 2026-10-15 | Completed Live Homepage Booking Integration & Admin Review Moderation Pipeline: canonical catalog & group wiring, smart outstation & local tour handoff to /book.html, completed-ticket verification for reviews, 204 unit tests green, npm run verify green | Antigravity AI |
 | 2026-10-12 | Completed Phase 3: Route Fare Rule Source Normalization & Catalog Manifest Cleanup — eliminated static baseline, synthetic reverse routes, and multiplier fares from `catalog.service.ts`; wired `FareCatalogRepository`; 192 backend unit tests passing, `npm run verify` green | Antigravity AI |
 | 2026-10-11 | Completed Route & API Inventory Monorepo Migration: Clean canonical `/api/v1` routes, Customer & Admin rewired, Zero client fare math, 179/179 tests passing, `npm run verify` green | Antigravity AI |
 | 2026-10-08 | Completed Phase 2: Fleet Master Normalization (Contract C-ENUM-001 v0.1.1) across contracts, backend, admin, and react | Antigravity AI |

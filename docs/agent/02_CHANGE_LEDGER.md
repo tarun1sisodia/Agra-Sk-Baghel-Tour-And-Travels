@@ -1,5 +1,32 @@
 # ArenaAI Agent Change Ledger
 
+## 2026-10-15
+
+### 2026-10-15 — Live Homepage Booking Integration & Admin Review Moderation Pipeline
+
+- **Completed-Ticket Verified Review Moderation Pipeline**:
+  - Rewired database queries from the dropped legacy `reviews` table to canonical `review_submissions`, `review_links`, and `review_images` joined with `bookings`.
+  - Enforced strict booking verification: review links and homepage publication require a linked booking with `status = 'completed'` (`bookings.ticket_id`).
+  - Added `listAdminSubmissions` in repository and service with role check (`super_admin` or `review_moderator`), returning `booking_ticket_id`, `booking_status`, `is_verified_booking`, and image attachments.
+  - Registered canonical admin routes (`GET /api/v1/admin/review-submissions`, `PATCH /api/v1/admin/review-submissions/:id`) and backward-compatible ops aliases.
+  - Rewired Admin UI `ReviewsPage.tsx` with Queue, Approved, Published, Rejected, and All tabs; displays human-readable ticket IDs (`TKT-...`), booking statuses, consent, and verified badges. Actions enforce completed journey verification for homepage publication.
+  - Updated wire contracts (`contracts/fare-system.ts`, `backend/src/contracts/fare-system.ts`, `react/src/contracts/fare-system.ts`, `admin/src/contracts/fare-system.ts`) adding `is_verified: z.boolean().default(false)` to `PublicReviewItem`.
+  - Updated customer homepage `ReviewsMarquee.tsx`: verified badge rendered conditionally on `review.is_verified`; supports 1+ reviews in dual tracks; replaced unverified "3,800+ Expeditions" with truthful editorial heading "Verified Traveler Experiences".
+  - Added unit tests `RV-25`, `RV-26`, and `RV-27` in `backend/tests/unit/reviews-engine.test.ts`. All 204 backend tests pass.
+
+- **Homepage Booking Widget Overhaul (`react/src/components/home/HomeBookingWidget.tsx`)**:
+  - Connected widget to live canonical catalog via `fetchPublishedCatalog()`.
+  - Replaced hardcoded 5-fleet buttons with canonical vehicle groups (**Sedan**, **SUV**, **Luxury**, **Tempo Traveller**) from `catalog.groups` and active models from `catalog.vehicles`.
+  - Dynamically derived origins and destinations from active published outstation products (`p.category === "outstation"`).
+  - Implemented smart route matching with direct route badges (distance, starting price) and instant custom fare indicators.
+  - Connected Local Tour tab to live published packages (`p.category === "local_package"`), rendering honest empty notice if unpopulated without resurrecting static JSON.
+  - Preserved seamless handoff to `/book.html` (`CleanBookingPage.tsx`): URL parameters (`category`, `product`, `trip`, `from`, `to`, `car`, `date`, `return_date`) are completely parsed and auto-select product, route, and vehicle class.
+  - Hardened cache TTL handling in `react/src/services/catalog.ts` and fixed live endpoint fallback in `react/src/services/catalogManifest.ts`.
+
+- **Verification & Testing**:
+  - Root `npm run verify` passed cleanly: Customer typecheck, Admin typecheck, Backend typecheck, 204 backend tests, and all 3 production builds with 59 SSG pages and sitemap generation.
+  - Automated browser subagents verified both the customer homepage booking flow (testing all tabs, vehicle switching, and navigation to `/book.html` with preserved parameters) and the admin reviews moderation desk (`http://localhost:5174/reviews`).
+
 ## 2026-10-14
 
 ### 2026-10-14 — Fix Missing Admin Create Actions for Tour Packages, Local Packages, and Transfers

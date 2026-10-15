@@ -264,16 +264,93 @@ export class ReviewsRepository {
     return res.rows[0];
   }
 
-  async getPublicReviews(): Promise<ReviewSubmissionEntity[]> {
+  async listAdminSubmissions(filter?: {
+    status?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<Array<ReviewSubmissionEntity & {
+    booking_ticket_id: string | null;
+    booking_status: string | null;
+    is_verified_booking: boolean;
+    images: ReviewImageEntity[];
+  }>> {
+    const conditions: string[] = [];
+    const values: any[] = [];
+    let idx = 1;
+
+    if (filter?.status && filter.status !== "all") {
+      conditions.push(`s.status = $${idx++}`);
+      values.push(filter.status);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+    const limitClause = filter?.limit ? `LIMIT $${idx++}` : "LIMIT 100";
+    if (filter?.limit) values.push(filter.limit);
+    const offsetClause = filter?.offset ? `OFFSET $${idx++}` : "";
+    if (filter?.offset) values.push(filter.offset);
+
+    const res = await this.pool.query(
+      `
+      SELECT 
+        s.*,
+        b.ticket_id AS booking_ticket_id,
+        b.status AS booking_status,
+        (s.booking_id IS NOT NULL AND b.status = 'completed') AS is_verified_booking,
+        COALESCE(
+          (
+            SELECT json_agg(
+              json_build_object(
+                'id', img.id,
+                'submission_id', img.submission_id,
+                'storage_key', img.storage_key,
+                'width', img.width,
+                'height', img.height,
+                'alt_text', img.alt_text,
+                'sort_order', img.sort_order,
+                'status', img.status,
+                'created_at', img.created_at
+              ) ORDER BY img.sort_order ASC
+            )
+            FROM review_images img
+            WHERE img.submission_id = s.id
+          ),
+          '[]'::json
+        ) AS images
+      FROM review_submissions s
+      LEFT JOIN bookings b ON s.booking_id = b.id
+      ${whereClause}
+      ORDER BY s.created_at DESC
+      ${limitClause} ${offsetClause}
+    `,
+      values
+    );
+
+    return res.rows.map((r) => ({
+      ...r,
+      is_verified_booking: Boolean(r.is_verified_booking),
+      images: Array.isArray(r.images) ? r.images : [],
+    }));
+  }
+
+  async getPublicReviews(): Promise<Array<ReviewSubmissionEntity & { is_verified: boolean }>> {
     const res = await this.pool.query(`
-      SELECT * FROM review_submissions
-      WHERE status = 'approved'
-        AND consent_public = true
-        AND show_on_homepage = true
-      ORDER BY created_at DESC
+      SELECT 
+        s.*,
+        (s.booking_id IS NOT NULL AND b.status = 'completed') AS is_verified
+      FROM review_submissions s
+      LEFT JOIN bookings b ON s.booking_id = b.id
+      WHERE s.status = 'approved'
+        AND s.consent_public = true
+        AND s.show_on_homepage = true
+        AND s.booking_id IS NOT NULL
+        AND b.status = 'completed'
+      ORDER BY s.created_at DESC
       LIMIT 30
     `);
-    return res.rows;
+    return res.rows.map((r) => ({
+      ...r,
+      is_verified: Boolean(r.is_verified),
+    }));
   }
 
   async getPublicGallery(): Promise<Array<ReviewImageEntity & { reviewer_name: string; review_text: string }>> {
