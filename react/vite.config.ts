@@ -41,6 +41,12 @@ export default defineConfig(({ mode }) => {
       port: 4174,
       strictPort: false,
       allowedHosts: true,
+      proxy: {
+        "/api": {
+          target: "http://localhost:4000",
+          changeOrigin: true,
+        },
+      },
     },
     build: {
       outDir: "dist",

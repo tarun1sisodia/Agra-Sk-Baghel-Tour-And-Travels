@@ -35,7 +35,7 @@
     "backend:start": "npm --prefix backend run start",
     "backend:test": "npm --prefix backend test",
     "backend:typecheck": "npm --prefix backend run typecheck",
-    "test": "npm --prefix backend run test:ci && npm --prefix react run test:catalog-sources",
+    "test": "npm --prefix backend run test:ci && npm --prefix react run test:catalog-sources && npm --prefix admin test",
     "healthcheck": "node scripts/healthcheck.mjs",
     "verify:t1": "node scripts/network/verify-t1-headers.mjs",
     "testsprite:validate": "node scripts/validate-testsprite.mjs",

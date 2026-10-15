@@ -92,15 +92,21 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
             : r
         )
       );
-      setActionSuccess(
-        action === "approve"
-          ? "Review approved successfully."
-          : action === "reject"
-          ? "Review rejected."
-          : action === "publish"
-          ? "Review published to website homepage."
-          : "Review removed from homepage."
-      );
+      if (action === "publish") {
+        if (result.showOnHomepage) {
+          setActionSuccess("Review published to website homepage.");
+        } else {
+          setActionError("Review could not be published to homepage (ineligible or unverified booking).");
+        }
+      } else {
+        setActionSuccess(
+          action === "approve"
+            ? "Review approved successfully."
+            : action === "reject"
+            ? "Review rejected."
+            : "Review removed from homepage."
+        );
+      }
       setRejectingId(null);
       setRejectReason("");
     } catch (err) {

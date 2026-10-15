@@ -93,6 +93,7 @@ export function CleanBookingPage() {
 
   const [category, setCategory] = useState<CategoryCode>(initialCategory);
   const [selectedProductCode, setSelectedProductCode] = useState<string>(initialProductParam);
+  const [unmatchedRouteError, setUnmatchedRouteError] = useState<string | null>(null);
   const [tripType, setTripType] = useState<"one_way" | "round_trip">(initialTripType);
   const [passengerCount, setPassengerCount] = useState<number>(initialPassengers);
 
@@ -176,12 +177,19 @@ export function CleanBookingPage() {
         if (matchedProduct) {
           setCategory(matchedProduct.category);
           setSelectedProductCode(matchedProduct.code);
-        } else {
-          // Pre-select first product in category if not provided
+          setUnmatchedRouteError(null);
+        } else if (!initialProductParam && !(initialFrom && initialTo)) {
+          // Pre-select first product in category only if no specific route was requested
           const availableInCat = data.products.filter((p) => p.category === initialCategory);
           if (availableInCat.length > 0) {
             setSelectedProductCode(availableInCat[0].code);
           }
+        } else {
+          // Specific route or product requested was not found in published catalog
+          setSelectedProductCode("");
+          setUnmatchedRouteError(
+            initialProductParam || `${normalizedParams.from || initialFrom} to ${normalizedParams.to || initialTo}`
+          );
         }
       })
       .catch((err) => {
@@ -202,6 +210,10 @@ export function CleanBookingPage() {
   }, [catalog, category]);
 
   useEffect(() => {
+    if (unmatchedRouteError) {
+      setSelectedProductCode("");
+      return;
+    }
     if (productsInCategory.length > 0) {
       if (!productsInCategory.some((p) => p.code === selectedProductCode)) {
         setSelectedProductCode(productsInCategory[0].code);
@@ -209,7 +221,7 @@ export function CleanBookingPage() {
     } else {
       setSelectedProductCode("");
     }
-  }, [category, productsInCategory]);
+  }, [category, productsInCategory, unmatchedRouteError]);
 
   // Active product summary
   const activeProduct = useMemo<PublishedProductSummary | null>(() => {
@@ -516,14 +528,36 @@ export function CleanBookingPage() {
                 <select
                   className="w-full rounded-md border border-hairline bg-surface p-2.5 text-sm text-ink focus:outline-primary"
                   value={selectedProductCode}
-                  onChange={(e) => setSelectedProductCode(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedProductCode(e.target.value);
+                    setUnmatchedRouteError(null);
+                  }}
                 >
+                  {(!selectedProductCode || unmatchedRouteError) && (
+                    <option value="">-- Choose a published route or package --</option>
+                  )}
                   {productsInCategory.map((p) => (
                     <option key={p.id} value={p.code}>
                       {p.name} {p.starting_price_inr ? `(from ₹${p.starting_price_inr.toLocaleString("en-IN")})` : ""}
                     </option>
                   ))}
                 </select>
+                {unmatchedRouteError && (
+                  <div className="mt-3 p-3 bg-primary/10 border border-primary/30 rounded-md text-xs text-ink space-y-2">
+                    <p className="font-semibold text-primary">
+                      Unpublished corridor requested: &ldquo;{unmatchedRouteError}&rdquo;
+                    </p>
+                    <p className="text-ink-soft">
+                      We do not have a fixed instant online rate for this specific corridor. You can request a custom charter quote or select a published route from the list.
+                    </p>
+                    <a
+                      href={`/contact.html?serviceType=custom_route&from=${encodeURIComponent(normalizedParams.from || "")}&to=${encodeURIComponent(normalizedParams.to || "")}&trip=${tripType}&date=${encodeURIComponent(pickupDate)}`}
+                      className="inline-block px-3 py-1 bg-primary text-white rounded text-xs font-semibold hover:bg-primary-dark transition-colors"
+                    >
+                      Enquire Custom Route Quote
+                    </a>
+                  </div>
+                )}
               </div>
 
               {/* Outstation Trip Type Toggle */}

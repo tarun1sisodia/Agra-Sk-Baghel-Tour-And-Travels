@@ -10,17 +10,15 @@ Older trackers (`docs/project/PROGRESS.md`, `docs/project/AUDIT_PROGRESS.md`) ar
 
 ## Current State
 
-- **Current Phase:** Admin Operations Desk: Catalog Creation Workflows & Permission Authorization (COMPLETED).
-- **Current Step:** Resolved missing admin creation actions for Tour Packages, Local Packages, and Airport & Station Transfers:
-  * Root Cause: In `admin/src/lib/types.ts`, `PERMISSIONS` defined `catalog:edit` and `catalog:publish` but omitted `catalog:create`. Added `"catalog:create": ["super_admin"]` and typed `AdminPermission` union for build-time safety.
-  * UI Workflows Verified:
-    - Tour Packages (`/tour-packages`): "New Tour Package" button renders for `super_admin` and opens creation modal dialog with canonical fleet pricing matrix.
-    - Local Sightseeing Packages (`/local-transfers` tab 1): "New Local Package" button renders and opens modal dialog.
-    - Airport & Station Transfers (`/local-transfers` tab 2): "New Transfer Route" button renders dynamically on tab selection and opens modal dialog.
-    - Outstation Routes (`/routes`): "+ Add Outstation Route" button renders and opens creation dialog.
-  * Failure Visibility: Replaced console-only error catching with actionable error banners and retry callbacks on all three catalogue pages; user input is preserved on save failures.
-  * Verification: Automated browser subagent visual verification with screenshots; script `scripts/verify-admin-permissions.mjs` verifying 24 `can()` checks; backend test suite `backend/tests/unit/admin-catalog-create.test.ts` (9 tests); full `npm run verify` passed (3 typechecks, 201 backend tests, 9 catalog regression tests, SEO lifecycle, 3 builds).
-- **Last updated:** 2026-10-14
+- **Current Phase:** Residual Acceptance Gaps: Booking Handoffs, Live Fleet Readiness & Review Verification (COMPLETED).
+- **Current Step:** Resolved all residual acceptance gaps across booking handoffs, live fleet readiness, review moderation, and UI mapping:
+  * Blocked Invalid Outstation Booking Handoffs: Enforced exact published-route matches before allowing booking handoffs; unmatched routes display truthful no-match notices with dynamic CTA to `/contact.html?serviceType=custom_route` preserving all parameters; hardened `CleanBookingPage.tsx` against silent fallback to `availableInCat[0]`.
+  * Live Fleet-Group Readiness: Derived vehicle groups strictly from `catalog.groups` where `catalog.vehicles` contains active models (`modelCount > 0`); distinctly handles loading, error, and empty catalog states without fake fallbacks.
+  * Server-Side Review Verification: Enforced strict invariants for public reviews and gallery (approval, customer consent, non-null booking, existing booking, status `completed`). Hardened public queries independently.
+  * Homepage Review Mapper: Preserved `is_verified` boolean from API without inferring from booking IDs or social accounts.
+  * Admin Safety: Mapped missing/unknown consent strictly to `false`; removed synthetic UUID ticket IDs; synchronized action return state.
+  * Verification: Full `npm run verify` passed (3 typechecks, 212 backend unit tests, 21 react tests, 3 admin tests, SEO tests, 3 production builds with 59 SSG pages); live automated browser subagent verification succeeded.
+- **Last updated:** 2026-10-15
 - **Summary:** All HTML designs from `react/new_design/` are completely converted into the React application with ultra-luxury aesthetic styling, design tokens (`theme.css`), and the strict English-only mandate:
   * Multi-Agent Orchestration Engine (`agents/`): Automated agent pipeline with `code_extractor.py`, dynamic language templates (`task_template.py`), `tenacity` exponential retry logic, and specialized agents (`schema_agent.py`, `service_agent.py`, `frontend_agent.py`, `test_agent.py`, `seo_content_agent.py`, `orchestrator.py`).
   * Commercial Exception Rules & Strategy Pattern (`backend/src/modules/fares/fare.strategy.ts`): Implemented strict commercial booking rules for group vehicles ("Urbania", "Force Tempo", and any "Force" variants): forced round-trip billing (`km * 2`), 300 km/day minimum distance floor (`Math.max(km * 2, 300 * days)`), ₹500/day driver allowance, and locked fixed-rate pricing structure (zero promo discounts).

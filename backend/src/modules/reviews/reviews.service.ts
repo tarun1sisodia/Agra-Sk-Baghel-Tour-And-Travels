@@ -279,31 +279,59 @@ export class ReviewsService {
       throw new AppError("NOT_FOUND", "Submission not found", 404);
     }
 
-    // RV-10: consent_public false cannot be placed publicly
-    if (!before.consent_public && (action.show_on_homepage || action.show_in_gallery)) {
-      throw new AppError("VALIDATION_ERROR", "Review cannot be placed publicly without customer consent", 400);
-    }
+    const effectiveStatus = action.status ?? before.status;
+    const requestedHomepage = action.show_on_homepage !== undefined ? action.show_on_homepage : before.show_on_homepage;
+    const requestedGallery = action.show_in_gallery !== undefined ? action.show_in_gallery : before.show_in_gallery;
+    const isRejecting = action.status === "rejected";
 
-    // Completed ticket verification rule for publishing:
-    if (action.show_on_homepage && action.status !== "rejected") {
-      if (before.booking_id) {
-        const linkedBooking = await this.deps.bookingsRepo.getById(before.booking_id);
-        if (linkedBooking && linkedBooking.status && linkedBooking.status !== "completed") {
-          throw new AppError(
-            "VALIDATION_ERROR",
-            "Cannot publish review: associated booking is not in completed status",
-            400
-          );
-        }
+    // Enforce publication invariants for both homepage and gallery
+    if (!isRejecting && (requestedHomepage || requestedGallery)) {
+      // 1. Must be approved before public display
+      if (effectiveStatus !== "approved") {
+        throw new AppError("VALIDATION_ERROR", "Review must be approved before public display", 400);
+      }
+
+      // 2. Customer public consent is strictly required
+      if (!before.consent_public) {
+        throw new AppError("VALIDATION_ERROR", "Review cannot be placed publicly without customer consent", 400);
+      }
+
+      // 3. Must have a non-null linked booking
+      if (!before.booking_id) {
+        throw new AppError(
+          "VALIDATION_ERROR",
+          "Cannot publish review: a linked completed booking is required for public display",
+          400
+        );
+      }
+
+      // 4. Resolve the linked booking and reject if it does not exist
+      const linkedBooking = await this.deps.bookingsRepo.getById(before.booking_id);
+      if (!linkedBooking) {
+        throw new AppError(
+          "VALIDATION_ERROR",
+          "Cannot publish review: associated booking does not exist",
+          400
+        );
+      }
+
+      // 5. Booking status must be exactly 'completed'
+      if (linkedBooking.status !== "completed") {
+        throw new AppError(
+          "VALIDATION_ERROR",
+          "Cannot publish review: associated booking is not in completed status",
+          400
+        );
       }
     }
 
-    const showOnHomepage = action.status === "rejected" ? false : action.show_on_homepage;
+    const showOnHomepage = isRejecting ? false : (action.show_on_homepage ?? before.show_on_homepage);
+    const showInGallery = isRejecting ? false : (action.show_in_gallery ?? before.show_in_gallery);
 
     const updated = await this.deps.reviewsRepo.updateSubmission(id, {
       status: action.status,
       show_on_homepage: showOnHomepage,
-      show_in_gallery: action.status === "rejected" ? false : action.show_in_gallery,
+      show_in_gallery: showInGallery,
       review_text: action.review_text ? escapeHtml(action.review_text) : undefined,
       display_name: action.display_name?.trim(),
       reviewed_by: actor.id,

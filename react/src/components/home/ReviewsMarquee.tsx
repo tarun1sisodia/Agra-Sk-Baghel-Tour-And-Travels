@@ -11,15 +11,10 @@
 
 import React, { useEffect, useState } from "react";
 import { fetchPublicReviews } from "../../services/api";
+import { Review, mapApiReviewToCardReview } from "./reviewsMarqueeHelpers";
 
-export interface Review {
-  name: string;
-  place: string;
-  rating: number;
-  quote: string;
-  role?: string;
-  is_verified?: boolean;
-}
+export type { Review };
+export { mapApiReviewToCardReview };
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -94,6 +89,7 @@ function ReviewCard({ review }: ReviewCardProps) {
   );
 }
 
+
 export function ReviewsMarquee() {
   const [reviewsList, setReviewsList] = useState<readonly Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -108,13 +104,7 @@ export function ReviewsMarquee() {
         if (live && live.length > 0) {
           const approved = live
             .slice(0, 30)
-            .map((r) => ({
-              name: r.display_name,
-              place: r.tour_name || r.route_text || "Agra & Outstation",
-              rating: Math.min(5, Math.max(1, r.rating || 5)),
-              quote: r.review_text,
-              role: r.social_platform && r.social_url ? r.social_platform : undefined,
-            }));
+            .map(mapApiReviewToCardReview);
           if (approved.length >= 1) {
             setReviewsList(approved);
             setError(null);

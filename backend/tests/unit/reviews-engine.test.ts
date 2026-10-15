@@ -141,10 +141,19 @@ class MockReviewsRepository extends ReviewsRepository {
     return i;
   }
 
+  public bookingsRepo?: MockBookingsRepo;
+
   override async getPublicReviews(): Promise<Array<ReviewSubmissionEntity & { is_verified: boolean }>> {
     return Array.from(this.submissions.values())
-      .filter((s) => s.status === "approved" && s.consent_public && s.show_on_homepage)
-      .map((s) => ({ ...s, is_verified: Boolean(s.booking_id) }));
+      .filter((s) => {
+        if (s.status !== "approved" || !s.consent_public || !s.show_on_homepage || !s.booking_id) return false;
+        if (this.bookingsRepo) {
+          const b = this.bookingsRepo.bookings.get(s.booking_id);
+          return b && b.status === "completed";
+        }
+        return true;
+      })
+      .map((s) => ({ ...s, is_verified: true }));
   }
 
   override async getPublicGallery(): Promise<any[]> {
@@ -152,7 +161,11 @@ class MockReviewsRepository extends ReviewsRepository {
     for (const img of this.images.values()) {
       if (img.status !== "approved") continue;
       const sub = this.submissions.get(img.submission_id);
-      if (sub && sub.status === "approved" && sub.consent_public && sub.show_in_gallery) {
+      if (sub && sub.status === "approved" && sub.consent_public && sub.show_in_gallery && sub.booking_id) {
+        if (this.bookingsRepo) {
+          const b = this.bookingsRepo.bookings.get(sub.booking_id);
+          if (!b || b.status !== "completed") continue;
+        }
         res.push({
           ...img,
           reviewer_name: sub.display_name,
@@ -166,13 +179,16 @@ class MockReviewsRepository extends ReviewsRepository {
   override async listAdminSubmissions(filter?: any): Promise<any[]> {
     return Array.from(this.submissions.values())
       .filter((s) => !filter?.status || filter.status === "all" || s.status === filter.status)
-      .map((s) => ({
-        ...s,
-        booking_ticket_id: s.booking_id ? `TKT-${s.booking_id}` : null,
-        booking_status: s.booking_id ? "completed" : null,
-        is_verified_booking: Boolean(s.booking_id),
-        images: Array.from(this.images.values()).filter((i) => i.submission_id === s.id),
-      }));
+      .map((s) => {
+        const b = s.booking_id && this.bookingsRepo ? this.bookingsRepo.bookings.get(s.booking_id) : null;
+        return {
+          ...s,
+          booking_ticket_id: b ? b.ticket_id : (s.booking_id ? `TKT-${s.booking_id}` : null),
+          booking_status: b ? b.status : (s.booking_id ? "completed" : null),
+          is_verified_booking: Boolean(s.booking_id && (b ? b.status === "completed" : true)),
+          images: Array.from(this.images.values()).filter((i) => i.submission_id === s.id),
+        };
+      });
   }
 }
 
@@ -211,6 +227,7 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
   beforeEach(() => {
     reviewsRepo = new MockReviewsRepository();
     bookingsRepo = new MockBookingsRepo();
+    reviewsRepo.bookingsRepo = bookingsRepo;
     auditRepo = new MockAuditRepo();
     fetchSpy = vi.fn().mockResolvedValue({
       ok: true,
@@ -307,7 +324,13 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
   });
 
   it("RV-06: Approve with homepage placement -> in /public/reviews only", async () => {
-    const { token } = await reviewsService.createQrLink("Desk");
+    bookingsRepo.bookings.set("b-rv-06", {
+      id: "b-rv-06",
+      ticket_id: "TKT-RV-06",
+      status: "completed",
+      category: "outstation",
+    });
+    const { token } = await reviewsService.createBookingLink("b-rv-06");
     const sub = await reviewsService.submitReview(token, {
       display_name: "Bob",
       review_text: "Nice ride",
@@ -330,7 +353,13 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
   });
 
   it("RV-07 & RV-08: Approve gallery placement with approved and rejected photos", async () => {
-    const { token } = await reviewsService.createQrLink("Desk");
+    bookingsRepo.bookings.set("b-rv-07", {
+      id: "b-rv-07",
+      ticket_id: "TKT-RV-07",
+      status: "completed",
+      category: "outstation",
+    });
+    const { token } = await reviewsService.createBookingLink("b-rv-07");
     const sub = await reviewsService.submitReview(token, {
       display_name: "Charlie",
       review_text: "Photo test",
@@ -650,7 +679,258 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
     expect(list.length).toBeGreaterThan(0);
     const item = list.find((i) => i.display_name === "Verified Passenger");
     expect(item).toBeDefined();
-    expect(item?.ticket_id).toBe("TKT-b-completed-99");
+    expect(item?.ticket_id).toBe("TKT-COMPLETED-99");
     expect(item?.is_verified_booking).toBe(true);
+  });
+
+  it("RV-28: Unlinked QR submission rejected from homepage publication", async () => {
+    const { token } = await reviewsService.createQrLink("Taj East Gate QR");
+    const sub = await reviewsService.submitReview(token, {
+      display_name: "Walk-in Tourist",
+      review_text: "Great experience",
+      consent_public: true,
+    });
+
+    await expect(
+      reviewsService.moderateSubmission(
+        sub.id,
+        { status: "approved", show_on_homepage: true },
+        { id: "mod-1", role: "review_moderator" },
+        "req-qr-pub-fail"
+      )
+    ).rejects.toMatchObject({
+      code: "VALIDATION_ERROR",
+      message: expect.stringContaining("linked completed booking is required"),
+    });
+  });
+
+  it("RV-29: Unlinked QR submission rejected from gallery publication", async () => {
+    const { token } = await reviewsService.createQrLink("Taj East Gate QR");
+    const sub = await reviewsService.submitReview(token, {
+      display_name: "Walk-in Tourist With Photo",
+      review_text: "Photo test",
+      consent_public: true,
+      photos: [{ storage_key: "photos/taj-1.webp" }],
+    });
+
+    await expect(
+      reviewsService.moderateSubmission(
+        sub.id,
+        { status: "approved", show_in_gallery: true },
+        { id: "mod-1", role: "review_moderator" },
+        "req-qr-gallery-fail"
+      )
+    ).rejects.toMatchObject({
+      code: "VALIDATION_ERROR",
+      message: expect.stringContaining("linked completed booking is required"),
+    });
+  });
+
+  it("RV-30: Missing linked booking rejected from homepage and gallery publication", async () => {
+    // Manually create a submission pointing to non-existent booking ID
+    const sub = await reviewsRepo.createSubmission({
+      link_id: "link-phantom",
+      booking_id: "b-does-not-exist",
+      display_name: "Ghost Rider",
+      review_text: "Where is my booking?",
+      consent_public: true,
+    });
+
+    await expect(
+      reviewsService.moderateSubmission(
+        sub.id,
+        { status: "approved", show_on_homepage: true },
+        { id: "mod-1", role: "review_moderator" },
+        "req-missing-b-home"
+      )
+    ).rejects.toMatchObject({
+      code: "VALIDATION_ERROR",
+      message: expect.stringContaining("associated booking does not exist"),
+    });
+
+    await expect(
+      reviewsService.moderateSubmission(
+        sub.id,
+        { status: "approved", show_in_gallery: true },
+        { id: "mod-1", role: "review_moderator" },
+        "req-missing-b-gal"
+      )
+    ).rejects.toMatchObject({
+      code: "VALIDATION_ERROR",
+      message: expect.stringContaining("associated booking does not exist"),
+    });
+  });
+
+  it("RV-31: Incomplete booking rejected from gallery publication", async () => {
+    bookingsRepo.bookings.set("b-active-trip", {
+      id: "b-active-trip",
+      ticket_id: "TKT-ACTIVE-01",
+      status: "completed",
+      category: "outstation",
+    });
+    const { token } = await reviewsService.createBookingLink("b-active-trip");
+    const sub = await reviewsService.submitReview(token, {
+      display_name: "Active Rider",
+      review_text: "Scenic route",
+      consent_public: true,
+      photos: [{ storage_key: "photos/route-scenic.webp" }],
+    });
+
+    // Booking status regresses from completed to confirmed
+    bookingsRepo.bookings.set("b-active-trip", {
+      id: "b-active-trip",
+      ticket_id: "TKT-ACTIVE-01",
+      status: "confirmed",
+      category: "outstation",
+    });
+
+    await expect(
+      reviewsService.moderateSubmission(
+        sub.id,
+        { status: "approved", show_in_gallery: true },
+        { id: "mod-1", role: "review_moderator" },
+        "req-incomplete-gal"
+      )
+    ).rejects.toMatchObject({
+      code: "VALIDATION_ERROR",
+      message: expect.stringContaining("associated booking is not in completed status"),
+    });
+  });
+
+  it("RV-32: Missing customer public consent rejected from homepage and gallery publication", async () => {
+    bookingsRepo.bookings.set("b-no-consent", {
+      id: "b-no-consent",
+      ticket_id: "TKT-NO-CONSENT",
+      status: "completed",
+      category: "outstation",
+    });
+    const { token } = await reviewsService.createBookingLink("b-no-consent");
+    const sub = await reviewsService.submitReview(token, {
+      display_name: "Private Traveler",
+      review_text: "Keep this private please",
+      consent_public: false,
+    });
+
+    await expect(
+      reviewsService.moderateSubmission(
+        sub.id,
+        { status: "approved", show_on_homepage: true },
+        { id: "mod-1", role: "review_moderator" },
+        "req-consent-home"
+      )
+    ).rejects.toMatchObject({
+      code: "VALIDATION_ERROR",
+      message: expect.stringContaining("without customer consent"),
+    });
+
+    await expect(
+      reviewsService.moderateSubmission(
+        sub.id,
+        { status: "approved", show_in_gallery: true },
+        { id: "mod-1", role: "review_moderator" },
+        "req-consent-gal"
+      )
+    ).rejects.toMatchObject({
+      code: "VALIDATION_ERROR",
+      message: expect.stringContaining("without customer consent"),
+    });
+  });
+
+  it("RV-33: Publication rejected if submission is not approved", async () => {
+    bookingsRepo.bookings.set("b-pending-test", {
+      id: "b-pending-test",
+      ticket_id: "TKT-PENDING",
+      status: "completed",
+      category: "outstation",
+    });
+    const { token } = await reviewsService.createBookingLink("b-pending-test");
+    const sub = await reviewsService.submitReview(token, {
+      display_name: "Pending Reviewer",
+      review_text: "Not approved yet",
+      consent_public: true,
+    });
+
+    // Attempting to publish without status: "approved"
+    await expect(
+      reviewsService.moderateSubmission(
+        sub.id,
+        { status: "pending", show_on_homepage: true },
+        { id: "mod-1", role: "review_moderator" },
+        "req-not-approved"
+      )
+    ).rejects.toMatchObject({
+      code: "VALIDATION_ERROR",
+      message: expect.stringContaining("must be approved before public display"),
+    });
+  });
+
+  it("RV-34: Eligible completed-ticket review publishes successfully to homepage and gallery", async () => {
+    bookingsRepo.bookings.set("b-perfect", {
+      id: "b-perfect",
+      ticket_id: "TKT-PERFECT-100",
+      status: "completed",
+      category: "outstation",
+    });
+    const { token } = await reviewsService.createBookingLink("b-perfect");
+    const sub = await reviewsService.submitReview(token, {
+      display_name: "Happy Traveler",
+      review_text: "Best driver and spotless car!",
+      consent_public: true,
+      photos: [{ storage_key: "photos/happy.webp" }],
+    });
+
+    const updated = await reviewsService.moderateSubmission(
+      sub.id,
+      {
+        status: "approved",
+        show_on_homepage: true,
+        show_in_gallery: true,
+        photo_approvals: [{ id: "img-1", status: "approved" }],
+      },
+      { id: "mod-1", role: "review_moderator" },
+      "req-success"
+    );
+
+    expect(updated.status).toBe("approved");
+    expect(updated.show_on_homepage).toBe(true);
+    expect(updated.show_in_gallery).toBe(true);
+
+    const publicReviews = await reviewsService.getPublicReviews();
+    const foundRev = publicReviews.find((r) => r.id === sub.id);
+    expect(foundRev).toBeDefined();
+    expect(foundRev?.is_verified).toBe(true);
+
+    const gallery = await reviewsService.getPublicGallery();
+    const foundImg = gallery.find((g) => g.storage_key === "photos/happy.webp");
+    expect(foundImg).toBeDefined();
+    expect(foundImg?.reviewer_name).toBe("Happy Traveler");
+  });
+
+  it("RV-35: Public queries independently filter out non-completed and unlinked reviews", async () => {
+    // Manually force a submission to have show_on_homepage and show_in_gallery with no booking
+    const rogueSub = await reviewsRepo.createSubmission({
+      link_id: "link-rogue",
+      booking_id: null,
+      display_name: "Rogue Unlinked",
+      review_text: "Bypassed moderation",
+      consent_public: true,
+    });
+    await reviewsRepo.updateSubmission(rogueSub.id, {
+      status: "approved",
+      show_on_homepage: true,
+      show_in_gallery: true,
+    });
+    await reviewsRepo.addReviewImage({
+      submission_id: rogueSub.id,
+      storage_key: "photos/rogue.webp",
+      status: "approved",
+    });
+
+    // Public query must filter it out
+    const publicReviews = await reviewsService.getPublicReviews();
+    expect(publicReviews.find((r) => r.id === rogueSub.id)).toBeUndefined();
+
+    const gallery = await reviewsService.getPublicGallery();
+    expect(gallery.find((g) => g.storage_key === "photos/rogue.webp")).toBeUndefined();
   });
 });

@@ -2,6 +2,52 @@
 
 ## 2026-10-15
 
+### 2026-10-15 — Resolution of Residual Acceptance Gaps: Booking Handoffs, Live Fleet Readiness & Review Verification
+
+- **Blocking Invalid Outstation Booking Handoffs & Truthful Custom-Route Routing (`HomeBookingWidget.tsx`, `CleanBookingPage.tsx`, `bookingWidgetHelpers.ts`)**:
+  - Enforced exact valid published route matching before allowing ordinary One Way or Round Trip bookings.
+  - If unmatched (e.g. Agra to Shimla), widget displays a truthful no-match notice: `"No direct route for {origin} → {destination}. Custom charter enquiry available: WhatsApp Quote"`.
+  - Dynamically updates action button to `"Enquire Custom Route"` linking directly to `/contact.html?serviceType=custom_route&from=...&to=...&trip=...&date=...&return_date=...&car=...` with all requested parameters preserved.
+  - Never sends an empty product parameter on ordinary booking handoffs; valid handoffs include `product=${matchedRoute.code}` preserving origin, destination, trip type, dates, and vehicle group.
+  - Hardened `CleanBookingPage.tsx`: when an unmatched route or product is requested via URL parameters, it does NOT silently default to `availableInCat[0]`. Displays a prominent unmatched route banner with direct link to custom route charter enquiry.
+  - If canonical catalog loading fails, button changes to `"Call 24/7 Desk"` with `tel:+919762817598`; never leaves Book Now enabled as if ready.
+  - Removed static destination suggestion fallbacks (`STATIC_DESTINATIONS`); route suggestions are derived strictly from active published routes in `catalog.products`.
+  - Added unit regression tests in `react/scripts/home-booking-widget.test.ts` covering unmatched destinations, empty catalog, API failures, valid direct routes, and parameter preservation.
+
+- **Live Fleet-Group Readiness Depending on Active Models (`HomeBookingWidget.tsx`, `bookingWidgetHelpers.ts`)**:
+  - Implemented `deriveActiveVehicleGroups(catalog)` verifying each group has active vehicle models (`modelCount > 0`) in `catalog.vehicles`.
+  - Hides/disables groups without valid models; empty catalog results in 0 groups and disables Book Now button.
+  - Kept vehicle group selection (Sedan, SUV, Luxury, Tempo) distinct from specific vehicle model identity.
+  - Rendered visibly distinct states: Loading ("Connecting to live fleet and routes…"), Error ("Live fleet catalog unavailable. Please call dispatch directly or try again later."), and Empty ("No vehicle classes currently available").
+
+- **Server-Authoritative Completed-Ticket Review Verification Across All Surfaces (`reviews.service.ts`, `reviews.repository.ts`, `reviews.routes.ts`)**:
+  - `moderateSubmission`: Enforced invariant checks for both `show_on_homepage` and `show_in_gallery`:
+    1. Status must be `approved`.
+    2. Customer consent (`consent_public`) is strictly required (`throw VALIDATION_ERROR` if false/missing).
+    3. Non-null linked `booking_id` is required (`throw VALIDATION_ERROR` if null).
+    4. Linked booking must exist in `bookings` table.
+    5. Linked booking status must be exactly `'completed'` (`throw VALIDATION_ERROR` if pending/confirmed/in_progress).
+    6. Rejection unconditionally forces `show_on_homepage = false` and `show_in_gallery = false`.
+  - `reviews.repository.ts`: Hardened `getPublicGallery()` query to join `bookings b ON sub.booking_id = b.id` with `sub.booking_id IS NOT NULL AND b.status = 'completed'`, mirroring `getPublicReviews()`.
+  - Added regression tests `RV-28` to `RV-35` in `backend/tests/unit/reviews-engine.test.ts` covering unlinked QR submissions, missing bookings, incomplete bookings, missing consent, and public query isolation. All 32 vitest tests pass.
+
+- **Preserving Verification Flag in Homepage Review Mapper (`ReviewsMarquee.tsx`, `reviewsMarqueeHelpers.ts`)**:
+  - Implemented and exported `mapApiReviewToCardReview(r: any)` passing `is_verified: Boolean(r.is_verified)` directly from API responses.
+  - Never infers verification from booking IDs, social links, or approval status.
+  - Added unit regression tests in `react/scripts/reviews-marquee.test.ts` verifying verified vs unverified reviews, clamping, and inference guards.
+
+- **Safe Admin Review Defaults & Moderation Synchronization (`admin/src/lib/reviewMapper.ts`, `api.ts`, `ReviewsPage.tsx`)**:
+  - Implemented and exported `mapAdminReview`:
+    - `consentPublic`: Missing, unknown, or null strictly maps to `false` (`Boolean(r.consent_public ?? r.consentPublic ?? false)`).
+    - `ticketId`: Strictly uses `r.ticket_id || r.booking_ticket_id || "No Ticket"`; never synthesizes a fake UUID `TKT-...`.
+  - `actOnReview`: Synchronized action return state with persisted server response fields.
+  - `ReviewsPage.tsx`: Catches backend validation rejections; if `showOnHomepage` is false on publish attempt, displays actionable error banner instead of false success toast.
+  - Added regression test `admin/src/lib/reviewMapper.test.ts`.
+
+- **Comprehensive Monorepo Verification & Browser Testing**:
+  - Executed `npm run verify`: 3 TypeScript checks passed (0 errors), 212 backend unit tests passed, 21 react catalog/widget tests passed, 3 admin tests passed, SEO tests passed, 3 production builds succeeded (59 SSG pages + sitemaps).
+  - Executed live automated browser subagent testing on `http://localhost:4174`: verified One Way with valid route, Round Trip with return date, unmatched route custom enquiry handoff, and local tour package flows.
+
 ### 2026-10-15 — Live Homepage Booking Integration & Admin Review Moderation Pipeline
 
 - **Completed-Ticket Verified Review Moderation Pipeline**:

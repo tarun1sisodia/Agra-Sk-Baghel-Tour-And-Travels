@@ -5,53 +5,49 @@ import type {
   PublishedCatalogResponse,
   PublishedProductSummary,
 } from "../../contracts/fare-system.js";
-import { STATIC_DESTINATIONS } from "../search/LocationCombobox";
+import { contact } from "../../data/contact";
 
 const modes = [
   { id: "oneway", label: "One Way", icon: "car" },
   { id: "round", label: "Round Trip", icon: "swap" },
   { id: "local", label: "Local Tour", icon: "pin" },
 ] as const;
-type BookingMode = (typeof modes)[number]["id"];
+import {
+  BookingMode,
+  CanonicalVehicleGroupCode,
+  IconName,
+  VehicleGroupOption,
+  CANONICAL_VEHICLE_GROUPS,
+  ActiveVehicleGroup,
+  PublishedLocalTour,
+  ParsedRoute,
+  deriveActiveVehicleGroups,
+  parseRouteCities,
+  findMatchingOutstationRoute,
+  buildCustomEnquiryHref,
+  buildWhatsAppCustomEnquiryHref,
+  buildBookingHref,
+} from "./bookingWidgetHelpers";
 
-export type CanonicalVehicleGroupCode = "sedan" | "suv" | "luxury" | "tempo_traveller";
+export type {
+  BookingMode,
+  CanonicalVehicleGroupCode,
+  IconName,
+  VehicleGroupOption,
+  ActiveVehicleGroup,
+  PublishedLocalTour,
+  ParsedRoute,
+};
+export {
+  CANONICAL_VEHICLE_GROUPS,
+  deriveActiveVehicleGroups,
+  parseRouteCities,
+  findMatchingOutstationRoute,
+  buildCustomEnquiryHref,
+  buildWhatsAppCustomEnquiryHref,
+  buildBookingHref,
+};
 
-interface VehicleGroupOption {
-  code: CanonicalVehicleGroupCode;
-  label: string;
-  icon: IconName;
-  defaultSub: string;
-}
-
-const CANONICAL_VEHICLE_GROUPS: VehicleGroupOption[] = [
-  { code: "sedan", label: "Sedan", icon: "sedan", defaultSub: "Dzire / Etios" },
-  { code: "suv", label: "SUV", icon: "car", defaultSub: "Ertiga / Crysta" },
-  { code: "luxury", label: "Luxury", icon: "car", defaultSub: "BMW / Mercedes" },
-  { code: "tempo_traveller", label: "Tempo", icon: "bus", defaultSub: "12-26 Seater" },
-];
-
-export interface PublishedLocalTour {
-  id: string;
-  code: string;
-  name: string;
-  durationText: string;
-  covers?: string;
-  description?: string;
-  image: string;
-  startingPrice: number | null;
-}
-
-interface ParsedRoute {
-  id: string;
-  code: string;
-  name: string;
-  origin: string;
-  destination: string;
-  distanceKm?: number | null;
-  startingPrice?: number | null;
-}
-
-type IconName = "car" | "swap" | "pin" | "calendar" | "sedan" | "van" | "bus" | "shield" | "rupee" | "clock" | "support" | "arrow";
 function SvgIcon({ name, size = 18 }: { name: IconName; size?: number }) {
   const paths: Record<IconName, ReactNode> = {
     car: <><path d="M4 15.5h16l-1.2-5.1a2 2 0 0 0-1.95-1.55H7.15A2 2 0 0 0 5.2 10.4L4 15.5Z" /><path d="M3 15.5v2.3M21 15.5v2.3M6.5 18v1M17.5 18v1M7 13h.01M17 13h.01" /></>,
@@ -68,28 +64,6 @@ function SvgIcon({ name, size = 18 }: { name: IconName; size?: number }) {
     arrow: <><path d="M4 12h15M14 7l5 5-5 5" /></>,
   };
   return <svg className="booking-svg-icon" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
-}
-
-function parseRouteCities(route: PublishedProductSummary): ParsedRoute {
-  const parts = route.name.split(/\s+to\s+/i);
-  let origin = (parts[0] || "").trim();
-  let destination = (parts[1] || "").trim();
-
-  if (!destination && route.code.includes("-")) {
-    const codeParts = route.code.split("-");
-    origin = codeParts[0].charAt(0).toUpperCase() + codeParts[0].slice(1);
-    destination = codeParts.slice(1).join(" ").charAt(0).toUpperCase() + codeParts.slice(1).join(" ").slice(1);
-  }
-
-  return {
-    id: route.id,
-    code: route.code,
-    name: route.name,
-    origin: origin || "Agra",
-    destination: destination || "Delhi",
-    distanceKm: route.distance_km,
-    startingPrice: route.starting_price_inr,
-  };
 }
 
 function CityInput({
@@ -166,6 +140,7 @@ export function HomeBookingWidget() {
   const [localTourCode, setLocalTourCode] = useState<string>("");
   const [catalog, setCatalog] = useState<PublishedCatalogResponse | null>(null);
   const [isLoadingCatalog, setIsLoadingCatalog] = useState(true);
+  const [catalogError, setCatalogError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const pickupInputRef = useRef<HTMLInputElement>(null);
   const returnInputRef = useRef<HTMLInputElement>(null);
@@ -181,6 +156,7 @@ export function HomeBookingWidget() {
     let isMounted = true;
     async function loadLiveCatalog() {
       setIsLoadingCatalog(true);
+      setCatalogError(null);
       try {
         const data = await fetchPublishedCatalog();
         if (!isMounted) return;
@@ -193,7 +169,10 @@ export function HomeBookingWidget() {
         }
       } catch (err) {
         console.error("Failed to fetch published catalog for home booking widget:", err);
-        if (isMounted) setCatalog(null);
+        if (isMounted) {
+          setCatalog(null);
+          setCatalogError(err instanceof Error ? err.message : "Failed to load live catalog");
+        }
       } finally {
         if (isMounted) setIsLoadingCatalog(false);
       }
@@ -204,20 +183,17 @@ export function HomeBookingWidget() {
     };
   }, []);
 
-  // Outstation routes derived from live catalog
+  // Outstation routes derived strictly from live catalog
   const outstationRoutes = useMemo<ParsedRoute[]>(() => {
     const prods = (catalog?.products || []).filter((p) => p.category === "outstation");
     return prods.map(parseRouteCities);
   }, [catalog]);
 
-  // Derived suggestions for Origin and Destination from active routes
+  // Derived suggestions strictly from active routes — never from static suggestions
   const publishedOrigins = useMemo<string[]>(() => {
     const set = new Set<string>();
     for (const r of outstationRoutes) {
       if (r.origin) set.add(r.origin);
-    }
-    if (set.size === 0) {
-      STATIC_DESTINATIONS.slice(0, 6).forEach((d) => set.add(d.name));
     }
     return Array.from(set);
   }, [outstationRoutes]);
@@ -235,27 +211,12 @@ export function HomeBookingWidget() {
         if (r.destination) set.add(r.destination);
       }
     }
-    if (set.size === 0) {
-      STATIC_DESTINATIONS.slice(0, 6).forEach((d) => set.add(d.name));
-    }
     return Array.from(set);
   }, [outstationRoutes, origin]);
 
   // Exact or smart matched outstation route
   const matchedRoute = useMemo<ParsedRoute | null>(() => {
-    if (!origin.trim() || !destination.trim()) return null;
-    const o = origin.trim().toLowerCase();
-    const d = destination.trim().toLowerCase();
-
-    return (
-      outstationRoutes.find((r) => r.origin.toLowerCase() === o && r.destination.toLowerCase() === d) ||
-      outstationRoutes.find((r) => {
-        const name = r.name.toLowerCase();
-        const code = r.code.toLowerCase();
-        return (name.includes(o) && name.includes(d)) || (code.includes(o) && code.includes(d));
-      }) ||
-      null
-    );
+    return findMatchingOutstationRoute(outstationRoutes, origin, destination);
   }, [outstationRoutes, origin, destination]);
 
   // Local sightseeing packages from live catalog
@@ -281,52 +242,100 @@ export function HomeBookingWidget() {
   const selectedTour = publishedTours.find((tour) => tour.code === localTourCode) ?? publishedTours[0];
   const thumbSrc = selectedTour?.image || "/assets/booking/agra-fort.webp";
 
-  // Vehicle groups from catalog or canonical fallback
-  const vehicleGroups = useMemo<VehicleGroupOption[]>(() => {
-    if (catalog?.groups && catalog.groups.length > 0) {
-      return catalog.groups.map((g) => {
-        const code = g.group_code as CanonicalVehicleGroupCode;
-        const matched = CANONICAL_VEHICLE_GROUPS.find((cg) => cg.code === code);
-        return {
-          code,
-          label: g.name || matched?.label || code,
-          icon: (code === "sedan" ? "sedan" : code === "tempo_traveller" ? "bus" : "car") as IconName,
-          defaultSub: matched?.defaultSub || "Commercial Fleet",
-        };
-      });
-    }
-    return CANONICAL_VEHICLE_GROUPS;
+  // Vehicle groups strictly derived from live catalog groups with active models
+  const vehicleGroups = useMemo<ActiveVehicleGroup[]>(() => {
+    return deriveActiveVehicleGroups(catalog);
   }, [catalog]);
+
+  useEffect(() => {
+    if (vehicleGroups.length > 0 && !vehicleGroups.some((g) => g.code === selectedVehicle)) {
+      setSelectedVehicle(vehicleGroups[0].code);
+    }
+  }, [vehicleGroups, selectedVehicle]);
 
   function validate(): boolean {
     const next: Record<string, string> = {};
     const activePickupDate = pickupDate || localTomorrow();
     const activeReturnDate = returnDate || localTomorrow();
+
+    if (isLoadingCatalog) {
+      next.catalog = "Live catalog is loading. Please wait.";
+      setErrors(next);
+      return false;
+    }
+
+    if (catalogError || !catalog) {
+      next.catalog = "Live inventory is currently unavailable. Please contact our 24/7 desk.";
+      setErrors(next);
+      return false;
+    }
+
+    if (vehicleGroups.length === 0) {
+      next.vehicle = "No vehicle classes currently available.";
+      setErrors(next);
+      return false;
+    }
+
     if (mode !== "local") {
       if (!origin.trim()) next.origin = "Enter pickup location.";
       if (!destination.trim()) next.destination = "Enter destination.";
+      if (origin.trim() && destination.trim() && !matchedRoute) {
+        next.route = `No direct published corridor between ${origin} and ${destination}.`;
+      }
     } else {
       if (!selectedTour && publishedTours.length > 0) next.localTour = "Select a local tour.";
-      if (publishedTours.length === 0 && !isLoadingCatalog) next.localTour = "No local tours published yet.";
+      if (publishedTours.length === 0) next.localTour = "No local tours published currently.";
     }
+
     if (!activePickupDate) next.pickupDate = mode === "local" ? "Select tour date." : "Select pickup date.";
     if (mode === "round" && (!activeReturnDate || activeReturnDate < activePickupDate)) {
       next.returnDate = "Return date must be on or after pickup date.";
     }
+
     setErrors(next);
     return Object.keys(next).length === 0;
+  }
+
+  function customEnquiryHref(): string {
+    const activePickupDate = pickupDate || localTomorrow();
+    const activeReturnDate = returnDate || localTomorrow();
+    return buildCustomEnquiryHref({
+      origin,
+      destination,
+      mode,
+      pickupDate: activePickupDate,
+      returnDate: activeReturnDate,
+      selectedVehicle,
+    });
+  }
+
+  function whatsappCustomEnquiryHref(): string {
+    const activePickupDate = pickupDate || localTomorrow();
+    const activeReturnDate = returnDate || localTomorrow();
+    return buildWhatsAppCustomEnquiryHref({
+      origin,
+      destination,
+      mode,
+      pickupDate: activePickupDate,
+      returnDate: activeReturnDate,
+      selectedVehicle,
+      whatsappNumber: contact.whatsapp,
+    });
   }
 
   function bookingHref(): string {
     const activePickupDate = pickupDate || localTomorrow();
     const activeReturnDate = returnDate || localTomorrow();
-    if (mode === "local") {
-      const tourCode = selectedTour?.code ?? localTourCode;
-      return `/book.html?category=local_package&product=${encodeURIComponent(tourCode)}&trip=one_way&car=${encodeURIComponent(selectedVehicle)}&date=${encodeURIComponent(activePickupDate)}`;
-    }
-    const trip = mode === "round" ? "round_trip" : "one_way";
-    const productParam = matchedRoute ? `&product=${encodeURIComponent(matchedRoute.code)}` : "";
-    return `/book.html?category=outstation&trip=${trip}${productParam}&from=${encodeURIComponent(origin)}&to=${encodeURIComponent(destination)}&car=${encodeURIComponent(selectedVehicle)}&date=${encodeURIComponent(activePickupDate)}${mode === "round" ? `&return_date=${encodeURIComponent(activeReturnDate)}` : ""}`;
+    return buildBookingHref({
+      mode,
+      origin,
+      destination,
+      matchedRoute,
+      localTourCode: selectedTour?.code ?? localTourCode,
+      selectedVehicle,
+      pickupDate: activePickupDate,
+      returnDate: activeReturnDate,
+    });
   }
 
   return (
@@ -499,7 +508,17 @@ export function HomeBookingWidget() {
 
           {mode !== "local" && (
             <div className="booking-reference__route-info" style={{ minHeight: "18px", marginTop: "-4px" }}>
-              {matchedRoute ? (
+              {isLoadingCatalog ? (
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#746b63", fontSize: "11px", fontWeight: 500 }}>
+                  <span className="booking-reference__thumb skeleton-loader" style={{ width: "12px", height: "12px" }} />
+                  <span>Connecting to live fleet and routes…</span>
+                </div>
+              ) : catalogError ? (
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#c84a20", fontSize: "11px", fontWeight: 600 }}>
+                  <SvgIcon name="shield" size={14} />
+                  <span>Live fleet catalog unavailable. Please call dispatch directly or try again later.</span>
+                </div>
+              ) : matchedRoute ? (
                 <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#a63e14", fontSize: "11px", fontWeight: 600 }}>
                   <SvgIcon name="car" size={14} />
                   <span>
@@ -507,52 +526,117 @@ export function HomeBookingWidget() {
                     {matchedRoute.startingPrice ? `From ₹${matchedRoute.startingPrice.toLocaleString("en-IN")}` : "Available for instant booking"}
                   </span>
                 </div>
-              ) : origin.trim() && destination.trim() && !isLoadingCatalog ? (
+              ) : origin.trim() && destination.trim() ? (
                 <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#746b63", fontSize: "11px", fontWeight: 500 }}>
                   <SvgIcon name="pin" size={14} />
-                  <span>Custom outstation route • Instant fare calculated on booking desk</span>
+                  <span>
+                    No direct route for {origin} → {destination}. Custom charter enquiry available:{" "}
+                    <a
+                      href={whatsappCustomEnquiryHref()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "#a63e14", fontWeight: 600, textDecoration: "underline" }}
+                    >
+                      WhatsApp Quote
+                    </a>
+                  </span>
                 </div>
               ) : null}
             </div>
           )}
 
+          <FieldError>{errors.route || errors.catalog || errors.vehicle}</FieldError>
+
           <div className="booking-reference__bottom-row">
             <div className="booking-reference__field booking-reference__field--fleet">
               <label>Vehicle Class</label>
-              <div
-                className="booking-reference__vehicles"
-                role="radiogroup"
-                aria-label="Vehicle type"
-                style={{ gridTemplateColumns: `repeat(${vehicleGroups.length}, minmax(0, 1fr))` }}
-              >
-                {vehicleGroups.map((g) => (
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={selectedVehicle === g.code}
-                    className={`booking-reference__vehicle ${selectedVehicle === g.code ? "is-active" : ""}`}
-                    key={g.code}
-                    onClick={() => setSelectedVehicle(g.code)}
-                  >
-                    <SvgIcon name={g.icon} size={22} />
-                    <span>{g.label}</span>
-                  </button>
-                ))}
-              </div>
+              {isLoadingCatalog ? (
+                <div style={{ padding: "8px 12px", fontSize: "12px", color: "#746b63" }}>
+                  <span>Loading available fleet…</span>
+                </div>
+              ) : catalogError ? (
+                <div style={{ padding: "8px 12px", fontSize: "12px", color: "#c84a20" }}>
+                  <span>Fleet currently unavailable</span>
+                </div>
+              ) : vehicleGroups.length === 0 ? (
+                <div style={{ padding: "8px 12px", fontSize: "12px", color: "#746b63" }}>
+                  <span>No vehicle classes currently available</span>
+                </div>
+              ) : (
+                <div
+                  className="booking-reference__vehicles"
+                  role="radiogroup"
+                  aria-label="Vehicle type"
+                  style={{ gridTemplateColumns: `repeat(${vehicleGroups.length}, minmax(0, 1fr))` }}
+                >
+                  {vehicleGroups.map((g) => (
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={selectedVehicle === g.code}
+                      className={`booking-reference__vehicle ${selectedVehicle === g.code ? "is-active" : ""}`}
+                      key={g.code}
+                      onClick={() => setSelectedVehicle(g.code)}
+                    >
+                      <SvgIcon name={g.icon} size={22} />
+                      <span>{g.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="booking-reference__action">
-              <button
-                type="button"
-                className="booking-reference__search"
-                onClick={() => {
-                  if (!validate()) return;
-                  window.location.href = bookingHref();
-                }}
-              >
-                <span>Book Now</span>
-                <SvgIcon name="arrow" size={18} />
-              </button>
+              {isLoadingCatalog ? (
+                <button
+                  type="button"
+                  className="booking-reference__search"
+                  disabled
+                  style={{ opacity: 0.7, cursor: "not-allowed" }}
+                >
+                  <span>Loading Fleet…</span>
+                </button>
+              ) : catalogError ? (
+                <a
+                  href={`tel:${contact.phone}`}
+                  className="booking-reference__search"
+                  style={{ textDecoration: "none", backgroundColor: "#8a2b0e" }}
+                >
+                  <span>Call 24/7 Desk</span>
+                  <SvgIcon name="support" size={18} />
+                </a>
+              ) : mode !== "local" && origin.trim() && destination.trim() && !matchedRoute ? (
+                <a
+                  href={customEnquiryHref()}
+                  className="booking-reference__search"
+                  style={{ textDecoration: "none", backgroundColor: "#181d27" }}
+                >
+                  <span>Enquire Custom Route</span>
+                  <SvgIcon name="arrow" size={18} />
+                </a>
+              ) : mode === "local" && publishedTours.length === 0 ? (
+                <a
+                  href={`/contact.html?serviceType=local-tour&date=${encodeURIComponent(pickupDate || localTomorrow())}`}
+                  className="booking-reference__search"
+                  style={{ textDecoration: "none", backgroundColor: "#181d27" }}
+                >
+                  <span>Enquire Day Tour</span>
+                  <SvgIcon name="arrow" size={18} />
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  className="booking-reference__search"
+                  disabled={vehicleGroups.length === 0}
+                  onClick={() => {
+                    if (!validate()) return;
+                    window.location.href = bookingHref();
+                  }}
+                >
+                  <span>Book Now</span>
+                  <SvgIcon name="arrow" size={18} />
+                </button>
+              )}
             </div>
           </div>
         </div>

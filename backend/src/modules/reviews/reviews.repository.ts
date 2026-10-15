@@ -361,10 +361,13 @@ export class ReviewsRepository {
         sub.review_text AS review_text
       FROM review_images img
       JOIN review_submissions sub ON img.submission_id = sub.id
+      JOIN bookings b ON sub.booking_id = b.id
       WHERE img.status = 'approved'
         AND sub.status = 'approved'
         AND sub.consent_public = true
         AND sub.show_in_gallery = true
+        AND sub.booking_id IS NOT NULL
+        AND b.status = 'completed'
       ORDER BY img.sort_order ASC, img.created_at DESC
     `);
     return res.rows;
