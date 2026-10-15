@@ -2,23 +2,20 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { PublishedCatalogResponse, VehicleGroupCode } from "../src/contracts/fare-system.ts";
 
-function getVehicleFallbackImage(groupCode: string, modelName?: string): string {
+function getVehicleFallbackImage(groupCode: string, modelName?: string): string | null {
   const name = (modelName || "").toLowerCase();
   if (name.includes("urbania")) return "/assets/fleet/urbania.webp";
   if (name.includes("ertiga")) return "/assets/fleet/ertiga.webp";
-  if (name.includes("innova")) return "/assets/fleet/innova.webp";
-  if (name.includes("dzire") || name.includes("city")) return "/assets/fleet/sedan.webp";
-  if (name.includes("traveller")) return "/assets/fleet/tempo.webp";
-  switch (groupCode) {
-    case "sedan": return "/assets/fleet/sedan.webp";
-    case "suv": return "/assets/fleet/innova.webp";
-    case "luxury": return "/assets/fleet/urbania.webp";
-    case "tempo_traveller": return "/assets/fleet/tempo.webp";
-    default: return "/assets/fleet/sedan.webp";
+  if (name.includes("innova") || name.includes("crysta")) return "/assets/fleet/innova.webp";
+  if (name.includes("dzire") || name.includes("city") || name.includes("etios") || name.includes("aura")) {
+    return "/assets/fleet/sedan.webp";
   }
+  if (name.includes("traveller")) return "/assets/fleet/tempo.webp";
+  // Unrecognized models must NOT masquerade as another vehicle. Neutral placeholder is rendered instead.
+  return null;
 }
 
-describe("Taxi Rental Page — Canonical Fleet & Form Invariants", () => {
+describe("Taxi Rental Page — Cano nical Fleet & Form Invariants", () => {
   const mockCatalog: PublishedCatalogResponse = {
     groups: [
       {
@@ -159,6 +156,25 @@ describe("Taxi Rental Page — Canonical Fleet & Form Invariants", () => {
     assert.equal(getVehicleFallbackImage("suv", "Maruti Ertiga"), "/assets/fleet/ertiga.webp");
     assert.equal(getVehicleFallbackImage("tempo_traveller", "Force Urbania 13"), "/assets/fleet/urbania.webp");
     assert.equal(getVehicleFallbackImage("tempo_traveller", "Force Traveller 12"), "/assets/fleet/tempo.webp");
+    // Unknown or generic models must return null to trigger neutral group placeholder rather than a false car photo
+    assert.equal(getVehicleFallbackImage("luxury", "Mercedes E-Class"), null);
+    assert.equal(getVehicleFallbackImage("luxury", "BMW 5 Series"), null);
+    assert.equal(getVehicleFallbackImage("suv", "Mahindra Scorpio"), null);
+  });
+
+  it("robustly defaults to first active group if current selection is not available in catalog", () => {
+    // Scenario: catalog only has suv and luxury; initial selection was sedan
+    const limitedCatalogGroups = [
+      { group_code: "suv" as VehicleGroupCode, name: "SUV" },
+      { group_code: "luxury" as VehicleGroupCode, name: "Luxury" },
+    ];
+    const availableCodes = new Set(limitedCatalogGroups.map((g) => g.group_code));
+    const firstGroup = limitedCatalogGroups[0]!.group_code;
+
+    const initialSelection: VehicleGroupCode = "sedan";
+    const resolvedGroup = initialSelection && availableCodes.has(initialSelection) ? initialSelection : firstGroup;
+
+    assert.equal(resolvedGroup, "suv");
   });
 
   it("validates Indian 10-digit mobile number format", () => {

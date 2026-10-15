@@ -49,13 +49,25 @@ export function createRentalEnquiryService(deps: {
         throw new AppError("INVALID_VEHICLE_GROUP", `Vehicle group "${groupCode}" is not recognized.`, 400);
       }
 
-      // If a specific model is selected, validate it against canonical fleet
+      // Validate group and model against canonical fleet repository if available
       let validatedModelId: string | null = null;
       let modelDisplayName: string | null = null;
       let groupDisplayName: string | null = null;
 
-      if (input.vehicleModelId) {
-        if (deps.fareCatalogRepo) {
+      if (deps.fareCatalogRepo) {
+        const liveGroups = await deps.fareCatalogRepo.getVehicleGroups();
+        const activeGroup = liveGroups.find((g) => g.code === groupCode && g.is_active);
+        if (!activeGroup) {
+          throw new AppError(
+            "INVALID_VEHICLE_GROUP",
+            `Vehicle group "${groupCode}" was not found or is currently inactive.`,
+            400
+          );
+        }
+        groupDisplayName = activeGroup.name;
+
+        // If a specific model is selected, validate it against canonical fleet
+        if (input.vehicleModelId) {
           const model = await deps.fareCatalogRepo.getVehicleModelById(input.vehicleModelId);
           if (!model || !model.is_active) {
             throw new AppError(
@@ -73,11 +85,13 @@ export function createRentalEnquiryService(deps: {
           }
           validatedModelId = model.id;
           modelDisplayName = model.display_name;
-          groupDisplayName = model.group_name || groupCode;
-        } else {
-          // If fareCatalogRepo is not provided (e.g. lightweight unit test environment), accept valid UUID
-          validatedModelId = input.vehicleModelId;
+          if (model.group_name) {
+            groupDisplayName = model.group_name;
+          }
         }
+      } else if (input.vehicleModelId) {
+        // If fareCatalogRepo is not provided (e.g. lightweight unit test environment), accept valid UUID
+        validatedModelId = input.vehicleModelId;
       }
 
       // Ensure backward-compatible legacy car_tier fallback

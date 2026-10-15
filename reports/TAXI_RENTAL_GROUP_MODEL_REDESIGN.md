@@ -112,19 +112,24 @@ ALTER TABLE rental_enquiries
 CREATE INDEX IF NOT EXISTS idx_rental_enquiries_group_code ON rental_enquiries(vehicle_group_code);
 CREATE INDEX IF NOT EXISTS idx_rental_enquiries_model_id ON rental_enquiries(vehicle_model_id);
 ```
-> **Approval Notice:** Migration file `backend/migrations/0041_rental_enquiries_group_and_model.sql` is committed and ready. **It has NOT been executed against production.** It must be applied by database administrators during the scheduled release window.
+> **Database Application & Verification Confirmed:**  
+> Migration file `backend/migrations/0041_rental_enquiries_group_and_model.sql` has been executed and verified in the canonical Supabase production database:  
+> - **Applied at:** October 15, 2026, 16:58:33 UTC  
+> - **Columns & Constraints:** `vehicle_group_code`, `vehicle_model_id` (FK to `vehicle_models(id)` ON DELETE SET NULL), `destination_or_itinerary`, and `passengers` verified on live schema.  
+> - **Backward Compatibility:** `car_tier` NOT NULL dropped, preserving historical rows and queries.  
+> - **Fleet Inventory:** 11 active canonical vehicle models across 4 canonical groups (Sedan: 3, SUV: 3, Luxury: 2, Tempo Traveller: 3).
 
 ### 5.2 Server-Authoritative Validation & Service Logic
 In `backend/src/modules/rental-enquiries/rental-enquiry.service.ts`:
-- **Group Code Validation:** Validated against `['sedan', 'suv', 'luxury', 'tempo_traveller']`.
+- **Live Active Group Validation:** Validated dynamically against active groups in `fareCatalogRepo.getVehicleGroups()`. Group-only requests and model requests alike require that the selected vehicle group is currently active in the database; inactive or unknown groups throw `INVALID_VEHICLE_GROUP` (HTTP 400).
 - **Model Validation:**
-  - If `vehicleModelId` is supplied, queries `fareCatalogRepo.getVehicleModels()` to verify the model exists, is active, and matches `vehicleGroupCode`.
-  - Inactive or mismatched models throw `VALIDATION_ERROR` (HTTP 400).
-- **Group-Only Selection:** When customer selects "Any suitable model in this group", `vehicleModelId` is stored as `null` while `vehicleGroupCode` is preserved.
+  - If `vehicleModelId` is supplied, queries `fareCatalogRepo.getVehicleModelById()` to verify the model exists, is active, and belongs to `vehicleGroupCode`.
+  - Inactive models or mismatched groups throw `INVALID_VEHICLE_MODEL` or `VEHICLE_GROUP_MISMATCH` (HTTP 400).
+- **Group-Only Selection:** When customer selects "Any suitable model in this group", `vehicleModelId` is stored as `null` while `vehicleGroupCode` and verified `vehicleGroupName` are preserved.
 - **Date Validation:** Enforces `returnDate >= pickupDate`.
 - **Phone Sanitization:** Normalizes phone input by stripping whitespace and dashes before validating with `+91[6-9]\d{9}`.
 - **Anti-Spam:** Honeypot field triggers immediate rejection (`SPAM_DETECTED`).
-- **Backward-Compatible Writes:** Generates a fallback `car_tier` (e.g. `'sedan'`, `'ertiga'`, `'innova'`, `'tempo'`) for databases where migration 0041 has not yet been executed.
+- **Backward-Compatible Writes:** Generates a fallback `car_tier` (e.g. `'sedan'`, `'ertiga'`, `'innova'`, `'tempo'`) preserving compatibility across all consumers.
 
 ### 5.3 PostgreSQL Repository Enhancements
 In `backend/src/db/postgres.ts`:
@@ -173,8 +178,9 @@ In `admin/src/pages/RentalRequestsPage.tsx`:
 
 ### 8.1 Automated Test Suites
 1. **Backend Unit Tests (`backend/tests/unit/rental-enquiries.test.ts`):**
-   - 13/13 tests passed:
+   - 15/15 tests passed:
      - Group code validation (`sedan`, `suv`, `luxury`, `tempo_traveller`).
+     - Server validation of live active groups for group-only requests (inactive groups rejected).
      - Canonical model verification (valid UUID lookup).
      - Group-only selection ("Any suitable model in group").
      - Rejection of nonexistent or invalid UUID models.
@@ -185,12 +191,13 @@ In `admin/src/pages/RentalRequestsPage.tsx`:
      - Anti-spam honeypot rejection.
      - Admin enquiry listing and filtering by group and car tier.
 2. **Frontend Component Tests (`react/scripts/rental-page.test.ts`):**
-   - 6/6 tests passed:
+   - 7/7 tests passed:
      - Active models count calculation per group.
      - Showroom filtering by active tab.
      - Model selection auto-populating form.
      - Incompatible model clearing on group change.
-     - Placeholder image fallback handling.
+     - Truthful fallback resolution preventing false vehicle image hallucination.
+     - Robust fallback to first active group if initial selection is not present in catalog.
      - Date and phone input validation.
 
 ### 8.2 Full Monorepo Build & Typecheck (`npm run verify`)

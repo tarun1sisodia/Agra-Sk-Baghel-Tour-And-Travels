@@ -10,6 +10,7 @@ import {
   PhoneCall,
   Clock,
   Sparkles,
+  Car,
 } from "lucide-react";
 import { fetchPublishedCatalog, getApiBaseUrl } from "../services/cleanFareApi";
 import type { PublishedCatalogResponse, VehicleGroupCode } from "../contracts/fare-system";
@@ -47,25 +48,122 @@ const initialForm: FormState = {
   website: "",
 };
 
-function getVehicleFallbackImage(groupCode: string, modelName?: string): string {
+type CatalogVehicle = PublishedCatalogResponse["vehicles"][number];
+type CatalogGroup = PublishedCatalogResponse["groups"][number];
+
+export function getVehicleFallbackImage(groupCode: string, modelName?: string): string | null {
   const name = (modelName || "").toLowerCase();
   if (name.includes("urbania")) return "/assets/fleet/urbania.webp";
   if (name.includes("ertiga")) return "/assets/fleet/ertiga.webp";
-  if (name.includes("innova")) return "/assets/fleet/innova.webp";
-  if (name.includes("dzire") || name.includes("city")) return "/assets/fleet/sedan.webp";
-  if (name.includes("traveller")) return "/assets/fleet/tempo.webp";
-  switch (groupCode) {
-    case "sedan":
-      return "/assets/fleet/sedan.webp";
-    case "suv":
-      return "/assets/fleet/innova.webp";
-    case "luxury":
-      return "/assets/fleet/urbania.webp";
-    case "tempo_traveller":
-      return "/assets/fleet/tempo.webp";
-    default:
-      return "/assets/fleet/sedan.webp";
+  if (name.includes("innova") || name.includes("crysta")) return "/assets/fleet/innova.webp";
+  if (name.includes("dzire") || name.includes("city") || name.includes("etios") || name.includes("aura")) {
+    return "/assets/fleet/sedan.webp";
   }
+  if (name.includes("traveller")) return "/assets/fleet/tempo.webp";
+  // Unrecognized models must NOT masquerade as another vehicle. Neutral placeholder is rendered instead.
+  return null;
+}
+
+function RentalVehicleCard({
+  vehicle,
+  activeGroup,
+  isSelected,
+  isHi,
+  onSelect,
+}: {
+  vehicle: CatalogVehicle;
+  activeGroup?: CatalogGroup;
+  isSelected: boolean;
+  isHi: boolean;
+  onSelect: (modelId: string, groupCode: VehicleGroupCode) => void;
+}) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const fallbackImg = getVehicleFallbackImage(vehicle.group_code, vehicle.model_name);
+  const [currentImg, setCurrentImg] = useState<string | null>(vehicle.image_url || fallbackImg);
+
+  const handleImgError = () => {
+    if (currentImg && fallbackImg && currentImg !== fallbackImg) {
+      setCurrentImg(fallbackImg);
+    } else {
+      setImgFailed(true);
+      setCurrentImg(null);
+    }
+  };
+
+  return (
+    <article className={`rental-vehicle-card ${isSelected ? "is-selected" : ""}`}>
+      <div className="rental-card-media">
+        {currentImg && !imgFailed ? (
+          <img
+            src={currentImg}
+            alt={`${vehicle.display_name} rental taxi in Agra`}
+            loading="lazy"
+            onError={handleImgError}
+          />
+        ) : (
+          <div className="rental-card-placeholder" aria-label={vehicle.display_name}>
+            <div className="placeholder-icon-wrap">
+              <Car className="placeholder-car-icon" />
+            </div>
+            <span className="placeholder-label">{activeGroup?.name || vehicle.group_code}</span>
+            <span className="placeholder-sub">
+              {isHi ? "वाहन विवरण सत्यापित" : "Verified fleet specifications"}
+            </span>
+          </div>
+        )}
+        {isSelected && (
+          <span className="selected-badge-pill">
+            <CheckCircle2 className="w-3.5 h-3.5 inline mr-1" />
+            {isHi ? "चयनित" : "Selected"}
+          </span>
+        )}
+      </div>
+
+      <div className="rental-card-body">
+        <div className="card-header-row">
+          <span className="rental-group-tag">{activeGroup?.name || vehicle.group_code}</span>
+        </div>
+
+        <h3>{vehicle.display_name}</h3>
+
+        <div className="rental-specs-row">
+          <span className="spec-item" title={`${vehicle.passenger_capacity} Passenger Capacity`}>
+            <Users className="spec-icon" />
+            <strong>{vehicle.passenger_capacity}</strong> {isHi ? "सवारी" : "Seats"}
+          </span>
+          {vehicle.luggage_capacity !== null && vehicle.luggage_capacity > 0 && (
+            <span className="spec-item" title={`${vehicle.luggage_capacity} Luggage Bags`}>
+              <Briefcase className="spec-icon" />
+              <strong>{vehicle.luggage_capacity}</strong> {isHi ? "बैग" : "Bags"}
+            </span>
+          )}
+        </div>
+
+        <div className="rental-rate-banner">
+          <p>
+            <strong>{isHi ? "कॉल पर अंतिम कोटेशन" : "Custom quote confirmed on call"}</strong> ·{" "}
+            {isHi
+              ? "हमारी टीम आपकी तिथियों और दूरी के अनुसार उचित दर तय करती है।"
+              : "Final rental fare confirmed by our dispatch desk."}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="btn-card-select"
+          onClick={() => onSelect(vehicle.id, vehicle.group_code)}
+        >
+          {isSelected
+            ? isHi
+              ? "✓ फॉर्म में चयनित"
+              : "✓ Selected in Form"
+            : isHi
+            ? "इस वाहन के लिए अनुरोध करें"
+            : "Rent this vehicle"}
+        </button>
+      </div>
+    </article>
+  );
 }
 
 export function RentalPage({ language = "en" }: { language?: string }) {
@@ -98,9 +196,16 @@ export function RentalPage({ language = "en" }: { language?: string }) {
       const data = await fetchPublishedCatalog();
       setCatalog(data);
       if (data.groups && data.groups.length > 0) {
+        const availableCodes = new Set(data.groups.map((g) => g.group_code));
         const firstGroup = data.groups[0]!.group_code;
-        setSelectedGroupCode((curr) => curr || firstGroup);
-        setForm((prev) => ({ ...prev, vehicleGroupCode: prev.vehicleGroupCode || firstGroup }));
+        setSelectedGroupCode((curr) => (curr && availableCodes.has(curr) ? curr : firstGroup));
+        setForm((prev) => ({
+          ...prev,
+          vehicleGroupCode:
+            prev.vehicleGroupCode && availableCodes.has(prev.vehicleGroupCode)
+              ? prev.vehicleGroupCode
+              : firstGroup,
+        }));
       }
     } catch (err) {
       setCatalogError(
@@ -357,77 +462,16 @@ export function RentalPage({ language = "en" }: { language?: string }) {
               {modelsInSelectedGroup.map((vehicle) => {
                 const isSelected = form.vehicleModelId === vehicle.id;
                 const activeGroup = activeGroups.find((g) => g.group_code === vehicle.group_code);
-                const fallbackImg = getVehicleFallbackImage(vehicle.group_code, vehicle.model_name);
 
                 return (
-                  <article
+                  <RentalVehicleCard
                     key={vehicle.id}
-                    className={`rental-vehicle-card ${isSelected ? "is-selected" : ""}`}
-                  >
-                    <div className="rental-card-media">
-                      <img
-                        src={vehicle.image_url || fallbackImg}
-                        alt={`${vehicle.display_name} rental taxi in Agra`}
-                        loading="lazy"
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          if (target.src !== fallbackImg) {
-                            target.src = fallbackImg;
-                          }
-                        }}
-                      />
-                      {isSelected && (
-                        <span className="selected-badge-pill">
-                          <CheckCircle2 className="w-3.5 h-3.5 inline mr-1" />
-                          {isHi ? "चयनित" : "Selected"}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="rental-card-body">
-                      <div className="card-header-row">
-                        <span className="rental-group-tag">{activeGroup?.name || vehicle.group_code}</span>
-                      </div>
-
-                      <h3>{vehicle.display_name}</h3>
-
-                      <div className="rental-specs-row">
-                        <span className="spec-item" title={`${vehicle.passenger_capacity} Passenger Capacity`}>
-                          <Users className="spec-icon" />
-                          <strong>{vehicle.passenger_capacity}</strong> {isHi ? "सवारी" : "Seats"}
-                        </span>
-                        {vehicle.luggage_capacity !== null && vehicle.luggage_capacity > 0 && (
-                          <span className="spec-item" title={`${vehicle.luggage_capacity} Luggage Bags`}>
-                            <Briefcase className="spec-icon" />
-                            <strong>{vehicle.luggage_capacity}</strong> {isHi ? "बैग" : "Bags"}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="rental-rate-banner">
-                        <p>
-                          <strong>{isHi ? "कॉल पर अंतिम कोटेशन" : "Custom quote confirmed on call"}</strong> ·{" "}
-                          {isHi
-                            ? "हमारी टीम आपकी तिथियों और दूरी के अनुसार उचित दर तय करती है।"
-                            : "Final rental fare confirmed by our dispatch desk."}
-                        </p>
-                      </div>
-
-                      <button
-                        type="button"
-                        className="btn-card-select"
-                        onClick={() => handleSelectModel(vehicle.id, vehicle.group_code)}
-                      >
-                        {isSelected
-                          ? isHi
-                            ? "✓ फॉर्म में चयनित"
-                            : "✓ Selected in Form"
-                          : isHi
-                          ? "इस वाहन के लिए अनुरोध करें"
-                          : "Rent this vehicle"}
-                      </button>
-                    </div>
-                  </article>
+                    vehicle={vehicle}
+                    activeGroup={activeGroup}
+                    isSelected={isSelected}
+                    isHi={isHi}
+                    onSelect={handleSelectModel}
+                  />
                 );
               })}
             </div>

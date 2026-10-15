@@ -347,6 +347,33 @@ describe("Rental Enquiry Suite — Canonical Groups & Models", () => {
       ).rejects.toThrow(/does not belong to the "luxury" group/);
     });
 
+    it("rejects group-only submission if the vehicle group is inactive in the live catalog", async () => {
+      const db = createMemoryRepositories();
+      const mockCatalogRepo = createMockFareCatalogRepo();
+      // Simulate luxury group being marked inactive
+      const customCatalogRepo = {
+        ...mockCatalogRepo,
+        async getVehicleGroups() {
+          return MOCK_GROUPS.map((g) => (g.code === "luxury" ? { ...g, is_active: false } : g));
+        },
+      } as FareCatalogRepository;
+
+      const service = createRentalEnquiryService({ db, clock, fareCatalogRepo: customCatalogRepo });
+
+      await expect(
+        service.create({
+          name: "Luxury Fan",
+          phone: "+919876543210",
+          vehicleGroupCode: "luxury",
+          vehicleModelId: null,
+          pickupDate: "2026-11-10",
+          returnDate: "2026-11-11",
+          pickupLocation: "Agra",
+          withDriver: true,
+        })
+      ).rejects.toThrow(/Vehicle group "luxury" was not found or is currently inactive/);
+    });
+
     it("preserves historical records and allows status updates", async () => {
       const db = createMemoryRepositories();
       const service = createRentalEnquiryService({ db, clock });

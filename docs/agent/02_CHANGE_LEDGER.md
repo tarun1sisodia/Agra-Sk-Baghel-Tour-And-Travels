@@ -8,26 +8,28 @@
   - Replaced the legacy 5-card static price list (`FLEETS` / `prices.fleet_per_km`) with a live-catalog-driven showroom.
   - Sourced fleet groups and models dynamically via `fetchPublishedCatalog()` from `GET /api/v1/catalog`.
   - Structured canonical vehicle groups (**Sedan**, **SUV**, **Luxury**, **Tempo Traveller**) as interactive tabs with real-time model count badges.
-  - Displayed authentic models in responsive showroom cards with passenger & luggage capacity, elegant image fallbacks, and transparent call-first quotation notices ("Final rental fare confirmed by our team").
+  - Displayed authentic models in responsive showroom cards with passenger & luggage capacity, truthful fallback resolution, and transparent call-first quotation notices ("Final rental fare confirmed by our team").
+  - Extracted modular `RentalVehicleCard` component with graceful neutral placeholder (`.rental-card-placeholder`) when uncataloged models or missing photos are encountered, preventing false vehicle image hallucinations (e.g. unknown Luxury models never show an Urbania van; unknown SUVs never masquerade as an Innova).
+  - Hardened group-selection default in `loadCatalog`: robustly switches to the first active group in `catalog.groups` if the initial selection (`sedan`) is not available in the live catalog.
   - Implemented interactive multi-section enquiry form:
     1. Contact Details (Full Name, Phone with international formatting, optional Email).
     2. Vehicle Preference (dynamic Group select, dynamic Model select with "Any suitable model in this group" option; clears model on group switch). Preselection from card CTA scrolls smoothly to form.
     3. Dates & Route (Pickup Date, Return Date $\ge$ Pickup Date, Pickup Location, Destination / Itinerary, Passenger Count).
     4. Chauffeur preference (`with_driver`), special notes, and anti-spam honeypot.
     5. Double-submit prevention and verified confirmation screen with ticket reference (`TKT-RNT-...`).
-  - Added frontend unit regression tests in `react/scripts/rental-page.test.ts` (6 tests).
+  - Added frontend unit regression tests in `react/scripts/rental-page.test.ts` (7 tests).
 
 - **Canonical Rental Enquiry Persistence & Validation (`backend/`)**:
-  - Authored database migration `0041_rental_enquiries_group_and_model.sql` adding `vehicle_group_code`, `vehicle_model_id` (FK to `vehicle_models(id)` ON DELETE SET NULL), `destination_or_itinerary`, and `passengers`, while relaxing `car_tier` NOT NULL for backward compatibility. *(Noted for production release approval)*.
+  - Database migration `0041_rental_enquiries_group_and_model.sql` verified and applied to canonical database on October 15, 2026, 16:58:33 UTC (added `vehicle_group_code`, `vehicle_model_id` FK to `vehicle_models(id)`, `destination_or_itinerary`, and `passengers`; relaxed `car_tier` NOT NULL).
   - Updated `domain.ts`, `db/types.ts`, `postgres.ts`, and `memory.ts` to persist and retrieve canonical group and model details with LEFT JOINs on `vehicle_models` and `vehicle_groups`.
   - Hardened `rental-enquiry.schema.ts` and `rental-enquiry.service.ts`:
-    - Validates group code against canonical groups.
+    - Validates group code against canonical groups and server-authoritatively validates active group status in live `fareCatalogRepo` for all submissions (including group-only enquiries).
     - Validates model UUID against active catalog models in that specific group; rejects inactive or mismatched models.
     - Supports group-only selection storing explicit `null` model ID.
     - Normalizes phone numbers (`+91XXXXXXXXXX`) and validates dates.
     - Enforces honeypot spam protection.
     - Maps fallback `car_tier` for pre-migration database compatibility.
-  - Added unit regression test suite `backend/tests/unit/rental-enquiries.test.ts` (13 tests).
+  - Added unit regression test suite `backend/tests/unit/rental-enquiries.test.ts` (15 tests).
 
 - **Admin Desk Rental Requests Upgrade (`admin/src/pages/RentalRequestsPage.tsx`, `admin/src/lib/types.ts`)**:
   - Upgraded table to display canonical Vehicle Group badges, selected model display name (or "Any suitable model in group"), passenger count, and destination itinerary.
@@ -36,7 +38,7 @@
   - Maintained status workflow, notes logging, and direct Call/WhatsApp deep links.
 
 - **Monorepo Verification**:
-  - `npm run verify` passed with exit code 0 (3 typechecks, 233 backend unit tests, 27 customer tests, 9 admin tests, SEO checks, and 3 production builds with 59 SSG pages).
+  - `npm run verify` passed with exit code 0 (3 typechecks, 235 backend unit tests, 28 customer tests, 9 admin tests, SEO checks, and 3 production builds with 59 SSG pages).
 
 ### 2026-10-15 — Resolution of Residual Acceptance Gaps: Booking Handoffs, Live Fleet Readiness & Review Verification
 
