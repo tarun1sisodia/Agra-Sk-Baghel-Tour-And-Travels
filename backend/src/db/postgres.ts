@@ -241,7 +241,13 @@ function mapRentalEnquiry(row: Record<string, unknown>): RentalEnquiryRecord {
     name: String(row.name),
     phone: String(row.phone),
     email: row.email ? String(row.email) : null,
-    carTier: row.car_tier as RentalEnquiryRecord["carTier"],
+    carTier: (row.car_tier as RentalEnquiryRecord["carTier"]) ?? null,
+    vehicleGroupCode: (row.vehicle_group_code as RentalEnquiryRecord["vehicleGroupCode"]) ?? null,
+    vehicleModelId: row.vehicle_model_id ? String(row.vehicle_model_id) : null,
+    vehicleModelName: row.vehicle_model_name ? String(row.vehicle_model_name) : null,
+    vehicleGroupName: row.vehicle_group_name ? String(row.vehicle_group_name) : null,
+    destinationOrItinerary: row.destination_or_itinerary ? String(row.destination_or_itinerary) : null,
+    passengers: row.passengers != null ? Number(row.passengers) : null,
     pickupDate: String(row.pickup_date).slice(0, 10),
     returnDate: String(row.return_date).slice(0, 10),
     pickupLocation: String(row.pickup_location),
@@ -2018,10 +2024,91 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
         },
       },
       rentalEnquiries: {
-        async create(record: RentalEnquiryRecord) { const rows = await query(client, `insert into rental_enquiries (id, ref, name, phone, email, car_tier, pickup_date, return_date, pickup_location, with_driver, note, status, notes, created_at, updated_at) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning *`, [record.id,record.ref,record.name,record.phone,record.email,record.carTier,record.pickupDate,record.returnDate,record.pickupLocation,record.withDriver,record.note,record.status,record.notes,record.createdAt,record.updatedAt]); return mapRentalEnquiry(rows[0]!); },
-        async update(record: RentalEnquiryRecord) { const rows = await query(client, `update rental_enquiries set status=$2, notes=$3, updated_at=$4 where id=$1 returning *`, [record.id,record.status,record.notes,record.updatedAt]); if (!rows[0]) throw new Error("rental enquiry update failed: not found"); return mapRentalEnquiry(rows[0]); },
-        async getById(id: string) { const rows = await query(client, "select * from rental_enquiries where id=$1", [id]); return rows[0] ? mapRentalEnquiry(rows[0]) : null; },
-        async list(filter?: RentalEnquiryListFilter) { const clauses:string[]=[]; const params:unknown[]=[]; if(filter?.status){params.push(filter.status);clauses.push(`status=$${params.length}`);} if(filter?.carTier){params.push(filter.carTier);clauses.push(`car_tier=$${params.length}`);} if(filter?.from){params.push(filter.from);clauses.push(`pickup_date >= $${params.length}`);} if(filter?.to){params.push(filter.to);clauses.push(`pickup_date <= $${params.length}`);} if(filter?.q){params.push(`%${filter.q.toLowerCase()}%`);clauses.push(`(lower(name) like $${params.length} or phone like $${params.length})`);} const where=clauses.length?`where ${clauses.join(" and ")}`:""; const count=await query(client,`select count(*)::int as total from rental_enquiries ${where}`,params); const page=filter?.page??1, limit=filter?.limit??50; const qp=[...params,limit,(page-1)*limit]; const rows=await query(client,`select * from rental_enquiries ${where} order by created_at desc limit $${qp.length-1} offset $${qp.length}`,qp); return { total:num(count[0]?.total??0), items:rows.map(mapRentalEnquiry) }; },
+        async create(record: RentalEnquiryRecord) {
+          const rows = await query(
+            client,
+            `insert into rental_enquiries (
+              id, ref, name, phone, email, car_tier, pickup_date, return_date, pickup_location, with_driver, note, status, notes, created_at, updated_at,
+              vehicle_group_code, vehicle_model_id, destination_or_itinerary, passengers
+            ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19) returning *`,
+            [
+              record.id, record.ref, record.name, record.phone, record.email, record.carTier,
+              record.pickupDate, record.returnDate, record.pickupLocation, record.withDriver,
+              record.note, record.status, record.notes, record.createdAt, record.updatedAt,
+              record.vehicleGroupCode ?? null, record.vehicleModelId ?? null,
+              record.destinationOrItinerary ?? null, record.passengers ?? null,
+            ]
+          );
+          return mapRentalEnquiry(rows[0]!);
+        },
+        async update(record: RentalEnquiryRecord) {
+          const rows = await query(
+            client,
+            `update rental_enquiries set status=$2, notes=$3, updated_at=$4 where id=$1 returning *`,
+            [record.id, record.status, record.notes, record.updatedAt]
+          );
+          if (!rows[0]) throw new Error("rental enquiry update failed: not found");
+          return mapRentalEnquiry(rows[0]);
+        },
+        async getById(id: string) {
+          const rows = await query(
+            client,
+            `select re.*, vm.display_name as vehicle_model_name, vg.name as vehicle_group_name
+             from rental_enquiries re
+             left join vehicle_models vm on vm.id = re.vehicle_model_id
+             left join vehicle_groups vg on vg.code = re.vehicle_group_code
+             where re.id = $1`,
+            [id]
+          );
+          return rows[0] ? mapRentalEnquiry(rows[0]) : null;
+        },
+        async list(filter?: RentalEnquiryListFilter) {
+          const clauses: string[] = [];
+          const params: unknown[] = [];
+          if (filter?.status) {
+            params.push(filter.status);
+            clauses.push(`re.status = $${params.length}`);
+          }
+          if (filter?.vehicleGroupCode) {
+            params.push(filter.vehicleGroupCode);
+            clauses.push(`re.vehicle_group_code = $${params.length}`);
+          }
+          if (filter?.carTier) {
+            params.push(filter.carTier);
+            clauses.push(`(re.car_tier = $${params.length} or re.vehicle_group_code = $${params.length})`);
+          }
+          if (filter?.car && filter.car !== "all") {
+            params.push(filter.car);
+            clauses.push(`(re.car_tier = $${params.length} or re.vehicle_group_code = $${params.length})`);
+          }
+          if (filter?.from) {
+            params.push(filter.from);
+            clauses.push(`re.pickup_date >= $${params.length}`);
+          }
+          if (filter?.to) {
+            params.push(filter.to);
+            clauses.push(`re.pickup_date <= $${params.length}`);
+          }
+          if (filter?.q) {
+            params.push(`%${filter.q.toLowerCase()}%`);
+            clauses.push(`(lower(re.name) like $${params.length} or re.phone like $${params.length} or lower(coalesce(re.ref, '')) like $${params.length})`);
+          }
+          const where = clauses.length ? `where ${clauses.join(" and ")}` : "";
+          const count = await query(client, `select count(*)::int as total from rental_enquiries re ${where}`, params);
+          const page = filter?.page ?? 1, limit = filter?.limit ?? 50;
+          const qp = [...params, limit, (page - 1) * limit];
+          const rows = await query(
+            client,
+            `select re.*, vm.display_name as vehicle_model_name, vg.name as vehicle_group_name
+             from rental_enquiries re
+             left join vehicle_models vm on vm.id = re.vehicle_model_id
+             left join vehicle_groups vg on vg.code = re.vehicle_group_code
+             ${where}
+             order by re.created_at desc limit $${qp.length - 1} offset $${qp.length}`,
+            qp
+          );
+          return { total: num(count[0]?.total ?? 0), items: rows.map(mapRentalEnquiry) };
+        },
       },
       inquiries: {
         async create(record: InquiryRecord) {

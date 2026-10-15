@@ -23,6 +23,7 @@ import type {
   RentalEnquiryRecord,
   RentalEnquiryStatus,
   RentalCarTier,
+  CanonicalVehicleGroup,
   InquiryStatus,
   LocationSuggestion,
   NotificationJobRecord,
@@ -44,7 +45,17 @@ export type InquiryListFilter = {
   page?: number;
 };
 
-export type RentalEnquiryListFilter = { status?: RentalEnquiryStatus; carTier?: RentalCarTier; from?: string; to?: string; q?: string; limit?: number; page?: number; };
+export type RentalEnquiryListFilter = {
+  status?: RentalEnquiryStatus;
+  carTier?: RentalCarTier;
+  vehicleGroupCode?: CanonicalVehicleGroup;
+  car?: string;
+  from?: string;
+  to?: string;
+  q?: string;
+  limit?: number;
+  page?: number;
+};
 export type PaymentListFilter = {
   bookingId?: string;
   status?: PaymentStatus;

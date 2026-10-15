@@ -371,7 +371,30 @@ export type InquiryRecord = {
 export const RENTAL_ENQUIRY_STATUSES = ["new", "contacted", "quoted", "done", "closed", "spam"] as const;
 export type RentalEnquiryStatus = (typeof RENTAL_ENQUIRY_STATUSES)[number];
 export type RentalCarTier = "sedan" | "ertiga" | "innova" | "tempo" | "urbania";
-export type RentalEnquiryRecord = { id: string; ref: string; name: string; phone: string; email: string | null; carTier: RentalCarTier; pickupDate: string; returnDate: string; pickupLocation: string; withDriver: boolean; note: string | null; status: RentalEnquiryStatus; notes: string[]; createdAt: string; updatedAt: string; };
+export type CanonicalVehicleGroup = "sedan" | "suv" | "luxury" | "tempo_traveller";
+export type RentalEnquiryRecord = {
+  id: string;
+  ref: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  carTier: RentalCarTier | null;
+  vehicleGroupCode: CanonicalVehicleGroup | null;
+  vehicleModelId: string | null;
+  vehicleModelName?: string | null;
+  vehicleGroupName?: string | null;
+  destinationOrItinerary: string | null;
+  passengers: number | null;
+  pickupDate: string;
+  returnDate: string;
+  pickupLocation: string;
+  withDriver: boolean;
+  note: string | null;
+  status: RentalEnquiryStatus;
+  notes: string[];
+  createdAt: string;
+  updatedAt: string;
+};
 export type NotificationJobRecord = {
   id: string;
   bookingId: string;

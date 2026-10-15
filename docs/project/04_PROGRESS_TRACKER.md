@@ -10,14 +10,14 @@ Older trackers (`docs/project/PROGRESS.md`, `docs/project/AUDIT_PROGRESS.md`) ar
 
 ## Current State
 
-- **Current Phase:** Residual Acceptance Gaps: Booking Handoffs, Live Fleet Readiness & Review Verification (COMPLETED).
-- **Current Step:** Resolved all residual acceptance gaps across booking handoffs, live fleet readiness, review moderation, and UI mapping:
-  * Blocked Invalid Outstation Booking Handoffs: Enforced exact published-route matches before allowing booking handoffs; unmatched routes display truthful no-match notices with dynamic CTA to `/contact.html?serviceType=custom_route` preserving all parameters; hardened `CleanBookingPage.tsx` against silent fallback to `availableInCat[0]`.
-  * Live Fleet-Group Readiness: Derived vehicle groups strictly from `catalog.groups` where `catalog.vehicles` contains active models (`modelCount > 0`); distinctly handles loading, error, and empty catalog states without fake fallbacks.
-  * Server-Side Review Verification: Enforced strict invariants for public reviews and gallery (approval, customer consent, non-null booking, existing booking, status `completed`). Hardened public queries independently.
-  * Homepage Review Mapper: Preserved `is_verified` boolean from API without inferring from booking IDs or social accounts.
-  * Admin Safety: Mapped missing/unknown consent strictly to `false`; removed synthetic UUID ticket IDs; synchronized action return state.
-  * Verification: Full `npm run verify` passed (3 typechecks, 212 backend unit tests, 21 react tests, 3 admin tests, SEO tests, 3 production builds with 59 SSG pages); live automated browser subagent verification succeeded.
+- **Current Phase:** Taxi Rental Page Redesign & Canonical Fleet/Enquiry Persistence (COMPLETED).
+- **Current Step:** Completed end-to-end Taxi Rental experience overhaul (`/en/taxis/rent/` and `/hi/taxis/rent/`):
+  * Canonical Live Fleet Integration: Sourced vehicle groups and models from `GET /api/v1/catalog` (`fetchPublishedCatalog()`), replacing static 5-fleet list and hardcoded per-km rates with dynamic canonical groups (**Sedan**, **SUV**, **Luxury**, **Tempo Traveller**) and live active models.
+  * Model Showroom & Quotation Integrity: Interactive tabbed cards with real passenger/luggage capacities, elegant fallback images, and truthful call-first quotation notices ("Final rental fare confirmed by our team").
+  * Interactive Multi-Section Enquiry Form: Preselection from cards, dynamic Group/Model selectors with "Any suitable model in group", passenger count, itinerary, chauffeur preference, dates validation, phone formatting, double-submit protection, and confirmed reference display (`TKT-RNT-...`).
+  * Backend Persistence & Contract Validation: Added migration `0041_rental_enquiries_group_and_model.sql` (additive, backward-compatible, pending prod release approval); validated active canonical models and group memberships; sanitized phone numbers; protected against spam with honeypots.
+  * Admin Rental Requests Desk: Upgraded `admin/src/pages/RentalRequestsPage.tsx` to display canonical group and model badges, passenger count, and itinerary, with full backward compatibility for historical records.
+  * Monorepo Verification: Full `npm run verify` passed cleanly (3 typechecks, 233 backend unit tests, 27 customer tests, 9 admin tests, SEO checks, and 3 production builds with 59 SSG pages).
 - **Last updated:** 2026-10-15
 - **Summary:** All HTML designs from `react/new_design/` are completely converted into the React application with ultra-luxury aesthetic styling, design tokens (`theme.css`), and the strict English-only mandate:
   * Multi-Agent Orchestration Engine (`agents/`): Automated agent pipeline with `code_extractor.py`, dynamic language templates (`task_template.py`), `tenacity` exponential retry logic, and specialized agents (`schema_agent.py`, `service_agent.py`, `frontend_agent.py`, `test_agent.py`, `seo_content_agent.py`, `orchestrator.py`).

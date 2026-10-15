@@ -414,6 +414,15 @@ function getSeoBase(
     };
   }
 
+  if (section === "rent" || pathname.includes("/taxis/rent") || pathname.includes("/rent")) {
+    return {
+      title: "Rent a Taxi in Agra | Canonical Fleet, Tempo Travellers & Sedans | Agra SK Baghel",
+      description: "Rent verified taxis in Agra with dedicated chauffeurs. Browse Sedans, SUVs, Luxury and Tempo Travellers. Transparent call-first quotes and doorstep pickup.",
+      ogImage: "/assets/brand/og-banner.webp",
+      keywords: ["Agra taxi rental", "rent a cab Agra", "Agra car rental with driver", "Tempo Traveller rental Agra"],
+    };
+  }
+
   if (section === "404") {
     return {
       title: "404 Page Not Found — Agra SK Baghel Tour and Travels Agra",
@@ -667,7 +676,7 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
         ) : isSeoLanding ? (
           <SeoLandingPage slug={section as SeoLandingSlug} />
         ) : section === "rent" || cleanPath === "/rent" || cleanPath === "/taxis/rent" || cleanPath === "/en/taxis/rent" ? (
-          <RentalPage />
+          <RentalPage language={language} />
         ) : section === "services" ? (
           <ServicesPage language={language} />
         ) : section === "routes" ? (

@@ -205,7 +205,29 @@ export interface Inquiry {
 }
 
 export type RentalStatus = "new" | "contacted" | "quoted" | "done" | "closed" | "spam";
-export interface RentalEnquiry { id: string; ref: string; name: string; phone: string; email?: string | null; carTier: string; pickupDate: string; returnDate: string; pickupLocation: string; withDriver: boolean; note?: string | null; status: RentalStatus; notes: string[]; createdAt: string; updatedAt: string; }
+export interface RentalEnquiry {
+  id: string;
+  ref: string;
+  name: string;
+  phone: string;
+  email?: string | null;
+  carTier?: string | null;
+  vehicleGroupCode?: string | null;
+  vehicleGroupName?: string | null;
+  vehicleModelId?: string | null;
+  vehicleModelName?: string | null;
+  destinationOrItinerary?: string | null;
+  passengers?: number | null;
+  pickupDate: string;
+  returnDate: string;
+  pickupLocation: string;
+  withDriver: boolean;
+  note?: string | null;
+  status: RentalStatus;
+  notes: string[];
+  createdAt: string;
+  updatedAt: string;
+}
 export interface FareRule {
   vehicleTier: VehicleTier;
   label: string;

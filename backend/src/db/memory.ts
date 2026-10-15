@@ -841,7 +841,24 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
       async create(record) { rentalEnquiries.push(clone(record)); return clone(record); },
       async update(record) { const index = rentalEnquiries.findIndex((item) => item.id === record.id); if (index < 0) throw new Error("rental enquiry update failed: not found"); rentalEnquiries[index] = clone(record); return clone(record); },
       async getById(id) { const found = rentalEnquiries.find((item) => item.id === id); return found ? clone(found) : null; },
-      async list(filter?: RentalEnquiryListFilter) { let list = rentalEnquiries.filter((item) => !filter?.status || item.status === filter.status).filter((item) => !filter?.carTier || item.carTier === filter.carTier).filter((item) => !filter?.from || item.pickupDate >= filter.from).filter((item) => !filter?.to || item.pickupDate <= filter.to); if (filter?.q) { const q = filter.q.toLowerCase(); list = list.filter((item) => item.name.toLowerCase().includes(q) || item.phone.includes(q)); } list.sort((a,b) => b.createdAt.localeCompare(a.createdAt)); const total=list.length; const page=filter?.page ?? 1; const limit=filter?.limit ?? 50; return { total, items: list.slice((page-1)*limit, page*limit).map(clone) }; },
+      async list(filter?: RentalEnquiryListFilter) {
+        let list = rentalEnquiries
+          .filter((item) => !filter?.status || item.status === filter.status)
+          .filter((item) => !filter?.vehicleGroupCode || item.vehicleGroupCode === filter.vehicleGroupCode)
+          .filter((item) => !filter?.carTier || item.carTier === filter.carTier || item.vehicleGroupCode === filter.carTier)
+          .filter((item) => !filter?.car || filter.car === "all" || item.carTier === filter.car || item.vehicleGroupCode === filter.car)
+          .filter((item) => !filter?.from || item.pickupDate >= filter.from)
+          .filter((item) => !filter?.to || item.pickupDate <= filter.to);
+        if (filter?.q) {
+          const q = filter.q.toLowerCase();
+          list = list.filter((item) => item.name.toLowerCase().includes(q) || item.phone.includes(q) || item.ref.toLowerCase().includes(q));
+        }
+        list.sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+        const total = list.length;
+        const page = filter?.page ?? 1;
+        const limit = filter?.limit ?? 50;
+        return { total, items: list.slice((page-1)*limit, page*limit).map(clone) };
+      },
     },
     inquiries: {
       async create(record) {

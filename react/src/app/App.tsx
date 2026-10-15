@@ -535,7 +535,7 @@ export function App({ pathname: propPathname }: AppProps = {}) {
         ) : isSeoLanding ? (
           <SeoLandingPage slug={section as SeoLandingSlug} />
           ) : section === "rent" ? (
-            <RentalPage />
+            <RentalPage language={language} />
           ) : section === "services" ? (
             <ServicesPage language={language} />
           ) : section === "routes" ? (
