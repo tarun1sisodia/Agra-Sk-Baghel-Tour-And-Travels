@@ -78,15 +78,18 @@ function getPublishedCatalogEntries(): SitemapEntry[] {
       publishedAt?: string | null;
     }>;
     return snapshot
-      .filter((item) => (!item.status || item.status === "published") && (item.type === "package" || item.type === "tour") && isSitemapSafeSlug(item.slug))
-      .map((item) => ({
-        path: `/en/packages/${item.slug}/`,
-        hiPath: `/hi/packages/${item.slug}/`,
-        enPath: `/en/packages/${item.slug}/`,
-        priority: 0.85,
-        changefreq: "weekly" as const,
-        lastmod: (item.updatedAt || item.publishedAt || undefined)?.slice(0, 10),
-      }));
+      .filter((item) => (!item.status || item.status === "published") && (item.type === "package" || item.type === "tour" || item.type === "transfer") && isSitemapSafeSlug(item.slug))
+      .map((item) => {
+        const prefix = item.type === "tour" ? "local-packages" : item.type === "transfer" ? "transfers" : "packages";
+        return {
+          path: `/en/${prefix}/${item.slug}/`,
+          hiPath: `/hi/${prefix}/${item.slug}/`,
+          enPath: `/en/${prefix}/${item.slug}/`,
+          priority: 0.85,
+          changefreq: "weekly" as const,
+          lastmod: (item.updatedAt || item.publishedAt || undefined)?.slice(0, 10),
+        };
+      });
   } catch {
     return [];
   }

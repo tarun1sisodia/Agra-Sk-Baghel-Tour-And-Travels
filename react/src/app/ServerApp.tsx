@@ -564,13 +564,13 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
     const taxiMatch = normalizedPath.match(/^\/(?:taxi|taxis)\/([a-z0-9_-]+)(?:\.html)?$/i);
     if (taxiMatch && taxiMatch[1].toLowerCase() !== "rent") return { category: "outstation" as CategoryCode, code: taxiMatch[1] };
 
-    const sightseeingMatch = normalizedPath.match(/^\/local-sightseeing\/([a-z0-9_-]+)(?:\.html)?$/i);
+    const sightseeingMatch = normalizedPath.match(/^\/(?:local-sightseeing|local-packages|local-package)\/([a-z0-9_-]+)(?:\.html)?$/i);
     if (sightseeingMatch) return { category: "local_package" as CategoryCode, code: sightseeingMatch[1] };
 
     const transferMatch = normalizedPath.match(/^\/(?:transfers|transfer)\/([a-z0-9_-]+)(?:\.html)?$/i);
     if (transferMatch) return { category: "transfer" as CategoryCode, code: transferMatch[1] };
 
-    const tourMatch = normalizedPath.match(/^\/(?:tours|tour)\/([a-z0-9_-]+)(?:\.html)?$/i);
+    const tourMatch = normalizedPath.match(/^\/(?:tours|tour|packages|package)\/([a-z0-9_-]+)(?:\.html)?$/i);
     if (tourMatch) return { category: "tour_package" as CategoryCode, code: tourMatch[1] };
 
     return null;

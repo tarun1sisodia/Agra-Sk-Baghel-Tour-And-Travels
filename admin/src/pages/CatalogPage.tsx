@@ -234,7 +234,7 @@ export function CatalogPage({ user }: { user: AdminUser }) {
   // Pre-creation there's only one staged slot (the cover) — additional
   // gallery images are added once the item exists, right after "Create Item".
   const mediaAtLimit = editingItem ? activeMedia.length + stagedCount >= mediaLimit : stagedCount >= 1;
-  const isPlaceGallery = formCategory === "place";
+  const isMultiImageGallery = formCategory === "place" || formCategory === "package" || formCategory === "tour";
 
   function clearStagedMedia() {
     setStagedMedia((prev) => {
@@ -420,7 +420,7 @@ export function CatalogPage({ user }: { user: AdminUser }) {
     }
   }
 
-  async function setStatus(id: string, action: "publish" | "archive") {
+  async function setStatus(id: string, action: "publish" | "archive" | "unpublish") {
     setActionError(null);
     setBusyId(id);
     try {
@@ -507,7 +507,7 @@ export function CatalogPage({ user }: { user: AdminUser }) {
       return setMediaError(
         !editingItem
           ? "Only one image can be staged before saving. Remove it, or add the rest after the item is created."
-          : isPlaceGallery
+          : isMultiImageGallery
             ? `This gallery is full (${mediaLimit} images). Remove one first.`
             : "This category allows exactly one image. Remove the current cover first.",
       );
@@ -866,9 +866,14 @@ export function CatalogPage({ user }: { user: AdminUser }) {
                     </Button>
                   )}
                   {canPublish && item.status === "published" && (
-                    <Button variant="outline" size="sm" className="min-w-0 flex-1" disabled={busyId === item.id} onClick={() => setStatus(item.id, "archive")}>
-                      <Archive className="h-3.5 w-3.5 mr-1" /> Archive
-                    </Button>
+                    <>
+                      <Button variant="outline" size="sm" className="min-w-0 flex-1" disabled={busyId === item.id} onClick={() => setStatus(item.id, "unpublish")}>
+                        Unpublish
+                      </Button>
+                      <Button variant="outline" size="sm" className="min-w-0 flex-1" disabled={busyId === item.id} onClick={() => setStatus(item.id, "archive")}>
+                        <Archive className="h-3.5 w-3.5 mr-1" /> Archive
+                      </Button>
+                    </>
                   )}
                   {canPublish && item.status === "archived" && (
                     <Button variant="outline" size="sm" className="min-w-0 flex-1" disabled={busyId === item.id} onClick={() => setStatus(item.id, "publish")}>
@@ -1096,13 +1101,13 @@ export function CatalogPage({ user }: { user: AdminUser }) {
                     mediaAtLimit ? "text-error" : "text-ink-faint",
                   )}
                 >
-                  {activeMedia.length + stagedCount}/{mediaLimit} {isPlaceGallery ? "gallery images" : "cover image"}
+                  {activeMedia.length + stagedCount}/{mediaLimit} {isMultiImageGallery ? "gallery images" : "cover image"}
                 </span>
               </div>
               <p className="mt-1 text-[11px] leading-relaxed text-ink-soft">
                 {editingItem
-                  ? isPlaceGallery
-                    ? "Famous Places & Monuments support a multi-image gallery — the first image is the cover."
+                  ? isMultiImageGallery
+                    ? "This item supports a cover image and gallery (up to 12 images) — the first image is the cover."
                     : "This category uses a single cover image. Remove the current one to replace it."
                   : "Pick an image now — it uploads automatically the moment you click \"Create Item\" below."}
               </p>

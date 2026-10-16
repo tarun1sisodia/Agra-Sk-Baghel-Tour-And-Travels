@@ -314,8 +314,14 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   let publishedCatalogFetched = false;
   if (apiBase) {
     try {
-      const payload = await fetchCatalogJson(`${apiBase}/api/v1/catalog`) as { data?: unknown };
-      publishedCatalog = Array.isArray(payload.data) ? payload.data : [];
+      const payload = await fetchCatalogJson(`${apiBase}/api/v1/catalog`) as { data?: unknown; products?: unknown };
+      publishedCatalog = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload.data)
+          ? payload.data
+          : Array.isArray(payload.products)
+            ? payload.products
+            : [];
       publishedCatalogFetched = true;
       console.log(`✅ [Manifest Builder] Snapshotted ${publishedCatalog.length} published catalog items for SSG.`);
     } catch (error) {

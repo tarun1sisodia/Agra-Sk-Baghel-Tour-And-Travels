@@ -247,7 +247,12 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
           const cover = media.find((m) => m.sortOrder === 0) || media[0];
           const image = cover
             ? (cover.storagePath || (cover.contentBase64 ? `/api/v1/media/${cover.id}` : null))
-            : "/assets/packages/taj-dawn.webp";
+            : null;
+          const gallery = media.map((m) => ({
+            url: m.storagePath || (m.contentBase64 ? `/api/v1/media/${m.id}` : ""),
+            alt: m.altText || item.title,
+            caption: m.caption ?? undefined,
+          }));
 
           return {
             id: item.id,
@@ -260,7 +265,8 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
             duration: item.durationText || "1 day",
             from: item.startingPriceInr,
             startingPriceInr: item.startingPriceInr,
-            image: image || "/assets/packages/taj-dawn.webp",
+            image: image || "",
+            gallery,
             places: (item.routeSummary || "")
               .split(/[,·|]/)
               .map((s) => s.trim())
@@ -511,11 +517,52 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
 
     async publish(id: string, actor: AuthUser, requestId: string) {
       const item = await requireItem(deps.db, id);
+
+      // ── Step 1: Slug safety enforcement
+      const slug = item.slug.trim();
+      const isSafeSlug =
+        /^[a-z0-9-]{2,80}$/.test(slug) &&
+        !slug.startsWith("-") &&
+        !slug.endsWith("-") &&
+        !/--/.test(slug) &&
+        !/command/i.test(slug) &&
+        !/^\d+-btn-/.test(slug);
+
+      if (!isSafeSlug) {
+        throw Errors.unprocessable(
+          "INVALID_SLUG",
+          `Cannot publish item: slug "${item.slug}" does not meet SEO safety criteria (/^[a-z0-9-]{2,80}$/, no consecutive hyphens, no leading/trailing hyphens).`,
+          { slug: item.slug },
+        );
+      }
+
+      // ── Step 2: Media requirement enforcement (Packages, Tours, Places must have >= 1 active image)
+      const existingMedia = (await deps.db.media.listByCatalogItem(item.id)).filter(
+        (entry) => entry.status !== "archived",
+      );
+      if (
+        (item.type === "package" || item.type === "tour" || item.type === "place") &&
+        existingMedia.length === 0
+      ) {
+        throw Errors.unprocessable(
+          "MISSING_REQUIRED_MEDIA",
+          `Cannot publish ${item.type} "${item.title}": at least one approved cover image is required before publication.`,
+          { id: item.id, type: item.type, title: item.title },
+        );
+      }
+
+      // Synchronize attached draft media to published
+      for (const m of existingMedia) {
+        if (m.status !== "published") {
+          await deps.db.media.update({ ...m, status: "published" });
+        }
+      }
+
       const now = toIso(deps.clock.now());
       const updated = await deps.db.catalog.update({
         ...item,
         status: "published",
-        publishedAt: now,
+        publishedAt: item.publishedAt || now,
         updatedBy: actor.id,
         version: item.version + 1,
         updatedAt: now,
@@ -535,6 +582,34 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
         createdAt: now,
       });
       void requestFrontendRebuild("catalog-publish", manifestVersion);
+      return updated;
+    },
+
+    async unpublish(id: string, actor: AuthUser, requestId: string) {
+      const item = await requireItem(deps.db, id);
+      const now = toIso(deps.clock.now());
+      const updated = await deps.db.catalog.update({
+        ...item,
+        status: "draft",
+        updatedBy: actor.id,
+        version: item.version + 1,
+        updatedAt: now,
+      });
+      bumpManifest();
+      await deps.db.audit.append({
+        id: newId(),
+        actorId: actor.id,
+        actorRole: actor.role,
+        resourceType: "catalog_item",
+        resourceId: item.id,
+        action: "unpublish",
+        before: { status: item.status },
+        after: { status: "draft" },
+        reason: null,
+        requestId,
+        createdAt: now,
+      });
+      void requestFrontendRebuild("catalog-unpublish", manifestVersion);
       return updated;
     },
 

@@ -104,15 +104,15 @@ export type CatalogAvailability = "available" | "limited" | "unavailable";
 export type CatalogTripType = "one-way" | "round-trip" | "local-tour" | "airport-transfer";
 
 /**
- * Gallery policy (client-confirmed rule): "Famous Places & Monuments" (place)
- * items carry a multi-image gallery; every other category uses exactly one
- * cover image.
+ * Gallery policy: "Famous Places & Monuments" (place), "Tour Package" (package),
+ * and "Day Tour" (tour) carry a cover image and multi-image gallery (up to 12 images).
+ * Point-to-point / vehicle categories use exactly one cover image.
  */
 export const CATALOG_MEDIA_LIMITS: Record<CatalogCategory, number> = {
   place: 12,
+  package: 12,
+  tour: 12,
   ride: 1,
-  tour: 1,
-  package: 1,
   route: 1,
   vehicle: 1,
 };

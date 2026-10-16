@@ -93,6 +93,14 @@ export function createCatalogController(service: ReturnType<typeof createCatalog
       return sendSuccess(reply, data);
     },
 
+    async unpublish(request: FastifyRequest, reply: FastifyReply) {
+      requireRole(request, SUPER_ADMIN_ROLES);
+      const actor = requireUser(request);
+      const params = CatalogIdParamSchema.parse(request.params);
+      const data = await service.unpublish(params.id, actor, request.requestId);
+      return sendSuccess(reply, data);
+    },
+
     async archive(request: FastifyRequest, reply: FastifyReply) {
       requireRole(request, SUPER_ADMIN_ROLES);
       const actor = requireUser(request);

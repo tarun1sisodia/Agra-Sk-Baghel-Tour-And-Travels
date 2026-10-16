@@ -1685,6 +1685,30 @@ Implemented:
   - `npm --prefix react run test:seo`: Passed.
   - `npm --prefix react run build`: Vite build + 59 SSG pages pre-rendered with 0 errors.
 
+- **Phase D: Dynamic Catalog Publishing & SEO Integration**:
+  - **Admin Workflow & Unpublish Support**:
+    - Added unpublish API endpoint (`POST /api/v1/ops/admin/catalog/:id/unpublish`) reverting status to `draft` and emitting audit event `catalog-unpublish`.
+    - Extended `admin/src/lib/api.ts` `setCatalogItemStatus` to support `"unpublish"` alongside `"publish"` and `"archive"`.
+    - Added dedicated "Unpublish" and "Archive" actions to `admin/src/pages/CatalogPage.tsx`.
+  - **Media Gallery & Required Media Invariants**:
+    - Increased `CATALOG_MEDIA_LIMITS` for `package`, `tour`, and `place` from 1 to 12 across `backend/src/types/domain.ts` and `admin/src/lib/types.ts`.
+    - Enabled multi-image gallery uploading and management in `admin/src/pages/CatalogPage.tsx` for package and tour types.
+    - Enforced mandatory media validation before publication in `backend/src/modules/catalog/catalog.service.ts`: items must have >=1 active cover image or throw 422 `MISSING_REQUIRED_MEDIA`.
+    - Auto-promoted attached draft media to `published` when the catalog item is published.
+  - **Slug Safety & Validation**:
+    - Enforced strict slug regex (`/^[a-z0-9-]{2,80}$/`) before publishing; invalid or missing slugs reject with 422 `INVALID_SLUG`.
+  - **SEO & Sitemap Parity**:
+    - Filtered `getPublishedCatalog()` in `fare-catalog.repository.ts` strictly by `status = 'published'`, preventing drafts and archived records from leaking into manifest or sitemap.
+    - Updated `react/scripts/build-manifest.ts` with resilient catalog payload parsing.
+    - Updated `react/scripts/generate-sitemap.ts` and `react/scripts/prerender.ts` to map published catalog items dynamically to `/en/packages/{slug}/`, `/en/local-packages/{slug}/`, and `/en/transfers/{slug}/`.
+    - Updated customer routing in `react/src/app/App.tsx` and `react/src/app/ServerApp.tsx` to route package and local tour detail routes cleanly to reusable templates without code duplication.
+  - **Pricing Architecture Alignment**:
+    - Maintained server-authoritative fares adhering to C-FLEET-PRICING-001 v0.2.0; client fare calculations and synthetic mock pricing strictly avoided.
+  - **Automated Test Suite**:
+    - Added `backend/tests/unit/dynamic-publishing.test.ts` (7 automated tests covering missing media rejection, invalid slug rejection, publish lifecycle, unpublish, archive, 12-image limit enforcement, and manifest filtering).
+    - All 315 tests pass across backend, react, and admin.
+    - Full `npm run verify` passed (TypeScript x3, test:ci, test:catalog-sources, admin unit tests, SEO lifecycle, customer SSG build, admin build, backend build).
+
 ## Known next work (Phase 3 — secure integrations)
 
 - Step 3: Anonymous Device Registration Postgres Unique Constraint Fix & Fleet Rules Verification.
@@ -1694,6 +1718,7 @@ Implemented:
 - Step 3.5: Split staff roles into content, pricing, dispatch, finance, review, audit, and security.
 
 See `docs/agent/00_CONTEXT_HANDOFF.md` and section 8 of the root operating specification.
+
 
 
 
