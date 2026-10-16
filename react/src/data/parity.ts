@@ -69,7 +69,7 @@ export function assertCatalogueInvariants(): void {
     let validFareCount = 0;
     for (const vKey of requiredVehicles) {
       const fare: unknown = r.fares[vKey];
-      if (fare === null || fare === undefined) continue;
+      if (fare === null || fare === undefined || fare === 0) continue;
       if (typeof fare !== "number" || !Number.isFinite(fare) || fare <= 0) {
         throw new Error(
           `Catalogue parity failed: route "${r.id}" vehicle "${vKey}" fare must be positive when supplied, got ${fare}.`

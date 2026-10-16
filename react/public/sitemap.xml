@@ -451,4 +451,40 @@
     
     <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/local-packages/agra-standard-sightseeing/" />
   </url>
+  <url>
+    <loc>https://agraskbagheltourandtravels.com/en/local-packages/taj-mahal-sightseeing/</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.70</priority>
+    <xhtml:link rel="alternate" hreflang="en-IN" href="https://agraskbagheltourandtravels.com/en/local-packages/taj-mahal-sightseeing/" />
+    
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/local-packages/taj-mahal-sightseeing/" />
+  </url>
+  <url>
+    <loc>https://agraskbagheltourandtravels.com/en/local-packages/agra-fort-taj-tour/</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.70</priority>
+    <xhtml:link rel="alternate" hreflang="en-IN" href="https://agraskbagheltourandtravels.com/en/local-packages/agra-fort-taj-tour/" />
+    
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/local-packages/agra-fort-taj-tour/" />
+  </url>
+  <url>
+    <loc>https://agraskbagheltourandtravels.com/en/local-packages/fatehpur-sikri-tour/</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.70</priority>
+    <xhtml:link rel="alternate" hreflang="en-IN" href="https://agraskbagheltourandtravels.com/en/local-packages/fatehpur-sikri-tour/" />
+    
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/local-packages/fatehpur-sikri-tour/" />
+  </url>
+  <url>
+    <loc>https://agraskbagheltourandtravels.com/en/local-packages/baby-taj-mehtab-bagh/</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.70</priority>
+    <xhtml:link rel="alternate" hreflang="en-IN" href="https://agraskbagheltourandtravels.com/en/local-packages/baby-taj-mehtab-bagh/" />
+    
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/local-packages/baby-taj-mehtab-bagh/" />
+  </url>
 </urlset>

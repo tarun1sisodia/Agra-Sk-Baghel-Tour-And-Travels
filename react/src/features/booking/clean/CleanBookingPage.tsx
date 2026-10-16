@@ -40,6 +40,7 @@ import {
   getTodayIstDate,
 } from "./dateTime";
 import { normalizeBookingUrlParams } from "./urlNormalizer";
+import { useLocationIQ } from "../../../hooks/useLocationIQ";
 import type {
   CustomerFormState,
   SelectedCarState,
@@ -73,6 +74,28 @@ const CATEGORIES: { code: CategoryCode; label: string }[] = [
   { code: "transfer", label: "Airport / Station Transfers" },
   { code: "tour_package", label: "Tour Packages" },
 ];
+
+const MONUMENT_TO_PACKAGE_MAP: Record<string, string> = {
+  "taj-mahal": "taj-mahal-sightseeing",
+  "taj mahal": "taj-mahal-sightseeing",
+  "agra-fort": "agra-fort-taj-tour",
+  "agra fort": "agra-fort-taj-tour",
+  "agra-red-fort": "agra-fort-taj-tour",
+  "fatehpur-sikri": "fatehpur-sikri-tour",
+  "fatehpur sikri": "fatehpur-sikri-tour",
+  "itmad-ud-daulah": "baby-taj-mehtab-bagh",
+  "itmad-ud-daulah-baby-taj": "baby-taj-mehtab-bagh",
+  "baby-taj": "baby-taj-mehtab-bagh",
+  "baby taj": "baby-taj-mehtab-bagh",
+  "mehtab-bagh": "baby-taj-mehtab-bagh",
+  "mehtab bagh": "baby-taj-mehtab-bagh",
+  "sikandra": "agra-standard-sightseeing",
+  "sikandra-akbar-tomb": "agra-standard-sightseeing",
+  "akbar's tomb": "agra-standard-sightseeing",
+  "aram-bagh": "agra-standard-sightseeing",
+  "aram bagh": "agra-standard-sightseeing",
+  "ram bagh": "agra-standard-sightseeing",
+};
 
 export function CleanBookingPage() {
   // 1. Initial State from URL Search Params
@@ -144,7 +167,38 @@ export function CleanBookingPage() {
     total_amount: number;
   } | null>(null);
 
-  // 7. 409 Price Reconfirmation Modal
+  // 7. LocationIQ Address Autocomplete
+  const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
+  const [showDropSuggestions, setShowDropSuggestions] = useState(false);
+  const pickupWrapperRef = useRef<HTMLDivElement | null>(null);
+  const dropWrapperRef = useRef<HTMLDivElement | null>(null);
+
+  const pickupLocationIQ = useLocationIQ("", {
+    debounceMs: 300,
+    minQueryLength: 2,
+  });
+
+  const dropLocationIQ = useLocationIQ("", {
+    debounceMs: 300,
+    minQueryLength: 2,
+  });
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (pickupWrapperRef.current && !pickupWrapperRef.current.contains(e.target as Node)) {
+        setShowPickupSuggestions(false);
+      }
+      if (dropWrapperRef.current && !dropWrapperRef.current.contains(e.target as Node)) {
+        setShowDropSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // 8. 409 Price Reconfirmation Modal
   const [reconfirmation, setReconfirmation] = useState<ReconfirmationState>({
     isOpen: false,
     freshQuote: {} as QuoteResponse,
@@ -165,20 +219,31 @@ export function CleanBookingPage() {
         let matchedProduct: PublishedProductSummary | undefined;
 
         if (initialProductParam) {
+          const mappedCode = MONUMENT_TO_PACKAGE_MAP[initialProductParam] || initialProductParam;
           matchedProduct = data.products.find(
-            (p) => p.code.toLowerCase() === initialProductParam || p.id.toLowerCase() === initialProductParam
+            (p) =>
+              p.code.toLowerCase() === mappedCode.toLowerCase() ||
+              p.id.toLowerCase() === mappedCode.toLowerCase() ||
+              p.code.toLowerCase() === initialProductParam ||
+              p.id.toLowerCase() === initialProductParam
           );
         }
 
-        if (!matchedProduct && initialFrom && initialTo) {
-          matchedProduct = data.products.find((p) => {
-            const pCode = p.code.toLowerCase();
-            const pName = p.name.toLowerCase();
-            return (
-              (pCode.includes(initialFrom) && pCode.includes(initialTo)) ||
-              (pName.includes(initialFrom) && pName.includes(initialTo))
-            );
-          });
+        if (!matchedProduct && (initialTo || (initialFrom && initialTo))) {
+          const mappedFromTo = MONUMENT_TO_PACKAGE_MAP[initialTo.trim().toLowerCase()];
+          if (mappedFromTo) {
+            matchedProduct = data.products.find((p) => p.code.toLowerCase() === mappedFromTo);
+          }
+          if (!matchedProduct && initialFrom && initialTo) {
+            matchedProduct = data.products.find((p) => {
+              const pCode = p.code.toLowerCase();
+              const pName = p.name.toLowerCase();
+              return (
+                (pCode.includes(initialFrom) && pCode.includes(initialTo)) ||
+                (pName.includes(initialFrom) && pName.includes(initialTo))
+              );
+            });
+          }
         }
 
         if (matchedProduct) {
@@ -899,34 +964,110 @@ export function CleanBookingPage() {
                   />
                 </div>
 
-                <div className="sm:col-span-2">
-                  <label className="mb-1 block text-xs font-semibold text-ink">
-                    Pickup Address / Hotel / Landmark *
-                  </label>
+                <div className="sm:col-span-2 relative" ref={pickupWrapperRef}>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-ink">
+                      Pickup Address / Hotel / Landmark *
+                    </label>
+                    {pickupLocationIQ.isLoading && (
+                      <span className="flex items-center gap-1 font-mono text-[10px] text-ink-faint">
+                        <RefreshCw className="h-3 w-3 animate-spin" /> Searching…
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Hotel ITC Mughal or Taj East Gate Road"
                     value={customer.pickup_address}
-                    onChange={(e) => setCustomer((c) => ({ ...c, pickup_address: e.target.value }))}
+                    onFocus={() => {
+                      if (pickupLocationIQ.results.length > 0) setShowPickupSuggestions(true);
+                    }}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setCustomer((c) => ({ ...c, pickup_address: val }));
+                      pickupLocationIQ.setQuery(val);
+                      setShowPickupSuggestions(true);
+                    }}
                     className="w-full rounded-md border border-hairline bg-surface p-2 text-sm text-ink focus:outline-primary"
                   />
                   {formErrors.pickup_address && (
                     <p className="mt-1 text-[11px] text-error">{formErrors.pickup_address}</p>
                   )}
+                  {showPickupSuggestions && pickupLocationIQ.results.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-1 z-30 max-h-60 overflow-y-auto rounded-lg border border-hairline bg-surface p-1 shadow-lg">
+                      {pickupLocationIQ.results.map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            const full = item.subtitle ? `${item.name}, ${item.subtitle}` : item.name;
+                            setCustomer((c) => ({ ...c, pickup_address: full }));
+                            pickupLocationIQ.clearResults();
+                            setShowPickupSuggestions(false);
+                          }}
+                          className="flex w-full items-start gap-2 rounded p-2 text-left hover:bg-surface-2 transition-colors cursor-pointer"
+                        >
+                          <MapPin className="h-4 w-4 shrink-0 text-gold-text mt-0.5" />
+                          <div>
+                            <p className="text-xs font-semibold text-ink">{item.name}</p>
+                            {item.subtitle && <p className="text-[11px] text-ink-soft">{item.subtitle}</p>}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                <div className="sm:col-span-2">
-                  <label className="mb-1 block text-xs font-semibold text-ink">
-                    Drop-off Address (Optional)
-                  </label>
+                <div className="sm:col-span-2 relative" ref={dropWrapperRef}>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-ink">
+                      Drop-off Address (Optional)
+                    </label>
+                    {dropLocationIQ.isLoading && (
+                      <span className="flex items-center gap-1 font-mono text-[10px] text-ink-faint">
+                        <RefreshCw className="h-3 w-3 animate-spin" /> Searching…
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="text"
                     placeholder="e.g. Terminal 3, IGI Airport Delhi"
                     value={customer.drop_address}
-                    onChange={(e) => setCustomer((c) => ({ ...c, drop_address: e.target.value }))}
+                    onFocus={() => {
+                      if (dropLocationIQ.results.length > 0) setShowDropSuggestions(true);
+                    }}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setCustomer((c) => ({ ...c, drop_address: val }));
+                      dropLocationIQ.setQuery(val);
+                      setShowDropSuggestions(true);
+                    }}
                     className="w-full rounded-md border border-hairline bg-surface p-2 text-sm text-ink focus:outline-primary"
                   />
+                  {showDropSuggestions && dropLocationIQ.results.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-1 z-30 max-h-60 overflow-y-auto rounded-lg border border-hairline bg-surface p-1 shadow-lg">
+                      {dropLocationIQ.results.map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            const full = item.subtitle ? `${item.name}, ${item.subtitle}` : item.name;
+                            setCustomer((c) => ({ ...c, drop_address: full }));
+                            dropLocationIQ.clearResults();
+                            setShowDropSuggestions(false);
+                          }}
+                          className="flex w-full items-start gap-2 rounded p-2 text-left hover:bg-surface-2 transition-colors cursor-pointer"
+                        >
+                          <MapPin className="h-4 w-4 shrink-0 text-gold-text mt-0.5" />
+                          <div>
+                            <p className="text-xs font-semibold text-ink">{item.name}</p>
+                            {item.subtitle && <p className="text-[11px] text-ink-soft">{item.subtitle}</p>}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="sm:col-span-2">

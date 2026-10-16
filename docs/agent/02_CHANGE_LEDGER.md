@@ -1,5 +1,34 @@
 # ArenaAI Agent Change Ledger
 
+## 2026-10-17
+
+### 2026-10-17 — Monorepo Defect Remediation: Booking Checkout, Contract Synchronization, Monuments Integration, LocationIQ Autocomplete, Asset Resolution & QR Studio (D-01 through D-11)
+
+- **D-01: Booking Checkout UUID Guarding & Error State (`CleanBookingPage.tsx`, `cleanFareApi.ts`)**:
+  - Replaced browser `alert()` and unhandled runtime exceptions with clean non-blocking banner notifications when invalid non-UUID vehicle model IDs or malformed URLs are processed.
+  - Added strict RFC 4122 UUID validation guards preventing crashes during quote retrieval and checkout initiation.
+- **D-02 & D-03: Contract Validation & Catalog Parity (`contracts/fare-system.ts`, `fare-catalog.repository.ts`, `quotes.service.ts`, `App.tsx`, `parity.ts`)**:
+  - Aligned canonical contract `fare-system.ts` by permitting nullable/optional on vehicle specifications (`luggage_capacity`, `image_url`, `description`, `starting_price_inr`) and defaulting inclusions/exclusions arrays.
+  - Propagated contract changes cleanly across monorepo using `npm run contracts:sync` and verified with `npm run contracts:check`.
+  - Updated `FareCatalogRepository.toStartingPrice` converting non-positive values to `null` to avoid unpriced items publishing ₹0.
+  - Filtered unpriced tiers in `App.tsx` and updated `parity.ts` to treat 0 and null as unpriced tiers rather than triggering invariant assertion failures.
+- **D-04: Monuments Booking & Sightseeing Packages (`generated-published-local-packages.json`, `dossier-seeds.ts`, `seed-canonical-catalog.ts`, `MonumentTemplate.tsx`, `CleanBookingPage.tsx`)**:
+  - Added 5 canonical local sightseeing packages (`f0000000-0000-4000-a000-000000000001` to `0005`) covering Agra major heritage monuments (Taj Mahal, Agra Fort, Fatehpur Sikri, Baby Taj & Mehtab Bagh, Agra Standard Sightseeing).
+  - Wired `MONUMENT_TO_PACKAGE_MAP` in `MonumentTemplate.tsx` and `CleanBookingPage.tsx` resolving monument slugs and names to genuine bookable packages.
+- **D-05: Location Cache & LocationIQ Autocomplete (`CleanBookingPage.tsx`)**:
+  - Integrated debounced `useLocationIQ` hook querying secure backend proxy `/api/v1/locations/autocomplete` (backed by PostgreSQL `location_cache`).
+  - Added interactive keyboard/mouse suggestion dropdowns for `pickup_address` and `drop_address`.
+- **D-07 & D-10: Asset Resolution & Safe Audit Logs (`admin/src/lib/env.ts`, `admin/src/lib/api.ts`, `DashboardPage.tsx`)**:
+  - Exported `CUSTOMER_SITE_URL` in admin environment configuration.
+  - Updated `resolveMediaSrc` to resolve static customer site assets (`/assets/` and `/images/`) against customer site origin instead of 404ing against admin origin.
+  - Added catch fallback to `fetchAdminAuditLogs` in `DashboardPage.tsx` preventing dashboard lockups if audit permissions are restricted.
+- **D-11: Review Invitation & WhatsApp QR Studio (`admin/src/pages/ReviewsPage.tsx`, `admin/src/lib/api.ts`)**:
+  - Built interactive "Review Invitation & WhatsApp QR Studio" atop `ReviewsPage.tsx`.
+  - Integrated form inputs (Customer Name, Ticket ID, Chauffeur Name, Tour Name), live preview review URL, 1-click "Share via WhatsApp" message, real-time crisp QR code canvas via `qrcode`, and 1-click "Download QR Code PNG" export.
+  - Added `createAdminReviewLink` endpoint client in `admin/src/lib/api.ts`.
+- **Monorepo Verification**:
+  - Full `npm run verify` passed: 0 typecheck errors across `react/`, `admin/`, and `backend/`; 357 passing automated unit tests (306 backend, 40 customer, 11 admin); SEO lifecycle passed; all 3 production builds (`react/`, `admin/`, `backend/`) compiled and prerendered cleanly.
+
 ## 2026-10-16
 
 ### 2026-10-16 — Contract Architecture: Canonical Catalog Contract (C-CATALOG-001) & Monorepo Synchronization

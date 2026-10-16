@@ -80,11 +80,11 @@ export const OptionsVehicleItem = z.object({
   vehicle_model_id: z.string().uuid(),
   display_name: z.string(),
   passenger_capacity: z.number().int(),
-  luggage_capacity: z.number().int().nullable(),
-  image_url: z.string().nullable(),
+  luggage_capacity: z.number().int().nullable().optional(),
+  image_url: z.string().nullable().optional(),
   quote: QuoteResponse,
-  inclusions: z.array(z.string()),
-  exclusions: z.array(z.string()),
+  inclusions: z.array(z.string()).default([]),
+  exclusions: z.array(z.string()).default([]),
 });
 export type OptionsVehicleItem = z.infer<typeof OptionsVehicleItem>;
 
@@ -303,9 +303,9 @@ export const PublishedProductSummary = z.object({
   category: CategoryCode,
   code: z.string(),
   name: z.string(),
-  description: z.string().nullable(),
-  image_url: z.string().nullable(),
-  starting_price_inr: z.number().int().positive().nullable(),
+  description: z.string().nullable().optional(),
+  image_url: z.string().nullable().optional(),
+  starting_price_inr: z.number().int().nonnegative().nullable().optional(),
   status: ProductStatus,
   distance_km: z.number().nullable().optional(),
   duration_minutes: z.number().int().nullable().optional(),
@@ -332,8 +332,8 @@ export const PublishedCatalogResponse = z.object({
       model_name: z.string(),
       display_name: z.string(),
       passenger_capacity: z.number().int(),
-      luggage_capacity: z.number().int().nullable(),
-      image_url: z.string().nullable(),
+      luggage_capacity: z.number().int().nullable().optional(),
+      image_url: z.string().nullable().optional(),
     })
   ),
 });

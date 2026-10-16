@@ -55,7 +55,23 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
   const fareDateFormatted = formatFareDate(item.updatedAt);
   const monumentSlug = item.slug ?? item.monumentCode ?? item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
-  const bookingUrl = `/book.html?trip=local&from=Agra&to=${encodeURIComponent(item.name)}&vehicle=sedan`;
+  const MONUMENT_TO_PACKAGE_MAP: Record<string, string> = {
+    "taj-mahal": "taj-mahal-sightseeing",
+    "agra-fort": "agra-fort-taj-tour",
+    "agra-red-fort": "agra-fort-taj-tour",
+    "fatehpur-sikri": "fatehpur-sikri-tour",
+    "itmad-ud-daulah": "baby-taj-mehtab-bagh",
+    "itmad-ud-daulah-baby-taj": "baby-taj-mehtab-bagh",
+    "baby-taj": "baby-taj-mehtab-bagh",
+    "mehtab-bagh": "baby-taj-mehtab-bagh",
+    "sikandra": "agra-standard-sightseeing",
+    "sikandra-akbar-tomb": "agra-standard-sightseeing",
+    "aram-bagh": "agra-standard-sightseeing",
+    "aram-bagh-ram-bagh": "agra-standard-sightseeing",
+  };
+  const matchedPackageCode = MONUMENT_TO_PACKAGE_MAP[monumentSlug] || "agra-standard-sightseeing";
+
+  const bookingUrl = `/book.html?category=local_package&product=${encodeURIComponent(matchedPackageCode)}&from=Agra&to=${encodeURIComponent(item.name)}&car=sedan`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
     `Hello Agra SK Baghel Tour & Travels, I want to book a cab transfer or guided tour for "${item.name}".`
   )}`;
@@ -331,7 +347,7 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
 
                   <a
                     className="mt-space-md w-full inline-flex items-center justify-center gap-1 bg-terracotta-deep text-white py-2.5 rounded text-label-lg font-label-lg shadow-sm hover:bg-terracotta-sunlit transition-all text-center"
-                    href={`/book.html?trip=local&from=Agra&to=${encodeURIComponent(item.name)}&vehicle=${tier}&step=1`}
+                    href={`/book.html?category=local_package&product=${encodeURIComponent(matchedPackageCode)}&from=Agra&to=${encodeURIComponent(item.name)}&car=${tier}&step=1`}
                   >
                     <span>Select {tier === "innova-crysta" ? "Innova" : tier.split("-")[0]}</span>
                     <span className="material-symbols-outlined text-icon-16">arrow_forward</span>

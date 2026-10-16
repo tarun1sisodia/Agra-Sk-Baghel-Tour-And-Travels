@@ -357,6 +357,10 @@ export function resolveMediaSrc(url: string): string {
   if (/^https?:\/\//i.test(url) || url.startsWith("data:")) return url;
   // Backend media endpoints live on the API origin, not on the separately hosted admin app.
   if (url.startsWith("/api/v1/")) return `${env.API_BASE_URL}${url}`;
+  // Static customer site assets (/assets/ or /images/) live on the customer site origin.
+  if (url.startsWith("/assets/") || url.startsWith("/images/")) {
+    return `${env.CUSTOMER_SITE_URL}${url}`;
+  }
   return url;
 }
 
@@ -578,6 +582,22 @@ export async function actOnReview(
     status: sub.status ?? (action === "reject" ? "rejected" : "approved"),
     showOnHomepage: Boolean(sub.show_on_homepage),
   };
+}
+
+export async function createAdminReviewLink(input: {
+  label?: string;
+  prefill?: {
+    customerName?: string;
+    ticketId?: string;
+    chauffeurName?: string;
+    tourName?: string;
+  };
+}): Promise<{ token: string; link: any }> {
+  const json = await apiFetch("/api/v1/admin/review-links", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return { token: json.token, link: json.link };
 }
 
 

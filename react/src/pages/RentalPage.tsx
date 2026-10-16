@@ -129,7 +129,7 @@ function RentalVehicleCard({
             <Users className="spec-icon" />
             <strong>{vehicle.passenger_capacity}</strong> {"Seats"}
           </span>
-          {vehicle.luggage_capacity !== null && vehicle.luggage_capacity > 0 && (
+          {vehicle.luggage_capacity != null && vehicle.luggage_capacity > 0 && (
             <span className="spec-item" title={`${vehicle.luggage_capacity} Luggage Bags`}>
               <Briefcase className="spec-icon" />
               <strong>{vehicle.luggage_capacity}</strong> {"Bags"}

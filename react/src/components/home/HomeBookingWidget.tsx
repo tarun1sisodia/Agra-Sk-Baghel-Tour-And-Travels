@@ -234,7 +234,7 @@ export function HomeBookingWidget() {
         covers: p.description || "Agra Monuments & Local Heritage",
         description: p.description || "",
         image: p.image_url || "/assets/booking/agra-fort.webp",
-        startingPrice: p.starting_price_inr,
+        startingPrice: p.starting_price_inr ?? null,
       };
     });
   }, [catalog]);

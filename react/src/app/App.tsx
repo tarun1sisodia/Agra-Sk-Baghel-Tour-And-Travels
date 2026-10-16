@@ -403,11 +403,11 @@ export function App({ pathname: propPathname }: AppProps = {}) {
         duration: durationText,
         kind: published.tripType === "round-trip" ? "local" : "one-way",
         fares: {
-          sedan: Number(fares.sedan ?? 0),
-          ertiga: Number(fares.ertiga ?? 0),
-          innova: Number(fares.innova ?? 0),
-          tempo: Number(fares.tempo ?? 0),
-          urbania: Number(fares.urbania ?? 0),
+          ...(Number(fares.sedan) > 0 ? { sedan: Number(fares.sedan) } : {}),
+          ...(Number(fares.ertiga) > 0 ? { ertiga: Number(fares.ertiga) } : {}),
+          ...(Number(fares.innova) > 0 ? { innova: Number(fares.innova) } : {}),
+          ...(Number(fares.tempo) > 0 ? { tempo: Number(fares.tempo) } : {}),
+          ...(Number(fares.urbania) > 0 ? { urbania: Number(fares.urbania) } : {}),
         },
       } as Route;
     }

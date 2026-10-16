@@ -1,24 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   AlertTriangle,
   BadgeCheck,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Download,
   ExternalLink,
   EyeOff,
   Globe,
+  QrCode,
   RotateCcw,
+  Share2,
+  Sparkles,
   Star,
   XCircle,
   X,
   Check,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import QRCode from "qrcode";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { actOnReview, fetchAdminReviews } from "@/lib/api";
+import { actOnReview, createAdminReviewLink, fetchAdminReviews } from "@/lib/api";
+import { env } from "@/lib/env";
 import { can, type AdminUser, type Review } from "@/lib/types";
 import { timeAgo } from "@/lib/utils";
 
@@ -48,6 +57,87 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
   const [reloadKey, setReloadKey] = useState(0);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+
+  // Review Invitation & WhatsApp QR Studio State (D-11)
+  const [studioOpen, setStudioOpen] = useState(true);
+  const [customerName, setCustomerName] = useState("");
+  const [ticketId, setTicketId] = useState("");
+  const [chauffeurName, setChauffeurName] = useState("");
+  const [tourName, setTourName] = useState("");
+  const [generatingLink, setGeneratingLink] = useState(false);
+  const [generatedToken, setGeneratedToken] = useState<string | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const activeReviewUrl = useMemo(() => {
+    if (generatedToken) {
+      return `${env.CUSTOMER_SITE_URL}/review/${generatedToken}`;
+    }
+    const params = new URLSearchParams();
+    if (customerName.trim()) params.set("name", customerName.trim());
+    if (ticketId.trim()) params.set("ticket", ticketId.trim());
+    if (chauffeurName.trim()) params.set("driver", chauffeurName.trim());
+    if (tourName.trim()) params.set("tour", tourName.trim());
+    const qs = params.toString();
+    return `${env.CUSTOMER_SITE_URL}/review${qs ? `?${qs}` : ""}`;
+  }, [generatedToken, customerName, ticketId, chauffeurName, tourName]);
+
+  useEffect(() => {
+    let active = true;
+    QRCode.toDataURL(activeReviewUrl, {
+      width: 280,
+      margin: 1,
+      color: { dark: "#1a1a1a", light: "#ffffff" },
+    })
+      .then((url) => {
+        if (active) setQrDataUrl(url);
+      })
+      .catch((err) => {
+        console.error("QR Code generation error:", err);
+      });
+    return () => {
+      active = false;
+    };
+  }, [activeReviewUrl]);
+
+  async function handleCreateTokenLink() {
+    setGeneratingLink(true);
+    setActionError(null);
+    try {
+      const res = await createAdminReviewLink({
+        label: ticketId ? `Ticket ${ticketId}` : `Invite for ${customerName || "Customer"}`,
+        prefill: {
+          customerName: customerName.trim() || undefined,
+          ticketId: ticketId.trim() || undefined,
+          chauffeurName: chauffeurName.trim() || undefined,
+          tourName: tourName.trim() || undefined,
+        },
+      });
+      setGeneratedToken(res.token);
+      setActionSuccess("Official review invitation token generated successfully!");
+    } catch (err) {
+      setActionError(`Could not generate official token: ${err instanceof Error ? err.message : "server error"}`);
+    } finally {
+      setGeneratingLink(false);
+    }
+  }
+
+  function handleCopy() {
+    navigator.clipboard.writeText(activeReviewUrl);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2500);
+  }
+
+  function handleDownloadQr() {
+    if (!qrDataUrl) return;
+    const a = document.createElement("a");
+    a.href = qrDataUrl;
+    a.download = `review-qr-${ticketId.trim() || "sk-baghel"}.png`;
+    a.click();
+  }
+
+  const whatsappMessage = `Namaste ${customerName.trim() || "Guest"}! Thank you for traveling with SK Baghel Tour & Travels${chauffeurName.trim() ? ` (Chauffeur: ${chauffeurName.trim()})` : ""}${ticketId.trim() ? ` [Ticket #${ticketId.trim()}]` : ""}. We would appreciate a moment of your time to share your feedback:\n\n${activeReviewUrl}`;
+  const whatsappHref = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
 
   const canModerate = can(user.role, "reviews:moderate");
   const canPublish = can(user.role, "reviews:publish");
@@ -201,6 +291,209 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
           </button>
         </div>
       )}
+
+      {/* Review Invitation & WhatsApp QR Studio (D-11) */}
+      <Card className="mb-6 p-5 border-hairline bg-surface overflow-hidden shadow-card">
+        <div className="flex items-center justify-between pb-3 border-b border-hairline">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-gold-soft text-gold">
+              <QrCode className="h-4 w-4" />
+            </span>
+            <div>
+              <h2 className="font-display text-sm font-bold text-ink flex items-center gap-2">
+                Review Invitation &amp; WhatsApp QR Studio
+                <Badge tone="gold" className="text-[10px] uppercase tracking-wider">
+                  Dispatch &amp; Social Proof
+                </Badge>
+              </h2>
+              <p className="text-[12px] text-ink-soft">
+                Generate pre-filled review invites, 1-click WhatsApp messages, and downloadable QR codes for completed trips.
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setStudioOpen((o) => !o)}
+            className="text-xs text-ink-soft"
+          >
+            {studioOpen ? (
+              <>
+                <ChevronUp className="h-4 w-4 mr-1" /> Collapse
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-4 w-4 mr-1" /> Expand Studio
+              </>
+            )}
+          </Button>
+        </div>
+
+        {studioOpen && (
+          <div className="pt-4 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Form Inputs & Direct Sharing */}
+            <div className="lg:col-span-8 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-ink mb-1">
+                    Customer Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Rajesh Sharma"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="w-full rounded-md border border-hairline bg-surface-2 p-2 text-xs text-ink focus:outline-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ink mb-1">
+                    Booking Ticket ID
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. SKB-2026-9812"
+                    value={ticketId}
+                    onChange={(e) => setTicketId(e.target.value)}
+                    className="w-full rounded-md border border-hairline bg-surface-2 p-2 text-xs text-ink focus:outline-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ink mb-1">
+                    Chauffeur Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Vikram Singh"
+                    value={chauffeurName}
+                    onChange={(e) => setChauffeurName(e.target.value)}
+                    className="w-full rounded-md border border-hairline bg-surface-2 p-2 text-xs text-ink focus:outline-primary"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-ink mb-1">
+                    Tour / Route Description
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Taj Mahal Sunrise Sightseeing"
+                    value={tourName}
+                    onChange={(e) => setTourName(e.target.value)}
+                    className="w-full rounded-md border border-hairline bg-surface-2 p-2 text-xs text-ink focus:outline-primary"
+                  />
+                </div>
+              </div>
+
+              {/* URL Preview & Link Action */}
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-ink">Review Link</span>
+                  {generatedToken ? (
+                    <span className="font-mono text-[11px] text-teal flex items-center gap-1 font-semibold">
+                      <CheckCircle2 className="h-3 w-3" /> Token Active: {generatedToken.slice(0, 8)}…
+                    </span>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCreateTokenLink}
+                      disabled={generatingLink}
+                      className="text-[11px] h-7"
+                    >
+                      <Sparkles className="h-3 w-3 mr-1 text-gold" />
+                      {generatingLink ? "Generating Token…" : "Generate Official Token"}
+                    </Button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={activeReviewUrl}
+                    className="w-full rounded-md border border-hairline bg-surface-2 p-2 text-xs font-mono text-ink select-all"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopy}
+                    className="shrink-0 text-xs h-8"
+                  >
+                    {copiedLink ? (
+                      <>
+                        <Check className="h-3.5 w-3.5 mr-1 text-teal" /> Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3.5 w-3.5 mr-1" /> Copy Link
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-md bg-[#25D366] px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#20ba5a] transition-colors"
+                >
+                  <Share2 className="h-3.5 w-3.5" />
+                  Share via WhatsApp
+                </a>
+
+                <a
+                  href={activeReviewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-hairline bg-surface-2 px-3 py-2 text-xs font-medium text-ink hover:bg-hairline transition-colors"
+                >
+                  <ExternalLink className="h-3.5 w-3.5 text-ink-soft" />
+                  Preview Review Form
+                </a>
+              </div>
+            </div>
+
+            {/* QR Code Canvas Preview */}
+            <div className="lg:col-span-4 flex flex-col items-center justify-center p-4 rounded-xl border border-hairline bg-surface-2 text-center">
+              <span className="text-xs font-semibold text-ink mb-2">
+                Contactless Vehicle QR Code
+              </span>
+
+              <div className="p-3 bg-white rounded-lg shadow-sm border border-hairline mb-3">
+                {qrDataUrl ? (
+                  <img
+                    src={qrDataUrl}
+                    alt="Review Invitation QR Code"
+                    className="w-44 h-44 object-contain rounded"
+                  />
+                ) : (
+                  <div className="w-44 h-44 flex items-center justify-center font-mono text-xs text-ink-soft">
+                    Generating QR…
+                  </div>
+                )}
+              </div>
+
+              <p className="text-[11px] text-ink-soft mb-3">
+                Print or display in vehicle for instant customer smartphone scanning.
+              </p>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadQr}
+                disabled={!qrDataUrl}
+                className="w-full text-xs"
+              >
+                <Download className="h-3.5 w-3.5 mr-1" />
+                Download QR Code PNG
+              </Button>
+            </div>
+          </div>
+        )}
+      </Card>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <AnimatePresence mode="popLayout">

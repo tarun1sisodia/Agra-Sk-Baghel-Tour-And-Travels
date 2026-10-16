@@ -63,7 +63,12 @@ export function DashboardPage() {
     let isMounted = true;
     setLoading(true);
     setLoadError(null);
-    Promise.all([fetchAdminBookings(), fetchAdminPayments(), fetchAdminInquiries(), fetchAdminAuditLogs(50)])
+    Promise.all([
+      fetchAdminBookings(),
+      fetchAdminPayments(),
+      fetchAdminInquiries(),
+      fetchAdminAuditLogs(50).catch(() => []),
+    ])
       .then(([b, p, iq, au]) => {
         if (!isMounted) return;
         setBookings(b);

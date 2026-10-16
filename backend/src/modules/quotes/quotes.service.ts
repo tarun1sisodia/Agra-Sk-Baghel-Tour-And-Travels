@@ -486,11 +486,11 @@ export class QuotesService {
             vehicle_model_id: car.id,
             display_name: car.display_name,
             passenger_capacity: car.passenger_capacity,
-            luggage_capacity: car.luggage_capacity,
-            image_url: car.image_url,
+            luggage_capacity: car.luggage_capacity ?? null,
+            image_url: car.image_url ?? null,
             quote,
-            inclusions,
-            exclusions,
+            inclusions: inclusions ?? [],
+            exclusions: exclusions ?? [],
           });
         }
       } catch {

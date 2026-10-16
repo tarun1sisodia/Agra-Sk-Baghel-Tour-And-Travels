@@ -456,6 +456,12 @@ export class FareCatalogRepository {
       ORDER BY tp.code
     `);
 
+    const toStartingPrice = (val: unknown): number | null => {
+      if (val == null) return null;
+      const n = Number(val);
+      return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+    };
+
     const products: PublishedProductSummary[] = [
       ...routesRes.rows.map((r) => ({
         id: r.id,
@@ -464,7 +470,7 @@ export class FareCatalogRepository {
         name: r.name,
         description: r.description,
         image_url: r.image_url,
-        starting_price_inr: r.starting_price_inr ? Number(r.starting_price_inr) : null,
+        starting_price_inr: toStartingPrice(r.starting_price_inr),
         status: r.status as ProductStatus,
         distance_km: r.distance_km ? Number(r.distance_km) : null,
         duration_minutes: r.duration_minutes ? Number(r.duration_minutes) : null,
@@ -476,7 +482,7 @@ export class FareCatalogRepository {
         name: r.name,
         description: r.description,
         image_url: r.image_url,
-        starting_price_inr: r.starting_price_inr ? Number(r.starting_price_inr) : null,
+        starting_price_inr: toStartingPrice(r.starting_price_inr),
         status: r.status as ProductStatus,
       })),
       ...transfersRes.rows.map((r) => ({
@@ -486,7 +492,7 @@ export class FareCatalogRepository {
         name: r.name,
         description: r.description,
         image_url: r.image_url,
-        starting_price_inr: r.starting_price_inr ? Number(r.starting_price_inr) : null,
+        starting_price_inr: toStartingPrice(r.starting_price_inr),
         status: r.status as ProductStatus,
       })),
       ...toursRes.rows.map((r) => ({
@@ -496,7 +502,7 @@ export class FareCatalogRepository {
         name: r.name,
         description: r.description,
         image_url: r.image_url,
-        starting_price_inr: r.starting_price_inr ? Number(r.starting_price_inr) : null,
+        starting_price_inr: toStartingPrice(r.starting_price_inr),
         status: r.status as ProductStatus,
       })),
     ];
