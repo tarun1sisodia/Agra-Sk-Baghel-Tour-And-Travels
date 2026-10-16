@@ -1,5 +1,30 @@
 # ArenaAI Agent Change Ledger
 
+## 2026-10-16
+
+### 2026-10-16 — Promotion & Merge of PR #71: Canonical Origin Enforcement, Hindi Indexing Gate & SEO Parity
+
+- **Canonical Origin Standardization (`siteOrigin.ts`, `validate-site-config.ts`, `validate-seo-artifacts.ts`)**:
+  - Eliminated all hardcoded `*.workers.dev` fallback origins across `react/src/config.ts`, `SeoHead.tsx`, `generate-sitemap.ts`, and `prerender.ts`.
+  - Established `siteOrigin.ts` as the single canonical origin authority, enforcing `https://agraskbagheltourandtravels.com` in production mode.
+  - Implemented build-time validation in `validate-site-config.ts` enforcing HTTPS origins and rejecting invalid paths/credentials.
+  - Added automated SEO artifact validation in `validate-seo-artifacts.ts` verifying canonical tags, Open Graph URLs, robots.txt, sitemap references, and artifact parity for all 72 generated HTML pages and 49 sitemap URLs.
+  - Excluded non-page brand sentinels (`dist/assets/brand/`) from page artifact checks.
+
+- **Hindi UI Deprecation & Rental Page Hardening (`RentalPage.tsx`, `rental-page.test.ts`)**:
+  - Removed lingering Devanagari UI copy and `isHi` branches from `RentalPage.tsx` while preserving the `lang` prop interface for caller compatibility.
+  - Eliminated fabricated `RNT-CONFIRMED` booking IDs; display reference only when genuine server ticket is returned.
+  - Verified with 7 frontend unit regression tests in `react/scripts/rental-page.test.ts`.
+
+- **SEO & Sitemap Parity Gate (`generate-sitemap.ts`, `SeoHead.tsx`)**:
+  - Gated Hindi indexation behind `VITE_HINDI_INDEXING_ENABLED=false` until full localized routes are rendered.
+  - Removed duplicate `/en/` home sitemap entry.
+  - Filtered dynamic sitemap catalogue records strictly to published content.
+  - Updated `robots.txt` and `sitemap.xml` to point directly to `https://agraskbagheltourandtravels.com/sitemap.xml`.
+
+- **Monorepo Verification**:
+  - `npm run verify` passed with code 0: 3 typechecks (customer, admin, backend), 234 backend unit tests, 29 customer tests, 9 admin tests, 8 site-origin tests, SEO lifecycle verification, 59 prerendered SSG pages, 14 redirects, and 3 production builds.
+
 ## 2026-10-15
 
 ### 2026-10-15 — Taxi Rental Page Redesign Using Canonical Vehicle Groups and Functional Enquiry Form
