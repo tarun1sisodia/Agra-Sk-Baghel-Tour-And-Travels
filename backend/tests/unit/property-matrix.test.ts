@@ -329,7 +329,7 @@ class MockPaymentsRepo extends PaymentsRepository {
 
 describe("Section 12.18: Property and matrix tests (PR-01 to PR-11)", () => {
   const catalogRepo = createPropertyCatalogRepo();
-  const quotesService = new QuotesService(catalogRepo);
+  const quotesService = new QuotesService(catalogRepo, () => new Date("2026-10-01T00:00:00.000Z"));
 
   it("PR-01: Generated over every car × every published product × trip type × 1–5 days: total = sum(lines), integers, advance <= total, balance = total - advance", async () => {
     const routes = Object.values(FIXTURE_ROUTES);

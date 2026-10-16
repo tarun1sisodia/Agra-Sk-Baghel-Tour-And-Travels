@@ -316,7 +316,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
 
   beforeEach(() => {
     catalogRepo = createMockFareCatalogRepo();
-    quotesService = new QuotesService(catalogRepo);
+    quotesService = new QuotesService(catalogRepo, () => new Date("2026-10-01T00:00:00.000Z"));
     bookingsRepo = new MockBookingsRepository();
     paymentsRepo = new MockPaymentsRepository(bookingsRepo);
     bookingsService = new BookingsService(bookingsRepo, quotesService);
@@ -355,7 +355,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
 
   it("BK-02: quoted_total 2500 but the price is now 2600 -> 409 PRICE_CHANGED, carries fresh quote (2600), zero rows", async () => {
     const higherPriceRepo = createMockFareCatalogRepo({ dzPrice: 2600 });
-    const higherQuotes = new QuotesService(higherPriceRepo);
+    const higherQuotes = new QuotesService(higherPriceRepo, () => new Date("2026-10-01T00:00:00.000Z"));
     const service = new BookingsService(bookingsRepo, higherQuotes);
 
     let thrownError: any;
@@ -492,7 +492,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
       const r = await originalGetRoute(id);
       return r ? { ...r, status: "draft" as any } : null;
     };
-    const inactiveService = new BookingsService(bookingsRepo, new QuotesService(inactiveRouteRepo));
+    const inactiveService = new BookingsService(bookingsRepo, new QuotesService(inactiveRouteRepo, () => new Date("2026-10-01T00:00:00.000Z")));
 
     await expect(
       inactiveService.createBooking({
