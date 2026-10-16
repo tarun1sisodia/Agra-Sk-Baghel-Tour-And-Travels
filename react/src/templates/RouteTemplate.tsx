@@ -365,9 +365,6 @@ export function RouteTemplate({ language = "en", route }: RouteTemplateProps) {
                     <span className="font-title-md text-title-md font-serif">{routeGuidanceData.highway}</span>
                     <span className="text-body-sm text-sandstone-wash/80">{route.km} km • {route.duration}</span>
                   </div>
-                  <span className="bg-primary/90 text-ivory-surface px-3 py-1 rounded text-label-caps font-label-caps uppercase">
-                    Smooth Pavement
-                  </span>
                 </div>
               </div>
 

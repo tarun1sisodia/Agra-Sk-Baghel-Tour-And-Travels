@@ -137,7 +137,7 @@ function getPublishedTourPackageEntries(): SitemapEntry[] {
         hiPath: `/hi/packages/${slug}/`,
         enPath: `/en/packages/${slug}/`,
         priority: item.status === "archived" ? 0.6 : 0.8,
-        changefreq: (item.status === "archived" ? "monthly" : "weekly") as const,
+        changefreq: (item.status === "archived" ? "monthly" : "weekly"),
         lastmod: (item.updatedAt || item.updated_at || item.publishedAt || undefined)?.slice(0, 10),
       }));
   } catch {
@@ -169,7 +169,7 @@ function getPublishedTransferRouteEntries(): SitemapEntry[] {
         hiPath: `/hi/transfers/${slug}/`,
         enPath: `/en/transfers/${slug}/`,
         priority: item.status === "archived" ? 0.6 : 0.7,
-        changefreq: (item.status === "archived" ? "monthly" : "weekly") as const,
+        changefreq: (item.status === "archived" ? "monthly" : "weekly"),
         lastmod: (item.updatedAt || item.updated_at || undefined)?.slice(0, 10),
       }));
   } catch {
@@ -201,7 +201,7 @@ function getPublishedLocalPackageEntries(): SitemapEntry[] {
         hiPath: `/hi/local-packages/${slug}/`,
         enPath: `/en/local-packages/${slug}/`,
         priority: item.status === "archived" ? 0.6 : 0.7,
-        changefreq: (item.status === "archived" ? "monthly" : "weekly") as const,
+        changefreq: (item.status === "archived" ? "monthly" : "weekly"),
         lastmod: (item.updatedAt || item.updated_at || undefined)?.slice(0, 10),
       }));
   } catch {
