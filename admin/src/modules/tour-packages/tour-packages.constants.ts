@@ -63,3 +63,11 @@ export const EMPTY_TOUR_PACKAGE: TourPackageFormState = {
   status: "draft" as CatalogStatus,
   isActive: true,
 };
+
+/**
+ * Keep nullable legacy API values out of the admin form's non-nullable
+ * base-tier field. The backend's documented default is "sedan".
+ */
+export function resolveTourPackageBaseTierCode(value: string | null | undefined): string {
+  return value ?? EMPTY_TOUR_PACKAGE.baseTierCode;
+}
