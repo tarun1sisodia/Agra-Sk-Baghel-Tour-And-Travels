@@ -14,10 +14,18 @@
 
 import React, { useEffect } from "react";
 import { contact } from "../../data/contact";
+import { isHindiIndexingEnabled, resolveSiteOrigin, type SiteOriginMode } from "../../config/siteOrigin";
 import { JsonLd } from "./JsonLd";
 
-export const CANONICAL_DOMAIN =
-  import.meta.env.VITE_SITE_URL || "https://skbagheltravels-customer.coccoder999.workers.dev";
+const SITE_ORIGIN_MODE: SiteOriginMode =
+  import.meta.env.VITE_SITE_MODE === "production"
+    ? "production"
+    : import.meta.env.MODE === "development"
+    ? "development"
+    : "preview";
+
+export const CANONICAL_DOMAIN = resolveSiteOrigin(import.meta.env.VITE_SITE_URL, SITE_ORIGIN_MODE);
+export const HINDI_INDEXING_ENABLED = isHindiIndexingEnabled(import.meta.env.VITE_HINDI_INDEXING_ENABLED);
 export const DEFAULT_OG_IMAGE = `${CANONICAL_DOMAIN}/assets/brand/og-banner.webp`;
 
 export interface HreflangAlternate {
@@ -111,6 +119,30 @@ export function resolveHreflangAlternates(pathname: string, noindex = false): Hr
 
   const clean = normalizePath(pathname);
 
+  // Preserve compatibility routes but keep Hindi pages out of indexable metadata until
+  // all advertised Hindi content and static artifacts are complete.
+  if (!HINDI_INDEXING_ENABLED) {
+    if (clean === "/hi/" || clean.startsWith("/hi/")) return [];
+
+    let englishPath = clean === "/en/" ? "/" : clean;
+    for (const pair of ROUTE_PAIRS) {
+      if (
+        clean.includes(`/${pair.en}/`) ||
+        clean.includes(`/${pair.hi}/`) ||
+        clean.endsWith(`/${pair.en}`) ||
+        clean.endsWith(`/${pair.hi}`)
+      ) {
+        englishPath = `/en/${pair.en}/`;
+        break;
+      }
+    }
+    const href = `${CANONICAL_DOMAIN}${englishPath}`;
+    return [
+      { hreflang: "en-IN", href },
+      { hreflang: "x-default", href },
+    ];
+  }
+
   // Home Route
   if (clean === "/" || clean === "/hi/" || clean === "/en/") {
     return [
@@ -181,14 +213,19 @@ export function SeoHead({
   children,
 }: SeoHeadProps) {
   const normalized = normalizePath(pathname);
-  const resolvedCanonical = canonicalUrl || `${CANONICAL_DOMAIN}${normalized}`;
+  const canonicalPath = normalized === "/en/" ? "/" : normalized;
+  const resolvedCanonical = canonicalUrl || `${CANONICAL_DOMAIN}${canonicalPath}`;
   const resolvedOgImage = resolveAbsoluteUrl(ogImage);
   const resolvedImageAlt = ogImageAlt || title;
-  const alternates = resolveHreflangAlternates(pathname, noindex);
+  const isDisabledHindiPage =
+    !HINDI_INDEXING_ENABLED && (language === "hi" || normalized === "/hi/" || normalized.startsWith("/hi/"));
+  const effectiveNoindex = noindex || isDisabledHindiPage;
+  const effectiveLanguage: "en" | "hi" = isDisabledHindiPage ? "en" : language;
+  const alternates = resolveHreflangAlternates(pathname, effectiveNoindex);
 
   useEffect(() => {
     // 1. Synchronize HTML Language and Direction
-    document.documentElement.lang = language === "hi" ? "hi-IN" : "en-IN";
+    document.documentElement.lang = effectiveLanguage === "hi" ? "hi-IN" : "en-IN";
     document.documentElement.dir = "ltr";
     document.title = title;
 
@@ -216,12 +253,12 @@ export function SeoHead({
     setMeta(
       "name",
       "robots",
-      noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+      effectiveNoindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     );
     setMeta(
       "name",
       "googlebot",
-      noindex ? "noindex, nofollow" : "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+      effectiveNoindex ? "noindex, nofollow" : "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
     );
     setMeta("name", "author", author);
     setMeta("name", "theme-color", "#FAF7F0");
@@ -258,8 +295,12 @@ export function SeoHead({
     setMeta("property", "og:image:width", "1200");
     setMeta("property", "og:image:height", "630");
     setMeta("property", "og:image:alt", resolvedImageAlt);
-    setMeta("property", "og:locale", language === "hi" ? "hi_IN" : "en_IN");
-    setMeta("property", "og:locale:alternate", language === "hi" ? "en_IN" : "hi_IN");
+    setMeta("property", "og:locale", effectiveLanguage === "hi" ? "hi_IN" : "en_IN");
+    if (HINDI_INDEXING_ENABLED) {
+      setMeta("property", "og:locale:alternate", effectiveLanguage === "hi" ? "en_IN" : "hi_IN");
+    } else {
+      removeMeta("property", "og:locale:alternate");
+    }
 
     // 5. Twitter / X Card
     setMeta("name", "twitter:card", "summary_large_image");
@@ -277,7 +318,7 @@ export function SeoHead({
       if (el.parentElement) el.parentElement.removeChild(el);
     });
 
-    if (!noindex && alternates.length > 0) {
+    if (!effectiveNoindex && alternates.length > 0) {
       for (const alt of alternates) {
         const link = document.createElement("link");
         link.rel = "alternate";
@@ -292,7 +333,7 @@ export function SeoHead({
     description,
     keywords,
     language,
-    noindex,
+    effectiveNoindex,
     ogType,
     resolvedCanonical,
     resolvedImageAlt,
@@ -342,7 +383,7 @@ export function SeoHead({
         "@id": `${CANONICAL_DOMAIN}/#website`,
         name: "Agra SK Baghel Tour and Travels",
         url: CANONICAL_DOMAIN,
-        inLanguage: language === "hi" ? "hi-IN" : "en-IN",
+        inLanguage: effectiveLanguage === "hi" ? "hi-IN" : "en-IN",
       },
     ],
   };
