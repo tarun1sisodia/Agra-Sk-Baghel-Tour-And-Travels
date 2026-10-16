@@ -30,7 +30,7 @@ case "$cmd" in
       echo "Usage: ./scripts/supermemory.sh search <query> [threshold=0.25]" >&2
       exit 1
     fi
-    npx -y supermemory search --tag "$TAG" "$query" --threshold "$threshold" --json
+    npx -y supermemory search --namespace "$TAG" "$query" --threshold "$threshold" --json
     ;;
   remember)
     content="${1:-}"
@@ -38,7 +38,7 @@ case "$cmd" in
       echo "Usage: ./scripts/supermemory.sh remember \"<Memory or Fact text>\"" >&2
       exit 1
     fi
-    npx -y supermemory remember --tag "$TAG" --static "$content" --json
+    npx -y supermemory add --namespace "$TAG" "$content" --json
     ;;
   add)
     file="${1:-}"
@@ -47,14 +47,13 @@ case "$cmd" in
       echo "Usage: ./scripts/supermemory.sh add <file-path> [title]" >&2
       exit 1
     fi
-    if [ -n "$title" ]; then
-      npx -y supermemory add --tag "$TAG" "$file" --title "$title" --json
-    else
-      npx -y supermemory add --tag "$TAG" "$file" --json
-    fi
+    npx -y supermemory add --namespace "$TAG" "$file" --json
     ;;
   profile)
-    npx -y supermemory profile --tag "$TAG" --json
+    npx -y supermemory profile --namespace "$TAG" --json
+    ;;
+  namespaces)
+    npx -y supermemory namespaces list --json
     ;;
   whoami)
     npx -y supermemory whoami

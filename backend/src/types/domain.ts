@@ -78,14 +78,18 @@ export const CATALOG_AVAILABILITY = ["available", "limited", "unavailable"] as c
 export type CatalogAvailability = (typeof CATALOG_AVAILABILITY)[number];
 
 /**
- * Gallery policy (client-confirmed rule):
- * - `place` items ("Famous Places & Monuments") carry a MULTI-image gallery.
- * - every other category (ride / tour / package / route / vehicle) uses exactly ONE cover image.
+ * Gallery policy (Phase D updated):
+ * - `place` items ("Famous Places & Monuments"), `package` ("Tour Package"), and `tour` ("Day Tour")
+ *   carry a cover image and multi-image gallery (up to 12 images).
+ * - point-to-point / vehicle categories (ride / route / vehicle) use exactly ONE cover image.
  */
-export const CATALOG_MEDIA_LIMITS = { place: 12, default: 1 } as const;
+export const CATALOG_MEDIA_LIMITS = { place: 12, package: 12, tour: 12, default: 1 } as const;
 
 export function catalogMediaLimit(type: CatalogType): number {
-  return type === "place" ? CATALOG_MEDIA_LIMITS.place : CATALOG_MEDIA_LIMITS.default;
+  if (type === "place" || type === "package" || type === "tour") {
+    return 12;
+  }
+  return CATALOG_MEDIA_LIMITS.default;
 }
 
 /** Inline (DB-backed) media upload constraints. */

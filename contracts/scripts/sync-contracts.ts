@@ -55,12 +55,22 @@ const contractFiles = readdirSync(contractsDir).filter(
   (f) => f.endsWith(".ts") && f !== "index.ts"
 );
 
-// Regenerate contracts/index.ts
+// Compare or regenerate contracts/index.ts
 const indexContent =
   "// Canonical contract exports across backend, admin, and react\n" +
   contractFiles.map((f) => `export * from "./${basename(f, ".ts")}.js";`).join("\n") +
   "\n";
-writeFileSync(join(contractsDir, "index.ts"), indexContent);
+const indexPath = join(contractsDir, "index.ts");
+const currentIndex = existsSync(indexPath) ? readFileSync(indexPath, "utf8") : null;
+if (currentIndex !== indexContent) {
+  if (checkOnly) {
+    console.error(`DRIFT: ${indexPath} differs from generated index`);
+    dirty = true;
+  } else {
+    writeFileSync(indexPath, indexContent);
+    console.log(`synced ${indexPath}`);
+  }
+}
 
 // Sync all contract files + index.ts to destinations
 for (const file of [...contractFiles, "index.ts"]) {

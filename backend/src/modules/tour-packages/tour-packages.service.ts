@@ -71,11 +71,18 @@ export function createTourPackagesService(deps: {
       const existing = await deps.db.tourPackages.getByCode(input.package_code);
       if (existing) throw Errors.conflict("PACKAGE_CODE_TAKEN", "Package code is already in use.");
       const now = toIso(deps.clock.now());
-      const item = await deps.db.tourPackages.create(toRecord(input, now));
-      if (item.status === "published") {
-        await triggerFrontendRebuild("tour-package-published");
-      }
-      return item;
+      const record = toRecord(input, now);
+      return deps.db.transaction(async (tx) => {
+        const item = await tx.tourPackages.create(record);
+        if (item.status === "published") {
+          await tx.publishEvents.enqueue({
+            entityType: "tour_package",
+            entityId: item.id,
+            eventType: "published",
+          });
+        }
+        return item;
+      });
     },
     async update(id: string, input: UpdateTourPackageInput) {
       const current = await this.get(id);
@@ -124,31 +131,51 @@ export function createTourPackagesService(deps: {
         updatedAt: now,
       };
 
-      const updated = await deps.db.tourPackages.update(merged);
-      if (current.status === "published" && contentEdited) {
-        await triggerFrontendRebuild("tour-package-content-edited");
-      }
-      return updated;
+      return deps.db.transaction(async (tx) => {
+        const updated = await tx.tourPackages.update(merged);
+        if (current.status === "published" && contentEdited) {
+          await tx.publishEvents.enqueue({
+            entityType: "tour_package",
+            entityId: current.id,
+            eventType: priceEdited ? "price_changed" : "updated",
+          });
+        }
+        return updated;
+      });
     },
     async publish(id: string) {
       const item = await this.get(id);
-      const updated = await deps.db.tourPackages.update({
-        ...item,
-        status: "published",
-        updatedAt: toIso(deps.clock.now()),
+      const now = toIso(deps.clock.now());
+      return deps.db.transaction(async (tx) => {
+        const updated = await tx.tourPackages.update({
+          ...item,
+          status: "published",
+          updatedAt: now,
+        });
+        await tx.publishEvents.enqueue({
+          entityType: "tour_package",
+          entityId: item.id,
+          eventType: "published",
+        });
+        return updated;
       });
-      await triggerFrontendRebuild("tour-package-publish");
-      return updated;
     },
     async archive(id: string) {
       const item = await this.get(id);
-      const updated = await deps.db.tourPackages.update({
-        ...item,
-        status: "archived",
-        updatedAt: toIso(deps.clock.now()),
+      const now = toIso(deps.clock.now());
+      return deps.db.transaction(async (tx) => {
+        const updated = await tx.tourPackages.update({
+          ...item,
+          status: "archived",
+          updatedAt: now,
+        });
+        await tx.publishEvents.enqueue({
+          entityType: "tour_package",
+          entityId: item.id,
+          eventType: "archived",
+        });
+        return updated;
       });
-      await triggerFrontendRebuild("tour-package-archive");
-      return updated;
     },
     async remove(id: string) {
       const item = await this.get(id);
@@ -201,8 +228,10 @@ export function createTourPackagesService(deps: {
           });
           const publicUrl = deps.mediaStorage.getPublicUrl?.(`packages/${filename}`);
           if (publicUrl) url = publicUrl;
-        } catch (err) {
-          console.warn("[TourPackages] Remote media storage upload failed (image kept in cache):", err);
+        } catch (err: any) {
+          throw Errors.internal(
+            `Remote media storage upload failed: ${err?.message || "Storage unavailable"}`
+          );
         }
       }
 

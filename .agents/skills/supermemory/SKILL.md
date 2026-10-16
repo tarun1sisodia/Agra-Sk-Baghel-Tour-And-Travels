@@ -3,7 +3,7 @@ name: supermemory
 description: >-
   Persistent memory and long-term project context recall for SK Baghel Tour & Travels (ArenaAI).
   Use to query past architectural decisions, verify design locks and client pricing rules,
-  and remember key milestones using Supermemory API / CLI with container tag 'sk_baghel_travels'.
+  and remember key milestones using Supermemory API / CLI with namespace 'sk_baghel_travels'.
 ---
 
 # Supermemory Context Integration — SK Baghel Tour & Travels
@@ -11,35 +11,45 @@ description: >-
 Supermemory provides persistent memory across coding sessions for this project.
 It prevents context loss across agent turns and long-term conversations.
 
-## Container Tag & Scoping
-- **Container Tag:** `sk_baghel_travels` (isolated from other spaces/projects).
+## Namespace & Scoping
+- **Namespace:** `sk_baghel_travels` (Supermemory v5 namespace replacing legacy containerTag).
 - **Environment Variable:** `SUPERMEMORY_API_KEY` (loaded from `.env`).
-- **Fast CLI Script:** `./scripts/supermemory.sh` (wraps credentials and tag automatically).
+- **CLI Scripts:**
+  - Bash: `./scripts/supermemory.sh`
+  - PowerShell (Windows): `.\scripts\supermemory.ps1`
 
-## Fast Operations via `./scripts/supermemory.sh`
+## Fast Operations via CLI Scripts
 
 ### 1. Fast Semantic Recall
 Before modifying sensitive components or when checking client pricing/rules:
 ```bash
 ./scripts/supermemory.sh search "<query>" [threshold=0.25]
+# Or PowerShell:
+.\scripts\supermemory.ps1 search "<query>" [threshold=0.25]
 ```
 
 ### 2. Save Important Milestone or Rule
 When a new phase is completed, or a critical user decision/rule is established:
 ```bash
 ./scripts/supermemory.sh remember "<Fact or Rule content>"
+# Or PowerShell:
+.\scripts\supermemory.ps1 remember "<Fact or Rule content>"
 ```
 
 ### 3. Ingest Context Documents into Graph
 To sync project specs or audit findings into the vector graph:
 ```bash
-./scripts/supermemory.sh add <path/to/file.md> "<Document Title>"
+./scripts/supermemory.sh add <path/to/file.md>
+# Or PowerShell:
+.\scripts\supermemory.ps1 add <path/to/file.md>
 ```
 
 ### 4. Fetch User/Project Profile
 To view synthesized preferences and constraints:
 ```bash
 ./scripts/supermemory.sh profile
+# Or PowerShell:
+.\scripts\supermemory.ps1 profile
 ```
 
 ## Key Memory Domains (sk_baghel_travels)

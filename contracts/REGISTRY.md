@@ -6,7 +6,7 @@ Status: `PILOT` = proven on 2 contracts · `FROZEN` = defined, not yet locked ·
 `LOCKED` = CI + CODEOWNERS enforced (see `LOCKED.md`).
 
 ## C-ENUM-001 — Canonical vehicle tiers · Status: PILOT
-- **Source:** `contracts/enums/vehicle-tiers.ts` (this repo). Generated copies:
+- **Source:** `contracts/vehicle-tiers.ts` (this repo). Generated copies:
   `backend/src/contracts/vehicle-tiers.ts`, `admin/src/contracts/vehicle-tiers.ts`,
   `react/src/contracts/vehicle-tiers.ts` (via `contracts/scripts/sync-contracts.ts`).
 - **Values:** `sedan`, `ertiga`, `innova-crysta`, `tempo-traveller`, `urbania`

@@ -11,28 +11,40 @@ export async function fetchAdminTourPackages(filter?: TourPackageFilter): Promis
   if (filter?.status && filter.status !== "all") params.set("status", filter.status);
   if (filter?.q?.trim()) params.set("q", filter.q.trim());
   const json = await apiFetch(`/api/v1/ops/admin/tour-packages${params.toString() ? `?${params}` : ""}`);
-  return json?.data?.items ?? json?.data ?? [];
+  if (!json?.data) {
+    throw new Error(json?.error?.message || "Failed to fetch tour packages.");
+  }
+  return json.data.items ?? json.data;
 }
 
 export async function fetchAdminTourPackage(id: string): Promise<TourPackageItem> {
   const json = await apiFetch(`/api/v1/ops/admin/tour-packages/${encodeURIComponent(id)}`);
-  return json?.data;
+  if (!json?.data) {
+    throw new Error(json?.error?.message || "Failed to load tour package.");
+  }
+  return json.data;
 }
 
-export async function createAdminTourPackage(payload: any): Promise<TourPackageItem> {
+export async function createAdminTourPackage(payload: Record<string, unknown>): Promise<TourPackageItem> {
   const json = await apiFetch(`/api/v1/ops/admin/tour-packages`, {
     method: "POST",
     body: JSON.stringify(payload),
   });
-  return json?.data;
+  if (!json?.data) {
+    throw new Error(json?.error?.message || "Failed to create tour package.");
+  }
+  return json.data;
 }
 
-export async function updateAdminTourPackage(id: string, payload: any): Promise<TourPackageItem> {
+export async function updateAdminTourPackage(id: string, payload: Record<string, unknown>): Promise<TourPackageItem> {
   const json = await apiFetch(`/api/v1/ops/admin/tour-packages/${encodeURIComponent(id)}`, {
     method: "PATCH",
     body: JSON.stringify(payload),
   });
-  return json?.data;
+  if (!json?.data) {
+    throw new Error(json?.error?.message || "Failed to update tour package.");
+  }
+  return json.data;
 }
 
 export async function publishAdminTourPackage(id: string): Promise<TourPackageItem> {
@@ -40,7 +52,10 @@ export async function publishAdminTourPackage(id: string): Promise<TourPackageIt
     method: "POST",
     body: "{}",
   });
-  return json?.data;
+  if (!json?.data) {
+    throw new Error(json?.error?.message || "Failed to publish tour package.");
+  }
+  return json.data;
 }
 
 export async function archiveAdminTourPackage(id: string): Promise<TourPackageItem> {
@@ -48,7 +63,10 @@ export async function archiveAdminTourPackage(id: string): Promise<TourPackageIt
     method: "POST",
     body: "{}",
   });
-  return json?.data;
+  if (!json?.data) {
+    throw new Error(json?.error?.message || "Failed to archive tour package.");
+  }
+  return json.data;
 }
 
 export async function deleteAdminTourPackage(id: string): Promise<void> {
@@ -59,7 +77,10 @@ export async function deleteAdminTourPackage(id: string): Promise<void> {
 
 export async function checkTourPackageCode(code: string): Promise<{ available: boolean }> {
   const json = await apiFetch(`/api/v1/ops/admin/tour-packages/check-code?code=${encodeURIComponent(code)}`);
-  return json?.data ?? { available: false };
+  if (!json?.data || typeof json.data.available !== "boolean") {
+    throw new Error(json?.error?.message || "Failed to check package code availability.");
+  }
+  return json.data;
 }
 
 export async function uploadTourPackageImage(payload: {
@@ -72,5 +93,8 @@ export async function uploadTourPackageImage(payload: {
     method: "POST",
     body: JSON.stringify(payload),
   });
-  return json?.data ?? { url: "" };
+  if (!json?.data?.url) {
+    throw new Error(json?.error?.message || "Upload failed: server did not return an image URL.");
+  }
+  return json.data;
 }

@@ -5,7 +5,6 @@ import type { Clock } from "../../shared/clock.js";
 import { toIso } from "../../shared/clock.js";
 import { Errors } from "../../shared/errors.js";
 import { newId } from "../../shared/ids.js";
-import { triggerFrontendRebuild } from "../../shared/deploy-hook.js";
 import type {
   CreateLocalPackageInput,
   UpdateLocalPackageInput,
@@ -53,11 +52,18 @@ export function createLocalPackagesService(deps: { db: Repositories; clock: Cloc
       const existing = await deps.db.localPackages.getByCode(input.package_code);
       if (existing) throw Errors.conflict("PACKAGE_CODE_TAKEN", "Package code is already in use.");
       const now = toIso(deps.clock.now());
-      const item = await deps.db.localPackages.create(toRecord(input, now));
-      if (item.status === "published") {
-        await triggerFrontendRebuild("local-package-published");
-      }
-      return item;
+      const record = toRecord(input, now);
+      return deps.db.transaction(async (tx) => {
+        const item = await tx.localPackages.create(record);
+        if (item.status === "published") {
+          await tx.publishEvents.enqueue({
+            entityType: "local_package",
+            entityId: item.id,
+            eventType: "published",
+          });
+        }
+        return item;
+      });
     },
     async update(id: string, input: UpdateLocalPackageInput) {
       const current = await this.get(id);
@@ -88,31 +94,51 @@ export function createLocalPackagesService(deps: { db: Repositories; clock: Cloc
         updatedAt: now,
       };
 
-      const updated = await deps.db.localPackages.update(merged);
-      if (current.status === "published" && priceEdited) {
-        await triggerFrontendRebuild("local-package-price-edited");
-      }
-      return updated;
+      return deps.db.transaction(async (tx) => {
+        const updated = await tx.localPackages.update(merged);
+        if (current.status === "published" && priceEdited) {
+          await tx.publishEvents.enqueue({
+            entityType: "local_package",
+            entityId: current.id,
+            eventType: "price_changed",
+          });
+        }
+        return updated;
+      });
     },
     async publish(id: string) {
       const item = await this.get(id);
-      const updated = await deps.db.localPackages.update({
-        ...item,
-        status: "published",
-        updatedAt: toIso(deps.clock.now()),
+      const now = toIso(deps.clock.now());
+      return deps.db.transaction(async (tx) => {
+        const updated = await tx.localPackages.update({
+          ...item,
+          status: "published",
+          updatedAt: now,
+        });
+        await tx.publishEvents.enqueue({
+          entityType: "local_package",
+          entityId: item.id,
+          eventType: "published",
+        });
+        return updated;
       });
-      await triggerFrontendRebuild("local-package-publish");
-      return updated;
     },
     async archive(id: string) {
       const item = await this.get(id);
-      const updated = await deps.db.localPackages.update({
-        ...item,
-        status: "archived",
-        updatedAt: toIso(deps.clock.now()),
+      const now = toIso(deps.clock.now());
+      return deps.db.transaction(async (tx) => {
+        const updated = await tx.localPackages.update({
+          ...item,
+          status: "archived",
+          updatedAt: now,
+        });
+        await tx.publishEvents.enqueue({
+          entityType: "local_package",
+          entityId: item.id,
+          eventType: "archived",
+        });
+        return updated;
       });
-      await triggerFrontendRebuild("local-package-archive");
-      return updated;
     },
     async remove(id: string) {
       const item = await this.get(id);

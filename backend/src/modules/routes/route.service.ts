@@ -11,7 +11,6 @@ import { Errors } from "../../shared/errors.js";
 import { newId } from "../../shared/ids.js";
 import { OUTSTATION_RULES, VEHICLES } from "../fares/fare.catalogue.js";
 import type { CreateRouteInput, UpdateRouteInput } from "./route.schema.js";
-import { triggerFrontendRebuild } from "../../shared/deploy-hook.js";
 
 function slugify(value: string): string {
   return value
@@ -196,13 +195,21 @@ export function createRouteService(deps: { db: Repositories; clock: Clock; bumpM
      */
     async publish(id: string) {
       const item = await this.get(id);
-      const updated = await deps.db.routeCatalog.update({
-        ...item,
-        status: "published",
-        updatedAt: toIso(deps.clock.now()),
+      const now = toIso(deps.clock.now());
+      const updated = await deps.db.transaction(async (tx) => {
+        const res = await tx.routeCatalog.update({
+          ...item,
+          status: "published",
+          updatedAt: now,
+        });
+        await tx.publishEvents.enqueue({
+          entityType: "outstation_route",
+          entityId: item.id,
+          eventType: "published",
+        });
+        return res;
       });
       deps.bumpManifest?.();
-      await triggerFrontendRebuild("route-published");
       return updated;
     },
 
@@ -212,13 +219,21 @@ export function createRouteService(deps: { db: Repositories; clock: Clock; bumpM
      */
     async archive(id: string) {
       const item = await this.get(id);
-      const updated = await deps.db.routeCatalog.update({
-        ...item,
-        status: "archived",
-        updatedAt: toIso(deps.clock.now()),
+      const now = toIso(deps.clock.now());
+      const updated = await deps.db.transaction(async (tx) => {
+        const res = await tx.routeCatalog.update({
+          ...item,
+          status: "archived",
+          updatedAt: now,
+        });
+        await tx.publishEvents.enqueue({
+          entityType: "outstation_route",
+          entityId: item.id,
+          eventType: "archived",
+        });
+        return res;
       });
       deps.bumpManifest?.();
-      await triggerFrontendRebuild("route-archived");
       return updated;
     },
 

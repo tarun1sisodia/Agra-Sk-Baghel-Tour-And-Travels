@@ -2,6 +2,86 @@
 
 ## 2026-10-16
 
+### 2026-10-16 — Acceptance Audit Remediation: Schema Alignment, Pool Limits & Contract Purity
+
+- **Generic Catalog Schema Alignment (`backend/src/db/postgres.ts`)**:
+  - Aligned repository SQL with migration `0038_fare_system_clean_rebuild.sql` which dropped `starting_price_inr` and `distance_km` from `catalog_items`.
+  - Removed obsolete columns from `insertCatalog()` and `catalog.update()` SQL queries, preventing PostgreSQL `column does not exist` errors on generic catalog writes.
+  - Safely defaulted `startingPriceInr` and `distanceKm` in `mapCatalog()` when absent from row data.
+
+- **Supabase Session Pool Concurrency Hardening (`backend/src/db/poolConfig.ts`, `backend/src/modules/admin/admin.service.ts`)**:
+  - Reduced default fallback pool size from 20 to 10 in `poolConfig.ts` to strictly adhere to Supabase session-mode pooler's 15-connection ceiling (`EMAXCONNSESSION`).
+  - Replaced unbounded 50-item `Promise.all` fan-out in `listPayments()` with deduplicated booking ID lookups executed in bounded chunks of 5.
+
+- **Durable Media Storage & Error Surfacing (`backend/src/modules/tour-packages/tour-packages.service.ts`)**:
+  - Replaced silent warning and ephemeral in-memory fallback in `uploadImage()` with explicit `Errors.internal` throw when remote media storage fails, preventing false-positive successes without durable storage.
+
+- **Tour Package Admin API Hardening (`admin/src/modules/tour-packages/tour-packages.api.ts`)**:
+  - Replaced `payload: any` with typed `Record<string, unknown>`.
+  - Enforced strict contract error handling on upload and package operations instead of silent empty string / empty array fallbacks.
+
+- **Contract Sync Script Purity & Registry Paths (`contracts/scripts/sync-contracts.ts`, `contracts/REGISTRY.md`)**:
+  - Fixed `sync-contracts.ts` in `--check` mode to perform strictly read-only comparisons without mutating `contracts/index.ts`.
+  - Updated `contracts/REGISTRY.md` to reference the canonical source file `contracts/vehicle-tiers.ts`.
+
+- **Monorepo Verification**:
+  - Executed `sync-contracts.ts --check` (clean zero-drift pass with zero side-effects).
+  - Executed `npm test` across monorepo: 347 passed tests (300 backend, 36 customer, 11 admin).
+  - Executed full `npm run verify`: 3 typechecks (react, admin, backend) 0 errors, 59 prerendered SSG pages, 23 redirects, and 3 production builds.
+
+### 2026-10-16 — Phase D.4: Tour Package Base Tier Normalization & Image Management Fix
+
+- **Root Cause & Contract Harmonization**:
+  - Investigated `base_tier_code: Expected string, received null` failure occurring when updating images or gallery URLs in tour packages.
+  - Traced complete request flow: PostgreSQL query selects `null as base_tier_code`, mapped to `baseTierCode: null` in `mapTourPackage()`. Admin `openEdit()` copied `null` directly into `form.baseTierCode`, serializing `base_tier_code: null` in `handleSave()`.
+  - Added `resolveTourPackageBaseTierCode(value: string | null | undefined): string` in `admin/src/modules/tour-packages/tour-packages.constants.ts` to normalize legacy `null` or `undefined` values to domain default `"sedan"` while strictly preserving valid tiers (e.g. `innova-crysta`).
+  - Updated `admin/src/pages/TourPackagesPage.tsx` to initialize `form.baseTierCode` via `resolveTourPackageBaseTierCode(pkg.baseTierCode)`.
+
+- **Audit & Invariants Across Monorepo Domains**:
+  - Audited image flows across generic catalog CMS (`catalog_items`), tour packages, local packages, and transfer routes.
+  - Verified catalog item media uses dedicated `uploadCatalogMedia` / `attachStagedMedia` pipeline with explicit `storagePath` or `dataBase64`.
+  - Confirmed image URLs and uploaded files in `TourPackageGalleryUploader` route correctly through `/api/v1/tour-packages/media/:file` and remote media storage.
+  - Preserved Phase D.3 outbox transaction and publication guarantees without introducing bypasses or direct deploy-hook calls.
+
+- **Automated Regression Testing & Monorepo Verification**:
+  - Added unit test suite in `admin/src/modules/tour-packages/tour-packages.constants.test.ts` verifying null/undefined fallback to `"sedan"` and preservation of custom tiers (`innova-crysta`).
+  - Updated `admin/package.json` test script to execute the new test file in CI test runs.
+  - Verified 11/11 admin tests pass cleanly, 300/300 backend tests pass (18 test files), 36/36 customer tests pass (6 suites).
+  - Executed full monorepo verification (`npm run verify`): 3 clean typechecks, 0 errors, 59 prerendered SSG pages, 23 redirects, and 3 production builds.
+
+### 2026-10-16 — Phase D.3: Publishing Reliability Closure — Atomic Outbox & Single Deploy Dispatcher
+
+- **Atomic Outbox Transactions**:
+  - Made outbox event enqueueing atomic within domain mutations (`tx.publishEvents.enqueue`) across catalog, tour packages, local packages, transfer routes, and routes.
+  - Enforced single deployment dispatch through `PublicationWorker` with fail-closed verification.
+
+### 2026-10-16 — Phase D.2: Connect Catalog Publishing to Verified Releases
+
+- **Database Migration & Outbox Repository (`backend/migrations/0042_widen_publish_events_entity_id.sql`, `backend/src/db/types.ts`, `backend/src/db/memory.ts`, `backend/src/db/postgres.ts`)**:
+  - Added migration `0042_widen_publish_events_entity_id.sql` widening `site_publish_events.entity_id` from `UUID` to `TEXT` (safely accommodating string IDs such as `catalog_items.id`).
+  - Added typed `publishEvents` interface (`enqueue`, `getById`, `listPending`) to `DatabaseAdapter` in `types.ts`.
+  - Implemented `publishEvents` in `memory.ts` and `postgres.ts` with upsert on `(entity_type, entity_id, event_type) WHERE status = 'pending'`.
+
+- **Domain Mutation Services & Outbox Connection (`catalog.service.ts`, `tour-packages.service.ts`, `local-packages.service.ts`, `transfer-routes.service.ts`, `route.service.ts`)**:
+  - Connected `catalog.service.ts` publish, unpublish, archive, update, and media operations to persist durable `site_publish_events` records before triggering rebuilds, passing enriched metadata (`entityType`, `entityId`, `slug`, `sourceVersion`).
+  - Connected dedicated `tour-packages.service.ts` (`create` if published, `update`, `publish`, `archive`) to enqueue `tour_package` publish events.
+  - Connected dedicated `local-packages.service.ts` (`create`, `update`, `publish`, `archive`) to enqueue `local_package` publish events.
+  - Connected dedicated `transfer-routes.service.ts` (`create`, `update`, `publish`, `archive`) to enqueue `transfer` publish events.
+  - Connected dedicated `route.service.ts` (`publish`, `archive`) to enqueue `outstation_route` publish events.
+
+- **Hardened Fail-Closed Deployment Verification (`backend/src/modules/publishing/publication-worker.ts`)**:
+  - Extended entity resolution to query dedicated domain tables (`tour_packages`, `local_sightseeing_packages`, `transfer_routes`, `routes`, `outstation_routes`) as primary sources with fallback to `catalog_items`.
+  - Enforced strict fail-closed contract: worker returns `false` with error logging if expected canonical path or entity cannot be resolved.
+  - Supported absolute CDN image URLs without prepending `siteBase.origin`.
+  - Explicit unpublish/archive verification: verifies sitemap exclusion AND checks old URL for 404 / 410 / redirect or 404/unavailable page text, failing if 200 with active title.
+  - Enforced fail-closed behavior on unrecognized event types.
+
+- **Real Integration Tests & Test Hardening (`dynamic-publishing-e2e.test.ts`, `publication-worker.test.ts`, `dynamic-publishing.test.ts`)**:
+  - Replaced simulated helper functions in `react/scripts/dynamic-publishing-e2e.test.ts` with real production imports (`isSitemapSafeSlug`, `assertFailClosedCatalogEnv`, `isFailClosedCatalogBuild`, `assertSnapshotPolicy`, `listCatalogSources`, `getSitemapEntries`).
+  - Added 7 new unit tests in `backend/tests/unit/publication-worker.test.ts` (15 total) testing unresolved entity rejection, dedicated domain table lookups, CDN URLs, and archive verification.
+  - Added integration tests in `backend/tests/unit/dynamic-publishing.test.ts` verifying outbox event generation across all domain mutations.
+  - Verified full test suites and full monorepo verification `npm run verify` passed cleanly (3 typechecks, all backend tests, all frontend tests, 3 production builds, 59 SSG pages, 23 redirects).
+
 ### 2026-10-16 — Phase 6: Shared Customer Price Contract — FleetPriceOption
 
 - **Canonical Shared Price Contract (`contracts/fleet-pricing.ts`, Contract C-FLEET-PRICING-001 v0.2.0)**:
@@ -1685,6 +1765,73 @@ Implemented:
   - `npm --prefix react run test:seo`: Passed.
   - `npm --prefix react run build`: Vite build + 59 SSG pages pre-rendered with 0 errors.
 
+- **Phase D: Dynamic Catalog Publishing & SEO Integration**:
+  - **Admin Workflow & Unpublish Support**:
+    - Added unpublish API endpoint (`POST /api/v1/ops/admin/catalog/:id/unpublish`) reverting status to `draft` and emitting audit event `catalog-unpublish`.
+    - Extended `admin/src/lib/api.ts` `setCatalogItemStatus` to support `"unpublish"` alongside `"publish"` and `"archive"`.
+    - Added dedicated "Unpublish" and "Archive" actions to `admin/src/pages/CatalogPage.tsx`.
+  - **Media Gallery & Required Media Invariants**:
+    - Increased `CATALOG_MEDIA_LIMITS` for `package`, `tour`, and `place` from 1 to 12 across `backend/src/types/domain.ts` and `admin/src/lib/types.ts`.
+    - Enabled multi-image gallery uploading and management in `admin/src/pages/CatalogPage.tsx` for package and tour types.
+    - Enforced mandatory media validation before publication in `backend/src/modules/catalog/catalog.service.ts`: items must have >=1 active cover image or throw 422 `MISSING_REQUIRED_MEDIA`.
+    - Auto-promoted attached draft media to `published` when the catalog item is published.
+  - **Slug Safety & Validation**:
+    - Enforced strict slug regex (`/^[a-z0-9-]{2,80}$/`) before publishing; invalid or missing slugs reject with 422 `INVALID_SLUG`.
+  - **SEO & Sitemap Parity**:
+    - Filtered `getPublishedCatalog()` in `fare-catalog.repository.ts` strictly by `status = 'published'`, preventing drafts and archived records from leaking into manifest or sitemap.
+    - Updated `react/scripts/build-manifest.ts` with resilient catalog payload parsing and fail-closed snapshot policies.
+    - Updated `react/scripts/generate-sitemap.ts` and `react/scripts/prerender.ts` to map published catalog items dynamically to `/en/packages/{slug}/`, `/en/local-packages/{slug}/`, and `/en/transfers/{slug}/`.
+    - Updated customer routing in `react/src/app/App.tsx` and `react/src/app/ServerApp.tsx` to route package and local tour detail routes cleanly to reusable templates without code duplication.
+    - Eliminated generic `taj-dawn.webp` image fallback across `catalog.service.ts`, `build-manifest.ts`, and `catalogManifest.ts`.
+  - **Publication Success Verification & Worker Hardening**:
+    - Updated `PublicationWorker.verifyDeployment()` in `publication-worker.ts`: fails closed when `customerSiteUrl` is unconfigured.
+    - Enforced live checks on deployed origin: `/health`, canonical detail page HTTP 200 and title content, cover image availability, and sitemap.xml `<loc>` inclusion.
+    - Enforced sitemap exclusion verification for archived catalog items.
+    - Required explicit designated cover image (`sortOrder: 0`) before publication; blocks publication if media is only video or lacks sortOrder 0.
+  - **Fail-Closed Release Build Enforcement**:
+    - Updated `isFailClosedCatalogBuild()` to recognize `RELEASE_BUILD=1`, `CATALOG_FAIL_CLOSED=1`, and `CF_PAGES=1`.
+    - In fail-closed release builds, missing cover images or un-fetched API snapshots throw immediately to prevent stale snapshots from silently shipping.
+  - **Pricing Architecture Alignment**:
+    - Maintained server-authoritative fares adhering to C-FLEET-PRICING-001 v0.2.0; client fare calculations and synthetic mock pricing strictly avoided.
+  - **Automated Test Suite & End-to-End Regressions**:
+    - Added `backend/tests/unit/dynamic-publishing.test.ts` (8 automated tests covering missing media, invalid slug, publish lifecycle, unpublish, archive, 12-image limit, designated cover image enforcement, and manifest filtering).
+    - Extended `backend/tests/unit/publication-worker.test.ts` (8 automated tests covering deploy hook dispatch, exponential backoff, health check, live detail page/sitemap verification, and unconfigured customerSiteUrl handling).
+    - Added `react/scripts/dynamic-publishing-e2e.test.ts` (4 end-to-end integration tests verifying publish-to-HTML/sitemap pipeline, unpublish/archive exclusion, fail-closed enforcement, and sitemap uniqueness).
+    - All 324 tests pass across backend (279), react (36), and admin (9).
+    - Full `npm run verify` passed (TypeScript x3, test:ci, test:catalog-sources, admin unit tests, SEO lifecycle, customer SSG build, admin build, backend build).
+
+- **Phase D.3: Publishing Reliability Closure**:
+  - **Mandatory & Atomic Outbox Persistence**:
+    - Made `publishEvents` repository mandatory on `Repositories` interface (`backend/src/db/types.ts`).
+    - Wrapped all domain mutations and outbox enqueues in transactional boundaries (`deps.db.transaction`):
+      - `backend/src/modules/catalog/catalog.service.ts`: `update`, `publish`, `unpublish`, `archive`, `uploadMedia`, `updateMedia`, `deleteMedia`.
+      - `backend/src/modules/tour-packages/tour-packages.service.ts`: `create`, `update`, `publish`, `archive`.
+      - `backend/src/modules/local-packages/local-packages.service.ts`: `create`, `update`, `publish`, `archive`.
+      - `backend/src/modules/transfer-routes/transfer-routes.service.ts`: `create`, `update`, `publish`, `archive`.
+      - `backend/src/modules/routes/route.service.ts`: `publish`, `archive`.
+    - Updated `memory.ts` transaction isolation to snapshot and restore all domain entities and outbox events on rollback, ensuring strict parity between in-memory test fixtures and PostgreSQL transactions.
+  - **Single Authoritative Deployment Dispatcher**:
+    - Eliminated duplicate direct calls to `triggerFrontendRebuild()` across mutation services.
+    - Delegated deployment dispatch exclusively to `PublicationWorker`, recording attempts with unified correlation IDs and release states.
+  - **Fail-Closed Release Verification**:
+    - In `PublicationWorker.verifyDeployment()`:
+      - Archive verification strictly fails closed if `sitemap.xml` cannot be fetched or returns a non-200 HTTP status (resolving prior fall-through bug where 500 allowed verification).
+      - Detail page verification strictly fails closed if the page serves HTTP 200 with active title during archive.
+      - Publish verification strictly validates canonical detail page HTTP 200, matching title, reachable cover image (200/304), and exact sitemap inclusion.
+      - Fails closed on missing or invalid `CUSTOMER_SITE_URL`, failed `/health` checks, or unresolvable entity IDs.
+  - **Regression Test Matrix**:
+    - Added 8 targeted regression tests in `dynamic-publishing.test.ts` and `publication-worker.test.ts`:
+      - Missing outbox repository rejects publish and prevents mutation commit.
+      - Failed event enqueue rolls back domain mutations across catalog, tour packages, local packages, and transfer routes.
+      - Mutation dispatches zero direct deploy hooks; worker dispatches exactly one attempt.
+      - Archive verification returns false on sitemap 500 or fetch network failure.
+      - Archive verification returns false if detail page still serves active title.
+      - Title mismatch and unreachable cover image fail verification.
+      - Canonical route resolution verified for tour packages, local tours, transfer routes, and outstation routes.
+  - **Verification**:
+    - 345/345 tests green (300 backend, 36 react, 9 admin).
+    - Monorepo `npm run verify` passed cleanly (3× typecheck, SSG 59 pages + 23 redirects, 0 errors).
+
 ## Known next work (Phase 3 — secure integrations)
 
 - Step 3: Anonymous Device Registration Postgres Unique Constraint Fix & Fleet Rules Verification.
@@ -1694,6 +1841,7 @@ Implemented:
 - Step 3.5: Split staff roles into content, pricing, dispatch, finance, review, audit, and security.
 
 See `docs/agent/00_CONTEXT_HANDOFF.md` and section 8 of the root operating specification.
+
 
 
 

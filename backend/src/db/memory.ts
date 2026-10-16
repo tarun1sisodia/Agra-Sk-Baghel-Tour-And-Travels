@@ -56,11 +56,14 @@ import type {
   WebhookEventRecord,
 } from "../types/domain.js";
 import type { RouteCatalogRecord } from "./route-catalog-types.js";
+import { randomUUID } from "node:crypto";
 import type {
   BookingListFilter,
   CatalogListFilter,
   DeviceRegistrationRecord,
   FareRuleRecord,
+  PublishEventInput,
+  PublishEventRecord,
   Repositories,
   ReviewListFilter,
   RentalEnquiryListFilter,
@@ -98,6 +101,7 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
   const locationCache = new Map<string, { suggestions: LocationSuggestion[]; storedAt: string }>();
   const devices = new Map<string, DeviceRegistrationRecord>();
   const fareRules = new Map<string, FareRuleRecord>();
+  const publishEvents = new Map<string, PublishEventRecord>();
   const locks = new Map<string, Promise<void>>();
 
   const tourPackages = new Map<string, TourPackageRecord>();
@@ -234,6 +238,19 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
           locationCache: new Map(locationCache),
           devices: new Map(devices),
           fareRules: new Map(fareRules),
+          publishEvents: new Map(publishEvents),
+          tourPackages: new Map(tourPackages),
+          tourPackagesByCode: new Map(tourPackagesByCode),
+          packageUpgrades: new Map(packageUpgrades),
+          transferRoutes: new Map(transferRoutes),
+          transferRoutesByCode: new Map(transferRoutesByCode),
+          localPackages: new Map(localPackages),
+          localPackagesByCode: new Map(localPackagesByCode),
+          cancellationPolicies: [...cancellationPolicies],
+          monuments: [...monuments],
+          petPolicy: clone(petPolicy),
+          companyProfile: clone(companyProfile),
+          dossierSignoffs: [...dossierSignoffs],
         };
         try {
           return await fn(repos);
@@ -263,6 +280,19 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
           locationCache.clear(); for (const [k, v] of snap.locationCache) locationCache.set(k, v);
           devices.clear(); for (const [k, v] of snap.devices) devices.set(k, v);
           fareRules.clear(); for (const [k, v] of snap.fareRules) fareRules.set(k, v);
+          publishEvents.clear(); for (const [k, v] of snap.publishEvents) publishEvents.set(k, v);
+          tourPackages.clear(); for (const [k, v] of snap.tourPackages) tourPackages.set(k, v);
+          tourPackagesByCode.clear(); for (const [k, v] of snap.tourPackagesByCode) tourPackagesByCode.set(k, v);
+          packageUpgrades.clear(); for (const [k, v] of snap.packageUpgrades) packageUpgrades.set(k, v);
+          transferRoutes.clear(); for (const [k, v] of snap.transferRoutes) transferRoutes.set(k, v);
+          transferRoutesByCode.clear(); for (const [k, v] of snap.transferRoutesByCode) transferRoutesByCode.set(k, v);
+          localPackages.clear(); for (const [k, v] of snap.localPackages) localPackages.set(k, v);
+          localPackagesByCode.clear(); for (const [k, v] of snap.localPackagesByCode) localPackagesByCode.set(k, v);
+          cancellationPolicies.length = 0; cancellationPolicies.push(...snap.cancellationPolicies);
+          monuments.length = 0; monuments.push(...snap.monuments);
+          petPolicy = clone(snap.petPolicy);
+          companyProfile = clone(snap.companyProfile);
+          dossierSignoffs.length = 0; dossierSignoffs.push(...snap.dossierSignoffs);
           throw err;
         }
       });
@@ -1073,6 +1103,48 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
         target.effectiveFrom = now;
         target.effectiveTo = null;
         return clone(target);
+      },
+    },
+    publishEvents: {
+      async enqueue(input: PublishEventInput) {
+        for (const existing of publishEvents.values()) {
+          if (
+            existing.status === "pending" &&
+            existing.entity_type === input.entityType &&
+            existing.entity_id === input.entityId &&
+            existing.event_type === input.eventType
+          ) {
+            existing.next_attempt_at = new Date().toISOString();
+            return clone(existing);
+          }
+        }
+        const now = new Date().toISOString();
+        const id = randomUUID();
+        const record: PublishEventRecord = {
+          id,
+          entity_type: input.entityType,
+          entity_id: input.entityId,
+          event_type: input.eventType,
+          status: "pending",
+          attempt_count: 0,
+          next_attempt_at: now,
+          deployment_ref: null,
+          last_error: null,
+          created_at: now,
+          processed_at: null,
+        };
+        publishEvents.set(id, record);
+        return clone(record);
+      },
+      async getById(id: string) {
+        const item = publishEvents.get(id);
+        return item ? clone(item) : null;
+      },
+      async listPending(limit = 10) {
+        return Array.from(publishEvents.values())
+          .filter((e) => e.status === "pending")
+          .slice(0, limit)
+          .map(clone);
       },
     },
   };

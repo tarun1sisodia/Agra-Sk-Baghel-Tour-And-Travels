@@ -23,7 +23,7 @@ function trimBase(value: string | undefined): string | undefined {
 }
 
 export function isFailClosedCatalogBuild(env: EnvMap = process.env): boolean {
-  return env.CATALOG_FAIL_CLOSED === "1" || env.CF_PAGES === "1";
+  return env.CATALOG_FAIL_CLOSED === "1" || env.CF_PAGES === "1" || env.RELEASE_BUILD === "1";
 }
 
 export function resolveCatalogApiBase(env: EnvMap = process.env): string | undefined {

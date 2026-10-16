@@ -418,7 +418,7 @@ export class FareCatalogRepository {
              MIN(orv.one_way_amount) as starting_price_inr
       FROM outstation_routes r
       LEFT JOIN outstation_route_vehicles orv ON r.id = orv.route_id AND orv.is_active = true AND orv.one_way_amount IS NOT NULL
-      WHERE r.status != 'draft'
+      WHERE r.status = 'published'
       GROUP BY r.id, r.code, r.origin_name, r.destination_name, r.description, r.image_url, r.status, r.distance_km, r.duration_minutes
       ORDER BY r.code
     `);
@@ -429,7 +429,7 @@ export class FareCatalogRepository {
              MIN(fr.amount) as starting_price_inr
       FROM local_packages lp
       LEFT JOIN fare_rules fr ON fr.local_package_id = lp.id AND fr.is_active = true
-      WHERE lp.status != 'draft'
+      WHERE lp.status = 'published'
       GROUP BY lp.id, lp.code, lp.name, lp.description, lp.image_url, lp.status
       ORDER BY lp.code
     `);
@@ -440,7 +440,7 @@ export class FareCatalogRepository {
              MIN(fr.amount) as starting_price_inr
       FROM transfers t
       LEFT JOIN fare_rules fr ON fr.transfer_id = t.id AND fr.is_active = true
-      WHERE t.status != 'draft'
+      WHERE t.status = 'published'
       GROUP BY t.id, t.code, t.name, t.description, t.image_url, t.status
       ORDER BY t.code
     `);
@@ -451,7 +451,7 @@ export class FareCatalogRepository {
              MIN(fr.amount) as starting_price_inr
       FROM tour_packages tp
       LEFT JOIN fare_rules fr ON fr.tour_package_id = tp.id AND fr.is_active = true
-      WHERE tp.status != 'draft'
+      WHERE tp.status = 'published'
       GROUP BY tp.id, tp.code, tp.name, tp.description, tp.image_url, tp.status
       ORDER BY tp.code
     `);

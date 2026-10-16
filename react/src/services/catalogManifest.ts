@@ -241,8 +241,8 @@ export function toTourPackage(item: any): TourPackage {
   const source = item.source || "Agra";
   const destination = item.destination || item.name;
 
-  const rawImage = item.imageUrl || item.image_url || item.image || "/assets/packages/taj-dawn.webp";
-  const image = resolveCatalogMediaUrl(rawImage);
+  const rawImage = item.imageUrl || item.image_url || item.image || (item.gallery?.[0]?.url || item.gallery?.[0]) || "";
+  const image = rawImage ? resolveCatalogMediaUrl(rawImage) : "";
 
   const rawGallery = Array.isArray(item.gallery) ? item.gallery : [];
   const gallery = rawGallery

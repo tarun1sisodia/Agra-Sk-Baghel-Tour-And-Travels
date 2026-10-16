@@ -314,14 +314,22 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   let publishedCatalogFetched = false;
   if (apiBase) {
     try {
-      const payload = await fetchCatalogJson(`${apiBase}/api/v1/catalog`) as { data?: unknown };
-      publishedCatalog = Array.isArray(payload.data) ? payload.data : [];
+      const payload = await fetchCatalogJson(`${apiBase}/api/v1/catalog`) as { data?: unknown; products?: unknown };
+      publishedCatalog = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload.data)
+          ? payload.data
+          : Array.isArray(payload.products)
+            ? payload.products
+            : [];
       publishedCatalogFetched = true;
       console.log(`✅ [Manifest Builder] Snapshotted ${publishedCatalog.length} published catalog items for SSG.`);
     } catch (error) {
       if (failClosed) throw error;
       console.warn(`⚠️ [Manifest Builder] Published catalog snapshot unavailable (${error instanceof Error ? error.message : String(error)}); leaving the existing snapshot untouched.`);
     }
+  } else if (failClosed) {
+    throw new Error("[Manifest Builder] Fail-closed build is missing API base URL for /api/v1/catalog. Set VITE_API_BASE_URL.");
   }
   writeSnapshot(publishedCatalogPath, publishedCatalog, publishedCatalogFetched);
   writeSnapshot(join(reactRoot, "src", "data", "generated-published-routes.json"), publishedRouteItems, Boolean(routeCatalogPayload));
@@ -341,6 +349,13 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
     return sanitized;
   };
 
+  const resolveMediaUrl = (url?: string) => {
+    if (!url || !url.trim()) return "";
+    const trimmed = url.trim();
+    if (trimmed.startsWith("/api/")) return `${apiBase ?? ""}${trimmed}`;
+    return trimmed;
+  };
+
   // 1. Tour Packages manifest (GET /api/v1/tour-packages/manifest)
   const tourPackagesManifestUrl = catalogSources["tour-packages"]?.url;
   let publishedTourPackages: any[] = [];
@@ -349,32 +364,35 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   if (tourPackagesPayload) {
       const payload = tourPackagesPayload as { data?: any[] };
       const rawItems = Array.isArray(payload.data) ? payload.data : [];
-      const resolveMediaUrl = (url?: string) => {
-        if (!url) return "/assets/packages/taj-dawn.webp";
-        const trimmed = url.trim();
-        if (trimmed.startsWith("/api/")) return `${apiBase ?? ""}${trimmed}`;
-        return trimmed;
-      };
 
       publishedTourPackages = rawItems
         .filter((item) => item.status === "published")
         .map((item) => {
-          const rawImg = item.imageUrl ?? item.image_url ?? item.image;
-          const image = resolveMediaUrl(rawImg);
+          const rawImg = item.imageUrl ?? item.image_url ?? item.image ?? (item.gallery?.[0]?.url ?? item.gallery?.[0]);
+          const image = resolveMediaUrl(typeof rawImg === "string" ? rawImg : rawImg?.url);
+          if (!image && failClosed) {
+            throw new Error(`[Manifest Builder] Published tour package "${item.name || item.slug || item.packageCode}" is missing a valid cover image. Generic fallbacks are forbidden in release builds.`);
+          }
           const gallery = Array.isArray(item.gallery)
-            ? item.gallery.map((g: any) => {
-                if (typeof g === "string") return { url: resolveMediaUrl(g), alt: item.name, caption: item.name };
-                return {
-                  ...g,
-                  url: resolveMediaUrl(g.url),
-                };
-              })
-            : [];
+            ? item.gallery
+                .map((g: any, idx: number) => {
+                  const url = resolveMediaUrl(typeof g === "string" ? g : g.url);
+                  const sortOrder = Number(g?.sortOrder ?? g?.sort_order ?? idx);
+                  return {
+                    url,
+                    alt: g?.altText ?? g?.alt ?? item.name,
+                    caption: g?.caption ?? item.name,
+                    sortOrder,
+                  };
+                })
+                .filter((g: any) => Boolean(g.url))
+                .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
+            : image ? [{ url: image, alt: item.name, caption: item.name, sortOrder: 0 }] : [];
           return {
             ...item,
             slug: item.slug ?? item.packageCode ?? item.package_code,
-            image,
-            gallery: gallery.length > 0 ? gallery : [{ url: image, alt: item.name, caption: item.name }],
+            image: image || (gallery[0]?.url ?? ""),
+            gallery,
             fleetPrices: sanitizeFleetPrices(item.fleetPrices ?? item.fleet_prices),
           };
         });
@@ -411,11 +429,35 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
       const rawItems = Array.isArray(payload.data) ? payload.data : [];
       publishedLocalPackages = rawItems
         .filter((item) => item.status === "published")
-        .map((item) => ({
-          ...item,
-          slug: item.slug ?? item.packageCode ?? item.package_code,
-          fleetPrices: sanitizeFleetPrices(item.fleetPrices ?? item.fleet_prices),
-        }));
+        .map((item) => {
+          const rawImg = item.imageUrl ?? item.image_url ?? item.image ?? (item.gallery?.[0]?.url ?? item.gallery?.[0]);
+          const image = resolveMediaUrl(typeof rawImg === "string" ? rawImg : rawImg?.url);
+          if (!image && failClosed) {
+            throw new Error(`[Manifest Builder] Published local tour "${item.name || item.slug || item.packageCode}" is missing a valid cover image. Generic fallbacks are forbidden in release builds.`);
+          }
+          const gallery = Array.isArray(item.gallery)
+            ? item.gallery
+                .map((g: any, idx: number) => {
+                  const url = resolveMediaUrl(typeof g === "string" ? g : g.url);
+                  const sortOrder = Number(g?.sortOrder ?? g?.sort_order ?? idx);
+                  return {
+                    url,
+                    alt: g?.altText ?? g?.alt ?? item.name,
+                    caption: g?.caption ?? item.name,
+                    sortOrder,
+                  };
+                })
+                .filter((g: any) => Boolean(g.url))
+                .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
+            : image ? [{ url: image, alt: item.name, caption: item.name, sortOrder: 0 }] : [];
+          return {
+            ...item,
+            slug: item.slug ?? item.packageCode ?? item.package_code,
+            image: image || (gallery[0]?.url ?? ""),
+            gallery,
+            fleetPrices: sanitizeFleetPrices(item.fleetPrices ?? item.fleet_prices),
+          };
+        });
       console.log(`✅ [Manifest Builder] Snapshotted ${publishedLocalPackages.length} published local packages from ${redactCatalogUrl(localPackagesManifestUrl!)}.`);
   }
   writeSnapshot(join(reactRoot, "src", "data", "generated-published-local-packages.json"), publishedLocalPackages, Boolean(localPayload));

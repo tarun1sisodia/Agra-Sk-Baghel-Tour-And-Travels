@@ -5,6 +5,7 @@ import {
   assertFailClosedCatalogEnv,
   assertSnapshotPolicy,
   catalogSourceUsesStagingHost,
+  isFailClosedCatalogBuild,
   listCatalogSources,
   resolveCatalogApiBase,
 } from "./catalog-sources.ts";
@@ -56,6 +57,13 @@ describe("catalog source resolution (P0-T03 / P0-T04)", () => {
       () => assertSnapshotPolicy(false, true, "path/to/snapshot.json"),
       /Fail-closed build failed to fetch snapshot/,
     );
+  });
+
+  it("treats RELEASE_BUILD=1, CATALOG_FAIL_CLOSED=1, and CF_PAGES=1 as fail-closed", () => {
+    assert.equal(isFailClosedCatalogBuild({}), false);
+    assert.equal(isFailClosedCatalogBuild({ RELEASE_BUILD: "1" }), true);
+    assert.equal(isFailClosedCatalogBuild({ CATALOG_FAIL_CLOSED: "1" }), true);
+    assert.equal(isFailClosedCatalogBuild({ CF_PAGES: "1" }), true);
   });
 });
 

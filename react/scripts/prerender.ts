@@ -80,8 +80,11 @@ function getPublishedPackageRoutes(): string[] {
   try {
     const snapshot = JSON.parse(readFileSync(snapshotPath, "utf8")) as Array<{ type?: string; slug?: string }>;
     return snapshot
-      .filter((item) => (item.type === "package" || item.type === "tour") && isSitemapSafeSlug(item.slug))
-      .map((item) => `/en/packages/${item.slug}/`);
+      .filter((item) => (item.type === "package" || item.type === "tour" || item.type === "transfer") && isSitemapSafeSlug(item.slug))
+      .map((item) => {
+        const prefix = item.type === "tour" ? "local-packages" : item.type === "transfer" ? "transfers" : "packages";
+        return `/en/${prefix}/${item.slug}/`;
+      });
   } catch {
     return [];
   }

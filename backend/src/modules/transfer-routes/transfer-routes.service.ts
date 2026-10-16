@@ -5,7 +5,6 @@ import type { Clock } from "../../shared/clock.js";
 import { toIso } from "../../shared/clock.js";
 import { Errors } from "../../shared/errors.js";
 import { newId } from "../../shared/ids.js";
-import { triggerFrontendRebuild } from "../../shared/deploy-hook.js";
 import type {
   CreateTransferRouteInput,
   UpdateTransferRouteInput,
@@ -50,11 +49,18 @@ export function createTransferRoutesService(deps: { db: Repositories; clock: Clo
       const existing = await deps.db.transferRoutes.getByCode(input.route_code);
       if (existing) throw Errors.conflict("ROUTE_CODE_TAKEN", "Route code is already in use.");
       const now = toIso(deps.clock.now());
-      const item = await deps.db.transferRoutes.create(toRecord(input, now));
-      if (item.status === "published") {
-        await triggerFrontendRebuild("transfer-route-published");
-      }
-      return item;
+      const record = toRecord(input, now);
+      return deps.db.transaction(async (tx) => {
+        const item = await tx.transferRoutes.create(record);
+        if (item.status === "published") {
+          await tx.publishEvents.enqueue({
+            entityType: "transfer",
+            entityId: item.id,
+            eventType: "published",
+          });
+        }
+        return item;
+      });
     },
     async update(id: string, input: UpdateTransferRouteInput) {
       const current = await this.get(id);
@@ -82,31 +88,51 @@ export function createTransferRoutesService(deps: { db: Repositories; clock: Clo
         updatedAt: now,
       };
 
-      const updated = await deps.db.transferRoutes.update(merged);
-      if (current.status === "published" && priceEdited) {
-        await triggerFrontendRebuild("transfer-route-price-edited");
-      }
-      return updated;
+      return deps.db.transaction(async (tx) => {
+        const updated = await tx.transferRoutes.update(merged);
+        if (current.status === "published" && priceEdited) {
+          await tx.publishEvents.enqueue({
+            entityType: "transfer",
+            entityId: current.id,
+            eventType: "price_changed",
+          });
+        }
+        return updated;
+      });
     },
     async publish(id: string) {
       const item = await this.get(id);
-      const updated = await deps.db.transferRoutes.update({
-        ...item,
-        status: "published",
-        updatedAt: toIso(deps.clock.now()),
+      const now = toIso(deps.clock.now());
+      return deps.db.transaction(async (tx) => {
+        const updated = await tx.transferRoutes.update({
+          ...item,
+          status: "published",
+          updatedAt: now,
+        });
+        await tx.publishEvents.enqueue({
+          entityType: "transfer",
+          entityId: item.id,
+          eventType: "published",
+        });
+        return updated;
       });
-      await triggerFrontendRebuild("transfer-route-publish");
-      return updated;
     },
     async archive(id: string) {
       const item = await this.get(id);
-      const updated = await deps.db.transferRoutes.update({
-        ...item,
-        status: "archived",
-        updatedAt: toIso(deps.clock.now()),
+      const now = toIso(deps.clock.now());
+      return deps.db.transaction(async (tx) => {
+        const updated = await tx.transferRoutes.update({
+          ...item,
+          status: "archived",
+          updatedAt: now,
+        });
+        await tx.publishEvents.enqueue({
+          entityType: "transfer",
+          entityId: item.id,
+          eventType: "archived",
+        });
+        return updated;
       });
-      await triggerFrontendRebuild("transfer-route-archive");
-      return updated;
     },
     async remove(id: string) {
       const item = await this.get(id);

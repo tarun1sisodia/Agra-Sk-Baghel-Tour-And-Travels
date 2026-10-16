@@ -14,10 +14,12 @@ import type { AttachMediaSchema, CreateCatalogSchema, PublicCatalogQuerySchema, 
 import { mediaObjectPath, mimeTypeForPath, type MediaStorage } from "./media.storage.js";
 import type { z } from "zod";
 
-import { triggerFrontendRebuild } from "../../shared/deploy-hook.js";
-
-async function requestFrontendRebuild(reason: string, _manifestVersion: number): Promise<void> {
-  await triggerFrontendRebuild(reason);
+function toPublishEntityType(type: string): "tour_package" | "local_package" | "transfer" | "outstation_route" {
+  if (type === "package") return "tour_package";
+  if (type === "tour" || type === "place") return "local_package";
+  if (type === "transfer") return "transfer";
+  if (type === "ride" || type === "route") return "outstation_route";
+  return "tour_package";
 }
 
 export function createCatalogService(deps: { db: Repositories; clock: Clock; mediaStorage?: MediaStorage | null; fareCatalogRepo?: FareCatalogRepository | null }) {
@@ -137,7 +139,7 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
           duration: item.durationText || `${item.days} Days / ${item.nights} Nights`,
           from: startingPrice,
           startingPriceInr: startingPrice,
-          image: item.imageUrl || item.gallery?.[0]?.url || "/assets/packages/taj-dawn.webp",
+          image: item.imageUrl || item.gallery?.[0]?.url || "",
           gallery: item.gallery || [],
           places: places.length > 0 ? places : ["Agra"],
           blurb: item.inclusionsHighlight || item.name,
@@ -247,7 +249,12 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
           const cover = media.find((m) => m.sortOrder === 0) || media[0];
           const image = cover
             ? (cover.storagePath || (cover.contentBase64 ? `/api/v1/media/${cover.id}` : null))
-            : "/assets/packages/taj-dawn.webp";
+            : null;
+          const gallery = media.map((m) => ({
+            url: m.storagePath || (m.contentBase64 ? `/api/v1/media/${m.id}` : ""),
+            alt: m.altText || item.title,
+            caption: m.caption ?? undefined,
+          }));
 
           return {
             id: item.id,
@@ -260,7 +267,8 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
             duration: item.durationText || "1 day",
             from: item.startingPriceInr,
             startingPriceInr: item.startingPriceInr,
-            image: image || "/assets/packages/taj-dawn.webp",
+            image: image || "",
+            gallery,
             places: (item.routeSummary || "")
               .split(/[,·|]/)
               .map((s) => s.trim())
@@ -415,7 +423,7 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
             status: tp.status,
             createdAt: tp.createdAt,
             updatedAt: tp.updatedAt,
-            coverImage: tp.imageUrl || tp.gallery?.[0]?.url || "/assets/packages/taj-dawn.webp",
+            coverImage: tp.imageUrl || tp.gallery?.[0]?.url || "",
             mediaCount: tp.gallery?.length || 1,
             reviews: [],
           };
@@ -478,91 +486,204 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
     async update(id: string, input: z.infer<typeof UpdateCatalogSchema>, actor: AuthUser) {
       const item = await requireItem(deps.db, id);
       const now = toIso(deps.clock.now());
-      const updated = await deps.db.catalog.update({
-        ...item,
-        ...input,
-        description: input.description ?? item.description,
-        distanceKm: input.distanceKm !== undefined ? input.distanceKm : item.distanceKm,
-        seatsLeft: input.seatsLeft !== undefined ? input.seatsLeft : item.seatsLeft,
-        stops: input.stops ?? item.stops,
-        tripType: input.tripType !== undefined ? input.tripType : item.tripType,
-        availability: input.availability ?? item.availability,
-        updatedBy: actor.id,
-        version: item.version + 1,
-        updatedAt: now,
-      });
-      await deps.db.audit.append({
-        id: newId(),
-        actorId: actor.id,
-        actorRole: actor.role,
-        resourceType: "catalog_item",
-        resourceId: item.id,
-        action: "update",
-        before: { title: item.title, startingPriceInr: item.startingPriceInr, status: item.status },
-        after: { title: updated.title, startingPriceInr: updated.startingPriceInr, status: updated.status },
-        reason: null,
-        requestId: "",
-        createdAt: now,
+      const entityType = toPublishEntityType(item.type);
+      const updated = await deps.db.transaction(async (tx) => {
+        const res = await tx.catalog.update({
+          ...item,
+          ...input,
+          description: input.description ?? item.description,
+          distanceKm: input.distanceKm !== undefined ? input.distanceKm : item.distanceKm,
+          seatsLeft: input.seatsLeft !== undefined ? input.seatsLeft : item.seatsLeft,
+          stops: input.stops ?? item.stops,
+          tripType: input.tripType !== undefined ? input.tripType : item.tripType,
+          availability: input.availability ?? item.availability,
+          updatedBy: actor.id,
+          version: item.version + 1,
+          updatedAt: now,
+        });
+        await tx.audit.append({
+          id: newId(),
+          actorId: actor.id,
+          actorRole: actor.role,
+          resourceType: "catalog_item",
+          resourceId: item.id,
+          action: "update",
+          before: { title: item.title, startingPriceInr: item.startingPriceInr, status: item.status },
+          after: { title: res.title, startingPriceInr: res.startingPriceInr, status: res.status },
+          reason: null,
+          requestId: "",
+          createdAt: now,
+        });
+        if (item.status === "published") {
+          const isPriceChange = input.startingPriceInr !== undefined && input.startingPriceInr !== item.startingPriceInr;
+          const isSlugChange = input.slug !== undefined && input.slug !== item.slug;
+          await tx.publishEvents.enqueue({
+            entityType,
+            entityId: item.id,
+            eventType: isSlugChange ? "slug_changed" : isPriceChange ? "price_changed" : "updated",
+          });
+        }
+        return res;
       });
       bumpManifest();
-      if (item.status === "published") void requestFrontendRebuild("catalog-update", manifestVersion);
       return updated;
     },
 
     async publish(id: string, actor: AuthUser, requestId: string) {
       const item = await requireItem(deps.db, id);
+
+      // ── Step 1: Slug safety enforcement
+      const slug = item.slug.trim();
+      const isSafeSlug =
+        /^[a-z0-9-]{2,80}$/.test(slug) &&
+        !slug.startsWith("-") &&
+        !slug.endsWith("-") &&
+        !/--/.test(slug) &&
+        !/command/i.test(slug) &&
+        !/^\d+-btn-/.test(slug);
+
+      if (!isSafeSlug) {
+        throw Errors.unprocessable(
+          "INVALID_SLUG",
+          `Cannot publish item: slug "${item.slug}" does not meet SEO safety criteria (/^[a-z0-9-]{2,80}$/, no consecutive hyphens, no leading/trailing hyphens).`,
+          { slug: item.slug },
+        );
+      }
+
+      // ── Step 2: Media requirement enforcement (Packages, Tours, Places must have a designated cover image)
+      const existingMedia = (await deps.db.media.listByCatalogItem(item.id)).filter(
+        (entry) => entry.status !== "archived",
+      );
+      if (item.type === "package" || item.type === "tour" || item.type === "place") {
+        const activeImages = existingMedia.filter(
+          (m) => m.mediaType === "image" && Boolean(m.storagePath?.trim() || m.contentBase64),
+        );
+        const hasCover = activeImages.some((m) => m.sortOrder === 0);
+        if (!hasCover) {
+          throw Errors.unprocessable(
+            "MISSING_REQUIRED_MEDIA",
+            `Cannot publish ${item.type} "${item.title}": a valid designated cover image (sortOrder: 0) is required before publication.`,
+            { id: item.id, type: item.type, title: item.title },
+          );
+        }
+      }
+
       const now = toIso(deps.clock.now());
-      const updated = await deps.db.catalog.update({
-        ...item,
-        status: "published",
-        publishedAt: now,
-        updatedBy: actor.id,
-        version: item.version + 1,
-        updatedAt: now,
+      const entityType = toPublishEntityType(item.type);
+      const updated = await deps.db.transaction(async (tx) => {
+        // Synchronize attached draft media to published
+        for (const m of existingMedia) {
+          if (m.status !== "published") {
+            await tx.media.update({ ...m, status: "published" });
+          }
+        }
+        const res = await tx.catalog.update({
+          ...item,
+          status: "published",
+          publishedAt: item.publishedAt || now,
+          updatedBy: actor.id,
+          version: item.version + 1,
+          updatedAt: now,
+        });
+        await tx.audit.append({
+          id: newId(),
+          actorId: actor.id,
+          actorRole: actor.role,
+          resourceType: "catalog_item",
+          resourceId: item.id,
+          action: "publish",
+          before: { status: item.status },
+          after: { status: "published" },
+          reason: null,
+          requestId,
+          createdAt: now,
+        });
+        await tx.publishEvents.enqueue({
+          entityType,
+          entityId: item.id,
+          eventType: "published",
+        });
+        return res;
       });
       bumpManifest();
-      await deps.db.audit.append({
-        id: newId(),
-        actorId: actor.id,
-        actorRole: actor.role,
-        resourceType: "catalog_item",
-        resourceId: item.id,
-        action: "publish",
-        before: { status: item.status },
-        after: { status: "published" },
-        reason: null,
-        requestId,
-        createdAt: now,
+      return updated;
+    },
+
+    async unpublish(id: string, actor: AuthUser, requestId: string) {
+      const item = await requireItem(deps.db, id);
+      const now = toIso(deps.clock.now());
+      const entityType = toPublishEntityType(item.type);
+      const updated = await deps.db.transaction(async (tx) => {
+        const res = await tx.catalog.update({
+          ...item,
+          status: "draft",
+          updatedBy: actor.id,
+          version: item.version + 1,
+          updatedAt: now,
+        });
+        await tx.audit.append({
+          id: newId(),
+          actorId: actor.id,
+          actorRole: actor.role,
+          resourceType: "catalog_item",
+          resourceId: item.id,
+          action: "unpublish",
+          before: { status: item.status },
+          after: { status: "draft" },
+          reason: null,
+          requestId,
+          createdAt: now,
+        });
+        await tx.publishEvents.enqueue({
+          entityType,
+          entityId: item.id,
+          eventType: "archived",
+        });
+        return res;
       });
-      void requestFrontendRebuild("catalog-publish", manifestVersion);
+      bumpManifest();
       return updated;
     },
 
     async archive(id: string, actor: AuthUser, requestId: string) {
       const item = await requireItem(deps.db, id);
       const now = toIso(deps.clock.now());
-      const updated = await deps.db.catalog.update({
-        ...item,
-        status: "archived",
-        updatedBy: actor.id,
-        version: item.version + 1,
-        updatedAt: now,
+      const entityType = toPublishEntityType(item.type);
+      const existingMedia = (await deps.db.media.listByCatalogItem(item.id)).filter(
+        (entry) => entry.status !== "archived",
+      );
+      const updated = await deps.db.transaction(async (tx) => {
+        for (const m of existingMedia) {
+          await tx.media.update({ ...m, status: "archived" });
+        }
+        const res = await tx.catalog.update({
+          ...item,
+          status: "archived",
+          updatedBy: actor.id,
+          version: item.version + 1,
+          updatedAt: now,
+        });
+        await tx.audit.append({
+          id: newId(),
+          actorId: actor.id,
+          actorRole: actor.role,
+          resourceType: "catalog_item",
+          resourceId: item.id,
+          action: "archive",
+          before: { status: item.status },
+          after: { status: "archived" },
+          reason: null,
+          requestId,
+          createdAt: now,
+        });
+        await tx.publishEvents.enqueue({
+          entityType,
+          entityId: item.id,
+          eventType: "archived",
+        });
+        return res;
       });
       bumpManifest();
-      await deps.db.audit.append({
-        id: newId(),
-        actorId: actor.id,
-        actorRole: actor.role,
-        resourceType: "catalog_item",
-        resourceId: item.id,
-        action: "archive",
-        before: { status: item.status },
-        after: { status: "archived" },
-        reason: null,
-        requestId,
-        createdAt: now,
-      });
-      void requestFrontendRebuild("catalog-archive", manifestVersion);
       return updated;
     },
 
@@ -625,29 +746,39 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
         storagePath = input.storagePath as string;
       }
 
-      const created = await deps.db.media.create({
-        id: mediaId,
-        catalogItemId: item.id,
-        storagePath,
-        mediaType: input.mediaType,
-        altText: input.altText,
-        caption: input.caption ?? null,
-        sortOrder: input.sortOrder,
-        // Uploaded media is published immediately so the desk never needs a
-        // developer to make a new cover visible on the customer site.
-        status: "published",
-        sourceType: "admin_upload",
-        copyrightOwner: null,
-        mimeType: inline ? (input.mimeType as string) : mimeTypeForPath(storagePath),
-        contentBase64,
-        sizeBytes,
-        createdBy: actor.id,
-        approvedBy: actor.id,
-        publishedAt: now,
-        createdAt: now,
+      const created = await deps.db.transaction(async (tx) => {
+        const res = await tx.media.create({
+          id: mediaId,
+          catalogItemId: item.id,
+          storagePath,
+          mediaType: input.mediaType,
+          altText: input.altText,
+          caption: input.caption ?? null,
+          sortOrder: input.sortOrder,
+          // Uploaded media is published immediately so the desk never needs a
+          // developer to make a new cover visible on the customer site.
+          status: "published",
+          sourceType: "admin_upload",
+          copyrightOwner: null,
+          mimeType: inline ? (input.mimeType as string) : mimeTypeForPath(storagePath),
+          contentBase64,
+          sizeBytes,
+          createdBy: actor.id,
+          approvedBy: actor.id,
+          publishedAt: now,
+          createdAt: now,
+        });
+        if (item.status === "published") {
+          const entityType = toPublishEntityType(item.type);
+          await tx.publishEvents.enqueue({
+            entityType,
+            entityId: item.id,
+            eventType: "updated",
+          });
+        }
+        return res;
       });
       bumpManifest();
-      if (item.status === "published") void requestFrontendRebuild("catalog-media-add", manifestVersion);
       return created;
     },
 
@@ -655,18 +786,28 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
       const item = await deps.db.media.getById(id);
       if (!item) throw Errors.notFound("CATALOG_NOT_FOUND", "Media not found.");
       const now = toIso(deps.clock.now());
-      const updated = await deps.db.media.update({
-        ...item,
-        altText: input.altText ?? item.altText,
-        caption: input.caption ?? item.caption,
-        sortOrder: input.sortOrder ?? item.sortOrder,
-        status: input.status ?? item.status,
-        approvedBy: input.status === "published" ? actor.id : item.approvedBy,
-        publishedAt: input.status === "published" ? now : item.publishedAt,
+      const updated = await deps.db.transaction(async (tx) => {
+        const res = await tx.media.update({
+          ...item,
+          altText: input.altText ?? item.altText,
+          caption: input.caption ?? item.caption,
+          sortOrder: input.sortOrder ?? item.sortOrder,
+          status: input.status ?? item.status,
+          approvedBy: input.status === "published" ? actor.id : item.approvedBy,
+          publishedAt: input.status === "published" ? now : item.publishedAt,
+        });
+        const parent = await tx.catalog.getById(item.catalogItemId);
+        if (parent?.status === "published") {
+          const entityType = toPublishEntityType(parent.type);
+          await tx.publishEvents.enqueue({
+            entityType,
+            entityId: parent.id,
+            eventType: "updated",
+          });
+        }
+        return res;
       });
       bumpManifest();
-      const parent = await deps.db.catalog.getById(item.catalogItemId);
-      if (parent?.status === "published") void requestFrontendRebuild("catalog-media-update", manifestVersion);
       return updated;
     },
 
@@ -681,23 +822,32 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
         const objectPath = mediaObjectPath(item.catalogItemId, item.id, item.mimeType);
         await deps.mediaStorage.remove(objectPath).catch(() => undefined);
       }
-      await deps.db.media.delete(id);
-      await deps.db.audit.append({
-        id: newId(),
-        actorId: actor.id,
-        actorRole: actor.role,
-        resourceType: "catalog_media",
-        resourceId: id,
-        action: "delete",
-        before: { storagePath: item.storagePath, catalogItemId: item.catalogItemId },
-        after: null,
-        reason: null,
-        requestId: requestId ?? "",
-        createdAt: now,
+      await deps.db.transaction(async (tx) => {
+        await tx.media.delete(id);
+        await tx.audit.append({
+          id: newId(),
+          actorId: actor.id,
+          actorRole: actor.role,
+          resourceType: "catalog_media",
+          resourceId: id,
+          action: "delete",
+          before: { storagePath: item.storagePath, catalogItemId: item.catalogItemId },
+          after: null,
+          reason: null,
+          requestId: requestId ?? "",
+          createdAt: now,
+        });
+        const parent = await tx.catalog.getById(item.catalogItemId);
+        if (parent?.status === "published") {
+          const entityType = toPublishEntityType(parent.type);
+          await tx.publishEvents.enqueue({
+            entityType,
+            entityId: parent.id,
+            eventType: "updated",
+          });
+        }
       });
       bumpManifest();
-      const parent = await deps.db.catalog.getById(item.catalogItemId);
-      if (parent?.status === "published") void requestFrontendRebuild("catalog-media-delete", manifestVersion);
       return { deleted: true, id };
     },
 

@@ -31,8 +31,8 @@ export function createPoolConfig(
   databaseUrl: string,
   overrides: PoolConfigOptions = {},
 ): PoolConfig {
-  const max = overrides.max ?? parsePositiveInt(process.env.DATABASE_POOL_MAX, 20);
-  const min = overrides.min ?? parsePositiveInt(process.env.DATABASE_POOL_MIN, 4);
+  const max = overrides.max ?? parsePositiveInt(process.env.DATABASE_POOL_MAX, 10);
+  const min = overrides.min ?? parsePositiveInt(process.env.DATABASE_POOL_MIN, 2);
   const idleTimeoutMillis =
     overrides.idleTimeoutMillis ??
     parsePositiveInt(process.env.DATABASE_POOL_IDLE_TIMEOUT_MS, 30_000);

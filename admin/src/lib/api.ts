@@ -403,7 +403,7 @@ export async function republishCatalogManifest(): Promise<{
   return json?.data ?? { version: 1, updatedAt: new Date().toISOString(), routeCount: 0, packageCount: 0 };
 }
 
-export async function setCatalogItemStatus(id: string, action: "publish" | "archive"): Promise<CatalogItem> {
+export async function setCatalogItemStatus(id: string, action: "publish" | "archive" | "unpublish"): Promise<CatalogItem> {
   const json = await apiFetch(`/api/v1/ops/admin/catalog/${encodeURIComponent(id)}/${action}`, {
     method: "POST",
     body: JSON.stringify({}),

@@ -37,10 +37,13 @@ switch ($cmd) {
   "profile" {
     npx -y supermemory profile --namespace $tag --json
   }
+  "namespaces" {
+    npx -y supermemory namespaces list --json
+  }
   "whoami" {
     npx -y supermemory whoami
   }
   Default {
-    Write-Host "Usage: .\scripts\supermemory.ps1 <search|remember|add|profile|whoami> [args]"
+    Write-Host "Usage: .\scripts\supermemory.ps1 <search|remember|add|profile|namespaces|whoami> [args]"
   }
 }

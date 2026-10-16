@@ -10,12 +10,12 @@ Older trackers (`docs/project/PROGRESS.md`, `docs/project/AUDIT_PROGRESS.md`) ar
 
 ## Current State
 
-- **Current Phase:** Taxi Rental Page Redesign & Canonical Fleet/Enquiry Persistence (COMPLETED).
-- **Current Step:** Resolved Taxi Rental navigation interception and route disambiguation (`/en/taxis/rent/`):
-  * Route Disambiguation: Fixed dynamic route regex interception where `/taxis/rent` was erroneously captured by `cleanProductMatch` as an outstation product (`category="outstation"`, `code="rent"`), leading to a 404 in `ProductDetailPage`. Added explicit `taxiMatch[1].toLowerCase() !== "rent"` guard and defined robust `isRental` route matcher.
-  * Router Priority: Positioned `isRental` before `cleanProductMatch` in both `App.tsx` and `ServerApp.tsx`, guaranteeing proper rendering of `RentalPage` across all path variants (`/en/taxis/rent/`, `/taxis/rent`, `/rent`, `/rental`, `/taxi-rental`).
-  * Navigation Chrome & Redirects: Updated active link highlighting in `Header.tsx` and `MobileNavSheet.tsx`, added 301/refresh backward compatibility redirect stubs in `prerender.ts`, and included `/en/taxis/rent/` in `generate-sitemap.ts`.
-  * Regression Testing & Verification: Added comprehensive regression tests in `rental-page.test.ts` (31/31 customer tests passing). Full monorepo verification (`npm run verify`) passed cleanly (3 typechecks, backend test suite, 3 production builds with 59 SSG pages and 23 redirects).
+- **Current Phase:** Phase D.4 — Tour Package Base Tier Normalization & Image Management Fix (COMPLETED).
+- **Current Step:** Resolved tour package `base_tier_code: Expected string, received null` validation failure during image/gallery management:
+  * Root Cause Resolution: Normalized API legacy `null`/`undefined` base tier values to domain default `"sedan"` in the admin edit form using `resolveTourPackageBaseTierCode()`, while strictly preserving valid stored tiers (e.g. `innova-crysta`).
+  * Automated Regression Testing: Added `admin/src/modules/tour-packages/tour-packages.constants.test.ts` covering null, undefined, and valid tier preservation (11/11 admin tests passing).
+  * Domain Image Audit: Audited image and gallery management across CMS catalog items, tour packages, local sightseeing packages, and transfer routes; verified correct media URL resolution and Phase D.3 atomic outbox invariants.
+  * Monorepo Verification: Full `npm run verify` passed cleanly (3 clean typechecks, 347 total automated unit/contract tests across backend, customer, and admin, 59 prerendered SSG pages, 23 redirects, and 3 production builds).
 - **Last updated:** 2026-10-16
 - **Summary:** All HTML designs from `react/new_design/` are completely converted into the React application with ultra-luxury aesthetic styling, design tokens (`theme.css`), and the strict English-only mandate:
   * Multi-Agent Orchestration Engine (`agents/`): Automated agent pipeline with `code_extractor.py`, dynamic language templates (`task_template.py`), `tenacity` exponential retry logic, and specialized agents (`schema_agent.py`, `service_agent.py`, `frontend_agent.py`, `test_agent.py`, `seo_content_agent.py`, `orchestrator.py`).

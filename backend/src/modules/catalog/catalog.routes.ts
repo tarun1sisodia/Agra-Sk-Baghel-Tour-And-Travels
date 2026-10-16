@@ -55,6 +55,10 @@ export async function registerCatalogRoutes(
     config: { rateLimit: { max: 20, timeWindow: "1 minute" } },
     handler: controller.publish,
   });
+  app.post("/api/v1/ops/admin/catalog/:id/unpublish", {
+    config: { rateLimit: { max: 20, timeWindow: "1 minute" } },
+    handler: controller.unpublish,
+  });
   app.post("/api/v1/ops/admin/catalog/:id/archive", {
     config: { rateLimit: { max: 20, timeWindow: "1 minute" } },
     handler: controller.archive,
