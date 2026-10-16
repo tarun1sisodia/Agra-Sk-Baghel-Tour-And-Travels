@@ -69,12 +69,81 @@ describe("Phase D — Dynamic Catalog Publishing & SEO Integration", () => {
     expect(res.statusCode).toBe(422);
     const body = JSON.parse(res.body);
     expect(body.error?.code).toBe("MISSING_REQUIRED_MEDIA");
-    expect(body.error?.message).toContain("at least one approved cover image is required");
+    expect(body.error?.message).toContain("a valid designated cover image");
 
     // Verify item remains draft
     const inDb = await db.catalog.getById(item.id);
     expect(inDb?.status).toBe("draft");
     expect(inDb?.publishedAt).toBeNull();
+  });
+
+  it("blocks publishing when media exists but none is designated as cover (sortOrder !== 0) or is only video", async () => {
+    const { app, db } = await createTestApp();
+
+    const item = await db.catalog.create({
+      id: "pkg-test-no-cover-001",
+      type: "package",
+      slug: "agra-no-cover-test",
+      title: "Agra No Cover Test",
+      shortDescription: "No cover test.",
+      description: "Complete description.",
+      status: "draft",
+      durationText: "1 day",
+      routeSummary: "Agra",
+      startingPriceInr: 2500,
+      distanceKm: null,
+      availability: "available",
+      seatsLeft: null,
+      stops: [],
+      tripType: null,
+      version: 1,
+      createdBy: "test-admin",
+      updatedBy: "test-admin",
+      publishedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    // Attach video only
+    await db.media.create(
+      mockMedia({
+        id: "med-video-01",
+        catalogItemId: item.id,
+        mediaType: "video",
+        storagePath: "/assets/videos/taj.mp4",
+        sortOrder: 0,
+        status: "draft",
+      }),
+    );
+
+    const resVideoOnly = await app.inject({
+      method: "POST",
+      url: `/api/v1/ops/admin/catalog/${item.id}/publish`,
+      headers: SUPER_ADMIN_AUTH,
+    });
+    expect(resVideoOnly.statusCode).toBe(422);
+    expect(JSON.parse(resVideoOnly.body).error?.code).toBe("MISSING_REQUIRED_MEDIA");
+
+    // Now attach an image, but with sortOrder: 2 (no sortOrder: 0)
+    await db.media.create(
+      mockMedia({
+        id: "med-image-no-cover-01",
+        catalogItemId: item.id,
+        mediaType: "image",
+        storagePath: "/assets/packages/taj-2.webp",
+        sortOrder: 2,
+        status: "draft",
+      }),
+    );
+
+    const resNoSort0 = await app.inject({
+      method: "POST",
+      url: `/api/v1/ops/admin/catalog/${item.id}/publish`,
+      headers: SUPER_ADMIN_AUTH,
+    });
+    expect(resNoSort0.statusCode).toBe(422);
+    expect(JSON.parse(resNoSort0.body).error?.code).toBe("MISSING_REQUIRED_MEDIA");
+    expect(JSON.parse(resNoSort0.body).error?.message).toContain("sortOrder: 0");
   });
 
   it("blocks publishing an item with an unsafe or invalid SEO slug (422 INVALID_SLUG)", async () => {

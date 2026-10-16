@@ -137,7 +137,7 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
           duration: item.durationText || `${item.days} Days / ${item.nights} Nights`,
           from: startingPrice,
           startingPriceInr: startingPrice,
-          image: item.imageUrl || item.gallery?.[0]?.url || "/assets/packages/taj-dawn.webp",
+          image: item.imageUrl || item.gallery?.[0]?.url || "",
           gallery: item.gallery || [],
           places: places.length > 0 ? places : ["Agra"],
           blurb: item.inclusionsHighlight || item.name,
@@ -421,7 +421,7 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
             status: tp.status,
             createdAt: tp.createdAt,
             updatedAt: tp.updatedAt,
-            coverImage: tp.imageUrl || tp.gallery?.[0]?.url || "/assets/packages/taj-dawn.webp",
+            coverImage: tp.imageUrl || tp.gallery?.[0]?.url || "",
             mediaCount: tp.gallery?.length || 1,
             reviews: [],
           };
@@ -536,19 +536,22 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
         );
       }
 
-      // ── Step 2: Media requirement enforcement (Packages, Tours, Places must have >= 1 active image)
+      // ── Step 2: Media requirement enforcement (Packages, Tours, Places must have a designated cover image)
       const existingMedia = (await deps.db.media.listByCatalogItem(item.id)).filter(
         (entry) => entry.status !== "archived",
       );
-      if (
-        (item.type === "package" || item.type === "tour" || item.type === "place") &&
-        existingMedia.length === 0
-      ) {
-        throw Errors.unprocessable(
-          "MISSING_REQUIRED_MEDIA",
-          `Cannot publish ${item.type} "${item.title}": at least one approved cover image is required before publication.`,
-          { id: item.id, type: item.type, title: item.title },
+      if (item.type === "package" || item.type === "tour" || item.type === "place") {
+        const activeImages = existingMedia.filter(
+          (m) => m.mediaType === "image" && Boolean(m.storagePath?.trim() || m.contentBase64),
         );
+        const hasCover = activeImages.some((m) => m.sortOrder === 0);
+        if (!hasCover) {
+          throw Errors.unprocessable(
+            "MISSING_REQUIRED_MEDIA",
+            `Cannot publish ${item.type} "${item.title}": a valid designated cover image (sortOrder: 0) is required before publication.`,
+            { id: item.id, type: item.type, title: item.title },
+          );
+        }
       }
 
       // Synchronize attached draft media to published

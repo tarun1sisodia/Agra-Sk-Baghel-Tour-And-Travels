@@ -196,18 +196,167 @@ export class PublicationWorker {
       return this.verifyFn(event);
     }
 
-    if (this.customerSiteUrl) {
-      try {
-        const u = new URL(this.customerSiteUrl);
-        const checkUrl = `${u.origin}/health`;
-        const res = await this.fetchFn(checkUrl, { method: "GET", signal: AbortSignal.timeout(5000) });
-        if (res.ok) return true;
-      } catch {
-        // fallback to accepting the confirmed trigger
-      }
+    if (!this.customerSiteUrl?.trim()) {
+      this.logger.warn(
+        { eventId: event.id },
+        "verifyDeployment cannot proceed: customerSiteUrl is not configured."
+      );
+      return false;
     }
 
-    return true;
+    let siteBase: URL;
+    try {
+      siteBase = new URL(this.customerSiteUrl.trim());
+    } catch {
+      this.logger.error(
+        { eventId: event.id, url: this.customerSiteUrl },
+        "verifyDeployment failed: invalid customerSiteUrl"
+      );
+      return false;
+    }
+
+    // 1. Customer site health verification
+    try {
+      const healthRes = await this.fetchFn(`${siteBase.origin}/health`, {
+        method: "GET",
+        signal: AbortSignal.timeout(5000),
+      });
+      if (!healthRes.ok) {
+        this.logger.debug?.({ eventId: event.id, status: healthRes.status }, "Customer site /health responded with error");
+        return false;
+      }
+    } catch (err: any) {
+      this.logger.debug?.({ eventId: event.id, err: err?.message }, "Customer site /health check connection failed");
+      return false;
+    }
+
+    // 2. Canonical route, media, and sitemap verification
+    try {
+      let expectedPath: string | null = null;
+      let expectedTitle: string | null = null;
+      let expectedImage: string | null = null;
+
+      if (this.pool) {
+        if (event.entity_type === "tour_package" || event.entity_type === "local_package") {
+          const catRes = await this.pool.query(
+            "SELECT slug, title, type FROM catalog_items WHERE id = $1",
+            [event.entity_id]
+          ).catch(() => ({ rows: [] }));
+
+          if (catRes.rows.length > 0) {
+            const row = catRes.rows[0];
+            const prefix = (row.type === "tour" || event.entity_type === "local_package") ? "local-packages" : "packages";
+            expectedPath = `/en/${prefix}/${row.slug}/`;
+            expectedTitle = row.title;
+
+            const mediaRes = await this.pool.query(
+              "SELECT storage_path FROM catalog_item_media WHERE catalog_item_id = $1 AND sort_order = 0 AND status != 'archived' LIMIT 1",
+              [event.entity_id]
+            ).catch(() => ({ rows: [] }));
+            if (mediaRes.rows.length > 0) {
+              expectedImage = mediaRes.rows[0].storage_path;
+            }
+          } else {
+            const tpRes = await this.pool.query(
+              "SELECT package_code, name, image_url FROM tour_packages WHERE id = $1",
+              [event.entity_id]
+            ).catch(() => ({ rows: [] }));
+            if (tpRes.rows.length > 0) {
+              expectedPath = `/en/packages/${tpRes.rows[0].package_code}/`;
+              expectedTitle = tpRes.rows[0].name;
+              expectedImage = tpRes.rows[0].image_url;
+            }
+          }
+        } else if (event.entity_type === "transfer") {
+          const catRes = await this.pool.query(
+            "SELECT slug, title FROM catalog_items WHERE id = $1",
+            [event.entity_id]
+          ).catch(() => ({ rows: [] }));
+          if (catRes.rows.length > 0) {
+            expectedPath = `/en/transfers/${catRes.rows[0].slug}/`;
+            expectedTitle = catRes.rows[0].title;
+          }
+        } else if (event.entity_type === "outstation_route") {
+          const routeRes = await this.pool.query(
+            "SELECT slug, corridor_name FROM routes WHERE id = $1",
+            [event.entity_id]
+          ).catch(() => ({ rows: [] }));
+          if (routeRes.rows.length > 0) {
+            expectedPath = `/en/${routeRes.rows[0].slug}/`;
+            expectedTitle = routeRes.rows[0].corridor_name;
+          }
+        }
+      }
+
+      if (expectedPath) {
+        if (event.event_type === "published" || event.event_type === "updated") {
+          // Verify customer-facing detail page returns HTTP 200
+          const pageRes = await this.fetchFn(`${siteBase.origin}${expectedPath}`, {
+            method: "GET",
+            headers: { accept: "text/html" },
+            signal: AbortSignal.timeout(10_000),
+          });
+          if (pageRes.status !== 200) {
+            this.logger.debug?.({ eventId: event.id, path: expectedPath, status: pageRes.status }, "Canonical detail page not live (HTTP 200 required)");
+            return false;
+          }
+
+          if (expectedTitle) {
+            const html = await pageRes.text();
+            if (!html.includes(expectedTitle)) {
+              this.logger.debug?.({ eventId: event.id, expectedTitle }, "Detail page does not yet reflect published title");
+              return false;
+            }
+          }
+
+          // Verify cover image availability if applicable
+          if (expectedImage && !expectedImage.startsWith("/api/")) {
+            const imgPath = expectedImage.startsWith("/") ? expectedImage : `/${expectedImage}`;
+            const imgRes = await this.fetchFn(`${siteBase.origin}${imgPath}`, {
+              method: "GET",
+              signal: AbortSignal.timeout(5000),
+            });
+            if (imgRes.status !== 200 && imgRes.status !== 304) {
+              this.logger.debug?.({ eventId: event.id, imgPath, status: imgRes.status }, "Cover image not reachable on deployed origin");
+              return false;
+            }
+          }
+
+          // Verify sitemap.xml presence
+          const sitemapRes = await this.fetchFn(`${siteBase.origin}/sitemap.xml`, {
+            method: "GET",
+            signal: AbortSignal.timeout(10_000),
+          });
+          if (sitemapRes.status !== 200) {
+            this.logger.debug?.({ eventId: event.id, status: sitemapRes.status }, "Sitemap.xml not accessible");
+            return false;
+          }
+          const sitemapXml = await sitemapRes.text();
+          if (!sitemapXml.includes(expectedPath)) {
+            this.logger.debug?.({ eventId: event.id, expectedPath }, "Sitemap does not include canonical detail page");
+            return false;
+          }
+        } else if (event.event_type === "archived") {
+          // Verify sitemap excludes the archived item
+          const sitemapRes = await this.fetchFn(`${siteBase.origin}/sitemap.xml`, {
+            method: "GET",
+            signal: AbortSignal.timeout(10_000),
+          });
+          if (sitemapRes.status === 200) {
+            const sitemapXml = await sitemapRes.text();
+            if (sitemapXml.includes(expectedPath)) {
+              this.logger.debug?.({ eventId: event.id, expectedPath }, "Sitemap still contains archived URL");
+              return false;
+            }
+          }
+        }
+      }
+
+      return true;
+    } catch (err: any) {
+      this.logger.debug?.({ eventId: event.id, err: err?.message }, "verifyDeployment exception encountered");
+      return false;
+    }
   }
 
   async verifyTriggeredEvents(limit = 5): Promise<number> {

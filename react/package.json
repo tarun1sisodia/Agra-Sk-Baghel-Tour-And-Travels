@@ -10,7 +10,7 @@
     "react:build": "node --experimental-strip-types scripts/validate-site-config.ts && tsc --noEmit && node --experimental-strip-types scripts/build-manifest.ts && vite build && node --experimental-strip-types scripts/prerender.ts && node --experimental-strip-types scripts/validate-seo-artifacts.ts",
     "manifest": "node --experimental-strip-types scripts/build-manifest.ts",
     "check-catalog-sources": "node --experimental-strip-types scripts/check-catalog-sources.ts",
-    "test:catalog-sources": "node --experimental-strip-types --test scripts/catalog-sources.test.ts scripts/catalog-fallback.test.ts scripts/home-booking-widget.test.ts scripts/reviews-marquee.test.ts scripts/rental-page.test.ts",
+    "test:catalog-sources": "node --experimental-strip-types --test scripts/catalog-sources.test.ts scripts/catalog-fallback.test.ts scripts/home-booking-widget.test.ts scripts/reviews-marquee.test.ts scripts/rental-page.test.ts scripts/dynamic-publishing-e2e.test.ts",
     "prerender": "node --experimental-strip-types scripts/prerender.ts",
     "sitemap": "node --experimental-strip-types scripts/generate-sitemap.ts",
     "test:seo": "node --experimental-strip-types --test scripts/site-origin.test.ts && node --experimental-strip-types scripts/test-seo-lifecycle.ts",

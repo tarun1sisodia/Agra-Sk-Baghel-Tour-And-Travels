@@ -150,6 +150,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
       pool: pool as any,
       deployHookUrl: SECRET_HOOK_URL,
       fetchFn: mockFetch as any,
+      verifyFn: async () => true,
     });
 
     const res = await worker.processQueued();
@@ -161,6 +162,41 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     expect(event?.attempt_count).toBe(1);
     expect(event?.processed_at).toBeInstanceOf(Date);
     expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("PB-04b: Worker remains in triggered state when customerSiteUrl is missing and verifyFn is absent", async () => {
+    pool.events.set("ev-no-site-url", {
+      id: "ev-no-site-url",
+      entity_type: "outstation_route",
+      entity_id: "route-uuid-1",
+      event_type: "published",
+      status: "pending",
+      attempt_count: 0,
+      next_attempt_at: new Date(Date.now() - 1000),
+      deployment_ref: null,
+      last_error: null,
+      created_at: new Date(),
+      processed_at: null,
+    });
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ success: true, result: { id: "cf-deploy-no-site" } }),
+      headers: new Headers(),
+    });
+
+    const worker = new PublicationWorker({
+      pool: pool as any,
+      deployHookUrl: SECRET_HOOK_URL,
+      fetchFn: mockFetch as any,
+      // No customerSiteUrl or verifyFn -> cannot verify, must stay triggered
+    });
+
+    await worker.processQueued();
+    const event = pool.events.get("ev-no-site-url");
+    expect(event?.status).toBe("triggered");
+    expect(event?.processed_at).toBeNull();
   });
 
   it("PB-05: Build hook failure triggers exponential backoff and fails after limit", async () => {
@@ -307,5 +343,129 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     const ev = pool.events.get("ev-no-hook");
     expect(ev?.status).toBe("failed");
     expect(ev?.last_error).toContain("PAGES_DEPLOY_HOOK_URL is not set");
+  });
+
+  it("verifyDeployment: checks /health, detail page, cover image, and sitemap.xml on customer site", async () => {
+    // Mock DB queries for entity lookup
+    const customPool = {
+      query: vi.fn().mockImplementation(async (sql: string) => {
+        if (sql.includes("FROM catalog_items WHERE id = $1")) {
+          return { rows: [{ slug: "agra-taj-sunrise", title: "Agra Taj Sunrise", type: "package" }] };
+        }
+        if (sql.includes("FROM catalog_item_media WHERE catalog_item_id = $1")) {
+          return { rows: [{ storage_path: "/assets/packages/taj-sunrise.webp" }] };
+        }
+        return { rows: [] };
+      }),
+    };
+
+    const mockFetch = vi.fn().mockImplementation(async (url: string) => {
+      if (url.endsWith("/health")) {
+        return { ok: true, status: 200 };
+      }
+      if (url.endsWith("/en/packages/agra-taj-sunrise/")) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () => "<html><head><title>Agra Taj Sunrise</title></head><body><h1>Agra Taj Sunrise</h1></body></html>",
+        };
+      }
+      if (url.endsWith("/assets/packages/taj-sunrise.webp")) {
+        return { ok: true, status: 200 };
+      }
+      if (url.endsWith("/sitemap.xml")) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () => `<urlset><url><loc>https://agraskbagheltourandtravels.com/en/packages/agra-taj-sunrise/</loc></url></urlset>`,
+        };
+      }
+      return { ok: false, status: 404 };
+    });
+
+    const worker = new PublicationWorker({
+      pool: customPool as any,
+      customerSiteUrl: "https://agraskbagheltourandtravels.com",
+      fetchFn: mockFetch as any,
+    });
+
+    const ev: PublishEventRecord = {
+      id: "ev-verify-1",
+      entity_type: "tour_package",
+      entity_id: "pkg-123",
+      event_type: "published",
+      status: "triggered",
+      attempt_count: 1,
+      next_attempt_at: new Date(),
+      deployment_ref: "cf-1",
+      last_error: null,
+      created_at: new Date(),
+      processed_at: null,
+    };
+
+    const verified = await worker.verifyDeployment(ev);
+    expect(verified).toBe(true);
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://agraskbagheltourandtravels.com/health",
+      expect.anything()
+    );
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://agraskbagheltourandtravels.com/en/packages/agra-taj-sunrise/",
+      expect.anything()
+    );
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://agraskbagheltourandtravels.com/assets/packages/taj-sunrise.webp",
+      expect.anything()
+    );
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://agraskbagheltourandtravels.com/sitemap.xml",
+      expect.anything()
+    );
+  });
+
+  it("verifyDeployment: returns false if sitemap.xml does not contain the canonical URL", async () => {
+    const customPool = {
+      query: vi.fn().mockImplementation(async (sql: string) => {
+        if (sql.includes("FROM catalog_items WHERE id = $1")) {
+          return { rows: [{ slug: "agra-taj-sunrise", title: "Agra Taj Sunrise", type: "package" }] };
+        }
+        return { rows: [] };
+      }),
+    };
+
+    const mockFetch = vi.fn().mockImplementation(async (url: string) => {
+      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/en/packages/agra-taj-sunrise/")) {
+        return { ok: true, status: 200, text: async () => "<html>Agra Taj Sunrise</html>" };
+      }
+      if (url.endsWith("/sitemap.xml")) {
+        // Sitemap missing the published canonical URL
+        return { ok: true, status: 200, text: async () => "<urlset></urlset>" };
+      }
+      return { ok: false, status: 404 };
+    });
+
+    const worker = new PublicationWorker({
+      pool: customPool as any,
+      customerSiteUrl: "https://agraskbagheltourandtravels.com",
+      fetchFn: mockFetch as any,
+    });
+
+    const ev: PublishEventRecord = {
+      id: "ev-verify-2",
+      entity_type: "tour_package",
+      entity_id: "pkg-123",
+      event_type: "published",
+      status: "triggered",
+      attempt_count: 1,
+      next_attempt_at: new Date(),
+      deployment_ref: "cf-2",
+      last_error: null,
+      created_at: new Date(),
+      processed_at: null,
+    };
+
+    const verified = await worker.verifyDeployment(ev);
+    expect(verified).toBe(false);
   });
 });

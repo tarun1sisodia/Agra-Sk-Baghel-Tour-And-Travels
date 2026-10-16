@@ -1699,14 +1699,25 @@ Implemented:
     - Enforced strict slug regex (`/^[a-z0-9-]{2,80}$/`) before publishing; invalid or missing slugs reject with 422 `INVALID_SLUG`.
   - **SEO & Sitemap Parity**:
     - Filtered `getPublishedCatalog()` in `fare-catalog.repository.ts` strictly by `status = 'published'`, preventing drafts and archived records from leaking into manifest or sitemap.
-    - Updated `react/scripts/build-manifest.ts` with resilient catalog payload parsing.
+    - Updated `react/scripts/build-manifest.ts` with resilient catalog payload parsing and fail-closed snapshot policies.
     - Updated `react/scripts/generate-sitemap.ts` and `react/scripts/prerender.ts` to map published catalog items dynamically to `/en/packages/{slug}/`, `/en/local-packages/{slug}/`, and `/en/transfers/{slug}/`.
     - Updated customer routing in `react/src/app/App.tsx` and `react/src/app/ServerApp.tsx` to route package and local tour detail routes cleanly to reusable templates without code duplication.
+    - Eliminated generic `taj-dawn.webp` image fallback across `catalog.service.ts`, `build-manifest.ts`, and `catalogManifest.ts`.
+  - **Publication Success Verification & Worker Hardening**:
+    - Updated `PublicationWorker.verifyDeployment()` in `publication-worker.ts`: fails closed when `customerSiteUrl` is unconfigured.
+    - Enforced live checks on deployed origin: `/health`, canonical detail page HTTP 200 and title content, cover image availability, and sitemap.xml `<loc>` inclusion.
+    - Enforced sitemap exclusion verification for archived catalog items.
+    - Required explicit designated cover image (`sortOrder: 0`) before publication; blocks publication if media is only video or lacks sortOrder 0.
+  - **Fail-Closed Release Build Enforcement**:
+    - Updated `isFailClosedCatalogBuild()` to recognize `RELEASE_BUILD=1`, `CATALOG_FAIL_CLOSED=1`, and `CF_PAGES=1`.
+    - In fail-closed release builds, missing cover images or un-fetched API snapshots throw immediately to prevent stale snapshots from silently shipping.
   - **Pricing Architecture Alignment**:
     - Maintained server-authoritative fares adhering to C-FLEET-PRICING-001 v0.2.0; client fare calculations and synthetic mock pricing strictly avoided.
-  - **Automated Test Suite**:
-    - Added `backend/tests/unit/dynamic-publishing.test.ts` (7 automated tests covering missing media rejection, invalid slug rejection, publish lifecycle, unpublish, archive, 12-image limit enforcement, and manifest filtering).
-    - All 315 tests pass across backend, react, and admin.
+  - **Automated Test Suite & End-to-End Regressions**:
+    - Added `backend/tests/unit/dynamic-publishing.test.ts` (8 automated tests covering missing media, invalid slug, publish lifecycle, unpublish, archive, 12-image limit, designated cover image enforcement, and manifest filtering).
+    - Extended `backend/tests/unit/publication-worker.test.ts` (8 automated tests covering deploy hook dispatch, exponential backoff, health check, live detail page/sitemap verification, and unconfigured customerSiteUrl handling).
+    - Added `react/scripts/dynamic-publishing-e2e.test.ts` (4 end-to-end integration tests verifying publish-to-HTML/sitemap pipeline, unpublish/archive exclusion, fail-closed enforcement, and sitemap uniqueness).
+    - All 324 tests pass across backend (279), react (36), and admin (9).
     - Full `npm run verify` passed (TypeScript x3, test:ci, test:catalog-sources, admin unit tests, SEO lifecycle, customer SSG build, admin build, backend build).
 
 ## Known next work (Phase 3 — secure integrations)
