@@ -16,15 +16,27 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { SEO_LANDING_SLUGS } from "../src/data/seoLandingSlugs.ts";
+import {
+  isHindiIndexingEnabled,
+  resolveSiteOrigin,
+  type SiteOriginMode,
+} from "../src/config/siteOrigin.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const scriptsDir = dirname(__filename);
 const reactRoot = join(scriptsDir, "..");
 
-export const CANONICAL_DOMAIN =
-  process.env.VITE_SITE_URL ||
-  process.env.SITE_URL ||
-  "https://skbagheltravels-customer.coccoder999.workers.dev";
+const SITE_ORIGIN_MODE: SiteOriginMode =
+  process.env.VITE_SITE_MODE === "production" ||
+  process.env.CF_PAGES_BRANCH === "main" ||
+  process.env.RELEASE_BUILD === "1"
+    ? "production"
+    : process.env.CF_PAGES_BRANCH || process.env.VITE_SITE_MODE === "preview"
+    ? "preview"
+    : "development";
+
+export const CANONICAL_DOMAIN = resolveSiteOrigin(process.env.VITE_SITE_URL, SITE_ORIGIN_MODE);
+export const HINDI_INDEXING_ENABLED = isHindiIndexingEnabled(process.env.VITE_HINDI_INDEXING_ENABLED);
 
 export interface SitemapEntry {
   path: string;
@@ -290,13 +302,6 @@ export function getSitemapEntries(): SitemapEntry[] {
       enPath: "/",
       hiPath: "/hi/",
     },
-    {
-      path: "/en/",
-      priority: 0.9,
-      changefreq: "daily",
-      enPath: "/",
-      hiPath: "/hi/",
-    },
   ];
 
   // 2. Hubs (English)
@@ -396,7 +401,9 @@ export function getSitemapEntries(): SitemapEntry[] {
     }
   }
 
-  return entries;
+  return HINDI_INDEXING_ENABLED
+    ? entries
+    : entries.map((entry) => ({ ...entry, hiPath: undefined }));
 }
 
 export function generateSitemapXml(entries: SitemapEntry[]): string {
@@ -411,7 +418,7 @@ export function generateSitemapXml(entries: SitemapEntry[]): string {
     <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority.toFixed(2)}</priority>
     <xhtml:link rel="alternate" hreflang="en-IN" href="${enUrl}" />
-    ${entry.hiPath ? `<xhtml:link rel="alternate" hreflang="hi-IN" href="${CANONICAL_DOMAIN}${entry.hiPath}" />` : ""}
+    ${HINDI_INDEXING_ENABLED && entry.hiPath ? `<xhtml:link rel="alternate" hreflang="hi-IN" href="${CANONICAL_DOMAIN}${entry.hiPath}" />` : ""}
     <xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}" />
   </url>`;
   }).join("\n");
