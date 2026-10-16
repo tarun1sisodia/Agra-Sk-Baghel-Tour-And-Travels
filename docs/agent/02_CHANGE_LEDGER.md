@@ -2,6 +2,29 @@
 
 ## 2026-10-16
 
+### 2026-10-16 — Phase 5: Package Fleet-Price Resolver & Route Rate Isolation
+
+- **Tour Package Fixed Pricing Engine (`resolvePackageFleetPrice` in `tour-package.calculator.ts`, `fare.service.ts`, `fare.engine.ts`)**:
+  - Implemented `resolvePackageFleetPrice` enforcing strict fixed-tier pricing (`fleet_prices[tier]` or `startingPriceInr + upgradeSurcharges` or catalog `PACKAGES` fallback).
+  - Eliminated legacy route distance calculation (`billedKm * spec.perKm`) and forced driver allowance for Tempo Traveller and Force Urbania in `calculateTourPackageFare`. All 5 tiers now use fixed package rates with zero corridor distance arithmetic.
+  - Hardened `fare.engine.ts` dossier finalizer for tour packages: defaults `driverAllowance` to 0, sets `alwaysRoundTrip: false`, and sets `applyNight: false` so highway night surcharge is not added unless explicitly configured via `nightChargeInr` / `nightHaltInr`.
+  - Added slug and code resilience in `packageByIdOrSlug` and `resolveProductContext` to resolve package codes seamlessly with or without `-tour` suffix.
+  - Updated `memory.ts` tour packages repository `getById` and `getByCode` to symmetrically support fallback lookup by either UUID or packageCode, matching Postgres behavior.
+
+- **Package Fleet-Price Regression Test Suite (`backend/tests/unit/package-fleet-price.test.ts`)**:
+  - Created 20 comprehensive unit tests:
+    - Fixed pricing across all 5 vehicle tiers (Sedan, Ertiga, Innova Crysta, Tempo Traveller, Force Urbania) directly from `fleet_prices`.
+    - Fallback to starting price + upgrade surcharges when `fleet_prices` is absent.
+    - Fallback to catalog `PACKAGES` heritage definitions.
+    - Distance invariance: verified Tempo Traveller fixed rate remains identical at 1, 50, 150, 299, 300, 350, 1000 km.
+    - TripType invariance: verified Force Urbania fixed rate is identical across `one-way` and `round-trip` inputs.
+    - Rate isolation: verified changing outstation rates in `fareRules` (e.g. ₹10 -> ₹50/km) does NOT alter tour package quotes.
+    - Mathematical advance invariant: 28% advance rounded to nearest ₹100, min ₹500 floor, balance = total - advance.
+
+- **Verification**:
+  - Vitest suite passed 17/17 test files (263 tests).
+  - Full monorepo verification (`npm run verify`) passed cleanly (3 typechecks, all unit test suites, SEO lifecycle validation, 59 prerendered SSG pages, and 3 clean production builds).
+
 ### 2026-10-16 — Phase 4: Route Fleet-Price Distance Boundary Resolver & Test Matrix Invariants
 
 - **Route Fleet-Price Resolver (`route.calculator.ts`, `fare.strategy.ts`, `fare.engine.ts`)**:

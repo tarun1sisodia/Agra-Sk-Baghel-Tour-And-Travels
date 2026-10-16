@@ -484,13 +484,23 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
       },
       async getById(id) {
         const found = tourPackages.get(id);
-        return found ? clone(found) : null;
+        if (found) return clone(found);
+        const codeId = tourPackagesByCode.get(id);
+        if (codeId) {
+          const item = tourPackages.get(codeId);
+          if (item) return clone(item);
+        }
+        return null;
       },
       async getByCode(code) {
         const id = tourPackagesByCode.get(code);
-        if (!id) return null;
-        const found = tourPackages.get(id);
-        return found ? clone(found) : null;
+        if (id) {
+          const found = tourPackages.get(id);
+          if (found) return clone(found);
+        }
+        const direct = tourPackages.get(code);
+        if (direct) return clone(direct);
+        return null;
       },
       async list(filter = {}) {
         let items = [...tourPackages.values()];

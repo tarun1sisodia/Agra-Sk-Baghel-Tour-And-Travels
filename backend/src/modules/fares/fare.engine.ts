@@ -31,7 +31,11 @@ export { isNightPickup, getNightAllowanceForTier } from "./rules/night.rules.js"
 export { applyPromo, assertPromoEligibleForVehicle } from "./rules/promo.rules.js";
 export { calculateAdvanceAndBalance } from "./rules/advance.rules.js";
 export { findRoute, estimateDistanceKm, perKmFares, titleCase } from "./resolvers/route.resolver.js";
-export { evaluateDossierTierBaseFare } from "./calculators/tour-package.calculator.js";
+export {
+  evaluateDossierTierBaseFare,
+  resolvePackageFleetPrice,
+  type PackageFleetPriceResult,
+} from "./calculators/tour-package.calculator.js";
 
 /**
  * Pure fare engine orchestrator. No I/O.
@@ -103,6 +107,10 @@ export function calculateFare(input: FareEngineInput): FareEngineResult {
       input.tripType === "local-tour" ||
       input.localPackageKey === "8hr-80km" ||
       input.localPackageKey === "12hr-120km";
+    const isTour =
+      input.ruleOverrides?.catalogItemType === "tour" ||
+      input.ruleOverrides?.catalogItemType === "package" ||
+      (!isAirport && !isLocal && Boolean(input.packageId));
     const isForce = isGroupExceptionVehicle(input.vehicleTier);
 
     let effectiveTripType = input.tripType;
@@ -116,6 +124,22 @@ export function calculateFare(input: FareEngineInput): FareEngineResult {
       input.ruleOverrides?.packageDuration ??
       (isAirport ? "Point to Point" : isLocal ? "Sightseeing Tour" : "Tour Package");
 
+    const driverAllowance =
+      input.ruleOverrides?.driverAllowance !== undefined
+        ? input.ruleOverrides.driverAllowance
+        : isTour || isAirport || isLocal
+        ? 0
+        : isForce
+        ? 500
+        : 0;
+
+    const alwaysRoundTrip =
+      isTour || isAirport || isLocal
+        ? false
+        : isForce && (input.ruleOverrides?.catalogDistanceKm ?? input.distanceKm) < 300;
+
+    const applyNight = !isTour && !isAirport && !isLocal;
+
     return finalizeFare({
       tripType: effectiveTripType,
       vehicleTier: input.vehicleTier,
@@ -125,21 +149,14 @@ export function calculateFare(input: FareEngineInput): FareEngineResult {
       fareVersion,
       baseFare: dossierFare.baseFare,
       nightAllowance: 0,
-      driverAllowance:
-        input.ruleOverrides?.driverAllowance !== undefined
-          ? input.ruleOverrides.driverAllowance
-          : isForce &&
-            (input.ruleOverrides?.catalogItemType === "tour" ||
-              input.ruleOverrides?.catalogItemType === "package")
-          ? 500
-          : 0,
+      driverAllowance,
       distanceKm: input.ruleOverrides?.catalogDistanceKm ?? input.distanceKm,
       billedKm: input.ruleOverrides?.catalogDistanceKm ?? input.distanceKm,
-      alwaysRoundTrip: isForce && (input.ruleOverrides?.catalogDistanceKm ?? input.distanceKm) < 300,
+      alwaysRoundTrip,
       label,
       duration,
       roundMultiplierApplied: false,
-      applyNight: true,
+      applyNight,
       rules: ["dossier-authoritative", dossierFare.rule],
       ruleOverrides: input.ruleOverrides,
     });

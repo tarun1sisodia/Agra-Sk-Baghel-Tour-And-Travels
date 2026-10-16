@@ -71,9 +71,16 @@ export async function resolveProductContext(
 
     // 1. Tour packages
     if (input.packageId) {
-      const tourPkg =
+      let tourPkg =
         (await db.tourPackages.getById(input.packageId)) ??
         (await db.tourPackages.getByCode(input.packageId));
+      if (!tourPkg && input.packageId.includes("-tour")) {
+        const alt = input.packageId.replace(/-tour$/, "");
+        tourPkg = (await db.tourPackages.getById(alt)) ?? (await db.tourPackages.getByCode(alt));
+      } else if (!tourPkg) {
+        const alt = `${input.packageId}-tour`;
+        tourPkg = (await db.tourPackages.getById(alt)) ?? (await db.tourPackages.getByCode(alt));
+      }
       if (tourPkg && tourPkg.status === "published" && tourPkg.isActive) {
         productFleetPrices = tourPkg.fleetPrices;
         productNightChargeInr = tourPkg.nightChargeInr ?? undefined;

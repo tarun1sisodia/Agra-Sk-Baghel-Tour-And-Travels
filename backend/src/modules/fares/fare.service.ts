@@ -4,8 +4,13 @@
  */
 
 import type { Repositories } from "../../db/types.js";
-import { applyPromo, calculateFare } from "./fare.engine.js";
-import { isGroupExceptionVehicle } from "./fare.catalogue.js";
+import {
+  applyPromo,
+  calculateFare,
+  resolvePackageFleetPrice,
+  type PackageFleetPriceResult,
+} from "./fare.engine.js";
+import { isGroupExceptionVehicle, PACKAGE_UPGRADES } from "./fare.catalogue.js";
 import { calculateAdvanceAndBalance } from "./rules/advance.rules.js";
 import { resolveFleet } from "./fleet/fleet.service.js";
 import { resolveProductContext } from "./resolvers/product.resolver.js";
@@ -17,8 +22,14 @@ import type {
   FareEngineResult,
 } from "./fare.types.js";
 import type { PublicFleetVehicle } from "./fleet/fleet.types.js";
+import type { VehicleTier } from "../../types/domain.js";
+import type { TourPackageRecord } from "../../db/dossier-types.js";
 
 export type { PublicFleetVehicle } from "./fleet/fleet.types.js";
+export {
+  resolvePackageFleetPrice,
+  type PackageFleetPriceResult,
+} from "./fare.engine.js";
 
 /**
  * Service orchestrator for fare calculations and live fleet resolution.
@@ -104,6 +115,52 @@ export function createFareService(fareVersion: string, db?: Repositories) {
         distanceKm,
         fareVersion: input.fareVersion ?? fareVersion,
       });
+    },
+
+    /**
+     * Server-authoritative tour package fleet price resolver.
+     * Guaranteed zero distance arithmetic and complete isolation from route per-km rates.
+     */
+    async resolvePackageFleetPrice(
+      packageCodeOrId: string,
+      fleetCode: VehicleTier,
+    ): Promise<PackageFleetPriceResult> {
+      let tourPkg: TourPackageRecord | null = null;
+      let upgradeMap: Record<string, number> | undefined;
+
+      if (db) {
+        tourPkg =
+          (await db.tourPackages.getById(packageCodeOrId)) ??
+          (await db.tourPackages.getByCode(packageCodeOrId));
+        if (!tourPkg && packageCodeOrId.includes("-tour")) {
+          const alt = packageCodeOrId.replace(/-tour$/, "");
+          tourPkg = (await db.tourPackages.getById(alt)) ?? (await db.tourPackages.getByCode(alt));
+        } else if (!tourPkg) {
+          const alt = `${packageCodeOrId}-tour`;
+          tourPkg = (await db.tourPackages.getById(alt)) ?? (await db.tourPackages.getByCode(alt));
+        }
+
+        if (tourPkg) {
+          const [globalUpgrades, pkgUpgrades] = await Promise.all([
+            db.tourPackages.listUpgrades(null),
+            db.tourPackages.listUpgrades(tourPkg.id),
+          ]);
+          upgradeMap = { ...PACKAGE_UPGRADES };
+          for (const u of globalUpgrades) {
+            upgradeMap[u.tierCode] = u.surchargeInr;
+          }
+          for (const u of pkgUpgrades) {
+            upgradeMap[u.tierCode] = u.surchargeInr;
+          }
+        }
+      }
+
+      return resolvePackageFleetPrice(
+        packageCodeOrId,
+        fleetCode,
+        tourPkg,
+        upgradeMap,
+      );
     },
   };
 }
