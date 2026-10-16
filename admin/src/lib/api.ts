@@ -354,8 +354,9 @@ function mapCatalogMedia(m: any): CatalogMedia {
 /** Absolute URL a browser can load for a catalog media entry. */
 export function resolveMediaSrc(url: string): string {
   if (!url) return "";
-  if (/^https?:\/\//.test(url)) return url;
-  if (url.startsWith("/api/v1/media/")) return `${env.API_BASE_URL}${url}`;
+  if (/^https?:\/\//i.test(url) || url.startsWith("data:")) return url;
+  // Backend media endpoints live on the API origin, not on the separately hosted admin app.
+  if (url.startsWith("/api/v1/")) return `${env.API_BASE_URL}${url}`;
   return url;
 }
 

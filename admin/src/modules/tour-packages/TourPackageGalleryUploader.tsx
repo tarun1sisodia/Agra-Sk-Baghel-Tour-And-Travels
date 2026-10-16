@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Plus, Trash2, Upload } from "lucide-react";
+import { Image as ImageIcon, Plus, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { uploadTourPackageImage } from "./tour-packages.api";
+import { resolveMediaSrc } from "@/lib/api";
 import { HERITAGE_PHOTO_PRESETS } from "./tour-packages.constants";
 import type { TourPackageGalleryImage } from "./tour-packages.types";
 
@@ -162,7 +163,7 @@ export function TourPackageGalleryUploader({
         <div>
           <h4 className="font-semibold text-ink text-sm">Package Gallery &amp; Photos</h4>
           <p className="text-xs text-ink-soft">
-            Upload from device directly to Supabase storage. The template shows 3 hero bento images plus a thumbnail strip.
+            Upload from device to persistent media storage. The template shows 3 hero bento images plus a thumbnail strip.
           </p>
         </div>
         <span className="text-xs font-semibold px-2 py-0.5 rounded bg-surface-raised border border-hairline">
@@ -256,12 +257,13 @@ export function TourPackageGalleryUploader({
             return (
               <div key={idx} className="relative group rounded border border-hairline bg-surface overflow-hidden p-1">
                 <div className="relative h-20 w-full rounded overflow-hidden bg-black/20">
+                  <ImageIcon className="absolute inset-0 m-auto h-6 w-6 text-ink-faint" aria-hidden="true" />
                   <img
-                    src={g.url}
+                    src={resolveMediaSrc(g.url)}
                     alt={g.alt || g.caption || `Photo ${idx + 1}`}
-                    className="w-full h-full object-cover"
+                    className="relative w-full h-full object-cover"
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = "/assets/packages/taj-dawn.webp";
+                      e.currentTarget.style.display = "none";
                     }}
                   />
                   {isPrimary && (

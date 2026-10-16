@@ -5,7 +5,7 @@ import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { fetchAdminAuditLogs } from "@/lib/api";
 import { cn, timeAgo } from "@/lib/utils";
-import type { AdminUser } from "@/lib/types";
+import { can, type AdminUser } from "@/lib/types";
 
 const TITLES: Record<string, string> = {
   "/": "Operations Overview",
@@ -55,6 +55,12 @@ export function AdminLayout({
 
   useEffect(() => {
     let isMounted = true;
+    if (!can(user.role, "audit:read")) {
+      setNotifications([]);
+      return () => {
+        isMounted = false;
+      };
+    }
     fetchAdminAuditLogs(5)
       .then((logs) => {
         if (!isMounted || !Array.isArray(logs)) return;
@@ -73,7 +79,7 @@ export function AdminLayout({
     return () => {
       isMounted = false;
     };
-  }, [location.pathname]);
+  }, [user.id, user.role]);
 
   return (
     <div className="min-h-full">

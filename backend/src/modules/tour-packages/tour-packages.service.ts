@@ -211,29 +211,36 @@ export function createTourPackagesService(deps: {
       await triggerFrontendRebuild("upgrade-matrix-updated");
     },
     async uploadImage(input: UploadTourPackageImageInput) {
+      if (!deps.mediaStorage) {
+        throw Errors.unavailable(
+          "MEDIA_STORAGE_UNAVAILABLE",
+          "Persistent image storage is not configured. Configure media storage before uploading images.",
+        );
+      }
+
       const mediaId = newId();
       const ext = mediaExtensionFor(input.mimeType);
       const filename = `${mediaId}.${ext}`;
       const buffer = Buffer.from(input.dataBase64, "base64");
-
-      inMemoryMediaCache.set(filename, { buffer, mimeType: input.mimeType });
-
+      const storagePath = `packages/${filename}`;
       let url = `/api/v1/tour-packages/media/${filename}`;
-      if (deps.mediaStorage) {
-        try {
-          await deps.mediaStorage.upload({
-            path: `packages/${filename}`,
-            buffer,
-            mimeType: input.mimeType,
-          });
-          const publicUrl = deps.mediaStorage.getPublicUrl?.(`packages/${filename}`);
-          if (publicUrl) url = publicUrl;
-        } catch (err: any) {
-          throw Errors.internal(
-            `Remote media storage upload failed: ${err?.message || "Storage unavailable"}`
-          );
-        }
+
+      try {
+        await deps.mediaStorage.upload({
+          path: storagePath,
+          buffer,
+          mimeType: input.mimeType,
+        });
+        const publicUrl = deps.mediaStorage.getPublicUrl?.(storagePath);
+        if (publicUrl) url = publicUrl;
+      } catch (err: any) {
+        throw Errors.internal(
+          `Remote media storage upload failed: ${err?.message || "Storage unavailable"}`
+        );
       }
+
+      // The in-memory entry is only a cache for already-persisted media.
+      inMemoryMediaCache.set(filename, { buffer, mimeType: input.mimeType });
 
       return {
         url,

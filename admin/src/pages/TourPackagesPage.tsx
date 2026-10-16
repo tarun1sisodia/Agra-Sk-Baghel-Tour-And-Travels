@@ -74,7 +74,7 @@ export function TourPackagesPage({ user }: { user: AdminUser }) {
       exclusions: Array.isArray(pkg.exclusions) && pkg.exclusions.length > 0 ? [...pkg.exclusions] : [...EMPTY_TOUR_PACKAGE.exclusions],
       inclusionsHighlight: pkg.inclusionsHighlight ?? "",
       inclusionsNote: pkg.inclusionsNote ?? "",
-      imageUrl: pkg.imageUrl ?? "/assets/packages/taj-dawn.webp",
+      imageUrl: pkg.imageUrl ?? "",
       gallery: Array.isArray(pkg.gallery) ? [...pkg.gallery] : [],
       status: pkg.status,
       isActive: pkg.isActive,
@@ -114,7 +114,7 @@ export function TourPackagesPage({ user }: { user: AdminUser }) {
         exclusions: form.exclusions,
         inclusions_highlight: form.inclusionsHighlight.trim(),
         inclusions_note: form.inclusionsNote.trim() || undefined,
-        image_url: form.imageUrl.trim() || "/assets/packages/taj-dawn.webp",
+        image_url: form.imageUrl.trim() || null,
         gallery: form.gallery,
       };
 

@@ -58,7 +58,7 @@ export const EMPTY_TOUR_PACKAGE: TourPackageFormState = {
   ],
   inclusionsHighlight: "Private AC Cab, Chauffeur Allowance, Fuel & State Taxes",
   inclusionsNote: "",
-  imageUrl: "/assets/packages/taj-dawn.webp",
+  imageUrl: "",
   gallery: [],
   status: "draft" as CatalogStatus,
   isActive: true,

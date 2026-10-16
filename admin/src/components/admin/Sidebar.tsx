@@ -6,6 +6,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Compass,
+  ClipboardList,
   FileText,
   IndianRupee,
   LayoutDashboard,
@@ -49,6 +50,7 @@ export const NAV_ITEMS: NavItem[] = [
   { to: "/finance", label: "Finance & Refunds", icon: IndianRupee },
   { to: "/policies", label: "Policies & Company", icon: FileText },
   { to: "/inquiries", label: "Inquiries", icon: MessageSquare },
+  { to: "/rental-requests", label: "Rental Requests", icon: ClipboardList },
 ];
 
 const COLLAPSED_WIDTH = "w-[76px]";

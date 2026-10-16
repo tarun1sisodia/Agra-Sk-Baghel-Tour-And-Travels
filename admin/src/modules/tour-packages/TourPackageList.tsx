@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input, Select } from "@/components/ui/Input";
 import { can, type AdminUser } from "@/lib/types";
+import { resolveMediaSrc } from "@/lib/api";
 import { formatINR } from "@/lib/utils";
 import { FLEET_KEYS } from "@/modules/fleets/fleets.constants";
 import type { CatalogStatus, TourPackageItem } from "./tour-packages.types";
@@ -84,14 +85,17 @@ export function TourPackageList({
           >
             <div className="flex items-start gap-3">
               <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded border border-hairline bg-surface-raised">
-                <img
-                  src={pkg.imageUrl || "/assets/packages/taj-dawn.webp"}
-                  alt={pkg.name}
-                  className="h-full w-full object-cover"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = "/assets/packages/taj-dawn.webp";
-                  }}
-                />
+                <ImageIcon className="absolute inset-0 m-auto h-6 w-6 text-ink-faint" aria-hidden="true" />
+                {pkg.imageUrl && (
+                  <img
+                    src={resolveMediaSrc(pkg.imageUrl)}
+                    alt={pkg.name}
+                    className="relative h-full w-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                )}
                 {Array.isArray(pkg.gallery) && pkg.gallery.length > 0 && (
                   <span className="absolute bottom-0.5 right-0.5 inline-flex items-center gap-0.5 rounded bg-black/75 px-1 text-[9px] text-white font-mono">
                     <ImageIcon className="h-2.5 w-2.5" />
