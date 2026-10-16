@@ -73,11 +73,12 @@ function getPublishedCatalogEntries(): SitemapEntry[] {
     const snapshot = JSON.parse(readFileSync(snapshotPath, "utf8")) as Array<{
       type?: string;
       slug?: string;
+      status?: string;
       updatedAt?: string | null;
       publishedAt?: string | null;
     }>;
     return snapshot
-      .filter((item) => (item.type === "package" || item.type === "tour") && isSitemapSafeSlug(item.slug))
+      .filter((item) => (!item.status || item.status === "published") && (item.type === "package" || item.type === "tour") && isSitemapSafeSlug(item.slug))
       .map((item) => ({
         path: `/en/packages/${item.slug}/`,
         hiPath: `/hi/packages/${item.slug}/`,
@@ -95,9 +96,9 @@ function getPublishedRouteEntries(): SitemapEntry[] {
   const snapshotPath = join(reactRoot, "src", "data", "generated-published-routes.json");
   if (!existsSync(snapshotPath)) return [];
   try {
-    const snapshot = JSON.parse(readFileSync(snapshotPath, "utf8")) as Array<{ slug?: string; updatedAt?: string | null }>;
+    const snapshot = JSON.parse(readFileSync(snapshotPath, "utf8")) as Array<{ slug?: string; status?: string; updatedAt?: string | null }>;
     return snapshot
-      .filter((item) => isSitemapSafeSlug(item.slug))
+      .filter((item) => (!item.status || item.status === "published") && isSitemapSafeSlug(item.slug))
       .map((item) => ({
         path: `/en/${item.slug}/`,
         hiPath: `/hi/${item.slug}/`,
@@ -128,7 +129,7 @@ function getPublishedTourPackageEntries(): SitemapEntry[] {
       .map((item) => ({ item, slug: String(item.slug ?? item.packageCode ?? item.package_code ?? "") }))
       .filter(({ item, slug }) => {
         if (!isSitemapSafeSlug(slug)) return false;
-        if (item.status === "draft") return false;
+        if (item.status && item.status !== "published") return false;
         return true;
       })
       .map(({ item, slug }) => ({
@@ -160,7 +161,7 @@ function getPublishedTransferRouteEntries(): SitemapEntry[] {
       .map((item) => ({ item, slug: String(item.slug ?? item.routeCode ?? item.route_code ?? "") }))
       .filter(({ item, slug }) => {
         if (!isSitemapSafeSlug(slug)) return false;
-        if (item.status === "draft") return false;
+        if (item.status && item.status !== "published") return false;
         return true;
       })
       .map(({ item, slug }) => ({
@@ -192,7 +193,7 @@ function getPublishedLocalPackageEntries(): SitemapEntry[] {
       .map((item) => ({ item, slug: String(item.slug ?? item.packageCode ?? item.package_code ?? "") }))
       .filter(({ item, slug }) => {
         if (!isSitemapSafeSlug(slug)) return false;
-        if (item.status === "draft") return false;
+        if (item.status && item.status !== "published") return false;
         return true;
       })
       .map(({ item, slug }) => ({
