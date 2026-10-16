@@ -52,10 +52,10 @@ export function Footer({ className = "" }: FooterProps) {
   ];
 
   const tourLinks = [
-    { name: "Taj Mahal Sunrise Tour", href: "/packages/taj-mahal-sunrise-tour" },
-    { name: "Mathura-Vrindavan Tour", href: "/packages/mathura-vrindavan" },
-    { name: "Golden Triangle 3-City Tour", href: "/packages/golden-triangle" },
-    { name: "Agra Local Sightseeing (8h/80km)", href: "/packages/agra-sightseeing" },
+    { name: "Taj Mahal Sunrise Tour", href: "/en/packages/taj-mahal-sunrise-tour/" },
+    { name: "Mathura-Vrindavan Tour", href: "/en/packages/mathura-vrindavan/" },
+    { name: "Golden Triangle 3-City Tour", href: "/en/packages/golden-triangle/" },
+    { name: "Agra Local Sightseeing (8h/80km)", href: "/en/packages/agra-sightseeing/" },
     { name: "Driver Standards & Safety", href: "/services" },
   ];
 
