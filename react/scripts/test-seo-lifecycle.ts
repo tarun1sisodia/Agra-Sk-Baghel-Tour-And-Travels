@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { generateSitemapXml, getSitemapEntries } from "./generate-sitemap.ts";
+import {
+  generateSitemapXml,
+  getSitemapEntries,
+  HINDI_INDEXING_ENABLED,
+  CANONICAL_DOMAIN,
+} from "./generate-sitemap.ts";
 import { inspectSeoHtml, findDuplicateIntros } from "./seo-content-guardrails.ts";
 
 const jsonLdSource = readFileSync(
@@ -23,11 +28,20 @@ const sitemap = generateSitemapXml([
 ]);
 assert.match(sitemap, /<lastmod>2026-09-27<\/lastmod>/);
 assert.equal((sitemap.match(/<lastmod>/g) ?? []).length, 1, "Sitemap must omit unknown lastmod values.");
-assert.match(sitemap, /hreflang="hi-IN"/, "Sitemap must expose Hindi alternates for bilingual pages.");
+if (HINDI_INDEXING_ENABLED) {
+  assert.match(sitemap, /hreflang="hi-IN"/, "Hindi alternates are emitted when Hindi indexing is enabled.");
+} else {
+  assert.doesNotMatch(sitemap, /hreflang="hi-IN"/, "Hindi alternates must be omitted until Hindi pages are ready.");
+}
+assert.ok(sitemap.includes(CANONICAL_DOMAIN), "Sitemap must use the configured canonical origin.");
 const sitemapEntries = getSitemapEntries();
 assert.ok(sitemapEntries.length < 100, `Sitemap should contain only rendered canonical routes, found ${sitemapEntries.length}.`);
 assert.equal(sitemapEntries.some((entry) => entry.path.includes("/vehicles/innova/")), false, "Vehicle aliases must stay redirect-only.");
-assert.equal(sitemapEntries.find((entry) => entry.path === "/en/agra-to-delhi-taxi/")?.hiPath, "/hi/agra-se-delhi-taxi/");
+assert.equal(
+  sitemapEntries.find((entry) => entry.path === "/en/agra-to-delhi-taxi/")?.hiPath,
+  HINDI_INDEXING_ENABLED ? "/hi/agra-se-delhi-taxi/" : undefined,
+);
+assert.equal(sitemapEntries.some((entry) => entry.path === "/en/"), false, "Duplicate /en/ homepage must not be in the sitemap.");
 
 const quality = inspectSeoHtml(
   "/en/example/",
