@@ -148,14 +148,27 @@ export function createAdminService(deps: { db: Repositories; clock?: Clock }) {
 
     async listPayments(filter: PaymentListFilter) {
       const result = await deps.db.payments.list(filter);
-      const items = await Promise.all(result.items.map(async (payment) => {
-        const booking = await deps.db.bookings.getById(payment.bookingId);
-        return {
-          ...payment,
-          bookingTicketId: booking?.ticketId ?? payment.bookingId,
-          method: payment.paymentMethod,
-          capturedAt: payment.verifiedAt,
-        };
+      const ticketMap = new Map<string, string>();
+      const uniqueBookingIds = [...new Set(result.items.map((p) => p.bookingId).filter(Boolean))];
+      // Lookup in bounded chunks of 5 with deduplication to prevent connection pool exhaustion
+      for (let i = 0; i < uniqueBookingIds.length; i += 5) {
+        const chunk = uniqueBookingIds.slice(i, i + 5);
+        await Promise.all(
+          chunk.map(async (bookingId) => {
+            try {
+              const booking = await deps.db.bookings.getById(bookingId);
+              if (booking?.ticketId) ticketMap.set(bookingId, booking.ticketId);
+            } catch {
+              // Graceful fallback to payment.bookingId
+            }
+          })
+        );
+      }
+      const items = result.items.map((payment) => ({
+        ...payment,
+        bookingTicketId: ticketMap.get(payment.bookingId) ?? payment.bookingId,
+        method: payment.paymentMethod,
+        capturedAt: payment.verifiedAt,
       }));
       return {
         total: result.total,

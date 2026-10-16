@@ -2,6 +2,33 @@
 
 ## 2026-10-16
 
+### 2026-10-16 — Acceptance Audit Remediation: Schema Alignment, Pool Limits & Contract Purity
+
+- **Generic Catalog Schema Alignment (`backend/src/db/postgres.ts`)**:
+  - Aligned repository SQL with migration `0038_fare_system_clean_rebuild.sql` which dropped `starting_price_inr` and `distance_km` from `catalog_items`.
+  - Removed obsolete columns from `insertCatalog()` and `catalog.update()` SQL queries, preventing PostgreSQL `column does not exist` errors on generic catalog writes.
+  - Safely defaulted `startingPriceInr` and `distanceKm` in `mapCatalog()` when absent from row data.
+
+- **Supabase Session Pool Concurrency Hardening (`backend/src/db/poolConfig.ts`, `backend/src/modules/admin/admin.service.ts`)**:
+  - Reduced default fallback pool size from 20 to 10 in `poolConfig.ts` to strictly adhere to Supabase session-mode pooler's 15-connection ceiling (`EMAXCONNSESSION`).
+  - Replaced unbounded 50-item `Promise.all` fan-out in `listPayments()` with deduplicated booking ID lookups executed in bounded chunks of 5.
+
+- **Durable Media Storage & Error Surfacing (`backend/src/modules/tour-packages/tour-packages.service.ts`)**:
+  - Replaced silent warning and ephemeral in-memory fallback in `uploadImage()` with explicit `Errors.internal` throw when remote media storage fails, preventing false-positive successes without durable storage.
+
+- **Tour Package Admin API Hardening (`admin/src/modules/tour-packages/tour-packages.api.ts`)**:
+  - Replaced `payload: any` with typed `Record<string, unknown>`.
+  - Enforced strict contract error handling on upload and package operations instead of silent empty string / empty array fallbacks.
+
+- **Contract Sync Script Purity & Registry Paths (`contracts/scripts/sync-contracts.ts`, `contracts/REGISTRY.md`)**:
+  - Fixed `sync-contracts.ts` in `--check` mode to perform strictly read-only comparisons without mutating `contracts/index.ts`.
+  - Updated `contracts/REGISTRY.md` to reference the canonical source file `contracts/vehicle-tiers.ts`.
+
+- **Monorepo Verification**:
+  - Executed `sync-contracts.ts --check` (clean zero-drift pass with zero side-effects).
+  - Executed `npm test` across monorepo: 347 passed tests (300 backend, 36 customer, 11 admin).
+  - Executed full `npm run verify`: 3 typechecks (react, admin, backend) 0 errors, 59 prerendered SSG pages, 23 redirects, and 3 production builds.
+
 ### 2026-10-16 — Phase D.4: Tour Package Base Tier Normalization & Image Management Fix
 
 - **Root Cause & Contract Harmonization**:

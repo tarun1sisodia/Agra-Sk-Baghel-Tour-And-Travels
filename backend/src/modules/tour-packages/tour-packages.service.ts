@@ -228,8 +228,10 @@ export function createTourPackagesService(deps: {
           });
           const publicUrl = deps.mediaStorage.getPublicUrl?.(`packages/${filename}`);
           if (publicUrl) url = publicUrl;
-        } catch (err) {
-          console.warn("[TourPackages] Remote media storage upload failed (image kept in cache):", err);
+        } catch (err: any) {
+          throw Errors.internal(
+            `Remote media storage upload failed: ${err?.message || "Storage unavailable"}`
+          );
         }
       }
 
