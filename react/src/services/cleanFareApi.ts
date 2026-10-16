@@ -67,10 +67,18 @@ async function apiRequest<T>(
   if (schema) {
     const parseResult = schema.safeParse(body);
     if (!parseResult.success) {
-      console.warn(`[CleanFareApi] Validation warning for ${path}:`, parseResult.error);
-      // Return body anyway in case of loose optional fields, but schema verifies types
+      const issues = parseResult.error.issues.map((issue) => ({
+        path: issue.path.map(String).join("."),
+        message: issue.message,
+      }));
+      throw new CleanFareApiError(
+        "CONTRACT_VALIDATION_ERROR",
+        "The service returned an unexpected response. Please retry shortly.",
+        502,
+        issues,
+      );
     }
-    return body as T;
+    return parseResult.data;
   }
 
   return body as T;

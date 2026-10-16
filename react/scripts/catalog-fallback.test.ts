@@ -25,6 +25,19 @@ describe("canonical catalogue & fallback regressions", () => {
     );
   });
 
+  it("booking API response validation fails closed instead of passing invalid payloads downstream", () => {
+    const apiContent = readFileSync(resolve(__dirname, "../src/services/cleanFareApi.ts"), "utf-8");
+    assert.ok(apiContent.includes('"CONTRACT_VALIDATION_ERROR"'));
+    assert.ok(apiContent.includes("return parseResult.data;"));
+    assert.equal(apiContent.includes("console.warn(`[CleanFareApi] Validation warning"), false);
+  });
+
+  it("route parity allows unavailable vehicle fares but rejects routes without any positive fare", () => {
+    const parityContent = readFileSync(resolve(__dirname, "../src/data/parity.ts"), "utf-8");
+    assert.ok(parityContent.includes("fare === null || fare === undefined"));
+    assert.ok(parityContent.includes("validFareCount === 0"));
+  });
+
   it("RentalPage uses English copy and does not fabricate a confirmation reference", () => {
     const rentalPageContent = readFileSync(
       resolve(__dirname, "../src/pages/RentalPage.tsx"),

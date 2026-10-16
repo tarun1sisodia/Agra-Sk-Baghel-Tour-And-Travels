@@ -187,36 +187,32 @@ export class PublicationWorker {
         }
       }
     } else if (event.entity_type === "outstation_route") {
+      // The legacy routes table and slug/source_city columns were removed.
+      // Resolve against the active canonical fare-system schema.
       const routeRes = await this.pool.query(
-        "SELECT slug, corridor_name FROM routes WHERE id::text = $1 OR slug = $1",
+        `SELECT code, origin_name, destination_name, image_url, gallery
+         FROM outstation_routes
+         WHERE id::text = $1 OR code = $1
+         LIMIT 1`,
         [event.entity_id]
       ).catch(() => ({ rows: [] }));
 
       if (routeRes.rows.length > 0) {
-        slug = routeRes.rows[0].slug;
-        expectedPath = `/en/${routeRes.rows[0].slug}/`;
-        expectedTitle = routeRes.rows[0].corridor_name;
+        const row = routeRes.rows[0];
+        slug = row.code;
+        expectedPath = `/en/${row.code}/`;
+        expectedTitle = `${row.origin_name} to ${row.destination_name}`;
+        expectedImage = row.image_url || (Array.isArray(row.gallery) ? row.gallery[0]?.url : null) || null;
       } else {
-        const ocRes = await this.pool.query(
-          "SELECT slug, source_city, destination_city FROM outstation_routes WHERE id::text = $1 OR slug = $1",
+        const catRes = await this.pool.query(
+          "SELECT slug, title FROM catalog_items WHERE id = $1 OR slug = $1",
           [event.entity_id]
         ).catch(() => ({ rows: [] }));
 
-        if (ocRes.rows.length > 0) {
-          slug = ocRes.rows[0].slug;
-          expectedPath = `/en/${ocRes.rows[0].slug}/`;
-          expectedTitle = `${ocRes.rows[0].source_city} to ${ocRes.rows[0].destination_city}`;
-        } else {
-          const catRes = await this.pool.query(
-            "SELECT slug, title FROM catalog_items WHERE id = $1 OR slug = $1",
-            [event.entity_id]
-          ).catch(() => ({ rows: [] }));
-
-          if (catRes.rows.length > 0) {
-            slug = catRes.rows[0].slug;
-            expectedPath = `/en/${catRes.rows[0].slug}/`;
-            expectedTitle = catRes.rows[0].title;
-          }
+        if (catRes.rows.length > 0) {
+          slug = catRes.rows[0].slug;
+          expectedPath = `/en/${catRes.rows[0].slug}/`;
+          expectedTitle = catRes.rows[0].title;
         }
       }
     } else if (event.entity_type === "review") {
@@ -420,18 +416,19 @@ export class PublicationWorker {
       return false;
     }
 
-    // 1. Customer site health verification
+    // The customer site is static/SSG and intentionally has no API-style /health endpoint.
     try {
-      const healthRes = await this.fetchFn(`${siteBase.origin}/health`, {
+      const originRes = await this.fetchFn(`${siteBase.origin}/`, {
         method: "GET",
+        headers: { accept: "text/html" },
         signal: AbortSignal.timeout(5000),
       });
-      if (!healthRes.ok) {
-        this.logger.debug?.({ eventId: event.id, status: healthRes.status }, "Customer site /health responded with error");
+      if (!originRes.ok) {
+        this.logger.debug?.({ eventId: event.id, status: originRes.status }, "Customer site origin responded with error");
         return false;
       }
     } catch (err: any) {
-      this.logger.debug?.({ eventId: event.id, err: err?.message }, "Customer site /health check connection failed");
+      this.logger.debug?.({ eventId: event.id, err: err?.message }, "Customer site origin check failed");
       return false;
     }
 

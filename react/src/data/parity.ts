@@ -60,17 +60,25 @@ export function assertCatalogueInvariants(): void {
       throw new Error(`Catalogue parity failed: route "${r.id}" has invalid kind "${r.kind}".`);
     }
 
-    // Positive fares for all 5 vehicles
-    if (!r.fares) {
+    // Route pricing is partial by design: a vehicle without an active fare is
+    // unavailable for that route. Validate supplied fares and require at least
+    // one selectable fare so we do not fabricate pricing or publish a dead route.
+    if (!r.fares || typeof r.fares !== "object") {
       throw new Error(`Catalogue parity failed: route "${r.id}" is missing fares object.`);
     }
+    let validFareCount = 0;
     for (const vKey of requiredVehicles) {
-      const fare = r.fares[vKey];
-      if (typeof fare !== "number" || fare <= 0) {
+      const fare: unknown = r.fares[vKey];
+      if (fare === null || fare === undefined) continue;
+      if (typeof fare !== "number" || !Number.isFinite(fare) || fare <= 0) {
         throw new Error(
-          `Catalogue parity failed: route "${r.id}" vehicle "${vKey}" fare must be positive, got ${fare}.`
+          `Catalogue parity failed: route "${r.id}" vehicle "${vKey}" fare must be positive when supplied, got ${fare}.`
         );
       }
+      validFareCount += 1;
+    }
+    if (validFareCount === 0) {
+      throw new Error(`Catalogue parity failed: route "${r.id}" has no positive fare for any vehicle.`);
     }
   }
 

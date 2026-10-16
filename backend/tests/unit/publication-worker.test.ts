@@ -345,7 +345,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     expect(ev?.last_error).toContain("PAGES_DEPLOY_HOOK_URL is not set");
   });
 
-  it("verifyDeployment: checks /health, detail page, cover image, and sitemap.xml on customer site", async () => {
+  it("verifyDeployment: checks origin, detail page, cover image, and sitemap.xml on customer site", async () => {
     // Mock DB queries for entity lookup
     const customPool = {
       query: vi.fn().mockImplementation(async (sql: string) => {
@@ -360,7 +360,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     };
 
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
-      if (url.endsWith("/health")) {
+      if (new URL(url).pathname === "/") {
         return { ok: true, status: 200 };
       }
       if (url.endsWith("/en/packages/agra-taj-sunrise/")) {
@@ -1192,4 +1192,26 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     expect(routeVerified).toBe(true);
     expect(fetchedUrls).toContain("https://agraskbagheltourandtravels.com/en/agra-to-delhi-taxi/");
   });
+  it("resolves outstation routes using the canonical fare-system columns", async () => {
+    const query = vi.fn().mockResolvedValue({
+      rows: [{ code: "agra-to-delhi", origin_name: "Agra", destination_name: "Delhi", image_url: "/assets/routes/agra-delhi.webp", gallery: [] }],
+    });
+    const worker = new PublicationWorker({ pool: { query } as any, customerSiteUrl: "https://agraskbagheltourandtravels.com" });
+    const event: PublishEventRecord = {
+      id: "ev-current-outstation-schema", entity_type: "outstation_route", entity_id: "route-uuid-1",
+      event_type: "published", status: "triggered", attempt_count: 1, next_attempt_at: new Date(),
+      deployment_ref: "deployment-1", last_error: null, created_at: new Date(), processed_at: null,
+    };
+    const resolved = await worker.resolveEntityData(event);
+    expect(query).toHaveBeenCalledTimes(1);
+    expect(query.mock.calls[0][0]).toContain("FROM outstation_routes");
+    expect(query.mock.calls[0][0]).toContain("origin_name");
+    expect(query.mock.calls[0][0]).toContain("destination_name");
+    expect(query.mock.calls[0][0]).not.toContain("FROM routes");
+    expect(resolved).toMatchObject({
+      slug: "agra-to-delhi", expectedPath: "/en/agra-to-delhi/",
+      expectedTitle: "Agra to Delhi", expectedImage: "/assets/routes/agra-delhi.webp",
+    });
+  });
+
 });
