@@ -1,32 +1,22 @@
-# Main branch verification — 79370db18331
+# Main branch verification — c4fcefb6f874
 
-- **Result:** PASS
-- **Commit:** [79370db183315b7d0328805bdba655173bedc100](https://github.com/tarun1sisodia/ArenaAI/commit/79370db183315b7d0328805bdba655173bedc100)
-- **Checked at:** 2026-10-16T16:47:36Z
-- **Workflow run:** [38934501868](https://github.com/tarun1sisodia/ArenaAI/actions/runs/38934501868)
+- **Result:** FAIL
+- **Commit:** [c4fcefb6f87428bee0f8459420bd2e074a1f5ea6](https://github.com/tarun1sisodia/ArenaAI/commit/c4fcefb6f87428bee0f8459420bd2e074a1f5ea6)
+- **Checked at:** 2026-10-16T17:02:24Z
+- **Workflow run:** [38936442633](https://github.com/tarun1sisodia/ArenaAI/actions/runs/38936442633)
 
 ## Changed files
 
-- D	react/new_design/404.html
-- D	react/new_design/all_routes_and_prices.csv
-- D	react/new_design/book_confirmed.html
-- D	react/new_design/build_catalog.py
-- D	react/new_design/contact-us.html
-- D	react/new_design/faq.html
-- D	react/new_design/fleet.html
-- D	react/new_design/home.html
-- D	react/new_design/packages.html
-- D	react/new_design/privacy_policy.html
-- D	react/new_design/routes.html
-- D	react/new_design/services.html
-- D	react/new_design/services_why_choose_us.html
-- D	react/new_design/step_1_taj_mahal_sunrise_guided_tour.html
-- D	react/new_design/step_2_booking_form_for_all.html
-- D	react/new_design/taj_mahal_sunrise_guided_tour.html
-- D	react/new_design/terms_condit.html
-- D	react/new_design/travel_tour_pricing_catalog.md
-- M	react/scripts/generate-sitemap.ts
-- M	react/src/templates/RouteTemplate.tsx
+- M	admin/src/lib/api.ts
+- M	backend/src/db/postgres.ts
+- M	backend/src/modules/catalog/catalog.schema.ts
+- M	backend/src/modules/catalog/catalog.service.ts
+- M	backend/src/types/domain.ts
+- M	backend/tests/unit/legacy-schema-reconciliation.test.ts
+- M	docs/agent/02_CHANGE_LEDGER.md
+- M	react/src/components/catalog/LiveCatalogSection.tsx
+- M	react/src/pages/LivePackageDetailPage.tsx
+- M	react/src/services/catalog.ts
 
 ## Verification command
 
@@ -37,26 +27,133 @@ npm run install:all && npm run verify
 ## Verification result
 
 ```text
-  ✔ defaults missing or unknown public consent to false (1.312207ms)
-  ✔ never synthesizes ticket IDs from UUIDs; falls back to 'No Ticket' (0.250339ms)
-  ✔ preserves genuine ticket_id or booking_ticket_id when present (0.222136ms)
-✔ Admin Review Mapper — Safety & Invariant Guarantees (3.524229ms)
-▶ Admin Booking Unmask PII Frontend State & Security Suite
-  ✔ 1. Verifies role permission matrix for 'bookings:unmask' (2.010996ms)
-  ✔ 2. Initial state is strictly masked and empty (0.48615ms)
-  ✔ 3. startUnmasking sets loading flag and clears previous errors (0.169177ms)
-  ✔ 4. Successful unmask response applies unmasked data and sets unmasked=true (0.473457ms)
-  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.206807ms)
-  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.269946ms)
-✔ Admin Booking Unmask PII Frontend State & Security Suite (5.247586ms)
-ℹ tests 9
-ℹ suites 2
-ℹ pass 9
+  reason: [32m'tour_package-published'[39m,
+  entityType: [32m'tour_package'[39m,
+  entityId: [32m'77777777-7777-4777-8777-777777777777'[39m,
+  slug: [1mnull[22m,
+  sourceVersion: [1mnull[22m,
+  releaseState: [32m'release_deployed'[39m,
+  deployHookStatus: [32m'queued'[39m,
+  httpStatus: [33m200[39m
+}
+{ eventId: [32m'6168207c-4859-4863-be8f-239a0050c357'[39m } deployment verification succeeded; event finalized
+
+ [32m✓[39m tests/unit/dynamic-publishing.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 493[2mms[22m[39m
+ [32m✓[39m tests/unit/fare-engine.test.ts [2m([22m[2m91 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m tests/unit/reviews-engine.test.ts [2m([22m[2m32 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m tests/unit/bookings-payments.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m tests/unit/property-matrix.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m tests/unit/quotes.service.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/unit/admin-fare.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 1617[2mms[22m[39m
+   [33m[2m✓[22m[39m Section 12.13: Admin, audit, routes, roles (AA-01 to AA-14)[2m > [22mAA-09 & AA-10: calculate-distance returns rounded 230.5 km and 246 min, saves nothing [33m 804[2mms[22m[39m
+   [33m[2m✓[22m[39m Section 12.13: Admin, audit, routes, roles (AA-01 to AA-14)[2m > [22mAA-14: LocationIQ key is absent from every response and log line [33m 802[2mms[22m[39m
+ [32m✓[39m tests/unit/rental-enquiries.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m tests/unit/legacy-schema-reconciliation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 305[2mms[22m[39m
+ [32m✓[39m tests/unit/package-fleet-price.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m tests/unit/contracts.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m tests/unit/admin-catalog-create.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/admin-unmask.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 319[2mms[22m[39m
+ [32m✓[39m tests/unit/fare-strategy-boundary.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m tests/unit/clean-routes-alias.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 115[2mms[22m[39m
+ [32m✓[39m tests/unit/catalog-manifest.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 159[2mms[22m[39m
+ [32m✓[39m tests/unit/locationiq.service.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1609[2mms[22m[39m
+   [33m[2m✓[22m[39m LocationIQ Service Unit Tests (AA-09 to AA-11)[2m > [22mAA-10: Mocked LocationIQ returns 230,456 m and 14,730 s -> 230.5 km and 246 min [33m 804[2mms[22m[39m
+   [33m[2m✓[22m[39m LocationIQ Service Unit Tests (AA-09 to AA-11)[2m > [22mAA-11: Routing failure throws ROUTING_FAILED [33m 801[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m18 passed[39m[22m[90m (18)[39m
+[2m      Tests [22m [1m[32m301 passed[39m[22m[90m (301)[39m
+[2m   Start at [22m 17:02:03
+[2m   Duration [22m 11.04s[2m (transform 1.01s, setup 0ms, collect 3.04s, tests 4.91s, environment 3ms, prepare 997ms)[22m
+
+
+> skb-react@0.1.0 test:catalog-sources
+> node --experimental-strip-types --test scripts/catalog-sources.test.ts scripts/catalog-fallback.test.ts scripts/home-booking-widget.test.ts scripts/reviews-marquee.test.ts scripts/rental-page.test.ts scripts/dynamic-publishing-e2e.test.ts
+
+▶ canonical catalogue & fallback regressions
+  ✔ loadPublishedPackages never falls back to static mock packages (1.510251ms)
+  ✔ RentalPage uses English copy and does not fabricate a confirmation reference (0.713618ms)
+  ✔ ReviewsMarquee does not import synthetic fallbackReviews (0.328967ms)
+  ✔ RoutesPage does not fallback to staticCatalogRoutes (0.549049ms)
+  ✔ FleetPage does not silently fall back to static FLEET_DATA when live fleet is empty (1.992776ms)
+  ✔ ServicesPage separates editorial copy from live fleet facts (0.428183ms)
+✔ canonical catalogue & fallback regressions (7.646425ms)
+▶ catalog source resolution (P0-T03 / P0-T04)
+  ✔ does not default missing production variables to the staging API (1.610228ms)
+  ✔ derives the implemented content manifest path from the API base (0.300373ms)
+  ✔ prefers the exact ROUTE_CATALOG_MANIFEST_URL spelling over a constructed fallback (0.28825ms)
+  ✔ enforces fail-closed snapshot policy to prevent silent preservation of stale catalogue files (0.371447ms)
+  ✔ treats RELEASE_BUILD=1, CATALOG_FAIL_CLOSED=1, and CF_PAGES=1 as fail-closed (0.215133ms)
+✔ catalog source resolution (P0-T03 / P0-T04) (4.578734ms)
+▶ Phase D.2 — Dynamic Catalog Publishing, SEO & SSG Pipeline (Build & Integration Contract)
+  ✔ 1. Production slug validation: isSitemapSafeSlug validates canonical slug criteria (1.411546ms)
+  ✔ 2. Fail-closed release build invariants: missing source or stale snapshot strictly fails (3.353587ms)
+  ✔ 3. Real production sitemap invariants: all generated entries are valid canonical paths with no forbidden domains (3.127003ms)
+  ✔ 4. Canonical detail route format contract for packages, local tours, and transfers (0.311484ms)
+✔ Phase D.2 — Dynamic Catalog Publishing, SEO & SSG Pipeline (Build & Integration Contract) (10.201104ms)
+▶ HomeBookingWidget — Fleet readiness & Route matching regressions
+  ✔ deriveActiveVehicleGroups returns empty array when catalog is null or has empty groups (2.215964ms)
+  ✔ deriveActiveVehicleGroups hides groups with 0 active models in live catalog (0.60274ms)
+  ✔ deriveActiveVehicleGroups keeps group selection distinct from vehicle model identity (0.268303ms)
+  ✔ parseRouteCities parses valid corridor names without falling back to hardcoded cities (0.484007ms)
+  ✔ findMatchingOutstationRoute returns exact route for published corridor and null for unmatched (0.429536ms)
+  ✔ buildBookingHref blocks invalid outstation handoffs and redirects to custom enquiry (0.603953ms)
+  ✔ buildBookingHref preserves route, trip type, dates, and group preference during valid handoff (0.532018ms)
+  ✔ buildCustomEnquiryHref preserves origin, destination, trip type, dates, and vehicle preference (0.498965ms)
+✔ HomeBookingWidget — Fleet readiness & Route matching regressions (8.374509ms)
+▶ Taxi Rental Page — Cano nical Fleet & Form Invariants
+  ✔ calculates active models count dynamically from live vehicle catalogue (1.44009ms)
+  ✔ selecting a vehicle model preserves the exact model UUID and canonical group code (0.272932ms)
+  ✔ changing vehicle group clears incompatible selected vehicle model (0.229701ms)
+  ✔ resolves realistic fallback images without hallucinating vehicle identities (0.347421ms)
+  ✔ robustly defaults to first active group if current selection is not available in catalog (0.281928ms)
+  ✔ validates Indian 10-digit mobile number format (0.443882ms)
+  ✔ validates return date on or after pickup date (0.184686ms)
+  ✔ ensures cleanProductMatch does NOT intercept /taxis/rent, routing correctly to RentalPage (1.098368ms)
+  ✔ header & mobile nav normalizeNavPath correctly highlights Taxi Rental link (0.924754ms)
+✔ Taxi Rental Page — Cano nical Fleet & Form Invariants (7.667143ms)
+▶ ReviewsMarquee — is_verified mapper & badge preservation
+  ✔ preserves is_verified: true when server indicates verified review (1.303264ms)
+  ✔ preserves is_verified: false when server review is unverified (0.257963ms)
+  ✔ never infers verification from booking_id, status, or social media links (0.284533ms)
+  ✔ safely handles null/missing fields and clamps ratings to 1..5 range (2.714769ms)
+✔ ReviewsMarquee — is_verified mapper & badge preservation (6.971799ms)
+ℹ tests 36
+ℹ suites 6
+ℹ pass 36
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 137.910773
+ℹ duration_ms 349.032626
+
+> skb-admin@0.1.0 test
+> node --experimental-strip-types --test src/lib/reviewMapper.test.ts src/pages/bookingsUnmaskHelper.test.ts src/modules/tour-packages/tour-packages.constants.test.ts
+
+▶ Admin Review Mapper — Safety & Invariant Guarantees
+  ✔ defaults missing or unknown public consent to false (1.738069ms)
+  ✔ never synthesizes ticket IDs from UUIDs; falls back to 'No Ticket' (0.309941ms)
+  ✔ preserves genuine ticket_id or booking_ticket_id when present (0.280085ms)
+✔ Admin Review Mapper — Safety & Invariant Guarantees (4.248735ms)
+▶ tour package base tier form normalization
+  ✔ uses the form's established default when the API returns null or undefined (0.969468ms)
+  ✔ preserves a valid stored tier (0.179517ms)
+✔ tour package base tier form normalization (2.804387ms)
+▶ Admin Booking Unmask PII Frontend State & Security Suite
+  ✔ 1. Verifies role permission matrix for 'bookings:unmask' (3.13686ms)
+  ✔ 2. Initial state is strictly masked and empty (0.514214ms)
+  ✔ 3. startUnmasking sets loading flag and clears previous errors (0.182322ms)
+  ✔ 4. Successful unmask response applies unmasked data and sets unmasked=true (0.737933ms)
+  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.315271ms)
+  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.344025ms)
+✔ Admin Booking Unmask PII Frontend State & Security Suite (8.759692ms)
+ℹ tests 11
+ℹ suites 3
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 179.824996
 
 > sk-baghel-tour-travels@0.1.0 customer:seo
 > npm --prefix react run test:seo
@@ -66,15 +163,15 @@ npm run install:all && npm run verify
 > node --experimental-strip-types --test scripts/site-origin.test.ts && node --experimental-strip-types scripts/test-seo-lifecycle.ts
 
 ▶ canonical site origin
-  ✔ uses the approved production origin when no local override is supplied (1.026903ms)
-  ✔ normalizes a trailing slash (0.237716ms)
-  ✔ rejects preview hosts in release mode (0.44833ms)
-  ✔ requires HTTPS for non-local origins (0.198371ms)
-  ✔ allows HTTPS preview origins (0.196187ms)
-  ✔ permits HTTP only on loopback in development (0.21347ms)
-  ✔ rejects paths and credentials (0.248716ms)
-  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.24577ms)
-✔ canonical site origin (4.589454ms)
+  ✔ uses the approved production origin when no local override is supplied (1.019391ms)
+  ✔ normalizes a trailing slash (0.183434ms)
+  ✔ rejects preview hosts in release mode (0.438412ms)
+  ✔ requires HTTPS for non-local origins (0.237104ms)
+  ✔ allows HTTPS preview origins (0.1602ms)
+  ✔ permits HTTP only on loopback in development (0.215183ms)
+  ✔ rejects paths and credentials (0.210786ms)
+  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.248015ms)
+✔ canonical site origin (4.270866ms)
 ℹ tests 8
 ℹ suites 1
 ℹ pass 8
@@ -82,7 +179,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 122.647081
+ℹ duration_ms 116.827655
 SEO lifecycle checks passed.
 
 > sk-baghel-tour-travels@0.1.0 build:all
@@ -97,124 +194,17 @@ SEO lifecycle checks passed.
 > node --experimental-strip-types scripts/validate-site-config.ts && tsc --noEmit && node --experimental-strip-types scripts/build-manifest.ts && vite build && node --experimental-strip-types scripts/prerender.ts && node --experimental-strip-types scripts/validate-seo-artifacts.ts
 
 Site origin validated: https://agraskbagheltourandtravels.com (production).
-[Manifest Builder] No VITE_API_BASE_URL/CATALOG_API_URL; using the local static catalog only (not a release build).
-✅ [Manifest Builder] Emitted public/routes-manifest.json (963 routes) from backend catalog.
-✅ [Manifest Builder] Emitted src/data/generated-catalog.json with 963 typed routes.
-[Manifest Builder] Preserved existing snapshot at /home/runner/work/ArenaAI/ArenaAI/react/src/data/generated-published-catalog.json because the remote source was not fetched.
-[Manifest Builder] Preserved existing snapshot at /home/runner/work/ArenaAI/ArenaAI/react/src/data/generated-published-routes.json because the remote source was not fetched.
-[Manifest Builder] Preserved existing snapshot at /home/runner/work/ArenaAI/ArenaAI/react/src/data/generated-published-tour-packages.json because the remote source was not fetched.
-[Manifest Builder] Preserved existing snapshot at /home/runner/work/ArenaAI/ArenaAI/react/src/data/generated-published-transfer-routes.json because the remote source was not fetched.
-[Manifest Builder] Preserved existing snapshot at /home/runner/work/ArenaAI/ArenaAI/react/src/data/generated-published-local-packages.json because the remote source was not fetched.
-[Manifest Builder] Preserved existing snapshot at /home/runner/work/ArenaAI/ArenaAI/react/src/data/generated-published-content.json because the remote source was not fetched.
-[36mvite v7.3.6 [32mbuilding client environment for production...[36m[39m
-transforming...
-[33mnode_modules/zod/v4/core/regexes.js (74:0): A comment
+file:///home/runner/work/ArenaAI/ArenaAI/react/scripts/catalog-sources.ts:105
+    throw new Error(
+          ^
 
-"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
- * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
- * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+Error: Fail-closed catalog build is missing required source URLs (ROUTE_CATALOG_MANIFEST_URL, TOUR_PACKAGES_MANIFEST_URL, TRANSFER_ROUTES_MANIFEST_URL, LOCAL_PACKAGES_MANIFEST_URL, CONTENT_MANIFEST_URL). Set VITE_API_BASE_URL or each *MANIFEST_URL. Refusing to default to skb-baghel-api-staging.onrender.com.
+    at assertFailClosedCatalogEnv (file:///home/runner/work/ArenaAI/ArenaAI/react/scripts/catalog-sources.ts:105:11)
+    at buildRouteCatalogAndManifest (file:///home/runner/work/ArenaAI/ArenaAI/react/scripts/build-manifest.ts:57:3)
+    at file:///home/runner/work/ArenaAI/ArenaAI/react/scripts/build-manifest.ts:485:7
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
 
-in "node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
-[33mnode_modules/zod/v4/core/util.js (400:0): A comment
-
-"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
-
-in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
-[32m✓[39m 2552 modules transformed.
-rendering chunks...
-[2mdist/[22m[32mindex.html                                   [39m[1m[2m  4.42 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[35mindex-B-gruvXH.css                    [39m[1m[2m369.44 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mrazorpay-D3zIqEa0.js                  [39m[1m[2m  0.56 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mvehicle-tiers-Bhu6VwvC.js             [39m[1m[2m  0.65 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mDynamicPackageDetailPage-BpZqr-7Q.js  [39m[1m[2m  1.10 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mcustomerAuthApi-BXl3Aey-.js           [39m[1m[2m  3.60 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mMonumentsPage-CfrqpXJm.js             [39m[1m[2m  4.13 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mEditorialPageTemplate-Cj6hZ0by.js     [39m[1m[2m  4.55 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mNotFoundPage-CzLgraBK.js              [39m[1m[2m  5.29 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mAuthCallbackPage-Bkr6YlC3.js          [39m[1m[2m  5.31 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mLoginPage-Cy_wxk52.js                 [39m[1m[2m  6.27 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mMyBookingsPage-DT9SL8VU.js            [39m[1m[2m  7.43 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mvendor-icons-bO9R6wf1.js              [39m[1m[2m  9.55 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPrivacyPage-UtbdrMCN.js               [39m[1m[2m 10.20 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPaymentResumePage-2nYvLmPf.js         [39m[1m[2m 10.33 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mSeoLandingPage-MrP2wg8p.js            [39m[1m[2m 11.18 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mTermsPage-Di9V5tu5.js                 [39m[1m[2m 11.44 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mBookingConfirmationPage-BfDRk5dI.js   [39m[1m[2m 11.99 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mFaqPage-BmtvQ7aR.js                   [39m[1m[2m 12.01 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mMarketingPage-DLzpTEIy.js             [39m[1m[2m 14.16 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mProductDetailPage-B7IWsQ6l.js         [39m[1m[2m 14.18 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mServicesPage-Bcp84bxm.js              [39m[1m[2m 16.91 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mRentalPage-xYmzbsLC.js                [39m[1m[2m 19.11 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mContactPage-I1SpVGGB.js               [39m[1m[2m 21.35 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mBookingPage-BV0yqwhh.js               [39m[1m[2m 25.77 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mRouteDetailPage-C-R7IFtT.js           [39m[1m[2m 27.28 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mVehicleDetailPage-DjdCqyQW.js         [39m[1m[2m 28.65 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPagination-C3DrsbmA.js                [39m[1m[2m 31.94 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPackageDetailPage-Dv-p8rLJ.js         [39m[1m[2m 32.12 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mFleetPage-BespNahJ.js                 [39m[1m[2m 32.77 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mAboutPage-Cu1t8oYC.js                 [39m[1m[2m 35.57 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mRoutesPage-bytlsHaQ.js                [39m[1m[2m 61.28 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPackagesPage-DNMbMCC8.js              [39m[1m[2m 70.29 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mvendor-motion-T3eR97Ln.js             [39m[1m[2m129.66 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mvendor-react-dzjnOsT9.js              [39m[1m[2m192.35 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mvendor-supabase-DaueY-7D.js           [39m[1m[2m224.50 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mdata-catalogue-CCpWhkOr.js            [39m[1m[2m349.46 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mindex-gq9nLuGZ.js                     [39m[1m[2m352.38 kB[22m[1m[22m
-[32m✓ built in 4.49s[39m
-🚀 Starting Static HTML Pre-Renderer (SSG)...
-✅ Generated sitemap.xml (50 URLs with source-owned lastmod values where available, priorities & xhtml:link alternates) and robots.txt pointing to https://agraskbagheltourandtravels.com/sitemap.xml
-✅ SSG Pre-Rendering Complete: 59 pages rendered + 23 redirects written (3.31 MB total) in 2.76s.
-SEO artifact checks passed: 81 HTML files, 50 sitemap URLs, canonical origin https://agraskbagheltourandtravels.com.
-
-> sk-baghel-tour-travels@0.1.0 admin:build
-> npm --prefix admin run build
-
-
-> skb-admin@0.1.0 build
-> tsc --noEmit && vite build
-
-[36mvite v7.3.6 [32mbuilding client environment for production...[36m[39m
-transforming...
-[32m✓[39m 2408 modules transformed.
-rendering chunks...
-computing gzip size...
-[2mdist/[22m[32mindex.html                                    [39m[1m[2m  1.63 kB[22m[1m[22m[2m │ gzip:  0.62 kB[22m
-[2mdist/[22m[2massets/[22m[35mindex-Bd2tgWBH.css                     [39m[1m[2m 57.39 kB[22m[1m[22m[2m │ gzip: 10.74 kB[22m
-[2mdist/[22m[2massets/[22m[36mTable-BtAPkgOq.js                      [39m[1m[2m  0.87 kB[22m[1m[22m[2m │ gzip:  0.37 kB[22m
-[2mdist/[22m[2massets/[22m[36mStatusBadge-B2o1qt3l.js                [39m[1m[2m  1.37 kB[22m[1m[22m[2m │ gzip:  0.55 kB[22m
-[2mdist/[22m[2massets/[22m[36mDialog-CWX4iafV.js                     [39m[1m[2m  1.92 kB[22m[1m[22m[2m │ gzip:  0.94 kB[22m
-[2mdist/[22m[2massets/[22m[36mcleanAdminApi-BaNRZIj5.js              [39m[1m[2m  2.35 kB[22m[1m[22m[2m │ gzip:  0.60 kB[22m
-[2mdist/[22m[2massets/[22m[36mLocationAutocompleteInput-fYyr3UUn.js  [39m[1m[2m  2.65 kB[22m[1m[22m[2m │ gzip:  1.16 kB[22m
-[2mdist/[22m[2massets/[22m[36mCanonicalFleetPricingGrid-CfKTK7TI.js  [39m[1m[2m  5.42 kB[22m[1m[22m[2m │ gzip:  2.00 kB[22m
-[2mdist/[22m[2massets/[22m[36mSignoffPage-DOX7nOwE.js                [39m[1m[2m  6.47 kB[22m[1m[22m[2m │ gzip:  2.43 kB[22m
-[2mdist/[22m[2massets/[22m[36mPublishingPage-D8lFXEQx.js             [39m[1m[2m  6.57 kB[22m[1m[22m[2m │ gzip:  2.07 kB[22m
-[2mdist/[22m[2massets/[22m[36mAuditPage-dmHwJTwr.js                  [39m[1m[2m  7.00 kB[22m[1m[22m[2m │ gzip:  2.40 kB[22m
-[2mdist/[22m[2massets/[22m[36mInquiriesPage-CThfl1j_.js              [39m[1m[2m  7.14 kB[22m[1m[22m[2m │ gzip:  2.59 kB[22m
-[2mdist/[22m[2massets/[22m[36mRoundTripRatesPage-CKLilT89.js         [39m[1m[2m  8.76 kB[22m[1m[22m[2m │ gzip:  2.99 kB[22m
-[2mdist/[22m[2massets/[22m[36mFareSettingsPage-BYk6Bflt.js           [39m[1m[2m  8.98 kB[22m[1m[22m[2m │ gzip:  2.98 kB[22m
-[2mdist/[22m[2massets/[22m[36mRentalRequestsPage-CQYyC3YE.js         [39m[1m[2m  9.13 kB[22m[1m[22m[2m │ gzip:  2.94 kB[22m
-[2mdist/[22m[2massets/[22m[36mFinancePage-Bof-S0W_.js                [39m[1m[2m  9.75 kB[22m[1m[22m[2m │ gzip:  3.55 kB[22m
-[2mdist/[22m[2massets/[22m[36mReviewsPage-BST8Q0TR.js                [39m[1m[2m 10.13 kB[22m[1m[22m[2m │ gzip:  3.26 kB[22m
-[2mdist/[22m[2massets/[22m[36mExtraChargesPage-CJVnnbD5.js           [39m[1m[2m 13.91 kB[22m[1m[22m[2m │ gzip:  3.69 kB[22m
-[2mdist/[22m[2massets/[22m[36mVehiclesPage-BAri4eGu.js               [39m[1m[2m 14.40 kB[22m[1m[22m[2m │ gzip:  3.68 kB[22m
-[2mdist/[22m[2massets/[22m[36mRoutesPage-BWeDeXdf.js                 [39m[1m[2m 16.20 kB[22m[1m[22m[2m │ gzip:  4.80 kB[22m
-[2mdist/[22m[2massets/[22m[36mLocalTransfersPage-BkNVRbXU.js         [39m[1m[2m 18.75 kB[22m[1m[22m[2m │ gzip:  4.69 kB[22m
-[2mdist/[22m[2massets/[22m[36mPoliciesPage-B0ctKo4g.js               [39m[1m[2m 19.02 kB[22m[1m[22m[2m │ gzip:  4.44 kB[22m
-[2mdist/[22m[2massets/[22m[36mBookingsPage-yNA3RaZa.js               [39m[1m[2m 21.89 kB[22m[1m[22m[2m │ gzip:  6.54 kB[22m
-[2mdist/[22m[2massets/[22m[36mTourPackagesPage-Df__GESJ.js           [39m[1m[2m 24.63 kB[22m[1m[22m[2m │ gzip:  7.54 kB[22m
-[2mdist/[22m[2massets/[22m[36mvendor-lucide-BCq2-toh.js              [39m[1m[2m 24.83 kB[22m[1m[22m[2m │ gzip:  8.57 kB[22m
-[2mdist/[22m[2massets/[22m[36mCatalogPage-CqYsOHDp.js                [39m[1m[2m 28.57 kB[22m[1m[22m[2m │ gzip:  8.36 kB[22m
-[2mdist/[22m[2massets/[22m[36mvendor-router-BvnVwLd0.js              [39m[1m[2m 38.19 kB[22m[1m[22m[2m │ gzip: 13.75 kB[22m
-[2mdist/[22m[2massets/[22m[36mvendor-motion-ETqTANL-.js              [39m[1m[2m133.36 kB[22m[1m[22m[2m │ gzip: 44.17 kB[22m
-[2mdist/[22m[2massets/[22m[36mvendor-react-YWPnaJPF.js               [39m[1m[2m221.70 kB[22m[1m[22m[2m │ gzip: 68.96 kB[22m
-[2mdist/[22m[2massets/[22m[36mindex-CqOGJcPP.js                      [39m[1m[2m325.41 kB[22m[1m[22m[2m │ gzip: 89.34 kB[22m
-[32m✓ built in 4.00s[39m
-
-> sk-baghel-tour-travels@0.1.0 backend:build
-> npm --prefix backend run build
-
-
-> @sk-baghel/backend@0.1.0 build
-> tsc -p tsconfig.build.json
-
+Node.js v24.21.0
 ```
