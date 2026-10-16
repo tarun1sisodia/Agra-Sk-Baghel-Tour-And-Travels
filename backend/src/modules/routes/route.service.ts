@@ -202,7 +202,17 @@ export function createRouteService(deps: { db: Repositories; clock: Clock; bumpM
         updatedAt: toIso(deps.clock.now()),
       });
       deps.bumpManifest?.();
-      await triggerFrontendRebuild("route-published");
+      await deps.db.publishEvents?.enqueue({
+        entityType: "outstation_route",
+        entityId: item.id,
+        eventType: "published",
+      });
+      await triggerFrontendRebuild({
+        reason: "route-published",
+        entityType: "outstation_route",
+        entityId: item.id,
+        slug: item.slug,
+      });
       return updated;
     },
 
@@ -218,7 +228,17 @@ export function createRouteService(deps: { db: Repositories; clock: Clock; bumpM
         updatedAt: toIso(deps.clock.now()),
       });
       deps.bumpManifest?.();
-      await triggerFrontendRebuild("route-archived");
+      await deps.db.publishEvents?.enqueue({
+        entityType: "outstation_route",
+        entityId: item.id,
+        eventType: "archived",
+      });
+      await triggerFrontendRebuild({
+        reason: "route-archived",
+        entityType: "outstation_route",
+        entityId: item.id,
+        slug: item.slug,
+      });
       return updated;
     },
 

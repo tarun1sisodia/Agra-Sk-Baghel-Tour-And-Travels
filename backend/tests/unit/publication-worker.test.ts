@@ -468,4 +468,375 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     const verified = await worker.verifyDeployment(ev);
     expect(verified).toBe(false);
   });
+
+  it("verifyDeployment: fails closed if entity cannot be resolved in database", async () => {
+    const customPool = {
+      query: vi.fn().mockResolvedValue({ rows: [] }),
+    };
+
+    const mockFetch = vi.fn().mockImplementation(async (url: string) => {
+      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      return { ok: true, status: 200 };
+    });
+
+    const worker = new PublicationWorker({
+      pool: customPool as any,
+      customerSiteUrl: "https://agraskbagheltourandtravels.com",
+      fetchFn: mockFetch as any,
+    });
+
+    const ev: PublishEventRecord = {
+      id: "ev-unresolved",
+      entity_type: "tour_package",
+      entity_id: "non-existent-pkg",
+      event_type: "published",
+      status: "triggered",
+      attempt_count: 1,
+      next_attempt_at: new Date(),
+      deployment_ref: "cf-3",
+      last_error: null,
+      created_at: new Date(),
+      processed_at: null,
+    };
+
+    const verified = await worker.verifyDeployment(ev);
+    expect(verified).toBe(false);
+  });
+
+  it("verifyDeployment: resolves tour package from dedicated tour_packages table with full CDN image", async () => {
+    const customPool = {
+      query: vi.fn().mockImplementation(async (sql: string) => {
+        if (sql.includes("FROM tour_packages WHERE")) {
+          return {
+            rows: [
+              {
+                package_code: "golden-triangle-express",
+                name: "Golden Triangle Express",
+                image_url: "https://cdn.example.com/gt-cover.webp",
+                gallery: [],
+              },
+            ],
+          };
+        }
+        return { rows: [] };
+      }),
+    };
+
+    const fetchedUrls: string[] = [];
+    const mockFetch = vi.fn().mockImplementation(async (url: string) => {
+      fetchedUrls.push(url);
+      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/en/packages/golden-triangle-express/")) {
+        return { ok: true, status: 200, text: async () => "<html><title>Golden Triangle Express</title></html>" };
+      }
+      if (url === "https://cdn.example.com/gt-cover.webp") {
+        return { ok: true, status: 200 };
+      }
+      if (url.endsWith("/sitemap.xml")) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () => "<urlset><loc>https://agraskbagheltourandtravels.com/en/packages/golden-triangle-express/</loc></urlset>",
+        };
+      }
+      return { ok: false, status: 404 };
+    });
+
+    const worker = new PublicationWorker({
+      pool: customPool as any,
+      customerSiteUrl: "https://agraskbagheltourandtravels.com",
+      fetchFn: mockFetch as any,
+    });
+
+    const ev: PublishEventRecord = {
+      id: "ev-tp-1",
+      entity_type: "tour_package",
+      entity_id: "gt-uuid-1",
+      event_type: "published",
+      status: "triggered",
+      attempt_count: 1,
+      next_attempt_at: new Date(),
+      deployment_ref: "cf-4",
+      last_error: null,
+      created_at: new Date(),
+      processed_at: null,
+    };
+
+    const verified = await worker.verifyDeployment(ev);
+    expect(verified).toBe(true);
+    expect(fetchedUrls).toContain("https://cdn.example.com/gt-cover.webp");
+    expect(fetchedUrls).toContain("https://agraskbagheltourandtravels.com/en/packages/golden-triangle-express/");
+  });
+
+  it("verifyDeployment: resolves local package from local_sightseeing_packages table", async () => {
+    const customPool = {
+      query: vi.fn().mockImplementation(async (sql: string) => {
+        if (sql.includes("FROM local_sightseeing_packages WHERE")) {
+          return {
+            rows: [
+              {
+                package_code: "agra-half-day-sightseeing",
+                name: "Agra Half Day Sightseeing",
+              },
+            ],
+          };
+        }
+        return { rows: [] };
+      }),
+    };
+
+    const mockFetch = vi.fn().mockImplementation(async (url: string) => {
+      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/en/local-packages/agra-half-day-sightseeing/")) {
+        return { ok: true, status: 200, text: async () => "<html>Agra Half Day Sightseeing</html>" };
+      }
+      if (url.endsWith("/sitemap.xml")) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () => "<urlset><loc>https://agraskbagheltourandtravels.com/en/local-packages/agra-half-day-sightseeing/</loc></urlset>",
+        };
+      }
+      return { ok: false, status: 404 };
+    });
+
+    const worker = new PublicationWorker({
+      pool: customPool as any,
+      customerSiteUrl: "https://agraskbagheltourandtravels.com",
+      fetchFn: mockFetch as any,
+    });
+
+    const ev: PublishEventRecord = {
+      id: "ev-lp-1",
+      entity_type: "local_package",
+      entity_id: "lp-uuid-1",
+      event_type: "published",
+      status: "triggered",
+      attempt_count: 1,
+      next_attempt_at: new Date(),
+      deployment_ref: "cf-5",
+      last_error: null,
+      created_at: new Date(),
+      processed_at: null,
+    };
+
+    const verified = await worker.verifyDeployment(ev);
+    expect(verified).toBe(true);
+  });
+
+  it("verifyDeployment: resolves transfer route from transfer_routes table", async () => {
+    const customPool = {
+      query: vi.fn().mockImplementation(async (sql: string) => {
+        if (sql.includes("FROM transfer_routes WHERE")) {
+          return {
+            rows: [
+              {
+                route_code: "delhi-airport-to-agra",
+                name: "Delhi Airport to Agra",
+              },
+            ],
+          };
+        }
+        return { rows: [] };
+      }),
+    };
+
+    const mockFetch = vi.fn().mockImplementation(async (url: string) => {
+      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/en/transfers/delhi-airport-to-agra/")) {
+        return { ok: true, status: 200, text: async () => "<html>Delhi Airport to Agra</html>" };
+      }
+      if (url.endsWith("/sitemap.xml")) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () => "<urlset><loc>https://agraskbagheltourandtravels.com/en/transfers/delhi-airport-to-agra/</loc></urlset>",
+        };
+      }
+      return { ok: false, status: 404 };
+    });
+
+    const worker = new PublicationWorker({
+      pool: customPool as any,
+      customerSiteUrl: "https://agraskbagheltourandtravels.com",
+      fetchFn: mockFetch as any,
+    });
+
+    const ev: PublishEventRecord = {
+      id: "ev-tr-1",
+      entity_type: "transfer",
+      entity_id: "tr-uuid-1",
+      event_type: "published",
+      status: "triggered",
+      attempt_count: 1,
+      next_attempt_at: new Date(),
+      deployment_ref: "cf-6",
+      last_error: null,
+      created_at: new Date(),
+      processed_at: null,
+    };
+
+    const verified = await worker.verifyDeployment(ev);
+    expect(verified).toBe(true);
+  });
+
+  it("verifyDeployment: for archived event, returns true only when sitemap excludes it and detail page is 404", async () => {
+    const customPool = {
+      query: vi.fn().mockImplementation(async (sql: string) => {
+        if (sql.includes("FROM tour_packages WHERE")) {
+          return {
+            rows: [
+              {
+                package_code: "monsoon-heritage-special",
+                name: "Monsoon Heritage Special",
+              },
+            ],
+          };
+        }
+        return { rows: [] };
+      }),
+    };
+
+    const mockFetch = vi.fn().mockImplementation(async (url: string) => {
+      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/sitemap.xml")) {
+        // Sitemap excludes the archived URL
+        return { ok: true, status: 200, text: async () => "<urlset><loc>https://agraskbagheltourandtravels.com/en/packages/other/</loc></urlset>" };
+      }
+      if (url.endsWith("/en/packages/monsoon-heritage-special/")) {
+        // Old URL returns 404
+        return { ok: false, status: 404 };
+      }
+      return { ok: false, status: 404 };
+    });
+
+    const worker = new PublicationWorker({
+      pool: customPool as any,
+      customerSiteUrl: "https://agraskbagheltourandtravels.com",
+      fetchFn: mockFetch as any,
+    });
+
+    const ev: PublishEventRecord = {
+      id: "ev-archive-success",
+      entity_type: "tour_package",
+      entity_id: "mhs-1",
+      event_type: "archived",
+      status: "triggered",
+      attempt_count: 1,
+      next_attempt_at: new Date(),
+      deployment_ref: "cf-7",
+      last_error: null,
+      created_at: new Date(),
+      processed_at: null,
+    };
+
+    const verified = await worker.verifyDeployment(ev);
+    expect(verified).toBe(true);
+  });
+
+  it("verifyDeployment: for archived event, returns false if sitemap still contains URL", async () => {
+    const customPool = {
+      query: vi.fn().mockImplementation(async (sql: string) => {
+        if (sql.includes("FROM tour_packages WHERE")) {
+          return {
+            rows: [
+              {
+                package_code: "monsoon-heritage-special",
+                name: "Monsoon Heritage Special",
+              },
+            ],
+          };
+        }
+        return { rows: [] };
+      }),
+    };
+
+    const mockFetch = vi.fn().mockImplementation(async (url: string) => {
+      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/sitemap.xml")) {
+        // Sitemap STILL contains the archived URL
+        return { ok: true, status: 200, text: async () => "<urlset><loc>https://agraskbagheltourandtravels.com/en/packages/monsoon-heritage-special/</loc></urlset>" };
+      }
+      if (url.endsWith("/en/packages/monsoon-heritage-special/")) {
+        return { ok: false, status: 404 };
+      }
+      return { ok: false, status: 404 };
+    });
+
+    const worker = new PublicationWorker({
+      pool: customPool as any,
+      customerSiteUrl: "https://agraskbagheltourandtravels.com",
+      fetchFn: mockFetch as any,
+    });
+
+    const ev: PublishEventRecord = {
+      id: "ev-archive-fail-sitemap",
+      entity_type: "tour_package",
+      entity_id: "mhs-1",
+      event_type: "archived",
+      status: "triggered",
+      attempt_count: 1,
+      next_attempt_at: new Date(),
+      deployment_ref: "cf-8",
+      last_error: null,
+      created_at: new Date(),
+      processed_at: null,
+    };
+
+    const verified = await worker.verifyDeployment(ev);
+    expect(verified).toBe(false);
+  });
+
+  it("verifyDeployment: for archived event, returns false if page returns 200 with active title", async () => {
+    const customPool = {
+      query: vi.fn().mockImplementation(async (sql: string) => {
+        if (sql.includes("FROM tour_packages WHERE")) {
+          return {
+            rows: [
+              {
+                package_code: "monsoon-heritage-special",
+                name: "Monsoon Heritage Special",
+              },
+            ],
+          };
+        }
+        return { rows: [] };
+      }),
+    };
+
+    const mockFetch = vi.fn().mockImplementation(async (url: string) => {
+      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/sitemap.xml")) {
+        return { ok: true, status: 200, text: async () => "<urlset></urlset>" };
+      }
+      if (url.endsWith("/en/packages/monsoon-heritage-special/")) {
+        // Stale 200 with active title!
+        return { ok: true, status: 200, text: async () => "<html><h1>Monsoon Heritage Special</h1></html>" };
+      }
+      return { ok: false, status: 404 };
+    });
+
+    const worker = new PublicationWorker({
+      pool: customPool as any,
+      customerSiteUrl: "https://agraskbagheltourandtravels.com",
+      fetchFn: mockFetch as any,
+    });
+
+    const ev: PublishEventRecord = {
+      id: "ev-archive-fail-page",
+      entity_type: "tour_package",
+      entity_id: "mhs-1",
+      event_type: "archived",
+      status: "triggered",
+      attempt_count: 1,
+      next_attempt_at: new Date(),
+      deployment_ref: "cf-9",
+      last_error: null,
+      created_at: new Date(),
+      processed_at: null,
+    };
+
+    const verified = await worker.verifyDeployment(ev);
+    expect(verified).toBe(false);
+  });
 });

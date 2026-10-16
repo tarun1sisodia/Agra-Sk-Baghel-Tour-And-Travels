@@ -2,6 +2,33 @@
 
 ## 2026-10-16
 
+### 2026-10-16 — Phase D.2: Connect Catalog Publishing to Verified Releases
+
+- **Database Migration & Outbox Repository (`backend/migrations/0042_widen_publish_events_entity_id.sql`, `backend/src/db/types.ts`, `backend/src/db/memory.ts`, `backend/src/db/postgres.ts`)**:
+  - Added migration `0042_widen_publish_events_entity_id.sql` widening `site_publish_events.entity_id` from `UUID` to `TEXT` (safely accommodating string IDs such as `catalog_items.id`).
+  - Added typed `publishEvents` interface (`enqueue`, `getById`, `listPending`) to `DatabaseAdapter` in `types.ts`.
+  - Implemented `publishEvents` in `memory.ts` and `postgres.ts` with upsert on `(entity_type, entity_id, event_type) WHERE status = 'pending'`.
+
+- **Domain Mutation Services & Outbox Connection (`catalog.service.ts`, `tour-packages.service.ts`, `local-packages.service.ts`, `transfer-routes.service.ts`, `route.service.ts`)**:
+  - Connected `catalog.service.ts` publish, unpublish, archive, update, and media operations to persist durable `site_publish_events` records before triggering rebuilds, passing enriched metadata (`entityType`, `entityId`, `slug`, `sourceVersion`).
+  - Connected dedicated `tour-packages.service.ts` (`create` if published, `update`, `publish`, `archive`) to enqueue `tour_package` publish events.
+  - Connected dedicated `local-packages.service.ts` (`create`, `update`, `publish`, `archive`) to enqueue `local_package` publish events.
+  - Connected dedicated `transfer-routes.service.ts` (`create`, `update`, `publish`, `archive`) to enqueue `transfer` publish events.
+  - Connected dedicated `route.service.ts` (`publish`, `archive`) to enqueue `outstation_route` publish events.
+
+- **Hardened Fail-Closed Deployment Verification (`backend/src/modules/publishing/publication-worker.ts`)**:
+  - Extended entity resolution to query dedicated domain tables (`tour_packages`, `local_sightseeing_packages`, `transfer_routes`, `routes`, `outstation_routes`) as primary sources with fallback to `catalog_items`.
+  - Enforced strict fail-closed contract: worker returns `false` with error logging if expected canonical path or entity cannot be resolved.
+  - Supported absolute CDN image URLs without prepending `siteBase.origin`.
+  - Explicit unpublish/archive verification: verifies sitemap exclusion AND checks old URL for 404 / 410 / redirect or 404/unavailable page text, failing if 200 with active title.
+  - Enforced fail-closed behavior on unrecognized event types.
+
+- **Real Integration Tests & Test Hardening (`dynamic-publishing-e2e.test.ts`, `publication-worker.test.ts`, `dynamic-publishing.test.ts`)**:
+  - Replaced simulated helper functions in `react/scripts/dynamic-publishing-e2e.test.ts` with real production imports (`isSitemapSafeSlug`, `assertFailClosedCatalogEnv`, `isFailClosedCatalogBuild`, `assertSnapshotPolicy`, `listCatalogSources`, `getSitemapEntries`).
+  - Added 7 new unit tests in `backend/tests/unit/publication-worker.test.ts` (15 total) testing unresolved entity rejection, dedicated domain table lookups, CDN URLs, and archive verification.
+  - Added integration tests in `backend/tests/unit/dynamic-publishing.test.ts` verifying outbox event generation across all domain mutations.
+  - Verified full test suites and full monorepo verification `npm run verify` passed cleanly (3 typechecks, all backend tests, all frontend tests, 3 production builds, 59 SSG pages, 23 redirects).
+
 ### 2026-10-16 — Phase 6: Shared Customer Price Contract — FleetPriceOption
 
 - **Canonical Shared Price Contract (`contracts/fleet-pricing.ts`, Contract C-FLEET-PRICING-001 v0.2.0)**:

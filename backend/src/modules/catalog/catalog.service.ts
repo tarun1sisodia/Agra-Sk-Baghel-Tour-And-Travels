@@ -16,8 +16,26 @@ import type { z } from "zod";
 
 import { triggerFrontendRebuild } from "../../shared/deploy-hook.js";
 
-async function requestFrontendRebuild(reason: string, _manifestVersion: number): Promise<void> {
-  await triggerFrontendRebuild(reason);
+function toPublishEntityType(type: string): "tour_package" | "local_package" | "transfer" | "outstation_route" {
+  if (type === "package") return "tour_package";
+  if (type === "tour" || type === "place") return "local_package";
+  if (type === "transfer") return "transfer";
+  if (type === "ride" || type === "route") return "outstation_route";
+  return "tour_package";
+}
+
+async function requestFrontendRebuild(
+  reason: string,
+  manifestVersion: number,
+  entityDetails?: { entityType?: string; entityId?: string; slug?: string }
+): Promise<void> {
+  await triggerFrontendRebuild({
+    reason,
+    sourceVersion: manifestVersion,
+    entityType: entityDetails?.entityType,
+    entityId: entityDetails?.entityId,
+    slug: entityDetails?.slug,
+  });
 }
 
 export function createCatalogService(deps: { db: Repositories; clock: Clock; mediaStorage?: MediaStorage | null; fareCatalogRepo?: FareCatalogRepository | null }) {
@@ -511,7 +529,19 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
         createdAt: now,
       });
       bumpManifest();
-      if (item.status === "published") void requestFrontendRebuild("catalog-update", manifestVersion);
+      if (item.status === "published") {
+        const entityType = toPublishEntityType(item.type);
+        await deps.db.publishEvents?.enqueue({
+          entityType,
+          entityId: item.id,
+          eventType: "updated",
+        });
+        void requestFrontendRebuild("catalog-update", manifestVersion, {
+          entityType,
+          entityId: item.id,
+          slug: item.slug,
+        });
+      }
       return updated;
     },
 
@@ -584,7 +614,17 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
         requestId,
         createdAt: now,
       });
-      void requestFrontendRebuild("catalog-publish", manifestVersion);
+      const entityType = toPublishEntityType(item.type);
+      await deps.db.publishEvents?.enqueue({
+        entityType,
+        entityId: item.id,
+        eventType: "published",
+      });
+      void requestFrontendRebuild("catalog-publish", manifestVersion, {
+        entityType,
+        entityId: item.id,
+        slug: item.slug,
+      });
       return updated;
     },
 
@@ -612,7 +652,17 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
         requestId,
         createdAt: now,
       });
-      void requestFrontendRebuild("catalog-unpublish", manifestVersion);
+      const entityType = toPublishEntityType(item.type);
+      await deps.db.publishEvents?.enqueue({
+        entityType,
+        entityId: item.id,
+        eventType: "archived",
+      });
+      void requestFrontendRebuild("catalog-unpublish", manifestVersion, {
+        entityType,
+        entityId: item.id,
+        slug: item.slug,
+      });
       return updated;
     },
 
@@ -640,7 +690,17 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
         requestId,
         createdAt: now,
       });
-      void requestFrontendRebuild("catalog-archive", manifestVersion);
+      const entityType = toPublishEntityType(item.type);
+      await deps.db.publishEvents?.enqueue({
+        entityType,
+        entityId: item.id,
+        eventType: "archived",
+      });
+      void requestFrontendRebuild("catalog-archive", manifestVersion, {
+        entityType,
+        entityId: item.id,
+        slug: item.slug,
+      });
       return updated;
     },
 
@@ -725,7 +785,19 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
         createdAt: now,
       });
       bumpManifest();
-      if (item.status === "published") void requestFrontendRebuild("catalog-media-add", manifestVersion);
+      if (item.status === "published") {
+        const entityType = toPublishEntityType(item.type);
+        await deps.db.publishEvents?.enqueue({
+          entityType,
+          entityId: item.id,
+          eventType: "updated",
+        });
+        void requestFrontendRebuild("catalog-media-add", manifestVersion, {
+          entityType,
+          entityId: item.id,
+          slug: item.slug,
+        });
+      }
       return created;
     },
 
@@ -744,7 +816,19 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
       });
       bumpManifest();
       const parent = await deps.db.catalog.getById(item.catalogItemId);
-      if (parent?.status === "published") void requestFrontendRebuild("catalog-media-update", manifestVersion);
+      if (parent?.status === "published") {
+        const entityType = toPublishEntityType(parent.type);
+        await deps.db.publishEvents?.enqueue({
+          entityType,
+          entityId: parent.id,
+          eventType: "updated",
+        });
+        void requestFrontendRebuild("catalog-media-update", manifestVersion, {
+          entityType,
+          entityId: parent.id,
+          slug: parent.slug,
+        });
+      }
       return updated;
     },
 
@@ -775,7 +859,19 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
       });
       bumpManifest();
       const parent = await deps.db.catalog.getById(item.catalogItemId);
-      if (parent?.status === "published") void requestFrontendRebuild("catalog-media-delete", manifestVersion);
+      if (parent?.status === "published") {
+        const entityType = toPublishEntityType(parent.type);
+        await deps.db.publishEvents?.enqueue({
+          entityType,
+          entityId: parent.id,
+          eventType: "updated",
+        });
+        void requestFrontendRebuild("catalog-media-delete", manifestVersion, {
+          entityType,
+          entityId: parent.id,
+          slug: parent.slug,
+        });
+      }
       return { deleted: true, id };
     },
 

@@ -1,196 +1,129 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { isFailClosedCatalogBuild, assertSnapshotPolicy } from "./catalog-sources.ts";
+import {
+  isFailClosedCatalogBuild,
+  assertSnapshotPolicy,
+  assertFailClosedCatalogEnv,
+  listCatalogSources,
+  resolveCatalogApiBase,
+  FORBIDDEN_STAGING_HOST,
+} from "./catalog-sources.ts";
+import { isSitemapSafeSlug, getSitemapEntries } from "./generate-sitemap.ts";
 
-describe("Phase D — End-to-End Dynamic Catalog Publishing, SEO & SSG Pipeline", () => {
+describe("Phase D.2 — Dynamic Catalog Publishing, SEO & SSG Pipeline (Build & Integration Contract)", () => {
   const CANONICAL_ORIGIN = "https://agraskbagheltourandtravels.com";
 
-  // Simulate published record from backend DB / API
-  const samplePublishedTourPackage = {
-    id: "pkg-agra-sunrise-vip",
-    packageCode: "agra-sunrise-vip",
-    slug: "agra-sunrise-vip",
-    name: "Agra Taj Mahal Sunrise VIP Tour",
-    title: "Agra Taj Mahal Sunrise VIP Tour",
-    status: "published",
-    durationText: "1 Day",
-    source: "Agra",
-    destination: "Taj Mahal",
-    startingPriceInr: 3200,
-    imageUrl: "/assets/packages/taj-sunrise-custom.webp",
-    gallery: [
-      { url: "/assets/packages/taj-sunrise-custom.webp", alt: "Taj Sunrise Front View", sortOrder: 0 },
-      { url: "/assets/packages/taj-gardens.webp", alt: "Taj Mahal Gardens View", sortOrder: 1 },
-      { url: "/assets/packages/agra-fort-view.webp", alt: "Agra Fort View", sortOrder: 2 },
-    ],
-    fleetPrices: {
-      sedan: 3200,
-      ertiga: 4200,
-      innova: 5500,
-      tempo: 8500,
-      urbania: 12000,
-    },
-    updatedAt: "2026-10-16T12:00:00.000Z",
-  };
+  it("1. Production slug validation: isSitemapSafeSlug validates canonical slug criteria", () => {
+    // Valid slugs
+    assert.equal(isSitemapSafeSlug("agra-sunrise-vip"), true);
+    assert.equal(isSitemapSafeSlug("delhi-airport-to-agra"), true);
+    assert.equal(isSitemapSafeSlug("agra-heritage-walk"), true);
 
-  const samplePublishedLocalTour = {
-    id: "tour-agra-heritage-walk",
-    packageCode: "agra-heritage-walk",
-    slug: "agra-heritage-walk",
-    name: "Agra Heritage & Street Food Walking Tour",
-    status: "published",
-    durationText: "4 Hours",
-    imageUrl: "/assets/tours/heritage-walk.webp",
-    gallery: [
-      { url: "/assets/tours/heritage-walk.webp", alt: "Heritage Walking Route", sortOrder: 0 },
-    ],
-    fleetPrices: { sedan: 1500, ertiga: 2200 },
-    updatedAt: "2026-10-16T12:00:00.000Z",
-  };
-
-  const samplePublishedTransfer = {
-    id: "tr-delhi-agra-express",
-    routeCode: "delhi-airport-to-agra",
-    slug: "delhi-airport-to-agra",
-    name: "Delhi IGI Airport to Agra Expressway Transfer",
-    status: "published",
-    fleetPrices: { sedan: 2800, ertiga: 3800, innova: 4800 },
-    updatedAt: "2026-10-16T12:00:00.000Z",
-  };
-
-  // Helper functions mirroring build-manifest, generate-sitemap, and prerender
-  function mapTourPackageForManifest(item: any, failClosed: boolean) {
-    const rawImg = item.imageUrl ?? item.image_url ?? item.image ?? item.gallery?.[0]?.url;
-    if (!rawImg && failClosed) {
-      throw new Error(`[Manifest Builder] Published tour package "${item.name || item.slug}" is missing a valid cover image. Generic fallbacks are forbidden in release builds.`);
-    }
-    const gallery = Array.isArray(item.gallery)
-      ? item.gallery
-          .map((g: any, idx: number) => ({
-            url: g.url,
-            alt: g.alt || item.name,
-            sortOrder: Number(g.sortOrder ?? idx),
-          }))
-          .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
-      : [];
-    return {
-      ...item,
-      slug: item.slug ?? item.packageCode,
-      image: rawImg || "",
-      gallery,
-    };
-  }
-
-  function generateSitemapEntry(type: "package" | "local" | "transfer", item: any) {
-    if (item.status !== "published") return null;
-    const slug = item.slug ?? item.packageCode ?? item.routeCode;
-    const prefix = type === "package" ? "packages" : type === "local" ? "local-packages" : "transfers";
-    return {
-      loc: `${CANONICAL_ORIGIN}/en/${prefix}/${slug}/`,
-      path: `/en/${prefix}/${slug}/`,
-      priority: type === "transfer" ? 0.7 : 0.8,
-      lastmod: item.updatedAt?.slice(0, 10),
-    };
-  }
-
-  function renderDetailHtmlHead(type: "package" | "local" | "transfer", item: any) {
-    const slug = item.slug ?? item.packageCode ?? item.routeCode;
-    const prefix = type === "package" ? "packages" : type === "local" ? "local-packages" : "transfers";
-    const canonicalUrl = `${CANONICAL_ORIGIN}/en/${prefix}/${slug}/`;
-    const title = `${item.name} | SK Baghel Tour & Travels`;
-    const ogImage = item.image || item.imageUrl;
-    return `
-      <title>${title}</title>
-      <link rel="canonical" href="${canonicalUrl}" />
-      <meta property="og:title" content="${title}" />
-      <meta property="og:url" content="${canonicalUrl}" />
-      <meta property="og:image" content="${ogImage}" />
-      <meta name="robots" content="index, follow" />
-    `;
-  }
-
-  it("1. Complete publishing pipeline: published record reaches manifest, HTML head, and sitemap", () => {
-    // 1a: Manifest mapping
-    const manifestItem = mapTourPackageForManifest(samplePublishedTourPackage, true);
-    assert.equal(manifestItem.slug, "agra-sunrise-vip");
-    assert.equal(manifestItem.image, "/assets/packages/taj-sunrise-custom.webp");
-    assert.equal(manifestItem.gallery.length, 3);
-    assert.equal(manifestItem.gallery[0].sortOrder, 0);
-    assert.equal(manifestItem.gallery[1].sortOrder, 1);
-    assert.notEqual(manifestItem.image, "/assets/packages/taj-dawn.webp");
-
-    // 1b: Sitemap generation
-    const sitemapEntry = generateSitemapEntry("package", samplePublishedTourPackage);
-    assert.ok(sitemapEntry);
-    assert.equal(sitemapEntry?.loc, "https://agraskbagheltourandtravels.com/en/packages/agra-sunrise-vip/");
-    assert.equal(sitemapEntry?.priority, 0.8);
-    assert.equal(sitemapEntry?.lastmod, "2026-10-16");
-
-    // 1c: Local package and transfer sitemap generation
-    const localSitemap = generateSitemapEntry("local", samplePublishedLocalTour);
-    assert.equal(localSitemap?.loc, "https://agraskbagheltourandtravels.com/en/local-packages/agra-heritage-walk/");
-    assert.equal(localSitemap?.priority, 0.8);
-
-    const transferSitemap = generateSitemapEntry("transfer", samplePublishedTransfer);
-    assert.equal(transferSitemap?.loc, "https://agraskbagheltourandtravels.com/en/transfers/delhi-airport-to-agra/");
-    assert.equal(transferSitemap?.priority, 0.7);
-
-    // 1d: Detail page HTML Head rendering
-    const htmlHead = renderDetailHtmlHead("package", manifestItem);
-    assert.ok(htmlHead.includes("<title>Agra Taj Mahal Sunrise VIP Tour | SK Baghel Tour & Travels</title>"));
-    assert.ok(htmlHead.includes('<link rel="canonical" href="https://agraskbagheltourandtravels.com/en/packages/agra-sunrise-vip/" />'));
-    assert.ok(htmlHead.includes('<meta property="og:image" content="/assets/packages/taj-sunrise-custom.webp" />'));
-    assert.ok(!htmlHead.includes("workers.dev"));
-    assert.ok(!htmlHead.includes("taj-dawn.webp"));
+    // Invalid / unsafe slugs rejected
+    assert.equal(isSitemapSafeSlug(""), false);
+    assert.equal(isSitemapSafeSlug("-leading-dash"), false);
+    assert.equal(isSitemapSafeSlug("trailing-dash-"), false);
+    assert.equal(isSitemapSafeSlug("double--hyphen"), false);
+    assert.equal(isSitemapSafeSlug("command-run"), false);
+    assert.equal(isSitemapSafeSlug("123-btn-submit"), false);
   });
 
-  it("2. Unpublish & Archive removal: draft and archived records are strictly excluded from sitemap and SSG", () => {
-    // When unpublished (reverted to draft)
-    const draftPackage = { ...samplePublishedTourPackage, status: "draft" };
-    const draftSitemap = generateSitemapEntry("package", draftPackage);
-    assert.equal(draftSitemap, null);
+  it("2. Fail-closed release build invariants: missing source or stale snapshot strictly fails", () => {
+    // Fail-closed detection
+    assert.equal(isFailClosedCatalogBuild({ RELEASE_BUILD: "1" }), true);
+    assert.equal(isFailClosedCatalogBuild({ CF_PAGES: "1" }), true);
+    assert.equal(isFailClosedCatalogBuild({ CATALOG_FAIL_CLOSED: "1" }), true);
+    assert.equal(isFailClosedCatalogBuild({}), false);
 
-    // When archived
-    const archivedPackage = { ...samplePublishedTourPackage, status: "archived" };
-    const archivedSitemap = generateSitemapEntry("package", archivedPackage);
-    assert.equal(archivedSitemap, null);
-
-    const archivedLocal = { ...samplePublishedLocalTour, status: "archived" };
-    assert.equal(generateSitemapEntry("local", archivedLocal), null);
-
-    const archivedTransfer = { ...samplePublishedTransfer, status: "archived" };
-    assert.equal(generateSitemapEntry("transfer", archivedTransfer), null);
-  });
-
-  it("3. Fail-closed release build rejects missing cover image and prevents silent fallback", () => {
-    const invalidPackageNoImage = {
-      ...samplePublishedTourPackage,
-      imageUrl: null,
-      gallery: [],
-    };
-
-    // In fail-closed build (RELEASE_BUILD=1 / CATALOG_FAIL_CLOSED=1)
+    // Missing API source in fail-closed build throws immediately
     assert.throws(
-      () => mapTourPackageForManifest(invalidPackageNoImage, true),
-      /missing a valid cover image/,
+      () => assertFailClosedCatalogEnv({ RELEASE_BUILD: "1" }),
+      /Fail-closed catalog build is missing required source URLs/,
     );
 
-    // Verifies assertSnapshotPolicy blocks preserving stale snapshots in fail-closed mode
+    // Staging forbidden on main branch
+    assert.throws(
+      () =>
+        assertFailClosedCatalogEnv({
+          RELEASE_BUILD: "1",
+          CF_PAGES_BRANCH: "main",
+          VITE_API_BASE_URL: `https://${FORBIDDEN_STAGING_HOST}`,
+        }),
+      /Production catalog source points at/,
+    );
+
+    // Valid API base resolves all required source endpoints
+    const sources = listCatalogSources({
+      VITE_API_BASE_URL: "https://api.agraskbagheltourandtravels.com",
+    });
+    assert.equal(sources.length, 5);
+    for (const source of sources) {
+      assert.ok(source.url?.startsWith("https://api.agraskbagheltourandtravels.com/api/v1/"));
+    }
+
+    // Fail-closed snapshot policy strictly rejects preserving un-fetched / stale snapshots
     assert.throws(
       () => assertSnapshotPolicy(false, true, "src/data/generated-published-tour-packages.json"),
       /Fail-closed build failed to fetch snapshot/,
     );
+
+    // Non-fail-closed development build allows preserving existing snapshot
+    assert.doesNotThrow(() =>
+      assertSnapshotPolicy(false, false, "src/data/generated-published-tour-packages.json"),
+    );
   });
 
-  it("4. Exactly one eligible sitemap entry per unique published route", () => {
-    const entries = [
-      generateSitemapEntry("package", samplePublishedTourPackage),
-      generateSitemapEntry("local", samplePublishedLocalTour),
-      generateSitemapEntry("transfer", samplePublishedTransfer),
-    ].filter(Boolean) as Array<{ loc: string }>;
+  it("3. Real production sitemap invariants: all generated entries are valid canonical paths with no forbidden domains", () => {
+    const entries = getSitemapEntries();
+    assert.ok(entries.length > 0, "Sitemap should contain production entries");
 
-    const locSet = new Set(entries.map((e) => e.loc));
-    assert.equal(locSet.size, entries.length);
-    assert.equal(entries.filter((e) => e.loc.includes("/packages/agra-sunrise-vip/")).length, 1);
+    for (const entry of entries) {
+      // Must be absolute canonical domain or valid relative path
+      assert.ok(
+        entry.path.startsWith("/") || entry.path.startsWith(CANONICAL_ORIGIN),
+        `Path ${entry.path} must start with / or canonical origin`,
+      );
+      // Never point to workers.dev fallback
+      assert.ok(
+        !entry.path.includes("workers.dev"),
+        `Path ${entry.path} must not contain workers.dev`,
+      );
+      // Valid sitemap priority
+      assert.ok(entry.priority >= 0.1 && entry.priority <= 1.0, "Priority must be between 0.1 and 1.0");
+    }
+
+    // Must have no duplicates in English canonical paths
+    const pathSet = new Set<string>();
+    for (const entry of entries) {
+      assert.ok(!pathSet.has(entry.path), `Duplicate sitemap path detected: ${entry.path}`);
+      pathSet.add(entry.path);
+    }
+  });
+
+  it("4. Canonical detail route format contract for packages, local tours, and transfers", () => {
+    function resolveCanonicalDetailUrl(type: "tour_package" | "local_package" | "transfer", slug: string): string {
+      assert.ok(isSitemapSafeSlug(slug), `Slug must be valid: ${slug}`);
+      const prefix =
+        type === "local_package"
+          ? "local-packages"
+          : type === "transfer"
+            ? "transfers"
+            : "packages";
+      return `${CANONICAL_ORIGIN}/en/${prefix}/${slug}/`;
+    }
+
+    assert.equal(
+      resolveCanonicalDetailUrl("tour_package", "taj-sunrise-deluxe"),
+      "https://agraskbagheltourandtravels.com/en/packages/taj-sunrise-deluxe/",
+    );
+    assert.equal(
+      resolveCanonicalDetailUrl("local_package", "agra-heritage-circuit"),
+      "https://agraskbagheltourandtravels.com/en/local-packages/agra-heritage-circuit/",
+    );
+    assert.equal(
+      resolveCanonicalDetailUrl("transfer", "delhi-igi-to-agra"),
+      "https://agraskbagheltourandtravels.com/en/transfers/delhi-igi-to-agra/",
+    );
   });
 });
+

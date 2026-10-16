@@ -237,92 +237,229 @@ export class PublicationWorker {
       let expectedImage: string | null = null;
 
       if (this.pool) {
-        if (event.entity_type === "tour_package" || event.entity_type === "local_package") {
-          const catRes = await this.pool.query(
-            "SELECT slug, title, type FROM catalog_items WHERE id = $1",
+        if (event.entity_type === "tour_package") {
+          // Check dedicated tour_packages first
+          const tpRes = await this.pool.query(
+            "SELECT package_code, name, image_url, gallery FROM tour_packages WHERE id::text = $1 OR package_code = $1",
             [event.entity_id]
           ).catch(() => ({ rows: [] }));
 
-          if (catRes.rows.length > 0) {
-            const row = catRes.rows[0];
-            const prefix = (row.type === "tour" || event.entity_type === "local_package") ? "local-packages" : "packages";
-            expectedPath = `/en/${prefix}/${row.slug}/`;
-            expectedTitle = row.title;
-
-            const mediaRes = await this.pool.query(
-              "SELECT storage_path FROM catalog_item_media WHERE catalog_item_id = $1 AND sort_order = 0 AND status != 'archived' LIMIT 1",
-              [event.entity_id]
-            ).catch(() => ({ rows: [] }));
-            if (mediaRes.rows.length > 0) {
-              expectedImage = mediaRes.rows[0].storage_path;
-            }
+          if (tpRes.rows.length > 0) {
+            const row = tpRes.rows[0];
+            expectedPath = `/en/packages/${row.package_code}/`;
+            expectedTitle = row.name;
+            expectedImage = row.image_url || (Array.isArray(row.gallery) ? row.gallery[0]?.url : null) || null;
           } else {
-            const tpRes = await this.pool.query(
-              "SELECT package_code, name, image_url FROM tour_packages WHERE id = $1",
+            // Fallback to catalog_items
+            const catRes = await this.pool.query(
+              "SELECT slug, title, type FROM catalog_items WHERE id = $1 OR slug = $1",
               [event.entity_id]
             ).catch(() => ({ rows: [] }));
-            if (tpRes.rows.length > 0) {
-              expectedPath = `/en/packages/${tpRes.rows[0].package_code}/`;
-              expectedTitle = tpRes.rows[0].name;
-              expectedImage = tpRes.rows[0].image_url;
+
+            if (catRes.rows.length > 0) {
+              const row = catRes.rows[0];
+              const prefix = row.type === "tour" ? "local-packages" : "packages";
+              expectedPath = `/en/${prefix}/${row.slug}/`;
+              expectedTitle = row.title;
+
+              const mediaRes = await this.pool.query(
+                "SELECT storage_path FROM catalog_item_media WHERE catalog_item_id = $1 AND sort_order = 0 AND status != 'archived' LIMIT 1",
+                [event.entity_id]
+              ).catch(() => ({ rows: [] }));
+              if (mediaRes.rows.length > 0) {
+                expectedImage = mediaRes.rows[0].storage_path;
+              }
+            }
+          }
+        } else if (event.entity_type === "local_package") {
+          // Check local_sightseeing_packages first
+          const lpRes = await this.pool.query(
+            "SELECT package_code, name FROM local_sightseeing_packages WHERE id::text = $1 OR package_code = $1",
+            [event.entity_id]
+          ).catch(() => ({ rows: [] }));
+
+          if (lpRes.rows.length > 0) {
+            expectedPath = `/en/local-packages/${lpRes.rows[0].package_code}/`;
+            expectedTitle = lpRes.rows[0].name;
+          } else {
+            const catRes = await this.pool.query(
+              "SELECT slug, title FROM catalog_items WHERE id = $1 OR slug = $1",
+              [event.entity_id]
+            ).catch(() => ({ rows: [] }));
+
+            if (catRes.rows.length > 0) {
+              expectedPath = `/en/local-packages/${catRes.rows[0].slug}/`;
+              expectedTitle = catRes.rows[0].title;
+
+              const mediaRes = await this.pool.query(
+                "SELECT storage_path FROM catalog_item_media WHERE catalog_item_id = $1 AND sort_order = 0 AND status != 'archived' LIMIT 1",
+                [event.entity_id]
+              ).catch(() => ({ rows: [] }));
+              if (mediaRes.rows.length > 0) {
+                expectedImage = mediaRes.rows[0].storage_path;
+              }
             }
           }
         } else if (event.entity_type === "transfer") {
-          const catRes = await this.pool.query(
-            "SELECT slug, title FROM catalog_items WHERE id = $1",
+          // Check transfer_routes first
+          const trRes = await this.pool.query(
+            "SELECT route_code, name FROM transfer_routes WHERE id::text = $1 OR route_code = $1",
             [event.entity_id]
           ).catch(() => ({ rows: [] }));
-          if (catRes.rows.length > 0) {
-            expectedPath = `/en/transfers/${catRes.rows[0].slug}/`;
-            expectedTitle = catRes.rows[0].title;
+
+          if (trRes.rows.length > 0) {
+            expectedPath = `/en/transfers/${trRes.rows[0].route_code}/`;
+            expectedTitle = trRes.rows[0].name;
+          } else {
+            const catRes = await this.pool.query(
+              "SELECT slug, title FROM catalog_items WHERE id = $1 OR slug = $1",
+              [event.entity_id]
+            ).catch(() => ({ rows: [] }));
+
+            if (catRes.rows.length > 0) {
+              expectedPath = `/en/transfers/${catRes.rows[0].slug}/`;
+              expectedTitle = catRes.rows[0].title;
+            }
           }
         } else if (event.entity_type === "outstation_route") {
           const routeRes = await this.pool.query(
-            "SELECT slug, corridor_name FROM routes WHERE id = $1",
+            "SELECT slug, corridor_name FROM routes WHERE id::text = $1 OR slug = $1",
             [event.entity_id]
           ).catch(() => ({ rows: [] }));
+
           if (routeRes.rows.length > 0) {
             expectedPath = `/en/${routeRes.rows[0].slug}/`;
             expectedTitle = routeRes.rows[0].corridor_name;
+          } else {
+            const ocRes = await this.pool.query(
+              "SELECT slug, source_city, destination_city FROM outstation_routes WHERE id::text = $1 OR slug = $1",
+              [event.entity_id]
+            ).catch(() => ({ rows: [] }));
+
+            if (ocRes.rows.length > 0) {
+              expectedPath = `/en/${ocRes.rows[0].slug}/`;
+              expectedTitle = `${ocRes.rows[0].source_city} to ${ocRes.rows[0].destination_city}`;
+            } else {
+              const catRes = await this.pool.query(
+                "SELECT slug, title FROM catalog_items WHERE id = $1 OR slug = $1",
+                [event.entity_id]
+              ).catch(() => ({ rows: [] }));
+
+              if (catRes.rows.length > 0) {
+                expectedPath = `/en/${catRes.rows[0].slug}/`;
+                expectedTitle = catRes.rows[0].title;
+              }
+            }
+          }
+        } else if (event.entity_type === "review") {
+          expectedPath = "/en/";
+          const revRes = await this.pool.query(
+            "SELECT display_name FROM reviews WHERE id::text = $1",
+            [event.entity_id]
+          ).catch(() => ({ rows: [] }));
+          if (revRes.rows.length > 0) {
+            expectedTitle = revRes.rows[0].display_name;
           }
         }
       }
 
-      if (expectedPath) {
-        if (event.event_type === "published" || event.event_type === "updated") {
-          // Verify customer-facing detail page returns HTTP 200
-          const pageRes = await this.fetchFn(`${siteBase.origin}${expectedPath}`, {
-            method: "GET",
-            headers: { accept: "text/html" },
-            signal: AbortSignal.timeout(10_000),
-          });
-          if (pageRes.status !== 200) {
-            this.logger.debug?.({ eventId: event.id, path: expectedPath, status: pageRes.status }, "Canonical detail page not live (HTTP 200 required)");
+      // Fail-closed requirement: if an entity or canonical URL cannot be resolved,
+      // never return true.
+      if (!expectedPath) {
+        this.logger.warn(
+          { eventId: event.id, entityType: event.entity_type, entityId: event.entity_id },
+          "verifyDeployment failed: entity or canonical path could not be resolved from database"
+        );
+        return false;
+      }
+
+      if (event.event_type === "archived") {
+        // 1. Verify sitemap excludes the archived item
+        const sitemapRes = await this.fetchFn(`${siteBase.origin}/sitemap.xml`, {
+          method: "GET",
+          signal: AbortSignal.timeout(10_000),
+        });
+        if (sitemapRes.status === 200) {
+          const sitemapXml = await sitemapRes.text();
+          if (sitemapXml.includes(expectedPath)) {
+            this.logger.debug?.({ eventId: event.id, expectedPath }, "Sitemap still contains archived URL");
             return false;
           }
+        }
 
-          if (expectedTitle) {
-            const html = await pageRes.text();
-            if (!html.includes(expectedTitle)) {
-              this.logger.debug?.({ eventId: event.id, expectedTitle }, "Detail page does not yet reflect published title");
-              return false;
-            }
+        // 2. Verify detail page is no longer active (404, redirect, or 404/unavailable page)
+        const pageRes = await this.fetchFn(`${siteBase.origin}${expectedPath}`, {
+          method: "GET",
+          headers: { accept: "text/html" },
+          signal: AbortSignal.timeout(10_000),
+        });
+        if (pageRes.status === 404 || pageRes.status === 410 || (pageRes.status >= 300 && pageRes.status < 400)) {
+          return true;
+        }
+        if (pageRes.status === 200) {
+          const html = await pageRes.text();
+          const isNotFoundOrUnavailable =
+            html.includes("404") ||
+            html.includes("Not Found") ||
+            html.includes("not available") ||
+            html.includes("Service Not Found") ||
+            html.includes("Uncharted route");
+          if (!isNotFoundOrUnavailable || (expectedTitle && html.includes(expectedTitle))) {
+            this.logger.debug?.({ eventId: event.id, path: expectedPath }, "Archived item still served as active HTTP 200 page");
+            return false;
           }
+        }
+        return true;
+      }
 
-          // Verify cover image availability if applicable
-          if (expectedImage && !expectedImage.startsWith("/api/")) {
+      if (
+        event.event_type === "published" ||
+        event.event_type === "updated" ||
+        event.event_type === "slug_changed" ||
+        event.event_type === "price_changed" ||
+        event.event_type === "review_approved"
+      ) {
+        // Verify customer-facing detail page returns HTTP 200
+        const pageRes = await this.fetchFn(`${siteBase.origin}${expectedPath}`, {
+          method: "GET",
+          headers: { accept: "text/html" },
+          signal: AbortSignal.timeout(10_000),
+        });
+        if (pageRes.status !== 200) {
+          this.logger.debug?.({ eventId: event.id, path: expectedPath, status: pageRes.status }, "Canonical detail page not live (HTTP 200 required)");
+          return false;
+        }
+
+        if (expectedTitle) {
+          const html = await pageRes.text();
+          if (!html.includes(expectedTitle)) {
+            this.logger.debug?.({ eventId: event.id, expectedTitle }, "Detail page does not yet reflect published title");
+            return false;
+          }
+        }
+
+        // Verify cover image availability if applicable (handles full CDN URLs as well as relative paths)
+        if (expectedImage) {
+          let imageUrl: string;
+          if (expectedImage.startsWith("http://") || expectedImage.startsWith("https://")) {
+            imageUrl = expectedImage;
+          } else {
             const imgPath = expectedImage.startsWith("/") ? expectedImage : `/${expectedImage}`;
-            const imgRes = await this.fetchFn(`${siteBase.origin}${imgPath}`, {
-              method: "GET",
-              signal: AbortSignal.timeout(5000),
-            });
-            if (imgRes.status !== 200 && imgRes.status !== 304) {
-              this.logger.debug?.({ eventId: event.id, imgPath, status: imgRes.status }, "Cover image not reachable on deployed origin");
-              return false;
-            }
+            imageUrl = `${siteBase.origin}${imgPath}`;
           }
 
-          // Verify sitemap.xml presence
+          const imgRes = await this.fetchFn(imageUrl, {
+            method: "GET",
+            signal: AbortSignal.timeout(5000),
+          });
+          if (imgRes.status !== 200 && imgRes.status !== 304) {
+            this.logger.debug?.({ eventId: event.id, imageUrl, status: imgRes.status }, "Cover image not reachable");
+            return false;
+          }
+        }
+
+        // Verify sitemap.xml presence (for route/package/transfer pages)
+        if (event.entity_type !== "review") {
           const sitemapRes = await this.fetchFn(`${siteBase.origin}/sitemap.xml`, {
             method: "GET",
             signal: AbortSignal.timeout(10_000),
@@ -336,23 +473,14 @@ export class PublicationWorker {
             this.logger.debug?.({ eventId: event.id, expectedPath }, "Sitemap does not include canonical detail page");
             return false;
           }
-        } else if (event.event_type === "archived") {
-          // Verify sitemap excludes the archived item
-          const sitemapRes = await this.fetchFn(`${siteBase.origin}/sitemap.xml`, {
-            method: "GET",
-            signal: AbortSignal.timeout(10_000),
-          });
-          if (sitemapRes.status === 200) {
-            const sitemapXml = await sitemapRes.text();
-            if (sitemapXml.includes(expectedPath)) {
-              this.logger.debug?.({ eventId: event.id, expectedPath }, "Sitemap still contains archived URL");
-              return false;
-            }
-          }
         }
+
+        return true;
       }
 
-      return true;
+      // Unrecognized event_type fails closed
+      this.logger.warn({ eventId: event.id, eventType: event.event_type }, "Unrecognized event_type in verifyDeployment; failing closed");
+      return false;
     } catch (err: any) {
       this.logger.debug?.({ eventId: event.id, err: err?.message }, "verifyDeployment exception encountered");
       return false;

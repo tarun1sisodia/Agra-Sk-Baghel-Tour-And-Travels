@@ -56,11 +56,14 @@ import type {
   WebhookEventRecord,
 } from "../types/domain.js";
 import type { RouteCatalogRecord } from "./route-catalog-types.js";
+import { randomUUID } from "node:crypto";
 import type {
   BookingListFilter,
   CatalogListFilter,
   DeviceRegistrationRecord,
   FareRuleRecord,
+  PublishEventInput,
+  PublishEventRecord,
   Repositories,
   ReviewListFilter,
   RentalEnquiryListFilter,
@@ -98,6 +101,7 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
   const locationCache = new Map<string, { suggestions: LocationSuggestion[]; storedAt: string }>();
   const devices = new Map<string, DeviceRegistrationRecord>();
   const fareRules = new Map<string, FareRuleRecord>();
+  const publishEvents = new Map<string, PublishEventRecord>();
   const locks = new Map<string, Promise<void>>();
 
   const tourPackages = new Map<string, TourPackageRecord>();
@@ -1073,6 +1077,48 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
         target.effectiveFrom = now;
         target.effectiveTo = null;
         return clone(target);
+      },
+    },
+    publishEvents: {
+      async enqueue(input: PublishEventInput) {
+        for (const existing of publishEvents.values()) {
+          if (
+            existing.status === "pending" &&
+            existing.entity_type === input.entityType &&
+            existing.entity_id === input.entityId &&
+            existing.event_type === input.eventType
+          ) {
+            existing.next_attempt_at = new Date().toISOString();
+            return clone(existing);
+          }
+        }
+        const now = new Date().toISOString();
+        const id = randomUUID();
+        const record: PublishEventRecord = {
+          id,
+          entity_type: input.entityType,
+          entity_id: input.entityId,
+          event_type: input.eventType,
+          status: "pending",
+          attempt_count: 0,
+          next_attempt_at: now,
+          deployment_ref: null,
+          last_error: null,
+          created_at: now,
+          processed_at: null,
+        };
+        publishEvents.set(id, record);
+        return clone(record);
+      },
+      async getById(id: string) {
+        const item = publishEvents.get(id);
+        return item ? clone(item) : null;
+      },
+      async listPending(limit = 10) {
+        return Array.from(publishEvents.values())
+          .filter((e) => e.status === "pending")
+          .slice(0, limit)
+          .map(clone);
       },
     },
   };

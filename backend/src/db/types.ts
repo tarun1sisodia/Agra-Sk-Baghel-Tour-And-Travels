@@ -288,7 +288,33 @@ export type Repositories = {
     save(record: FareRuleRecord): Promise<FareRuleRecord>;
     activate(version: string): Promise<FareRuleRecord | null>;
   };
+
+  publishEvents?: {
+    enqueue(event: PublishEventInput): Promise<PublishEventRecord>;
+    getById(id: string): Promise<PublishEventRecord | null>;
+    listPending(limit?: number): Promise<PublishEventRecord[]>;
+  };
   pool?: pg.Pool;
+};
+
+export type PublishEventInput = {
+  entityType: "outstation_route" | "local_package" | "transfer" | "tour_package" | "review";
+  entityId: string;
+  eventType: "published" | "updated" | "archived" | "slug_changed" | "price_changed" | "review_approved";
+};
+
+export type PublishEventRecord = {
+  id: string;
+  entity_type: "outstation_route" | "local_package" | "transfer" | "tour_package" | "review";
+  entity_id: string;
+  event_type: "published" | "updated" | "archived" | "slug_changed" | "price_changed" | "review_approved";
+  status: "pending" | "processing" | "triggered" | "succeeded" | "failed" | "superseded";
+  attempt_count: number;
+  next_attempt_at: string | Date;
+  deployment_ref: string | null;
+  last_error: string | null;
+  created_at: string | Date;
+  processed_at: string | Date | null;
 };
 
 export type DeviceRegistrationRecord = {

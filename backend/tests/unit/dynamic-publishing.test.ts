@@ -515,4 +515,175 @@ describe("Phase D — Dynamic Catalog Publishing & SEO Integration", () => {
     expect(manifest.packages?.find((p: any) => p.slug === "secret-draft-package")).toBeUndefined();
     expect(manifest.packages?.find((p: any) => p.slug === "archived-old-package")).toBeUndefined();
   });
+
+  it("admin catalog publish and unpublish actions enqueue durable site_publish_events records", async () => {
+    const { app, db } = await createTestApp();
+
+    const item = await db.catalog.create({
+      id: "pkg-outbox-001",
+      type: "package",
+      slug: "outbox-test-package",
+      title: "Outbox Test Package",
+      shortDescription: "Short description.",
+      description: "Full description.",
+      status: "draft",
+      durationText: "1 day",
+      routeSummary: "Agra",
+      startingPriceInr: 3000,
+      distanceKm: null,
+      availability: "available",
+      seatsLeft: null,
+      stops: [],
+      tripType: null,
+      version: 1,
+      createdBy: "test-admin",
+      updatedBy: "test-admin",
+      publishedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    await db.media.create(mockMedia({
+      id: "med-outbox-cover",
+      catalogItemId: item.id,
+      storagePath: "/assets/packages/cover.webp",
+      sortOrder: 0,
+      status: "published",
+    }));
+
+    // 1. Publish item
+    const pubRes = await app.inject({
+      method: "POST",
+      url: `/api/v1/ops/admin/catalog/${item.id}/publish`,
+      headers: SUPER_ADMIN_AUTH,
+    });
+    expect(pubRes.statusCode).toBe(200);
+
+    const pendingAfterPub = await db.publishEvents?.listPending();
+    expect(pendingAfterPub).toBeDefined();
+    const pubEvent = pendingAfterPub?.find((e) => e.entity_id === item.id);
+    expect(pubEvent).toBeDefined();
+    expect(pubEvent?.entity_type).toBe("tour_package");
+    expect(pubEvent?.event_type).toBe("published");
+    expect(pubEvent?.status).toBe("pending");
+
+    // 2. Unpublish item
+    const unpubRes = await app.inject({
+      method: "POST",
+      url: `/api/v1/ops/admin/catalog/${item.id}/unpublish`,
+      headers: SUPER_ADMIN_AUTH,
+    });
+    expect(unpubRes.statusCode).toBe(200);
+
+    const pendingAfterUnpub = await db.publishEvents?.listPending();
+    const unpubEvent = pendingAfterUnpub?.find((e) => e.entity_id === item.id && e.event_type === "archived");
+    expect(unpubEvent).toBeDefined();
+    expect(unpubEvent?.entity_type).toBe("tour_package");
+    expect(unpubEvent?.status).toBe("pending");
+  });
+
+  it("admin dedicated tour package, local package, and transfer mutations enqueue site_publish_events", async () => {
+    const { app, db } = await createTestApp();
+
+    // 1. Tour package
+    const tp = await db.tourPackages.create({
+      id: "11111111-1111-4111-8111-111111111111",
+      packageCode: "tp-outbox-pkg",
+      name: "Dedicated TP Outbox",
+      durationText: "2 Days",
+      days: 2,
+      nights: 1,
+      baseTierCode: "sedan",
+      startingPriceInr: 4500,
+      fleetPrices: { sedan: 4500, ertiga: 5500 },
+      nightChargeInr: null,
+      inclusionsHighlight: "Highlight",
+      inclusionsNote: "Note",
+      source: "Agra",
+      destination: "Fatehpur Sikri",
+      inclusions: ["Car"],
+      exclusions: ["Tickets"],
+      itinerary: [],
+      imageUrl: "/assets/packages/tp.webp",
+      gallery: [],
+      status: "draft",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    const tpPubRes = await app.inject({
+      method: "POST",
+      url: `/api/v1/ops/admin/tour-packages/${tp.id}/publish`,
+      headers: SUPER_ADMIN_AUTH,
+    });
+    expect(tpPubRes.statusCode).toBe(200);
+
+    const pendingTp = await db.publishEvents?.listPending();
+    const tpEvent = pendingTp?.find((e) => e.entity_id === tp.id);
+    expect(tpEvent).toBeDefined();
+    expect(tpEvent?.entity_type).toBe("tour_package");
+    expect(tpEvent?.event_type).toBe("published");
+
+    // 2. Local sightseeing package
+    const lp = await db.localPackages.create({
+      id: "22222222-2222-4222-8222-222222222222",
+      packageCode: "lp-outbox-tour",
+      name: "Dedicated LP Outbox",
+      durationHours: 4,
+      includedKm: 40,
+      covers: "Taj Mahal",
+      parkingNote: null,
+      fleetPrices: { sedan: 1200 },
+      usePerKm: false,
+      extraRates: null,
+      nightChargeInr: null,
+      status: "draft",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    const lpPubRes = await app.inject({
+      method: "POST",
+      url: `/api/v1/ops/admin/local-packages/${lp.id}/publish`,
+      headers: SUPER_ADMIN_AUTH,
+    });
+    expect(lpPubRes.statusCode).toBe(200);
+
+    const pendingLp = await db.publishEvents?.listPending();
+    const lpEvent = pendingLp?.find((e) => e.entity_id === lp.id);
+    expect(lpEvent).toBeDefined();
+    expect(lpEvent?.entity_type).toBe("local_package");
+    expect(lpEvent?.event_type).toBe("published");
+
+    // 3. Transfer route
+    const tr = await db.transferRoutes.create({
+      id: "33333333-3333-4333-8333-333333333333",
+      routeCode: "tr-outbox-transfer",
+      name: "Dedicated TR Outbox",
+      distanceText: "10 km",
+      directionNote: null,
+      fleetPrices: { sedan: 800 },
+      usePerKm: false,
+      nightChargeInr: null,
+      status: "draft",
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    const trPubRes = await app.inject({
+      method: "POST",
+      url: `/api/v1/ops/admin/transfer-routes/${tr.id}/publish`,
+      headers: SUPER_ADMIN_AUTH,
+    });
+    expect(trPubRes.statusCode).toBe(200);
+
+    const pendingTr = await db.publishEvents?.listPending();
+    const trEvent = pendingTr?.find((e) => e.entity_id === tr.id);
+    expect(trEvent).toBeDefined();
+    expect(trEvent?.entity_type).toBe("transfer");
+    expect(trEvent?.event_type).toBe("published");
+  });
 });

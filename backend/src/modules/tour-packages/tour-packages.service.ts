@@ -73,7 +73,17 @@ export function createTourPackagesService(deps: {
       const now = toIso(deps.clock.now());
       const item = await deps.db.tourPackages.create(toRecord(input, now));
       if (item.status === "published") {
-        await triggerFrontendRebuild("tour-package-published");
+        await deps.db.publishEvents?.enqueue({
+          entityType: "tour_package",
+          entityId: item.id,
+          eventType: "published",
+        });
+        await triggerFrontendRebuild({
+          reason: "tour-package-published",
+          entityType: "tour_package",
+          entityId: item.id,
+          slug: item.packageCode,
+        });
       }
       return item;
     },
@@ -126,7 +136,17 @@ export function createTourPackagesService(deps: {
 
       const updated = await deps.db.tourPackages.update(merged);
       if (current.status === "published" && contentEdited) {
-        await triggerFrontendRebuild("tour-package-content-edited");
+        await deps.db.publishEvents?.enqueue({
+          entityType: "tour_package",
+          entityId: current.id,
+          eventType: priceEdited ? "price_changed" : "updated",
+        });
+        await triggerFrontendRebuild({
+          reason: "tour-package-content-edited",
+          entityType: "tour_package",
+          entityId: current.id,
+          slug: current.packageCode,
+        });
       }
       return updated;
     },
@@ -137,7 +157,17 @@ export function createTourPackagesService(deps: {
         status: "published",
         updatedAt: toIso(deps.clock.now()),
       });
-      await triggerFrontendRebuild("tour-package-publish");
+      await deps.db.publishEvents?.enqueue({
+        entityType: "tour_package",
+        entityId: item.id,
+        eventType: "published",
+      });
+      await triggerFrontendRebuild({
+        reason: "tour-package-publish",
+        entityType: "tour_package",
+        entityId: item.id,
+        slug: item.packageCode,
+      });
       return updated;
     },
     async archive(id: string) {
@@ -147,7 +177,17 @@ export function createTourPackagesService(deps: {
         status: "archived",
         updatedAt: toIso(deps.clock.now()),
       });
-      await triggerFrontendRebuild("tour-package-archive");
+      await deps.db.publishEvents?.enqueue({
+        entityType: "tour_package",
+        entityId: item.id,
+        eventType: "archived",
+      });
+      await triggerFrontendRebuild({
+        reason: "tour-package-archive",
+        entityType: "tour_package",
+        entityId: item.id,
+        slug: item.packageCode,
+      });
       return updated;
     },
     async remove(id: string) {

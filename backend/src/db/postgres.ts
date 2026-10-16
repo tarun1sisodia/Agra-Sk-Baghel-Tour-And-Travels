@@ -16,7 +16,7 @@ import type {
   ReviewRecord,
   WebhookEventRecord,
 } from "../types/domain.js";
-import type { DeviceRegistrationRecord, FareRuleRecord, InquiryListFilter, RentalEnquiryListFilter, PaymentListFilter, Repositories } from "./types.js";
+import type { DeviceRegistrationRecord, FareRuleRecord, InquiryListFilter, RentalEnquiryListFilter, PaymentListFilter, PublishEventInput, PublishEventRecord, Repositories } from "./types.js";
 import type { RouteCatalogRecord } from "./route-catalog-types.js";
 import type {
   CancellationPolicyRecord,
@@ -2417,10 +2417,56 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           };
         },
       },
+      publishEvents: {
+        async enqueue(input: PublishEventInput) {
+          const rows = await query<Record<string, unknown>>(
+            client,
+            `INSERT INTO site_publish_events (entity_type, entity_id, event_type, status)
+             VALUES ($1, $2, $3, 'pending')
+             ON CONFLICT (entity_type, entity_id, event_type) WHERE status = 'pending'
+             DO UPDATE SET next_attempt_at = NOW()
+             RETURNING *`,
+            [input.entityType, input.entityId, input.eventType]
+          );
+          return mapPublishEvent(rows[0]!);
+        },
+        async getById(id: string) {
+          const rows = await query<Record<string, unknown>>(
+            client,
+            `SELECT * FROM site_publish_events WHERE id = $1`,
+            [id]
+          );
+          return rows[0] ? mapPublishEvent(rows[0]) : null;
+        },
+        async listPending(limit = 10) {
+          const rows = await query<Record<string, unknown>>(
+            client,
+            `SELECT * FROM site_publish_events WHERE status = 'pending' ORDER BY created_at ASC LIMIT $1`,
+            [limit]
+          );
+          return rows.map(mapPublishEvent);
+        },
+      },
     };
   }
 
   return repos;
+}
+
+function mapPublishEvent(row: Record<string, unknown>): PublishEventRecord {
+  return {
+    id: String(row.id),
+    entity_type: row.entity_type as PublishEventRecord["entity_type"],
+    entity_id: String(row.entity_id),
+    event_type: row.event_type as PublishEventRecord["event_type"],
+    status: row.status as PublishEventRecord["status"],
+    attempt_count: num(row.attempt_count),
+    next_attempt_at: row.next_attempt_at ? new Date(String(row.next_attempt_at)).toISOString() : new Date().toISOString(),
+    deployment_ref: row.deployment_ref ? String(row.deployment_ref) : null,
+    last_error: row.last_error ? String(row.last_error) : null,
+    created_at: new Date(String(row.created_at)).toISOString(),
+    processed_at: row.processed_at ? new Date(String(row.processed_at)).toISOString() : null,
+  };
 }
 
 

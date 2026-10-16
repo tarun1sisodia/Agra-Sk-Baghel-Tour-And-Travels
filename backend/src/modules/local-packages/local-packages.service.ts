@@ -55,7 +55,17 @@ export function createLocalPackagesService(deps: { db: Repositories; clock: Cloc
       const now = toIso(deps.clock.now());
       const item = await deps.db.localPackages.create(toRecord(input, now));
       if (item.status === "published") {
-        await triggerFrontendRebuild("local-package-published");
+        await deps.db.publishEvents?.enqueue({
+          entityType: "local_package",
+          entityId: item.id,
+          eventType: "published",
+        });
+        await triggerFrontendRebuild({
+          reason: "local-package-published",
+          entityType: "local_package",
+          entityId: item.id,
+          slug: item.packageCode,
+        });
       }
       return item;
     },
@@ -90,7 +100,17 @@ export function createLocalPackagesService(deps: { db: Repositories; clock: Cloc
 
       const updated = await deps.db.localPackages.update(merged);
       if (current.status === "published" && priceEdited) {
-        await triggerFrontendRebuild("local-package-price-edited");
+        await deps.db.publishEvents?.enqueue({
+          entityType: "local_package",
+          entityId: current.id,
+          eventType: "price_changed",
+        });
+        await triggerFrontendRebuild({
+          reason: "local-package-price-edited",
+          entityType: "local_package",
+          entityId: current.id,
+          slug: current.packageCode,
+        });
       }
       return updated;
     },
@@ -101,7 +121,17 @@ export function createLocalPackagesService(deps: { db: Repositories; clock: Cloc
         status: "published",
         updatedAt: toIso(deps.clock.now()),
       });
-      await triggerFrontendRebuild("local-package-publish");
+      await deps.db.publishEvents?.enqueue({
+        entityType: "local_package",
+        entityId: item.id,
+        eventType: "published",
+      });
+      await triggerFrontendRebuild({
+        reason: "local-package-publish",
+        entityType: "local_package",
+        entityId: item.id,
+        slug: item.packageCode,
+      });
       return updated;
     },
     async archive(id: string) {
@@ -111,7 +141,17 @@ export function createLocalPackagesService(deps: { db: Repositories; clock: Cloc
         status: "archived",
         updatedAt: toIso(deps.clock.now()),
       });
-      await triggerFrontendRebuild("local-package-archive");
+      await deps.db.publishEvents?.enqueue({
+        entityType: "local_package",
+        entityId: item.id,
+        eventType: "archived",
+      });
+      await triggerFrontendRebuild({
+        reason: "local-package-archive",
+        entityType: "local_package",
+        entityId: item.id,
+        slug: item.packageCode,
+      });
       return updated;
     },
     async remove(id: string) {

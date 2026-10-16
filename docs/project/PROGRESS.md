@@ -54,6 +54,7 @@
 - [x] **Phase 4:** Route Fleet-Price Resolver (<300km forced round-trip + ₹500 DA, >=300km per-km + ₹500 DA; verified across complete 9-case DIST-01..DIST-09 boundary matrix in `fare-strategy-boundary.test.ts` with 9/9 tests green).
 - [x] **Phase 5:** Package Fleet-Price Resolver (`tour_packages.fleet_prices` fixed pricing across all 5 vehicle tiers; route distance/allowance isolation verified with 20/20 tests green in `package-fleet-price.test.ts`).
 - [x] **Phase 6:** Normalized Customer Contract (`FleetPriceOption` & `FleetPriceOptionSchema` in `contracts/fleet-pricing.ts`, synced byte-identical to `backend/src/contracts/`, `admin/src/contracts/`, and `react/src/contracts/`, zero drift, 10/10 contract tests green).
+- [x] **Phase D.2:** Connected Catalog Publishing to Verified Releases (Outbox `site_publish_events` durable enqueuing on all admin mutations, metadata-enriched deploy hook requests, fail-closed multi-table resolution & explicit archive verification in `PublicationWorker`, real production imports in `dynamic-publishing-e2e.test.ts`, all unit/integration tests passing, `npm run verify` green).
 
 ## Next Actions
 
@@ -66,6 +67,7 @@
 
 | Date | Change | Owner |
 |---|---|---|
+| 2026-10-16 | Completed Phase D.2: Connected Catalog Publishing to Verified Releases (Migration `0042_widen_publish_events_entity_id.sql`, outbox repo `publishEvents`, domain service hooks in catalog/tour-packages/local-packages/transfer-routes/routes, hardened fail-closed worker verification for detail page, CDN images, sitemap presence & archive exclusion, real production tests, `npm run verify` green). | Antigravity AI |
 | 2026-10-16 | Completed Phase 6: Shared Customer Price Contract — `FleetPriceOption` (Contract C-FLEET-PRICING-001 v0.2.0 in `contracts/fleet-pricing.ts`, synced byte-identical to backend, admin, react; 10 contract tests green; 3 typechecks clean). Reconciled Phase 4 & Phase 5 completion. | Antigravity AI |
 | 2026-10-16 | Completed Phase 5: Tour Package Fleet Pricing & Route Rate Isolation (`resolvePackageFleetPrice` in `tour-package.calculator.ts`, 20/20 unit tests green in `package-fleet-price.test.ts`). | Antigravity AI |
 | 2026-10-16 | Completed Phase 4: Route Fleet-Price Distance Boundary Resolver & Test Matrix Invariants (`DIST-01`..`DIST-09` in `fare-strategy-boundary.test.ts`, 9/9 tests green). | Antigravity AI |

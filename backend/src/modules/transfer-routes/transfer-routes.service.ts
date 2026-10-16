@@ -52,7 +52,17 @@ export function createTransferRoutesService(deps: { db: Repositories; clock: Clo
       const now = toIso(deps.clock.now());
       const item = await deps.db.transferRoutes.create(toRecord(input, now));
       if (item.status === "published") {
-        await triggerFrontendRebuild("transfer-route-published");
+        await deps.db.publishEvents?.enqueue({
+          entityType: "transfer",
+          entityId: item.id,
+          eventType: "published",
+        });
+        await triggerFrontendRebuild({
+          reason: "transfer-route-published",
+          entityType: "transfer",
+          entityId: item.id,
+          slug: item.routeCode,
+        });
       }
       return item;
     },
@@ -84,7 +94,17 @@ export function createTransferRoutesService(deps: { db: Repositories; clock: Clo
 
       const updated = await deps.db.transferRoutes.update(merged);
       if (current.status === "published" && priceEdited) {
-        await triggerFrontendRebuild("transfer-route-price-edited");
+        await deps.db.publishEvents?.enqueue({
+          entityType: "transfer",
+          entityId: current.id,
+          eventType: "price_changed",
+        });
+        await triggerFrontendRebuild({
+          reason: "transfer-route-price-edited",
+          entityType: "transfer",
+          entityId: current.id,
+          slug: current.routeCode,
+        });
       }
       return updated;
     },
@@ -95,7 +115,17 @@ export function createTransferRoutesService(deps: { db: Repositories; clock: Clo
         status: "published",
         updatedAt: toIso(deps.clock.now()),
       });
-      await triggerFrontendRebuild("transfer-route-publish");
+      await deps.db.publishEvents?.enqueue({
+        entityType: "transfer",
+        entityId: item.id,
+        eventType: "published",
+      });
+      await triggerFrontendRebuild({
+        reason: "transfer-route-publish",
+        entityType: "transfer",
+        entityId: item.id,
+        slug: item.routeCode,
+      });
       return updated;
     },
     async archive(id: string) {
@@ -105,7 +135,17 @@ export function createTransferRoutesService(deps: { db: Repositories; clock: Clo
         status: "archived",
         updatedAt: toIso(deps.clock.now()),
       });
-      await triggerFrontendRebuild("transfer-route-archive");
+      await deps.db.publishEvents?.enqueue({
+        entityType: "transfer",
+        entityId: item.id,
+        eventType: "archived",
+      });
+      await triggerFrontendRebuild({
+        reason: "transfer-route-archive",
+        entityType: "transfer",
+        entityId: item.id,
+        slug: item.routeCode,
+      });
       return updated;
     },
     async remove(id: string) {
