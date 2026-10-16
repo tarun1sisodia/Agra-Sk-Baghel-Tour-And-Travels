@@ -11,7 +11,8 @@ async function walkHtml(dir: string): Promise<string[]> {
   const found: string[] = [];
   for (const item of await readdir(dir, { withFileTypes: true })) {
     const path = join(dir, item.name);
-    if (item.isDirectory()) found.push(...await walkHtml(path));
+    // Asset directories may contain defensive index.html files that are not route documents.
+    if (item.isDirectory() && item.name.toLowerCase() !== "assets") found.push(...await walkHtml(path));
     else if (item.isFile() && item.name.toLowerCase().endsWith(".html")) found.push(path);
   }
   return found;
