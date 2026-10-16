@@ -107,12 +107,21 @@ export async function fetchPublishedProduct(
 
 // 3. Quotes Options (Grouped Availability)
 export async function fetchQuoteOptions(req: OptionsRequest): Promise<OptionsResponse> {
-  const validatedReq = OptionsRequest.parse(req);
+  const parseResult = OptionsRequest.safeParse(req);
+  if (!parseResult.success) {
+    const issues = parseResult.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ");
+    throw new CleanFareApiError(
+      "INVALID_OPTIONS_PAYLOAD",
+      `Invalid quote request parameters: ${issues}`,
+      400,
+      parseResult.error.issues
+    );
+  }
   return apiRequest<OptionsResponse>(
     "/api/v1/quotes/options",
     {
       method: "POST",
-      body: JSON.stringify(validatedReq),
+      body: JSON.stringify(parseResult.data),
     },
     OptionsResponse
   );
@@ -120,12 +129,21 @@ export async function fetchQuoteOptions(req: OptionsRequest): Promise<OptionsRes
 
 // 4. Exact Fare Quote
 export async function fetchQuote(req: QuoteRequest): Promise<QuoteResponse> {
-  const validatedReq = QuoteRequest.parse(req);
+  const parseResult = QuoteRequest.safeParse(req);
+  if (!parseResult.success) {
+    const issues = parseResult.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ");
+    throw new CleanFareApiError(
+      "INVALID_QUOTE_PAYLOAD",
+      `Invalid quote parameters: ${issues}`,
+      400,
+      parseResult.error.issues
+    );
+  }
   return apiRequest<QuoteResponse>(
     "/api/v1/quotes",
     {
       method: "POST",
-      body: JSON.stringify(validatedReq),
+      body: JSON.stringify(parseResult.data),
     },
     QuoteResponse
   );
@@ -133,12 +151,21 @@ export async function fetchQuote(req: QuoteRequest): Promise<QuoteResponse> {
 
 // 5. Create Booking
 export async function createBooking(req: CreateBookingRequest): Promise<BookingCreateResponse> {
-  const validatedReq = CreateBookingRequest.parse(req);
+  const parseResult = CreateBookingRequest.safeParse(req);
+  if (!parseResult.success) {
+    const issues = parseResult.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ");
+    throw new CleanFareApiError(
+      "INVALID_BOOKING_PAYLOAD",
+      `Please select a valid commercial vehicle model and check all booking details before proceeding (${issues}).`,
+      400,
+      parseResult.error.issues
+    );
+  }
   return apiRequest<BookingCreateResponse>(
     "/api/v1/bookings",
     {
       method: "POST",
-      body: JSON.stringify(validatedReq),
+      body: JSON.stringify(parseResult.data),
     },
     BookingCreateResponse
   );

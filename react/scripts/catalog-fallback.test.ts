@@ -25,9 +25,11 @@ describe("canonical catalogue & fallback regressions", () => {
     );
   });
 
-  it("booking API response validation fails closed instead of passing invalid payloads downstream", () => {
+  it("booking API response and outbound request validation fails closed instead of passing invalid payloads downstream", () => {
     const apiContent = readFileSync(resolve(__dirname, "../src/services/cleanFareApi.ts"), "utf-8");
     assert.ok(apiContent.includes('"CONTRACT_VALIDATION_ERROR"'));
+    assert.ok(apiContent.includes('"INVALID_BOOKING_PAYLOAD"'));
+    assert.ok(apiContent.includes("CreateBookingRequest.safeParse(req)"));
     assert.ok(apiContent.includes("return parseResult.data;"));
     assert.equal(apiContent.includes("console.warn(`[CleanFareApi] Validation warning"), false);
   });

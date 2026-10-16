@@ -62,6 +62,11 @@ function cn(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function isValidUuid(id: string | null | undefined): boolean {
+  return typeof id === "string" && UUID_REGEX.test(id.trim());
+}
+
 const CATEGORIES: { code: CategoryCode; label: string }[] = [
   { code: "outstation", label: "Outstation Cabs" },
   { code: "local_package", label: "Local Sightseeing" },
@@ -128,6 +133,7 @@ export function CleanBookingPage() {
     notes: "",
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [bookingError, setBookingError] = useState<string | null>(null);
 
   // 6. Booking & Payment Execution State
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
@@ -356,14 +362,32 @@ export function CleanBookingPage() {
     const cleanPhone = customer.phone.replace(/[^0-9]/g, "");
     if (cleanPhone.length < 10) errs.phone = "Valid 10-digit phone number is required.";
     if (!customer.pickup_address.trim()) errs.pickup_address = "Pickup address / location is required.";
+    const modelId = selectedCar?.vehicle?.vehicle_model_id || selectedCar?.quote?.vehicle?.vehicle_model_id;
+    if (!selectedCar || !isValidUuid(modelId)) {
+      errs.vehicle = "Please select an available vehicle model to proceed.";
+    }
     setFormErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
   // 9. Execute Booking and Razorpay Flow
   const handleProceedToBooking = async (overrideQuote?: QuoteResponse) => {
-    if (!selectedCar || !activeProduct) return;
+    setBookingError(null);
+    if (!selectedCar || !activeProduct) {
+      setBookingError("Please select a valid journey and commercial vehicle.");
+      return;
+    }
     if (!validateForm()) return;
+
+    const vehicleModelId = selectedCar.vehicle?.vehicle_model_id || selectedCar.quote?.vehicle?.vehicle_model_id;
+    if (!isValidUuid(vehicleModelId)) {
+      setBookingError("The selected vehicle model has an invalid identifier. Please choose another vehicle.");
+      return;
+    }
+    if (!isValidUuid(activeProduct.id)) {
+      setBookingError("The selected journey is unavailable for instant online reservation. Please choose a published route.");
+      return;
+    }
 
     const quoteToUse = overrideQuote || selectedCar.quote;
     setBookingSubmitting(true);
@@ -462,10 +486,16 @@ export function CleanBookingPage() {
             oldTotal: quoteToUse.total,
           });
         } else {
-          alert("The fare has changed. Please refresh and review current prices.");
+          setBookingError("The fare has changed. Please refresh and review current prices.");
         }
       } else {
-        alert(err.message || "Failed to create booking. Please try again.");
+        const errorMsg =
+          err instanceof CleanFareApiError
+            ? err.message
+            : typeof err?.message === "string" && !err.message.startsWith("[")
+              ? err.message
+              : "Unable to create booking reservation. Please check your details and try again.";
+        setBookingError(errorMsg);
       }
     } finally {
       setBookingSubmitting(false);
@@ -969,6 +999,17 @@ export function CleanBookingPage() {
                       {selectedCar.quote.messages.map((msg, i) => (
                         <p key={i}>• {msg}</p>
                       ))}
+                    </div>
+                  )}
+
+                  {bookingError && (
+                    <div className="mb-3 rounded border border-rose-500/30 bg-rose-500/10 p-2.5 text-xs text-rose-600 dark:text-rose-400">
+                      {bookingError}
+                    </div>
+                  )}
+                  {formErrors.vehicle && (
+                    <div className="mb-3 rounded border border-amber-500/30 bg-amber-500/10 p-2 text-xs text-amber-700 dark:text-amber-400">
+                      {formErrors.vehicle}
                     </div>
                   )}
 
