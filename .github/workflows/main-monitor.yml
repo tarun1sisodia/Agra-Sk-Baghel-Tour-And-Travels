@@ -20,6 +20,11 @@ jobs:
     name: Verify main and commit report
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      VITE_SITE_URL: https://agraskbagheltourandtravels.com
+      VITE_SITE_MODE: production
+      VITE_HINDI_INDEXING_ENABLED: "false"
+      RELEASE_BUILD: "1"
     steps:
       - name: Checkout main with history
         uses: actions/checkout@v4
