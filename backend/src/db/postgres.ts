@@ -27,6 +27,7 @@ import type {
   MonumentRecord,
   PackageVehicleUpgradeRecord,
   PetTaxiPolicyRecord,
+  TourPackageGalleryImage,
   TourPackageRecord,
   TransferRouteRecord,
 } from "./dossier-types.js";
@@ -74,6 +75,8 @@ export function mapLocalPackage(row: Record<string, unknown>): LocalSightseeingP
     covers: String(row.covers ?? ""),
     parkingNote: row.parking_note ? String(row.parking_note) : (row.inclusions_note ? String(row.inclusions_note) : null),
     fleetPrices: (row.fleet_prices as Record<string, number>) ?? {},
+    imageUrl: row.image_url ? String(row.image_url) : null,
+    gallery: Array.isArray(row.gallery) ? (row.gallery as TourPackageGalleryImage[]) : [],
     usePerKm: row.use_per_km === null || row.use_per_km === undefined ? null : Boolean(row.use_per_km),
     extraRates: (row.extra_rates as LocalSightseeingPackageRecord["extraRates"]) ?? null,
     nightChargeInr: row.night_charge_inr !== null && row.night_charge_inr !== undefined ? num(row.night_charge_inr) : null,

@@ -15,6 +15,8 @@ export type LocalSightseeingPackageRecord = {
   usePerKm: boolean | null;
   extraRates: Record<string, { per_km: number; per_hr: number }> | null;
   nightChargeInr: number | null;
+  imageUrl?: string | null;
+  gallery?: TourPackageGalleryImage[];
   status: ContentStatus;
   isActive: boolean;
   createdAt: string;
