@@ -71,21 +71,18 @@ export function createTourPackagesService(deps: {
       const existing = await deps.db.tourPackages.getByCode(input.package_code);
       if (existing) throw Errors.conflict("PACKAGE_CODE_TAKEN", "Package code is already in use.");
       const now = toIso(deps.clock.now());
-      const item = await deps.db.tourPackages.create(toRecord(input, now));
-      if (item.status === "published") {
-        await deps.db.publishEvents?.enqueue({
-          entityType: "tour_package",
-          entityId: item.id,
-          eventType: "published",
-        });
-        await triggerFrontendRebuild({
-          reason: "tour-package-published",
-          entityType: "tour_package",
-          entityId: item.id,
-          slug: item.packageCode,
-        });
-      }
-      return item;
+      const record = toRecord(input, now);
+      return deps.db.transaction(async (tx) => {
+        const item = await tx.tourPackages.create(record);
+        if (item.status === "published") {
+          await tx.publishEvents.enqueue({
+            entityType: "tour_package",
+            entityId: item.id,
+            eventType: "published",
+          });
+        }
+        return item;
+      });
     },
     async update(id: string, input: UpdateTourPackageInput) {
       const current = await this.get(id);
@@ -134,61 +131,51 @@ export function createTourPackagesService(deps: {
         updatedAt: now,
       };
 
-      const updated = await deps.db.tourPackages.update(merged);
-      if (current.status === "published" && contentEdited) {
-        await deps.db.publishEvents?.enqueue({
-          entityType: "tour_package",
-          entityId: current.id,
-          eventType: priceEdited ? "price_changed" : "updated",
-        });
-        await triggerFrontendRebuild({
-          reason: "tour-package-content-edited",
-          entityType: "tour_package",
-          entityId: current.id,
-          slug: current.packageCode,
-        });
-      }
-      return updated;
+      return deps.db.transaction(async (tx) => {
+        const updated = await tx.tourPackages.update(merged);
+        if (current.status === "published" && contentEdited) {
+          await tx.publishEvents.enqueue({
+            entityType: "tour_package",
+            entityId: current.id,
+            eventType: priceEdited ? "price_changed" : "updated",
+          });
+        }
+        return updated;
+      });
     },
     async publish(id: string) {
       const item = await this.get(id);
-      const updated = await deps.db.tourPackages.update({
-        ...item,
-        status: "published",
-        updatedAt: toIso(deps.clock.now()),
+      const now = toIso(deps.clock.now());
+      return deps.db.transaction(async (tx) => {
+        const updated = await tx.tourPackages.update({
+          ...item,
+          status: "published",
+          updatedAt: now,
+        });
+        await tx.publishEvents.enqueue({
+          entityType: "tour_package",
+          entityId: item.id,
+          eventType: "published",
+        });
+        return updated;
       });
-      await deps.db.publishEvents?.enqueue({
-        entityType: "tour_package",
-        entityId: item.id,
-        eventType: "published",
-      });
-      await triggerFrontendRebuild({
-        reason: "tour-package-publish",
-        entityType: "tour_package",
-        entityId: item.id,
-        slug: item.packageCode,
-      });
-      return updated;
     },
     async archive(id: string) {
       const item = await this.get(id);
-      const updated = await deps.db.tourPackages.update({
-        ...item,
-        status: "archived",
-        updatedAt: toIso(deps.clock.now()),
+      const now = toIso(deps.clock.now());
+      return deps.db.transaction(async (tx) => {
+        const updated = await tx.tourPackages.update({
+          ...item,
+          status: "archived",
+          updatedAt: now,
+        });
+        await tx.publishEvents.enqueue({
+          entityType: "tour_package",
+          entityId: item.id,
+          eventType: "archived",
+        });
+        return updated;
       });
-      await deps.db.publishEvents?.enqueue({
-        entityType: "tour_package",
-        entityId: item.id,
-        eventType: "archived",
-      });
-      await triggerFrontendRebuild({
-        reason: "tour-package-archive",
-        entityType: "tour_package",
-        entityId: item.id,
-        slug: item.packageCode,
-      });
-      return updated;
     },
     async remove(id: string) {
       const item = await this.get(id);

@@ -22,8 +22,8 @@ export type ReleaseState =
   | "release_failed";
 
 export type DeployHookResult = {
-  status: "hook_missing" | "queued" | "hook_failed";
-  releaseState: Extract<ReleaseState, "publish_committed" | "release_queued" | "release_failed">;
+  status: "hook_missing" | "queued" | "hook_failed" | "verified";
+  releaseState: Extract<ReleaseState, "publish_committed" | "release_queued" | "release_failed" | "release_deployed">;
   correlationId: string | null;
   reason: string | null;
   entityType: string | null;
@@ -48,7 +48,7 @@ function normalizeInput(reasonOrInput?: string | DeployHookInput): DeployHookInp
   return reasonOrInput ?? {};
 }
 
-function recordAttempt(result: DeployHookResult): DeployHookResult {
+export function recordAttempt(result: DeployHookResult): DeployHookResult {
   latestReleaseAttempt = {
     ...result,
     deployHookConfigured: result.status !== "hook_missing",
@@ -64,7 +64,7 @@ function recordAttempt(result: DeployHookResult): DeployHookResult {
     deployHookStatus: result.status,
     httpStatus: result.httpStatus,
   };
-  if (result.status === "queued") {
+  if (result.status === "queued" || result.status === "verified") {
     console.info("[catalog-release]", logPayload);
   } else {
     console.warn("[catalog-release]", { ...logPayload, message: result.message });

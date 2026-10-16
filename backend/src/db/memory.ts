@@ -238,6 +238,19 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
           locationCache: new Map(locationCache),
           devices: new Map(devices),
           fareRules: new Map(fareRules),
+          publishEvents: new Map(publishEvents),
+          tourPackages: new Map(tourPackages),
+          tourPackagesByCode: new Map(tourPackagesByCode),
+          packageUpgrades: new Map(packageUpgrades),
+          transferRoutes: new Map(transferRoutes),
+          transferRoutesByCode: new Map(transferRoutesByCode),
+          localPackages: new Map(localPackages),
+          localPackagesByCode: new Map(localPackagesByCode),
+          cancellationPolicies: [...cancellationPolicies],
+          monuments: [...monuments],
+          petPolicy: clone(petPolicy),
+          companyProfile: clone(companyProfile),
+          dossierSignoffs: [...dossierSignoffs],
         };
         try {
           return await fn(repos);
@@ -267,6 +280,19 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
           locationCache.clear(); for (const [k, v] of snap.locationCache) locationCache.set(k, v);
           devices.clear(); for (const [k, v] of snap.devices) devices.set(k, v);
           fareRules.clear(); for (const [k, v] of snap.fareRules) fareRules.set(k, v);
+          publishEvents.clear(); for (const [k, v] of snap.publishEvents) publishEvents.set(k, v);
+          tourPackages.clear(); for (const [k, v] of snap.tourPackages) tourPackages.set(k, v);
+          tourPackagesByCode.clear(); for (const [k, v] of snap.tourPackagesByCode) tourPackagesByCode.set(k, v);
+          packageUpgrades.clear(); for (const [k, v] of snap.packageUpgrades) packageUpgrades.set(k, v);
+          transferRoutes.clear(); for (const [k, v] of snap.transferRoutes) transferRoutes.set(k, v);
+          transferRoutesByCode.clear(); for (const [k, v] of snap.transferRoutesByCode) transferRoutesByCode.set(k, v);
+          localPackages.clear(); for (const [k, v] of snap.localPackages) localPackages.set(k, v);
+          localPackagesByCode.clear(); for (const [k, v] of snap.localPackagesByCode) localPackagesByCode.set(k, v);
+          cancellationPolicies.length = 0; cancellationPolicies.push(...snap.cancellationPolicies);
+          monuments.length = 0; monuments.push(...snap.monuments);
+          petPolicy = clone(snap.petPolicy);
+          companyProfile = clone(snap.companyProfile);
+          dossierSignoffs.length = 0; dossierSignoffs.push(...snap.dossierSignoffs);
           throw err;
         }
       });

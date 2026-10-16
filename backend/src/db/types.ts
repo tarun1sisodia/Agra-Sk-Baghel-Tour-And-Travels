@@ -289,7 +289,7 @@ export type Repositories = {
     activate(version: string): Promise<FareRuleRecord | null>;
   };
 
-  publishEvents?: {
+  publishEvents: {
     enqueue(event: PublishEventInput): Promise<PublishEventRecord>;
     getById(id: string): Promise<PublishEventRecord | null>;
     listPending(limit?: number): Promise<PublishEventRecord[]>;

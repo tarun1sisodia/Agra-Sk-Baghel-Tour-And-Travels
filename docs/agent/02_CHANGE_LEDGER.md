@@ -1747,6 +1747,38 @@ Implemented:
     - All 324 tests pass across backend (279), react (36), and admin (9).
     - Full `npm run verify` passed (TypeScript x3, test:ci, test:catalog-sources, admin unit tests, SEO lifecycle, customer SSG build, admin build, backend build).
 
+- **Phase D.3: Publishing Reliability Closure**:
+  - **Mandatory & Atomic Outbox Persistence**:
+    - Made `publishEvents` repository mandatory on `Repositories` interface (`backend/src/db/types.ts`).
+    - Wrapped all domain mutations and outbox enqueues in transactional boundaries (`deps.db.transaction`):
+      - `backend/src/modules/catalog/catalog.service.ts`: `update`, `publish`, `unpublish`, `archive`, `uploadMedia`, `updateMedia`, `deleteMedia`.
+      - `backend/src/modules/tour-packages/tour-packages.service.ts`: `create`, `update`, `publish`, `archive`.
+      - `backend/src/modules/local-packages/local-packages.service.ts`: `create`, `update`, `publish`, `archive`.
+      - `backend/src/modules/transfer-routes/transfer-routes.service.ts`: `create`, `update`, `publish`, `archive`.
+      - `backend/src/modules/routes/route.service.ts`: `publish`, `archive`.
+    - Updated `memory.ts` transaction isolation to snapshot and restore all domain entities and outbox events on rollback, ensuring strict parity between in-memory test fixtures and PostgreSQL transactions.
+  - **Single Authoritative Deployment Dispatcher**:
+    - Eliminated duplicate direct calls to `triggerFrontendRebuild()` across mutation services.
+    - Delegated deployment dispatch exclusively to `PublicationWorker`, recording attempts with unified correlation IDs and release states.
+  - **Fail-Closed Release Verification**:
+    - In `PublicationWorker.verifyDeployment()`:
+      - Archive verification strictly fails closed if `sitemap.xml` cannot be fetched or returns a non-200 HTTP status (resolving prior fall-through bug where 500 allowed verification).
+      - Detail page verification strictly fails closed if the page serves HTTP 200 with active title during archive.
+      - Publish verification strictly validates canonical detail page HTTP 200, matching title, reachable cover image (200/304), and exact sitemap inclusion.
+      - Fails closed on missing or invalid `CUSTOMER_SITE_URL`, failed `/health` checks, or unresolvable entity IDs.
+  - **Regression Test Matrix**:
+    - Added 8 targeted regression tests in `dynamic-publishing.test.ts` and `publication-worker.test.ts`:
+      - Missing outbox repository rejects publish and prevents mutation commit.
+      - Failed event enqueue rolls back domain mutations across catalog, tour packages, local packages, and transfer routes.
+      - Mutation dispatches zero direct deploy hooks; worker dispatches exactly one attempt.
+      - Archive verification returns false on sitemap 500 or fetch network failure.
+      - Archive verification returns false if detail page still serves active title.
+      - Title mismatch and unreachable cover image fail verification.
+      - Canonical route resolution verified for tour packages, local tours, transfer routes, and outstation routes.
+  - **Verification**:
+    - 345/345 tests green (300 backend, 36 react, 9 admin).
+    - Monorepo `npm run verify` passed cleanly (3× typecheck, SSG 59 pages + 23 redirects, 0 errors).
+
 ## Known next work (Phase 3 — secure integrations)
 
 - Step 3: Anonymous Device Registration Postgres Unique Constraint Fix & Fleet Rules Verification.
