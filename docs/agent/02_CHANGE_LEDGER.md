@@ -2,6 +2,32 @@
 
 ## 2026-10-16
 
+### 2026-10-16 — Phase D.4: Tour Package Base Tier Normalization & Image Management Fix
+
+- **Root Cause & Contract Harmonization**:
+  - Investigated `base_tier_code: Expected string, received null` failure occurring when updating images or gallery URLs in tour packages.
+  - Traced complete request flow: PostgreSQL query selects `null as base_tier_code`, mapped to `baseTierCode: null` in `mapTourPackage()`. Admin `openEdit()` copied `null` directly into `form.baseTierCode`, serializing `base_tier_code: null` in `handleSave()`.
+  - Added `resolveTourPackageBaseTierCode(value: string | null | undefined): string` in `admin/src/modules/tour-packages/tour-packages.constants.ts` to normalize legacy `null` or `undefined` values to domain default `"sedan"` while strictly preserving valid tiers (e.g. `innova-crysta`).
+  - Updated `admin/src/pages/TourPackagesPage.tsx` to initialize `form.baseTierCode` via `resolveTourPackageBaseTierCode(pkg.baseTierCode)`.
+
+- **Audit & Invariants Across Monorepo Domains**:
+  - Audited image flows across generic catalog CMS (`catalog_items`), tour packages, local packages, and transfer routes.
+  - Verified catalog item media uses dedicated `uploadCatalogMedia` / `attachStagedMedia` pipeline with explicit `storagePath` or `dataBase64`.
+  - Confirmed image URLs and uploaded files in `TourPackageGalleryUploader` route correctly through `/api/v1/tour-packages/media/:file` and remote media storage.
+  - Preserved Phase D.3 outbox transaction and publication guarantees without introducing bypasses or direct deploy-hook calls.
+
+- **Automated Regression Testing & Monorepo Verification**:
+  - Added unit test suite in `admin/src/modules/tour-packages/tour-packages.constants.test.ts` verifying null/undefined fallback to `"sedan"` and preservation of custom tiers (`innova-crysta`).
+  - Updated `admin/package.json` test script to execute the new test file in CI test runs.
+  - Verified 11/11 admin tests pass cleanly, 300/300 backend tests pass (18 test files), 36/36 customer tests pass (6 suites).
+  - Executed full monorepo verification (`npm run verify`): 3 clean typechecks, 0 errors, 59 prerendered SSG pages, 23 redirects, and 3 production builds.
+
+### 2026-10-16 — Phase D.3: Publishing Reliability Closure — Atomic Outbox & Single Deploy Dispatcher
+
+- **Atomic Outbox Transactions**:
+  - Made outbox event enqueueing atomic within domain mutations (`tx.publishEvents.enqueue`) across catalog, tour packages, local packages, transfer routes, and routes.
+  - Enforced single deployment dispatch through `PublicationWorker` with fail-closed verification.
+
 ### 2026-10-16 — Phase D.2: Connect Catalog Publishing to Verified Releases
 
 - **Database Migration & Outbox Repository (`backend/migrations/0042_widen_publish_events_entity_id.sql`, `backend/src/db/types.ts`, `backend/src/db/memory.ts`, `backend/src/db/postgres.ts`)**:
