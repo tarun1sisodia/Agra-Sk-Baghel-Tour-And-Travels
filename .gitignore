@@ -21,4 +21,5 @@ testsprite-results/
 freellmapi/
 
 # Local IDE config
-.roo/
+.roo/
+test.py

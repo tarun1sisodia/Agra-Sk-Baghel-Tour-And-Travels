@@ -1,5 +1,13 @@
 # Contract changelog
 
+## 0.2.0 — 2026-10-16
+- **C-FLEET-PRICING-001 (new):** Shared Customer Price Contract — `FleetPriceOption`.
+  Establishes canonical customer presentation shape for server-authoritative fleet pricing.
+  Pins `fleetCode` to canonical 5-tier enum (C-ENUM-001: `sedan`, `ertiga`, `innova-crysta`,
+  `tempo-traveller`, `urbania`), `price` to server-authoritative total fare, preserves
+  server-calculated `advanceAmount`, strictly disallows frontend price/distance calculations,
+  and exports `FleetPriceOptionSchema` for API boundaries and runtime validation.
+
 ## 0.1.1 — 2026-10-08
 - **C-ENUM-001 (extension):** Extended `toCanonicalTierKey()` and `resolveTierKey()`
   to handle snake_case aliases (`innova_crysta`, `tempo_traveller`) and compound forms

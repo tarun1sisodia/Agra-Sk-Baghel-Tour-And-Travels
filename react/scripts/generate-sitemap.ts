@@ -316,6 +316,15 @@ export function getSitemapEntries(): SitemapEntry[] {
     });
   }
 
+  // 2b. Taxi Rental
+  entries.push({
+    path: "/en/taxis/rent/",
+    priority: 0.9,
+    changefreq: "weekly",
+    enPath: "/en/taxis/rent/",
+    hiPath: "/hi/taxis/rent/",
+  });
+
   // 3. Vehicles (English)
   for (const veh of vehicleSlugs) {
     entries.push({

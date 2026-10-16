@@ -2,6 +2,7 @@
 export * from "./bookings.js";
 export * from "./fare-system.js";
 export * from "./fares.js";
+export * from "./fleet-pricing.js";
 export * from "./local-package-keys.js";
 export * from "./local-packages.js";
 export * from "./monuments.js";

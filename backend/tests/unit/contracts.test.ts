@@ -182,3 +182,158 @@ describe("Phase 1 Contract Synchronizations & Validation", () => {
     expect(PublishEventItem.safeParse(pubEvent).success).toBe(true);
   });
 });
+
+describe("Phase 6 Contract C-FLEET-PRICING-001: FleetPriceOption", () => {
+  it("validates FleetPriceOption across all canonical 5 vehicle tiers", async () => {
+    const { FleetPriceOptionSchema, isValidFleetPriceOption } = await import(
+      "../../src/contracts/fleet-pricing.js"
+    );
+    const { VEHICLE_TIERS } = await import("../../src/contracts/vehicle-tiers.js");
+
+    for (const tier of VEHICLE_TIERS) {
+      const option = {
+        fleetCode: tier,
+        fleetName: tier.toUpperCase(),
+        price: 3500,
+        advanceAmount: 980,
+        currency: "INR" as const,
+        pricingType: "per-km-route" as const,
+        displayLabel: "Starting from ₹12/km",
+        priceSource: "fare_rules" as const,
+        breakdown: {
+          billedKm: 250,
+          driverAllowance: 500,
+          nightAllowance: 0,
+          tollNote: "Tolls & parking extra as actual",
+        },
+      };
+
+      const parsed = FleetPriceOptionSchema.safeParse(option);
+      expect(parsed.success).toBe(true);
+      expect(isValidFleetPriceOption(option)).toBe(true);
+    }
+  });
+
+  it("exports FleetPriceOption and schema from root contracts index", async () => {
+    const index = await import("../../src/contracts/index.js");
+    expect(index.FleetPriceOptionSchema).toBeDefined();
+    expect(index.isValidFleetPriceOption).toBeDefined();
+    expect(index.FLEET_PRICING_TYPES).toContain("fixed-package");
+    expect(index.FLEET_PRICE_SOURCES).toContain("tour_packages");
+  });
+
+  it("rejects non-canonical fleet codes and legacy short keys", async () => {
+    const { FleetPriceOptionSchema } = await import(
+      "../../src/contracts/fleet-pricing.js"
+    );
+
+    const invalidShortInnova = {
+      fleetCode: "innova", // legacy short key must be rejected at API/presentation boundary
+      fleetName: "Innova",
+      price: 4500,
+      advanceAmount: 1260,
+      currency: "INR",
+      pricingType: "fixed-package",
+      displayLabel: "Full day package",
+      priceSource: "tour_packages",
+    };
+    expect(FleetPriceOptionSchema.safeParse(invalidShortInnova).success).toBe(false);
+
+    const invalidShortTempo = {
+      fleetCode: "tempo",
+      fleetName: "Tempo Traveller",
+      price: 8500,
+      advanceAmount: 2380,
+      currency: "INR",
+      pricingType: "fixed-package",
+      displayLabel: "Full day package",
+      priceSource: "tour_packages",
+    };
+    expect(FleetPriceOptionSchema.safeParse(invalidShortTempo).success).toBe(false);
+
+    const invalidTier = {
+      fleetCode: "luxury_suv",
+      fleetName: "Luxury",
+      price: 6000,
+      advanceAmount: 1680,
+      currency: "INR",
+      pricingType: "per-km-route",
+      displayLabel: "Hourly package",
+      priceSource: "fare_rules",
+    };
+    expect(FleetPriceOptionSchema.safeParse(invalidTier).success).toBe(false);
+  });
+
+  it("rejects negative monetary amounts and non-INR currency", async () => {
+    const { FleetPriceOptionSchema } = await import(
+      "../../src/contracts/fleet-pricing.js"
+    );
+
+    const negativePrice = {
+      fleetCode: "sedan",
+      fleetName: "Sedan",
+      price: -100,
+      advanceAmount: 500,
+      currency: "INR",
+      pricingType: "per-km-route",
+      displayLabel: "Outstation drop",
+      priceSource: "fare_rules",
+    };
+    expect(FleetPriceOptionSchema.safeParse(negativePrice).success).toBe(false);
+
+    const negativeAdvance = {
+      fleetCode: "sedan",
+      fleetName: "Sedan",
+      price: 3000,
+      advanceAmount: -500,
+      currency: "INR",
+      pricingType: "per-km-route",
+      displayLabel: "Outstation drop",
+      priceSource: "fare_rules",
+    };
+    expect(FleetPriceOptionSchema.safeParse(negativeAdvance).success).toBe(false);
+
+    const invalidCurrency = {
+      fleetCode: "sedan",
+      fleetName: "Sedan",
+      price: 3000,
+      advanceAmount: 500,
+      currency: "USD",
+      pricingType: "per-km-route",
+      displayLabel: "Outstation drop",
+      priceSource: "fare_rules",
+    };
+    expect(FleetPriceOptionSchema.safeParse(invalidCurrency).success).toBe(false);
+  });
+
+  it("rejects invalid pricing types and price sources", async () => {
+    const { FleetPriceOptionSchema } = await import(
+      "../../src/contracts/fleet-pricing.js"
+    );
+
+    const invalidPricingType = {
+      fleetCode: "sedan",
+      fleetName: "Sedan",
+      price: 3000,
+      advanceAmount: 500,
+      currency: "INR",
+      pricingType: "dynamic-auction", // not allowed
+      displayLabel: "Outstation drop",
+      priceSource: "fare_rules",
+    };
+    expect(FleetPriceOptionSchema.safeParse(invalidPricingType).success).toBe(false);
+
+    const invalidPriceSource = {
+      fleetCode: "sedan",
+      fleetName: "Sedan",
+      price: 3000,
+      advanceAmount: 500,
+      currency: "INR",
+      pricingType: "per-km-route",
+      displayLabel: "Outstation drop",
+      priceSource: "hardcoded_json", // not allowed
+    };
+    expect(FleetPriceOptionSchema.safeParse(invalidPriceSource).success).toBe(false);
+  });
+});
+

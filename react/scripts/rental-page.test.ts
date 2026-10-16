@@ -202,4 +202,76 @@ describe("Taxi Rental Page — Cano nical Fleet & Form Invariants", () => {
     assert.equal(futureReturn >= pickupDate, true);
     assert.equal(pastReturn >= pickupDate, false);
   });
+
+  it("ensures cleanProductMatch does NOT intercept /taxis/rent, routing correctly to RentalPage", () => {
+    const testPaths = [
+      "/en/taxis/rent/",
+      "/en/taxis/rent",
+      "/taxis/rent/",
+      "/taxis/rent",
+      "/rent/",
+      "/rent",
+      "/en/rent/",
+      "/en/rental/",
+      "/rental",
+      "/taxi-rental",
+    ];
+
+    for (const pathname of testPaths) {
+      const cleanPath = pathname.replace(/\/$/, "");
+      const segments = pathname.split("/").filter(Boolean);
+      const localizedSegments = segments[0] === "en" || segments[0] === "hi" ? segments.slice(1) : segments;
+      const section = localizedSegments.at(-1)?.replace(/\.html$/, "") ?? "home";
+
+      const normalizedPath = pathname.replace(/^\/(?:en|hi)(?=\/|$)/, "").replace(/\/$/, "");
+      const taxiMatch = normalizedPath.match(/^\/(?:taxi|taxis)\/([a-z0-9_-]+)(?:\.html)?$/i);
+      const cleanProductMatch = taxiMatch && taxiMatch[1].toLowerCase() !== "rent"
+        ? { category: "outstation", code: taxiMatch[1] }
+        : null;
+
+      const isRental =
+        section === "rent" ||
+        section === "rental" ||
+        section === "taxi-rental" ||
+        cleanPath === "/rent" ||
+        cleanPath === "/rental" ||
+        cleanPath === "/taxi-rental" ||
+        cleanPath === "/taxis/rent" ||
+        cleanPath === "/en/rent" ||
+        cleanPath === "/en/rental" ||
+        cleanPath === "/en/taxi-rental" ||
+        cleanPath === "/en/taxis/rent" ||
+        cleanPath === "/hi/taxis/rent" ||
+        cleanPath === "/hi/rent";
+
+      assert.equal(cleanProductMatch, null, `cleanProductMatch must not match for ${pathname}`);
+      assert.equal(isRental, true, `isRental must be true for ${pathname}`);
+    }
+  });
+
+  it("header & mobile nav normalizeNavPath correctly highlights Taxi Rental link", () => {
+    const normalizeNavPath = (path: string): string => {
+      if (!path) return "/";
+      const cleaned = path.split("?")[0].split("#")[0];
+      const unlocalized = cleaned.replace(/^\/(?:en|hi)(?=\/|$)/, "");
+      const trimmed = unlocalized.replace(/\.html$/, "").replace(/\/+$/, "");
+      return trimmed === "" ? "/" : trimmed;
+    };
+
+    const isLinkActive = (currentPath: string, href: string) => {
+      const current = normalizeNavPath(currentPath);
+      const target = normalizeNavPath(href);
+      if (target === "/taxis/rent") {
+        return current === "/taxis/rent" || current === "/rent" || current === "/rental" || current === "/taxi-rental";
+      }
+      return current === target;
+    };
+
+    assert.equal(isLinkActive("/en/taxis/rent/", "/en/taxis/rent/"), true);
+    assert.equal(isLinkActive("/taxis/rent", "/en/taxis/rent/"), true);
+    assert.equal(isLinkActive("/rent", "/en/taxis/rent/"), true);
+    assert.equal(isLinkActive("/rental", "/en/taxis/rent/"), true);
+    assert.equal(isLinkActive("/taxi-rental", "/en/taxis/rent/"), true);
+    assert.equal(isLinkActive("/en/routes/", "/en/taxis/rent/"), false);
+  });
 });

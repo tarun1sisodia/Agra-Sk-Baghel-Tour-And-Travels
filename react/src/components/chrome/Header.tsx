@@ -114,7 +114,7 @@ export function Header({
         return current === "/";
       }
       if (target === "/taxis/rent") {
-        return current === "/taxis/rent" || current === "/rent";
+        return current === "/taxis/rent" || current === "/rent" || current === "/rental" || current === "/taxi-rental";
       }
       if (target === "/routes") {
         return current === "/routes" || current.startsWith("/routes/") || current.endsWith("-taxi");

@@ -259,6 +259,15 @@ const redirectStubs = [
   { from: "en/vehicles/innova/", to: "/en/vehicles/innova-crysta/" },
   { from: "en/vehicles/tempo/", to: "/en/vehicles/tempo-traveller/" },
   { from: "en/15-btn-pac-agra-to-chandigarh-taxi-services/", to: "/en/agra-to-chandigarh-taxi/" },
+  { from: "rent.html", to: "/en/taxis/rent/" },
+  { from: "rental.html", to: "/en/taxis/rent/" },
+  { from: "taxi-rental.html", to: "/en/taxis/rent/" },
+  { from: "rent/", to: "/en/taxis/rent/" },
+  { from: "rental/", to: "/en/taxis/rent/" },
+  { from: "taxi-rental/", to: "/en/taxis/rent/" },
+  { from: "en/rent/", to: "/en/taxis/rent/" },
+  { from: "en/rental/", to: "/en/taxis/rent/" },
+  { from: "en/taxi-rental/", to: "/en/taxis/rent/" },
 ];
 
 function generateRedirectHtml(targetUrl: string, canonicalDomain: string): string {

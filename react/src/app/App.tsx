@@ -140,7 +140,21 @@ export function getSeo(
     };
   }
 
-  if (section === "rent") { return { title: "Rent a Taxi in Agra | Agra SK Baghel Tour and Travels", description: "Request a chauffeured taxi rental in Agra. Choose from Sedan, Ertiga, Innova Crysta, Tempo Traveller and Urbania; the owner confirms availability by phone.", ogImage: "/assets/fleet/innova.webp", keywords: ["rent a taxi Agra", "car rental Agra", "taxi rental Agra"] }; }
+  if (
+    section === "rent" ||
+    section === "rental" ||
+    section === "taxi-rental" ||
+    pathname.includes("/taxis/rent") ||
+    pathname.includes("/rent") ||
+    pathname.includes("/rental")
+  ) {
+    return {
+      title: "Rent a Taxi in Agra | Canonical Fleet, Tempo Travellers & Sedans | Agra SK Baghel",
+      description: "Rent verified taxis in Agra with dedicated chauffeurs. Browse Sedans, SUVs, Luxury and Tempo Travellers. Transparent call-first quotes and doorstep pickup.",
+      ogImage: "/assets/fleet/innova.webp",
+      keywords: ["Agra taxi rental", "rent a cab Agra", "Agra car rental with driver", "Tempo Traveller rental Agra", "taxi rental Agra"],
+    };
+  }
   if (section === "services") {
     return {
       title: "Taxi Services in Agra | Outstation, Local & Airport Cabs | Agra SK Baghel Tour and Travels",
@@ -281,10 +295,25 @@ export function App({ pathname: propPathname }: AppProps = {}) {
       cleanPath === "/booking" ||
       cleanPath === "/en/book");
 
+  const isRental =
+    section === "rent" ||
+    section === "rental" ||
+    section === "taxi-rental" ||
+    cleanPath === "/rent" ||
+    cleanPath === "/rental" ||
+    cleanPath === "/taxi-rental" ||
+    cleanPath === "/taxis/rent" ||
+    cleanPath === "/en/rent" ||
+    cleanPath === "/en/rental" ||
+    cleanPath === "/en/taxi-rental" ||
+    cleanPath === "/en/taxis/rent" ||
+    cleanPath === "/hi/taxis/rent" ||
+    cleanPath === "/hi/rent";
+
   const normalizedPath = pathname.replace(/^\/(?:en|hi)(?=\/|$)/, "").replace(/\/$/, "");
   const cleanProductMatch = useMemo<{ category: CategoryCode; code: string } | null>(() => {
     const taxiMatch = normalizedPath.match(/^\/(?:taxi|taxis)\/([a-z0-9_-]+)(?:\.html)?$/i);
-    if (taxiMatch) return { category: "outstation", code: taxiMatch[1] };
+    if (taxiMatch && taxiMatch[1].toLowerCase() !== "rent") return { category: "outstation", code: taxiMatch[1] };
 
     const sightseeingMatch = normalizedPath.match(/^\/local-sightseeing\/([a-z0-9_-]+)(?:\.html)?$/i);
     if (sightseeingMatch) return { category: "local_package", code: sightseeingMatch[1] };
@@ -467,10 +496,11 @@ export function App({ pathname: propPathname }: AppProps = {}) {
     isBooking ||
     isPrivateCustomerPage ||
     isMarketingHub ||
+    isRental ||
     Boolean(cleanProductMatch) ||
-    section === "rent" ||
     section === "monuments" ||
     cleanPath === "/monuments" ||
+    cleanPath === "/en/monuments" ||
     Boolean(activeRoute) ||
     Boolean(matchedPackage) ||
     Boolean(matchedVehicle) ||
@@ -520,6 +550,8 @@ export function App({ pathname: propPathname }: AppProps = {}) {
             <BookingConfirmationPage />
           ) : isBooking ? (
             <BookingPage />
+          ) : isRental ? (
+            <RentalPage language={language} />
           ) : cleanProductMatch ? (
             <ProductDetailPage category={cleanProductMatch.category} code={cleanProductMatch.code} />
           ) : isHome ? (
@@ -534,8 +566,6 @@ export function App({ pathname: propPathname }: AppProps = {}) {
           <VehicleDetailPage language={language} vehicle={matchedVehicle} />
         ) : isSeoLanding ? (
           <SeoLandingPage slug={section as SeoLandingSlug} />
-          ) : section === "rent" ? (
-            <RentalPage language={language} />
           ) : section === "services" ? (
             <ServicesPage language={language} />
           ) : section === "routes" ? (

@@ -2,6 +2,52 @@
 
 ## 2026-10-16
 
+### 2026-10-16 — Phase 6: Shared Customer Price Contract — FleetPriceOption
+
+- **Canonical Shared Price Contract (`contracts/fleet-pricing.ts`, Contract C-FLEET-PRICING-001 v0.2.0)**:
+  - Created canonical shared customer presentation contract `FleetPriceOption` and corresponding runtime schema `FleetPriceOptionSchema` in `contracts/fleet-pricing.ts`.
+  - Pinned `fleetCode` strictly to canonical 5-tier enum (C-ENUM-001: `sedan`, `ertiga`, `innova-crysta`, `tempo-traveller`, `urbania`). Re-exported `VehicleTier` for direct caller ergonomics.
+  - Mapped server-authoritative `totalFare` to presentation `price`, preserved server-calculated `advanceAmount`, and strictly prohibited client-side fare/distance arithmetic.
+  - Defined constrained enums `FleetPricingType` (`per-km-route`, `fixed-package`, `local-package`, `special-commercial`) and `FleetPriceSource` (`fare_rules`, `tour_packages`, `local_packages`).
+  - Added optional `breakdown` schema for transparent display of `billedKm`, `driverAllowance`, `nightAllowance`, and `tollNote`.
+  - Exported type-guard function `isValidFleetPriceOption`.
+
+- **Contract Governance & Tri-App Synchronization**:
+  - Registered `C-FLEET-PRICING-001` in `contracts/REGISTRY.md` mapping source, schema, rules, consumers, and tests.
+  - Version bumped `contracts/CHANGELOG.md` to `0.2.0`.
+  - Auto-generated `contracts/index.ts` exporting `fleet-pricing.js`.
+  - Synchronized byte-identical generated copies to `backend/src/contracts/`, `admin/src/contracts/`, and `react/src/contracts/` via `contracts/scripts/sync-contracts.ts`.
+  - Verified zero drift with `sync-contracts.ts --check`.
+
+- **Unit Testing & Verification**:
+  - Added 5 new regression tests in `backend/tests/unit/contracts.test.ts` (10 tests total):
+    1. Validation of `FleetPriceOption` across all 5 canonical vehicle tiers.
+    2. Re-export and schema presence in root contracts index.
+    3. Strict rejection of non-canonical fleet codes and legacy short keys (`innova`, `tempo`, etc.).
+    4. Strict rejection of negative money values and non-INR currencies.
+    5. Rejection of unlisted pricing types or unapproved price sources.
+  - Reconciled `docs/project/PROGRESS.md` reflecting verified completion of Phases 4, 5, and 6.
+  - Verified 3 monorepo typechecks (backend, admin, react) pass cleanly with zero errors.
+
+### 2026-10-16 — Taxi Rental Navigation & Clean Product Route Interception Fix
+
+- **Route Disambiguation & Interception Fix (`react/src/app/App.tsx`, `react/src/app/ServerApp.tsx`)**:
+  - Resolved regression where navigating to `/en/taxis/rent/` or `/taxis/rent` erroneously matched `cleanProductMatch` as an outstation product (`category="outstation"`, `code="rent"`), routing the request to `ProductDetailPage` which failed with a 404.
+  - Added explicit exclusion `taxiMatch[1].toLowerCase() !== "rent"` in `cleanProductMatch` within `App.tsx` (mirroring `ServerApp.tsx`).
+  - Defined comprehensive `isRental` route matcher supporting `/en/taxis/rent/`, `/taxis/rent`, `/rent`, `/rental`, and `/taxi-rental` paths with and without localization prefixes.
+  - Reordered route branches in both `App.tsx` and `ServerApp.tsx` to evaluate `isRental` before `cleanProductMatch`, guaranteeing that all rental corridors render `<RentalPage />`.
+  - Unified `getSeo()` title and description across `App.tsx` and `ServerApp.tsx` for all rental paths.
+
+- **Header, Mobile Nav & Compatibility Redirects (`Header.tsx`, `MobileNavSheet.tsx`, `prerender.ts`, `generate-sitemap.ts`)**:
+  - Updated `isLinkActive` in `Header.tsx` and `MobileNavSheet.tsx` to recognize `/taxis/rent`, `/rent`, `/rental`, and `/taxi-rental` as active state for the "Taxi Rental" navigation link.
+  - Added backward-compatibility 301/refresh redirect stubs in `prerender.ts` for `/rent/`, `/rental/`, `/taxi-rental/`, `/en/rent/`, `/en/rental/`, and `/en/taxi-rental/` mapping cleanly to `/en/taxis/rent/`.
+  - Added `/en/taxis/rent/` to the canonical XML sitemap generator (`generate-sitemap.ts`).
+
+- **Automated Regression Testing & Verification**:
+  - Added regression test suite in `react/scripts/rental-page.test.ts` verifying `cleanProductMatch` exclusion, `isRental` resolution across 10 path variants, and header/mobile nav active state highlighting.
+  - Verified full test suite (`test:catalog-sources` 31/31 passed).
+  - Executed full monorepo verification (`npm run verify` passed cleanly: 3 typechecks, all backend tests, 3 production builds with 59 SSG pages and 23 redirects, and zero secret leaks).
+
 ### 2026-10-16 — Phase 5: Package Fleet-Price Resolver & Route Rate Isolation
 
 - **Tour Package Fixed Pricing Engine (`resolvePackageFleetPrice` in `tour-package.calculator.ts`, `fare.service.ts`, `fare.engine.ts`)**:

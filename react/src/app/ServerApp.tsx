@@ -576,16 +576,28 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
     return null;
   })();
 
+  const isRental =
+    section === "rent" ||
+    section === "rental" ||
+    section === "taxi-rental" ||
+    cleanPath === "/rent" ||
+    cleanPath === "/rental" ||
+    cleanPath === "/taxi-rental" ||
+    cleanPath === "/taxis/rent" ||
+    cleanPath === "/en/rent" ||
+    cleanPath === "/en/rental" ||
+    cleanPath === "/en/taxi-rental" ||
+    cleanPath === "/en/taxis/rent" ||
+    cleanPath === "/hi/taxis/rent" ||
+    cleanPath === "/hi/rent";
+
   const isKnownRoute =
     isHome ||
     isBooking ||
     isPrivateCustomerPage ||
     isMarketingHub ||
+    isRental ||
     Boolean(cleanProductMatch) ||
-    section === "rent" ||
-    cleanPath === "/rent" ||
-    cleanPath === "/taxis/rent" ||
-    cleanPath === "/en/taxis/rent" ||
     section === "monuments" ||
     cleanPath === "/monuments" ||
     cleanPath === "/en/monuments" ||
@@ -669,14 +681,14 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
           <LocalPackageDetailPage language={language} item={dossierLocalPackage} />
         ) : dossierMonument ? (
           <MonumentDetailPage language={language} item={dossierMonument} />
+        ) : isRental ? (
+          <RentalPage language={language} />
         ) : cleanProductMatch ? (
           <ProductDetailPage category={cleanProductMatch.category} code={cleanProductMatch.code} />
         ) : matchedVehicle ? (
           <VehicleDetailPage language={language} vehicle={matchedVehicle} />
         ) : isSeoLanding ? (
           <SeoLandingPage slug={section as SeoLandingSlug} />
-        ) : section === "rent" || cleanPath === "/rent" || cleanPath === "/taxis/rent" || cleanPath === "/en/taxis/rent" ? (
-          <RentalPage language={language} />
         ) : section === "services" ? (
           <ServicesPage language={language} />
         ) : section === "routes" ? (

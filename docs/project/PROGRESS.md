@@ -51,12 +51,12 @@
 - [x] **Phase 2 Fleet Master Normalization:** Extended C-ENUM-001 (v0.1.1) in `contracts/enums/vehicle-tiers.ts` with snake_case aliases (`innova_crysta`, `tempo_traveller`) and compound forms (`tempo-12`, `tempo-16`), added `normalizeFleetCode`, synced byte-identical generated copies to `backend/`, `admin/`, and `react/`, unified `react/src/services/api.ts` `mapVehicleTier`, and validated with 9/9 contract tests passing and 0 sync drift.
 
 - [x] **Phase 3:** Route Fare Rule Source Normalization (PostgreSQL `fare_rules` as single rate authority & catalog manifest canonical database reads: eliminated static `CATALOG_RAW_DATA` and `VEHICLES` baseline from `catalog.service.ts`, eliminated synthetic reverse routes, eliminated invented multiplier fares, derived manifest from canonical published DB records via `FareCatalogRepository`, missing vehicle fares set to `null`, unit test in `catalog-manifest.test.ts` passing, `npm run verify` green).
+- [x] **Phase 4:** Route Fleet-Price Resolver (<300km forced round-trip + ₹500 DA, >=300km per-km + ₹500 DA; verified across complete 9-case DIST-01..DIST-09 boundary matrix in `fare-strategy-boundary.test.ts` with 9/9 tests green).
+- [x] **Phase 5:** Package Fleet-Price Resolver (`tour_packages.fleet_prices` fixed pricing across all 5 vehicle tiers; route distance/allowance isolation verified with 20/20 tests green in `package-fleet-price.test.ts`).
+- [x] **Phase 6:** Normalized Customer Contract (`FleetPriceOption` & `FleetPriceOptionSchema` in `contracts/fleet-pricing.ts`, synced byte-identical to `backend/src/contracts/`, `admin/src/contracts/`, and `react/src/contracts/`, zero drift, 10/10 contract tests green).
 
 ## Next Actions
 
-- [ ] **Phase 4:** Route Fleet-Price Resolver (<300km forced round-trip + ₹500 DA, >=300km per-km + ₹500 DA).
-- [ ] **Phase 5:** Package Fleet-Price Resolver (`tour_packages.fleet_prices`).
-- [ ] **Phase 6:** Normalized Customer Contract (`FleetPriceOption`).
 - [ ] **Phase 7–10:** Customer Surfaces Rewiring (Homepage, Routes, Monuments, Packages).
 - [x] **Phase 11:** Fix Package Booking Flow (`booking.service.ts` lookup bug #18 resolved across code & UUID lookups in dedicated `tour_packages`).
 - [ ] **Phase 12:** Dedicated Authoritative Quote Endpoints (`POST /quotes/route`, `POST /quotes/package`).
@@ -66,6 +66,9 @@
 
 | Date | Change | Owner |
 |---|---|---|
+| 2026-10-16 | Completed Phase 6: Shared Customer Price Contract — `FleetPriceOption` (Contract C-FLEET-PRICING-001 v0.2.0 in `contracts/fleet-pricing.ts`, synced byte-identical to backend, admin, react; 10 contract tests green; 3 typechecks clean). Reconciled Phase 4 & Phase 5 completion. | Antigravity AI |
+| 2026-10-16 | Completed Phase 5: Tour Package Fleet Pricing & Route Rate Isolation (`resolvePackageFleetPrice` in `tour-package.calculator.ts`, 20/20 unit tests green in `package-fleet-price.test.ts`). | Antigravity AI |
+| 2026-10-16 | Completed Phase 4: Route Fleet-Price Distance Boundary Resolver & Test Matrix Invariants (`DIST-01`..`DIST-09` in `fare-strategy-boundary.test.ts`, 9/9 tests green). | Antigravity AI |
 | 2026-10-15 | Completed Live Homepage Booking Integration & Admin Review Moderation Pipeline: canonical catalog & group wiring, smart outstation & local tour handoff to /book.html, completed-ticket verification for reviews, 204 unit tests green, npm run verify green | Antigravity AI |
 | 2026-10-12 | Completed Phase 3: Route Fare Rule Source Normalization & Catalog Manifest Cleanup — eliminated static baseline, synthetic reverse routes, and multiplier fares from `catalog.service.ts`; wired `FareCatalogRepository`; 192 backend unit tests passing, `npm run verify` green | Antigravity AI |
 | 2026-10-11 | Completed Route & API Inventory Monorepo Migration: Clean canonical `/api/v1` routes, Customer & Admin rewired, Zero client fare math, 179/179 tests passing, `npm run verify` green | Antigravity AI |

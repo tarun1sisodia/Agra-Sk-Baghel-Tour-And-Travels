@@ -52,6 +52,27 @@ Status: `PILOT` = proven on 2 contracts · `FROZEN` = defined, not yet locked ·
 - **Covers:** response envelope, camelCase API ↔ snake_case DB, money units
   (paise in DB / rupees on wire), error shape + requestId, auth model.
 
+## C-FLEET-PRICING-001 — Shared Customer Price Contract (`FleetPriceOption`) · Status: PILOT
+- **Source:** `contracts/fleet-pricing.ts`. Generated copies:
+  `backend/src/contracts/fleet-pricing.ts`, `admin/src/contracts/fleet-pricing.ts`,
+  `react/src/contracts/fleet-pricing.ts` (via `contracts/scripts/sync-contracts.ts`).
+- **Values / Schema:** `FleetPriceOption` interface and `FleetPriceOptionSchema` (Zod).
+  Pins `fleetCode` to canonical `VehicleTier` (`sedan`, `ertiga`, `innova-crysta`, `tempo-traveller`, `urbania`),
+  `price` (number, server total fare), `advanceAmount` (number, server advance deposit), `currency: "INR"`,
+  `pricingType` (`per-km-route`, `fixed-package`, `local-package`, `special-commercial`),
+  `displayLabel` (string), `priceSource` (`fare_rules`, `tour_packages`, `local_packages`), and optional `breakdown`.
+- **Rule:** Server-authoritative calculations only. Customer frontend displays normalized price options
+  and never calculates or submits prices, advances, allowances, or distances.
+- **Consumers (backend):**
+  - `backend/src/contracts/fleet-pricing.ts` (synced)
+  - `backend/src/modules/fares/fare.service.ts` / quotes service (rollout in Phase 12)
+- **Consumers (admin):**
+  - `admin/src/contracts/fleet-pricing.ts` (synced)
+- **Consumers (react):**
+  - `react/src/contracts/fleet-pricing.ts` (synced)
+  - Customer booking & pricing presentation components (rollout in Phases 7–10)
+- **Tests:** `backend/tests/unit/contracts.test.ts`
+
 ## Rollout queue (after pilot sign-off)
 C-ENUM-002 booking statuses · C-ENUM-003 trip types · C-API per module (23 modules) ·
 C-SCHEMA drift test (G1) · admin `FLEET_KEYS` → contract · react fleet constants → contract.
