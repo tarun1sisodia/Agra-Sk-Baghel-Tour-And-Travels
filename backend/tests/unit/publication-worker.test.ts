@@ -406,7 +406,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     const verified = await worker.verifyDeployment(ev);
     expect(verified).toBe(true);
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://agraskbagheltourandtravels.com/health",
+      "https://agraskbagheltourandtravels.com/",
       expect.anything()
     );
     expect(mockFetch).toHaveBeenCalledWith(
@@ -434,7 +434,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     };
 
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
-      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: true, status: 200 };
       if (url.endsWith("/en/packages/agra-taj-sunrise/")) {
         return { ok: true, status: 200, text: async () => "<html>Agra Taj Sunrise</html>" };
       }
@@ -475,7 +475,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     };
 
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
-      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: true, status: 200 };
       return { ok: true, status: 200 };
     });
 
@@ -525,7 +525,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     const fetchedUrls: string[] = [];
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
       fetchedUrls.push(url);
-      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: true, status: 200 };
       if (url.endsWith("/en/packages/golden-triangle-express/")) {
         return { ok: true, status: 200, text: async () => "<html><title>Golden Triangle Express</title></html>" };
       }
@@ -586,7 +586,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     };
 
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
-      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: true, status: 200 };
       if (url.endsWith("/en/local-packages/agra-half-day-sightseeing/")) {
         return { ok: true, status: 200, text: async () => "<html>Agra Half Day Sightseeing</html>" };
       }
@@ -642,7 +642,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     };
 
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
-      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: true, status: 200 };
       if (url.endsWith("/en/transfers/delhi-airport-to-agra/")) {
         return { ok: true, status: 200, text: async () => "<html>Delhi Airport to Agra</html>" };
       }
@@ -698,7 +698,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     };
 
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
-      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: true, status: 200 };
       if (url.endsWith("/sitemap.xml")) {
         // Sitemap excludes the archived URL
         return { ok: true, status: 200, text: async () => "<urlset><loc>https://agraskbagheltourandtravels.com/en/packages/other/</loc></urlset>" };
@@ -752,7 +752,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     };
 
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
-      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: true, status: 200 };
       if (url.endsWith("/sitemap.xml")) {
         // Sitemap STILL contains the archived URL
         return { ok: true, status: 200, text: async () => "<urlset><loc>https://agraskbagheltourandtravels.com/en/packages/monsoon-heritage-special/</loc></urlset>" };
@@ -805,7 +805,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     };
 
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
-      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: true, status: 200 };
       if (url.endsWith("/sitemap.xml")) {
         return { ok: true, status: 200, text: async () => "<urlset></urlset>" };
       }
@@ -858,7 +858,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     };
 
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
-      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: true, status: 200 };
       if (url.endsWith("/sitemap.xml")) {
         return { ok: false, status: 500, text: async () => "Internal Server Error" };
       }
@@ -910,7 +910,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     };
 
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
-      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: true, status: 200 };
       if (url.endsWith("/sitemap.xml")) {
         throw new Error("Connection refused");
       }
@@ -964,7 +964,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     };
 
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
-      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: true, status: 200 };
       if (url.endsWith("/en/packages/taj-sunrise-tour/")) {
         // Serves old title
         return { ok: true, status: 200, text: async () => "<html><title>Old Taj Tour</title></html>" };
@@ -1023,7 +1023,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     };
 
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
-      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: true, status: 200 };
       if (url.endsWith("/en/packages/taj-sunrise-tour/")) {
         return { ok: true, status: 200, text: async () => "<html><title>Sunrise Taj Tour</title></html>" };
       }
@@ -1064,13 +1064,13 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     expect(verified).toBe(false);
   });
 
-  it("verifyDeployment: returns false if customer site /health check fails or throws", async () => {
+  it("verifyDeployment: returns false if customer site origin check fails or throws", async () => {
     const customPool = {
       query: vi.fn().mockResolvedValue({ rows: [] }),
     };
 
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
-      if (url.endsWith("/health")) return { ok: false, status: 503 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: false, status: 503 };
       return { ok: true, status: 200 };
     });
 
@@ -1111,10 +1111,15 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
             ],
           };
         }
-        if (sql.includes("FROM routes WHERE")) {
+        if (sql.includes("FROM outstation_routes") || sql.includes("FROM routes")) {
           return {
             rows: [
               {
+                code: "agra-to-delhi-taxi",
+                origin_name: "Agra",
+                destination_name: "Delhi Taxi",
+                image_url: null,
+                gallery: [],
                 slug: "agra-to-delhi-taxi",
                 corridor_name: "Agra to Delhi Taxi",
               },
@@ -1128,7 +1133,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     const fetchedUrls: string[] = [];
     const mockFetch = vi.fn().mockImplementation(async (url: string) => {
       fetchedUrls.push(url);
-      if (url.endsWith("/health")) return { ok: true, status: 200 };
+      if (url.endsWith("/health") || new URL(url).pathname === "/") return { ok: true, status: 200 };
       if (url.endsWith("/en/transfers/agra-cantt-to-taj-ganj/")) {
         return { ok: true, status: 200, text: async () => "<html>Agra Cantt to Taj Ganj Transfer</html>" };
       }
@@ -1204,10 +1209,11 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     };
     const resolved = await worker.resolveEntityData(event);
     expect(query).toHaveBeenCalledTimes(1);
-    expect(query.mock.calls[0][0]).toContain("FROM outstation_routes");
-    expect(query.mock.calls[0][0]).toContain("origin_name");
-    expect(query.mock.calls[0][0]).toContain("destination_name");
-    expect(query.mock.calls[0][0]).not.toContain("FROM routes");
+    const sqlQuery = String(query.mock.calls[0]?.[0] ?? "");
+    expect(sqlQuery).toContain("FROM outstation_routes");
+    expect(sqlQuery).toContain("origin_name");
+    expect(sqlQuery).toContain("destination_name");
+    expect(sqlQuery).not.toContain("FROM routes");
     expect(resolved).toMatchObject({
       slug: "agra-to-delhi", expectedPath: "/en/agra-to-delhi/",
       expectedTitle: "Agra to Delhi", expectedImage: "/assets/routes/agra-delhi.webp",
