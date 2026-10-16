@@ -25,6 +25,16 @@ describe("canonical catalogue & fallback regressions", () => {
     );
   });
 
+  it("RentalPage uses English copy and does not fabricate a confirmation reference", () => {
+    const rentalPageContent = readFileSync(
+      resolve(__dirname, "../src/pages/RentalPage.tsx"),
+      "utf-8",
+    );
+    assert.equal(/[\u0900-\u097f]/.test(rentalPageContent), false, "RentalPage must use English-only UI copy.");
+    assert.equal(rentalPageContent.includes("isHi"), false, "RentalPage must not retain language-specific copy branches.");
+    assert.equal(rentalPageContent.includes("RNT-CONFIRMED"), false, "A success reference must come from the backend.");
+    assert.equal(rentalPageContent.includes("confirmation.ref && ("), true, "Reference rendering must be conditional on the backend value.");
+  });
   it("ReviewsMarquee does not import synthetic fallbackReviews", () => {
     const marqueeContent = readFileSync(
       resolve(__dirname, "../src/components/home/ReviewsMarquee.tsx"),
