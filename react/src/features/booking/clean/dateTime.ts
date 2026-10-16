@@ -10,13 +10,15 @@ export function toIstISOString(dateStr: string, timeStr: string): string {
   return `${cleanDate}T${cleanTime}:00+05:30`;
 }
 
-export function getDefaultPickupDate(): string {
-  // Tomorrow's date in IST
-  const now = new Date();
-  const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-  const istOffset = 5.5 * 60 * 60 * 1000;
-  const istDate = new Date(tomorrow.getTime() + istOffset);
-  return istDate.toISOString().split("T")[0];
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
+export function getTodayIstDate(now: Date = new Date()): string {
+  return new Date(now.getTime() + IST_OFFSET_MS).toISOString().slice(0, 10);
+}
+
+export function getDefaultPickupDate(now: Date = new Date()): string {
+  // Advance the IST calendar date, not the UTC date, so late-evening IST does not skip a day.
+  return getDefaultReturnDate(getTodayIstDate(now), 1);
 }
 
 export function getDefaultReturnDate(pickupDate: string, daysOffset = 1): string {

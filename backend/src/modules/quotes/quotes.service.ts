@@ -18,12 +18,34 @@ import type { FareCatalogRepository } from "../fare-catalog/fare-catalog.reposit
 const GROUP_ORDER: VehicleGroupCode[] = ["sedan", "suv", "luxury", "tempo_traveller"];
 
 export class QuotesService {
-  constructor(private repo: FareCatalogRepository) {}
+  constructor(
+    private repo: FareCatalogRepository,
+    private readonly now: () => Date = () => new Date()
+  ) {}
+
+  private validatePickupAt(pickupAt: string): Date {
+    const pickupDate = new Date(pickupAt);
+    if (!Number.isFinite(pickupDate.getTime()) || pickupDate.getTime() <= this.now().getTime()) {
+      throw new Error("VALIDATION_ERROR");
+    }
+    return pickupDate;
+  }
+
+  private validateReturnAt(pickupDate: Date, returnAt: string): Date {
+    const returnDate = new Date(returnAt);
+    if (!Number.isFinite(returnDate.getTime()) || returnDate.getTime() <= pickupDate.getTime()) {
+      throw new Error("VALIDATION_ERROR");
+    }
+    return returnDate;
+  }
 
   async quote(req: QuoteRequest): Promise<QuoteResponse> {
-    const pickupDate = new Date(req.pickup_at);
-    if (isNaN(pickupDate.getTime())) {
-      throw new Error("VALIDATION_ERROR");
+    const pickupDate = this.validatePickupAt(req.pickup_at);
+    if (req.category === "outstation" && req.trip_type === "round_trip") {
+      if (!req.return_at) {
+        throw new Error("VALIDATION_ERROR");
+      }
+      this.validateReturnAt(pickupDate, req.return_at);
     }
 
     const settings = await this.repo.getFareSettings();
@@ -234,6 +256,14 @@ export class QuotesService {
   }
 
   async options(req: OptionsRequest): Promise<OptionsResponse> {
+    const pickupDate = this.validatePickupAt(req.pickup_at);
+    if (req.category === "outstation" && req.trip_type === "round_trip") {
+      if (!req.return_at) {
+        throw new Error("VALIDATION_ERROR");
+      }
+      this.validateReturnAt(pickupDate, req.return_at);
+    }
+
     const [allCars, groups, settings, extraCharges] = await Promise.all([
       this.repo.getVehicleModels(),
       this.repo.getVehicleGroups(),
@@ -263,6 +293,7 @@ export class QuotesService {
 
       if (req.trip_type === "round_trip") {
         if (!req.return_at) throw new Error("VALIDATION_ERROR");
+        this.validateReturnAt(pickupDate, req.return_at);
         const days = calculateIstCalendarDays(req.pickup_at, req.return_at);
         if (days > settings.max_round_trip_days) {
           throw new Error("TRIP_TOO_LONG");

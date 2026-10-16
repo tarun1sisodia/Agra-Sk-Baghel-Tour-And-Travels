@@ -408,7 +408,7 @@ describe("Section 12.13: Admin, audit, routes, roles (AA-01 to AA-14)", () => {
       getTourPackageByIdOrCode: async () => null,
       getFareRules: async () => [],
       getExtraCharges: async () => [],
-    } as any);
+    } as any, () => new Date("2026-10-01T00:00:00.000Z"));
 
     await quotesService.quote({
       category: "outstation",

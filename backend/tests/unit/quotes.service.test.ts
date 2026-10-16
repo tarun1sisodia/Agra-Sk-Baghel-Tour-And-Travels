@@ -21,6 +21,9 @@ import {
   FIXTURE_FIXED_PRODUCTS,
 } from "../fixtures/fare-fixture.js";
 
+const TEST_NOW = new Date("2026-10-01T00:00:00.000Z");
+const testClock = () => new Date(TEST_NOW);
+
 function createMockRepo(overrides?: Partial<any>): FareCatalogRepository {
   const settings: FareSettingsMap = {
     ...FIXTURE_SETTINGS,
@@ -259,7 +262,7 @@ function createMockRepo(overrides?: Partial<any>): FareCatalogRepository {
 }
 
 describe("Quotes Service & Options Selector (Sections 12.9 & 12.10)", () => {
-  const service = new QuotesService(createMockRepo());
+  const service = new QuotesService(createMockRepo(), testClock);
 
   describe("12.9 Grouped Selector (POST /quotes/options)", () => {
     it("VO-01: DEL one-way, 1 passenger -> sedan [DZ, HC], suv [ER, IC, FO], luxury [CA, VE], tempo [T12, T17, UR]", async () => {
@@ -412,6 +415,64 @@ describe("Quotes Service & Options Selector (Sections 12.9 & 12.10)", () => {
         })
       ).rejects.toThrow("TRIP_TOO_LONG");
     });
+
+    it("RT-EDGE-01: return time equal to or before pickup is a validation error", async () => {
+      for (const return_at of [
+        "2026-10-12T08:00:00+05:30",
+        "2026-10-12T07:59:00+05:30",
+        "2026-10-11T20:00:00+05:30",
+      ]) {
+        await expect(
+          service.options({
+            category: "outstation",
+            route_id: FIXTURE_ROUTES.DEL.id,
+            trip_type: "round_trip",
+            passenger_count: 1,
+            pickup_at: "2026-10-12T08:00:00+05:30",
+            return_at,
+          })
+        ).rejects.toThrow("VALIDATION_ERROR");
+      }
+    });
+
+    it("RT-EDGE-02: exactly five IST calendar dates are accepted", async () => {
+      const res = await service.options({
+        category: "outstation",
+        route_id: FIXTURE_ROUTES.DEL.id,
+        trip_type: "round_trip",
+        passenger_count: 1,
+        pickup_at: "2026-10-12T08:00:00+05:30",
+        return_at: "2026-10-16T20:00:00+05:30",
+      });
+      const quotes = res.groups.flatMap((group) => group.vehicles.map((vehicle) => vehicle.quote));
+      expect(quotes.length).toBeGreaterThan(0);
+      expect(quotes.every((quote) => quote.details.days === 5)).toBe(true);
+    });
+
+    it("RT-EDGE-03: past pickup is rejected by quote and options", async () => {
+      const pastPickupService = new QuotesService(
+        createMockRepo(),
+        () => new Date("2026-10-13T00:00:00.000Z")
+      );
+      const quoteRequest = {
+        category: "outstation" as const,
+        route_id: FIXTURE_ROUTES.DEL.id,
+        trip_type: "one_way" as const,
+        vehicle_model_id: FIXTURE_CARS.DZ.id,
+        passenger_count: 1,
+        pickup_at: "2026-10-12T10:00:00+05:30",
+      };
+      await expect(pastPickupService.quote(quoteRequest)).rejects.toThrow("VALIDATION_ERROR");
+      await expect(
+        pastPickupService.options({
+          category: "outstation",
+          route_id: FIXTURE_ROUTES.DEL.id,
+          trip_type: "one_way",
+          passenger_count: 1,
+          pickup_at: quoteRequest.pickup_at,
+        })
+      ).rejects.toThrow("VALIDATION_ERROR");
+    });
   });
 
   describe("12.10 Seats, Availability & Validation", () => {
@@ -439,7 +500,7 @@ describe("Quotes Service & Options Selector (Sections 12.9 & 12.10)", () => {
     });
 
     it("AV-01: Inactive car throws VEHICLE_NOT_AVAILABLE", async () => {
-      const inactiveService = new QuotesService(createMockRepo({ inactiveCars: ["DZ"] }));
+      const inactiveService = new QuotesService(createMockRepo({ inactiveCars: ["DZ"] }), testClock);
       await expect(
         inactiveService.quote({
           category: "outstation",
@@ -453,7 +514,7 @@ describe("Quotes Service & Options Selector (Sections 12.9 & 12.10)", () => {
     });
 
     it("AV-02: Inactive group makes its cars throw VEHICLE_NOT_AVAILABLE", async () => {
-      const inactiveService = new QuotesService(createMockRepo({ inactiveGroups: ["sedan"] }));
+      const inactiveService = new QuotesService(createMockRepo({ inactiveGroups: ["sedan"] }), testClock);
       await expect(
         inactiveService.quote({
           category: "outstation",

@@ -37,6 +37,7 @@ import {
   toIstISOString,
   getDefaultPickupDate,
   getDefaultReturnDate,
+  getTodayIstDate,
 } from "./dateTime";
 import { normalizeBookingUrlParams } from "./urlNormalizer";
 import type {
@@ -244,6 +245,8 @@ export function CleanBookingPage() {
 
     setOptionsLoading(true);
     setOptionsError(null);
+    setOptions(null);
+    setSelectedCar(null);
 
     const pickup_at = toIstISOString(pickupDate, pickupTime);
     const return_at =
@@ -269,6 +272,18 @@ export function CleanBookingPage() {
       requestPayload.transfer_id = activeProduct.id;
     } else if (category === "tour_package") {
       requestPayload.tour_package_id = activeProduct.id;
+    }
+
+    const pickupInstant = Date.parse(pickup_at);
+    if (!Number.isFinite(pickupInstant) || pickupInstant <= Date.now()) {
+      setOptionsError("Pickup date and time must be in the future.");
+      setOptionsLoading(false);
+      return () => controller.abort();
+    }
+    if (return_at && (!Number.isFinite(Date.parse(return_at)) || Date.parse(return_at) <= pickupInstant)) {
+      setOptionsError("Return date and time must be later than pickup.");
+      setOptionsLoading(false);
+      return () => controller.abort();
     }
 
     fetchQuoteOptions(requestPayload)
@@ -609,8 +624,14 @@ export function CleanBookingPage() {
                   <input
                     type="date"
                     value={pickupDate}
-                    min={new Date().toISOString().split("T")[0]}
-                    onChange={(e) => setPickupDate(e.target.value)}
+                    min={getTodayIstDate()}
+                    onChange={(e) => {
+                      const nextDate = e.target.value;
+                      setPickupDate(nextDate);
+                      if (category === "outstation" && tripType === "round_trip" && returnDate < nextDate) {
+                        setReturnDate(nextDate);
+                      }
+                    }}
                     className="w-full rounded-md border border-hairline bg-surface p-2 text-sm text-ink focus:outline-primary"
                   />
                 </div>
@@ -655,7 +676,7 @@ export function CleanBookingPage() {
                     onChange={(e) => setPassengerCount(Number(e.target.value))}
                     className="w-full rounded-md border border-hairline bg-surface p-2 text-sm text-ink focus:outline-primary"
                   >
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 12, 16].map((num) => (
+                    {Array.from({ length: 17 }, (_, index) => index + 1).map((num) => (
                       <option key={num} value={num}>
                         {num} {num === 1 ? "Passenger" : "Passengers"}
                       </option>
