@@ -1,12 +1,32 @@
-# Main branch verification — 88640c8417bb
+# Main branch verification — 79370db18331
 
 - **Result:** PASS
-- **Commit:** [88640c8417bb6b8451abe065e3655491711222f2](https://github.com/tarun1sisodia/ArenaAI/commit/88640c8417bb6b8451abe065e3655491711222f2)
-- **Checked at:** 2026-10-16T10:11:37Z
-- **Workflow run:** [38885393318](https://github.com/tarun1sisodia/ArenaAI/actions/runs/38885393318)
+- **Commit:** [79370db183315b7d0328805bdba655173bedc100](https://github.com/tarun1sisodia/ArenaAI/commit/79370db183315b7d0328805bdba655173bedc100)
+- **Checked at:** 2026-10-16T16:47:36Z
+- **Workflow run:** [38934501868](https://github.com/tarun1sisodia/ArenaAI/actions/runs/38934501868)
 
 ## Changed files
 
+- D	react/new_design/404.html
+- D	react/new_design/all_routes_and_prices.csv
+- D	react/new_design/book_confirmed.html
+- D	react/new_design/build_catalog.py
+- D	react/new_design/contact-us.html
+- D	react/new_design/faq.html
+- D	react/new_design/fleet.html
+- D	react/new_design/home.html
+- D	react/new_design/packages.html
+- D	react/new_design/privacy_policy.html
+- D	react/new_design/routes.html
+- D	react/new_design/services.html
+- D	react/new_design/services_why_choose_us.html
+- D	react/new_design/step_1_taj_mahal_sunrise_guided_tour.html
+- D	react/new_design/step_2_booking_form_for_all.html
+- D	react/new_design/taj_mahal_sunrise_guided_tour.html
+- D	react/new_design/terms_condit.html
+- D	react/new_design/travel_tour_pricing_catalog.md
+- M	react/scripts/generate-sitemap.ts
+- M	react/src/templates/RouteTemplate.tsx
 
 ## Verification command
 
@@ -17,18 +37,18 @@ npm run install:all && npm run verify
 ## Verification result
 
 ```text
-  ✔ defaults missing or unknown public consent to false (1.313884ms)
-  ✔ never synthesizes ticket IDs from UUIDs; falls back to 'No Ticket' (0.251682ms)
-  ✔ preserves genuine ticket_id or booking_ticket_id when present (0.253115ms)
-✔ Admin Review Mapper — Safety & Invariant Guarantees (3.383035ms)
+  ✔ defaults missing or unknown public consent to false (1.312207ms)
+  ✔ never synthesizes ticket IDs from UUIDs; falls back to 'No Ticket' (0.250339ms)
+  ✔ preserves genuine ticket_id or booking_ticket_id when present (0.222136ms)
+✔ Admin Review Mapper — Safety & Invariant Guarantees (3.524229ms)
 ▶ Admin Booking Unmask PII Frontend State & Security Suite
-  ✔ 1. Verifies role permission matrix for 'bookings:unmask' (2.31916ms)
-  ✔ 2. Initial state is strictly masked and empty (0.555051ms)
-  ✔ 3. startUnmasking sets loading flag and clears previous errors (0.171501ms)
-  ✔ 4. Successful unmask response applies unmasked data and sets unmasked=true (0.442069ms)
-  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.223198ms)
-  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.230342ms)
-✔ Admin Booking Unmask PII Frontend State & Security Suite (5.429994ms)
+  ✔ 1. Verifies role permission matrix for 'bookings:unmask' (2.010996ms)
+  ✔ 2. Initial state is strictly masked and empty (0.48615ms)
+  ✔ 3. startUnmasking sets loading flag and clears previous errors (0.169177ms)
+  ✔ 4. Successful unmask response applies unmasked data and sets unmasked=true (0.473457ms)
+  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.206807ms)
+  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.269946ms)
+✔ Admin Booking Unmask PII Frontend State & Security Suite (5.247586ms)
 ℹ tests 9
 ℹ suites 2
 ℹ pass 9
@@ -36,7 +56,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 144.17797
+ℹ duration_ms 137.910773
 
 > sk-baghel-tour-travels@0.1.0 customer:seo
 > npm --prefix react run test:seo
@@ -46,15 +66,15 @@ npm run install:all && npm run verify
 > node --experimental-strip-types --test scripts/site-origin.test.ts && node --experimental-strip-types scripts/test-seo-lifecycle.ts
 
 ▶ canonical site origin
-  ✔ uses the approved production origin when no local override is supplied (1.07709ms)
-  ✔ normalizes a trailing slash (0.225252ms)
-  ✔ rejects preview hosts in release mode (0.492855ms)
-  ✔ requires HTTPS for non-local origins (0.185968ms)
-  ✔ allows HTTPS preview origins (0.232245ms)
-  ✔ permits HTTP only on loopback in development (0.214693ms)
-  ✔ rejects paths and credentials (0.247033ms)
-  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.249568ms)
-✔ canonical site origin (4.715593ms)
+  ✔ uses the approved production origin when no local override is supplied (1.026903ms)
+  ✔ normalizes a trailing slash (0.237716ms)
+  ✔ rejects preview hosts in release mode (0.44833ms)
+  ✔ requires HTTPS for non-local origins (0.198371ms)
+  ✔ allows HTTPS preview origins (0.196187ms)
+  ✔ permits HTTP only on loopback in development (0.21347ms)
+  ✔ rejects paths and credentials (0.248716ms)
+  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.24577ms)
+✔ canonical site origin (4.589454ms)
 ℹ tests 8
 ℹ suites 1
 ℹ pass 8
@@ -62,7 +82,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 121.497894
+ℹ duration_ms 122.647081
 SEO lifecycle checks passed.
 
 > sk-baghel-tour-travels@0.1.0 build:all
@@ -103,47 +123,47 @@ in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot 
 [32m✓[39m 2552 modules transformed.
 rendering chunks...
 [2mdist/[22m[32mindex.html                                   [39m[1m[2m  4.42 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[35mindex-DfSj8heC.css                    [39m[1m[2m392.03 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[35mindex-B-gruvXH.css                    [39m[1m[2m369.44 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mrazorpay-D3zIqEa0.js                  [39m[1m[2m  0.56 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mvehicle-tiers-Bhu6VwvC.js             [39m[1m[2m  0.65 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mDynamicPackageDetailPage-BJMeQr1m.js  [39m[1m[2m  1.10 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mcustomerAuthApi-7NZYNEC3.js           [39m[1m[2m  3.60 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mDynamicPackageDetailPage-BpZqr-7Q.js  [39m[1m[2m  1.10 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mcustomerAuthApi-BXl3Aey-.js           [39m[1m[2m  3.60 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mMonumentsPage-CfrqpXJm.js             [39m[1m[2m  4.13 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mEditorialPageTemplate-B6JSzZDm.js     [39m[1m[2m  4.55 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mNotFoundPage-CXDH3EDl.js              [39m[1m[2m  5.29 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mAuthCallbackPage-BxBXzodg.js          [39m[1m[2m  5.31 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mLoginPage-CtDCB8iQ.js                 [39m[1m[2m  6.27 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mMyBookingsPage-Bk2UQhID.js            [39m[1m[2m  7.43 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mEditorialPageTemplate-Cj6hZ0by.js     [39m[1m[2m  4.55 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mNotFoundPage-CzLgraBK.js              [39m[1m[2m  5.29 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mAuthCallbackPage-Bkr6YlC3.js          [39m[1m[2m  5.31 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mLoginPage-Cy_wxk52.js                 [39m[1m[2m  6.27 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mMyBookingsPage-DT9SL8VU.js            [39m[1m[2m  7.43 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mvendor-icons-bO9R6wf1.js              [39m[1m[2m  9.55 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mPrivacyPage-UtbdrMCN.js               [39m[1m[2m 10.20 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPaymentResumePage-CgmJktVW.js         [39m[1m[2m 10.33 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mSeoLandingPage-Bqceuqmy.js            [39m[1m[2m 11.18 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mPaymentResumePage-2nYvLmPf.js         [39m[1m[2m 10.33 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mSeoLandingPage-MrP2wg8p.js            [39m[1m[2m 11.18 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mTermsPage-Di9V5tu5.js                 [39m[1m[2m 11.44 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mBookingConfirmationPage-QLaLVbcB.js   [39m[1m[2m 11.99 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mFaqPage-Cv2P2_Ks.js                   [39m[1m[2m 12.01 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mMarketingPage-CVMhCOIb.js             [39m[1m[2m 14.16 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mProductDetailPage-h9pavhN1.js         [39m[1m[2m 14.18 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mServicesPage-CSKb-Ayx.js              [39m[1m[2m 16.91 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mRentalPage-ceSXp-2C.js                [39m[1m[2m 19.11 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mContactPage-CJoAEDK-.js               [39m[1m[2m 21.35 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mBookingPage--aX5DnnJ.js               [39m[1m[2m 25.77 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mRouteDetailPage-wOgk2GAT.js           [39m[1m[2m 27.43 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mVehicleDetailPage-CZVsDjRZ.js         [39m[1m[2m 28.65 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mBookingConfirmationPage-BfDRk5dI.js   [39m[1m[2m 11.99 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mFaqPage-BmtvQ7aR.js                   [39m[1m[2m 12.01 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mMarketingPage-DLzpTEIy.js             [39m[1m[2m 14.16 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mProductDetailPage-B7IWsQ6l.js         [39m[1m[2m 14.18 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mServicesPage-Bcp84bxm.js              [39m[1m[2m 16.91 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mRentalPage-xYmzbsLC.js                [39m[1m[2m 19.11 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mContactPage-I1SpVGGB.js               [39m[1m[2m 21.35 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mBookingPage-BV0yqwhh.js               [39m[1m[2m 25.77 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mRouteDetailPage-C-R7IFtT.js           [39m[1m[2m 27.28 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mVehicleDetailPage-DjdCqyQW.js         [39m[1m[2m 28.65 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mPagination-C3DrsbmA.js                [39m[1m[2m 31.94 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPackageDetailPage-DfIEHgko.js         [39m[1m[2m 32.12 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mFleetPage-D0x77hHq.js                 [39m[1m[2m 32.77 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mAboutPage-D0_Y0jYc.js                 [39m[1m[2m 35.57 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mRoutesPage-B27v6Beq.js                [39m[1m[2m 61.28 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPackagesPage-BKr-aW5h.js              [39m[1m[2m 70.29 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mPackageDetailPage-Dv-p8rLJ.js         [39m[1m[2m 32.12 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mFleetPage-BespNahJ.js                 [39m[1m[2m 32.77 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mAboutPage-Cu1t8oYC.js                 [39m[1m[2m 35.57 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mRoutesPage-bytlsHaQ.js                [39m[1m[2m 61.28 kB[22m[1m[22m
+[2mdist/[22m[2massets/[22m[36mPackagesPage-DNMbMCC8.js              [39m[1m[2m 70.29 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mvendor-motion-T3eR97Ln.js             [39m[1m[2m129.66 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mvendor-react-dzjnOsT9.js              [39m[1m[2m192.35 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mvendor-supabase-DaueY-7D.js           [39m[1m[2m224.50 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mdata-catalogue-CCpWhkOr.js            [39m[1m[2m349.46 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mindex-Dy7teylN.js                     [39m[1m[2m352.38 kB[22m[1m[22m
-[32m✓ built in 4.59s[39m
+[2mdist/[22m[2massets/[22m[36mindex-gq9nLuGZ.js                     [39m[1m[2m352.38 kB[22m[1m[22m
+[32m✓ built in 4.49s[39m
 🚀 Starting Static HTML Pre-Renderer (SSG)...
 ✅ Generated sitemap.xml (50 URLs with source-owned lastmod values where available, priorities & xhtml:link alternates) and robots.txt pointing to https://agraskbagheltourandtravels.com/sitemap.xml
-✅ SSG Pre-Rendering Complete: 59 pages rendered + 23 redirects written (3.32 MB total) in 2.81s.
+✅ SSG Pre-Rendering Complete: 59 pages rendered + 23 redirects written (3.31 MB total) in 2.76s.
 SEO artifact checks passed: 81 HTML files, 50 sitemap URLs, canonical origin https://agraskbagheltourandtravels.com.
 
 > sk-baghel-tour-travels@0.1.0 admin:build
@@ -188,7 +208,7 @@ computing gzip size...
 [2mdist/[22m[2massets/[22m[36mvendor-motion-ETqTANL-.js              [39m[1m[2m133.36 kB[22m[1m[22m[2m │ gzip: 44.17 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-react-YWPnaJPF.js               [39m[1m[2m221.70 kB[22m[1m[22m[2m │ gzip: 68.96 kB[22m
 [2mdist/[22m[2massets/[22m[36mindex-CqOGJcPP.js                      [39m[1m[2m325.41 kB[22m[1m[22m[2m │ gzip: 89.34 kB[22m
-[32m✓ built in 4.18s[39m
+[32m✓ built in 4.00s[39m
 
 > sk-baghel-tour-travels@0.1.0 backend:build
 > npm --prefix backend run build
