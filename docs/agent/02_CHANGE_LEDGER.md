@@ -2,6 +2,29 @@
 
 ## 2026-10-16
 
+### 2026-10-16 — Phase 4: Route Fleet-Price Distance Boundary Resolver & Test Matrix Invariants
+
+- **Route Fleet-Price Resolver (`route.calculator.ts`, `fare.strategy.ts`, `fare.engine.ts`)**:
+  - Wired `usePerKm` support through `PricingStrategyContext`, `FareEngineInput`, and `StandardVehiclePricingStrategy`.
+  - When `usePerKm` is active, route pricing strictly bills `input.distanceKm * spec.perKm` without forcing synthetic catalog minimum distance floors.
+  - Preserved group commercial exception logic in `GroupCommercialVehicleStrategy` (<300km forced round-trip doubling with ₹500/day driver allowance; >=300km one-way billing with ₹500/day driver allowance).
+  - Maintained mathematical invariant that advance deposit (`advanceOf`) never exceeds total fare (`totalFare < 500` customer pays full; advance rounded to nearest ₹100, minimum ₹500 otherwise).
+
+- **Distance Boundary Regression Test Suite (`backend/tests/unit/fare-strategy-boundary.test.ts`)**:
+  - Implemented and verified the complete 9-case Distance Boundary Test Matrix (DIST-01 to DIST-09) from Section 8.1 of `docs/FLEET_PRICING_MASTER_IMPLEMENTATION_PLAN.md`:
+    - `DIST-01`: 1 km edge corridor for Sedan (1 km billed, ₹0 DA, full ₹10 advance cap).
+    - `DIST-02`: 100 km short corridor for Sedan (100 km billed, ₹0 DA, ₹500 advance floor).
+    - `DIST-03`: 240 km corridor for Innova Crysta (240 km billed, ₹0 DA, ₹1200 advance).
+    - `DIST-04`: 299 km boundary for Tempo Traveller (forced round-trip 598 km, ₹500 DA, ₹4300 advance).
+    - `DIST-05`: 299.9 km boundary for Force Urbania (forced round-trip 599.8 km, ₹500 DA, ₹5900 advance).
+    - `DIST-06`: 300.0 km boundary for Tempo Traveller (one-way 300 km, ₹500 DA, ₹2200 advance).
+    - `DIST-07`: 300.1 km boundary for Force Urbania (one-way 300.1 km, ₹500 DA, ₹3000 advance).
+    - `DIST-08`: 350 km long corridor for Tempo Traveller (one-way 350 km, ₹500 DA, ₹2600 advance).
+    - `DIST-09`: 2-day multi-day round-trip for Force Urbania (480 km billed, 2x DA = ₹1000, ₹4800 advance).
+
+- **Verification**:
+  - Vitest suite passed 16/16 test files (243 tests). Full monorepo verification (`npm run verify`) passed cleanly.
+
 ### 2026-10-16 — Promotion & Merge of PR #71: Canonical Origin Enforcement, Hindi Indexing Gate & SEO Parity
 
 - **Canonical Origin Standardization (`siteOrigin.ts`, `validate-site-config.ts`, `validate-seo-artifacts.ts`)**:

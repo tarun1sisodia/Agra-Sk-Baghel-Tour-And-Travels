@@ -21,8 +21,9 @@ export class StandardVehiclePricingStrategy implements PricingStrategy {
 
   calculate(input: FareEngineInput, ctx: PricingStrategyContext): PricingCalculationResult {
     const catalogFare = ctx.route.fares[ctx.vehicleId];
-    const billedDistance = Math.max(input.distanceKm, ctx.route.km);
-    const baseOneWayFare = ctx.hasCustomRate ? roundRupees(billedDistance * ctx.spec.perKm) : catalogFare;
+    const shouldUsePerKm = Boolean(ctx.hasCustomRate || ctx.usePerKm || input.ruleOverrides?.usePerKm);
+    const billedDistance = shouldUsePerKm ? input.distanceKm : Math.max(input.distanceKm, ctx.route.km);
+    const baseOneWayFare = shouldUsePerKm ? roundRupees(billedDistance * ctx.spec.perKm) : catalogFare;
     const rules: string[] = [];
 
     const minKmPerDay = ctx.minKmPerDay ?? OUTSTATION_RULES.minKmPerDay;

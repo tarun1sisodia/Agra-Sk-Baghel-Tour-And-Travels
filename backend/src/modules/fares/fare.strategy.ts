@@ -16,6 +16,7 @@ export interface PricingStrategyContext {
   minKmPerDay?: number;
   sameDayRoundMultiplier?: number;
   driverAllowance?: number;
+  usePerKm?: boolean;
 }
 
 export interface PricingCalculationResult {

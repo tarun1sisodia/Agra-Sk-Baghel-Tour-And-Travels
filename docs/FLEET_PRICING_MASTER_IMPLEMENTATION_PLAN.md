@@ -206,9 +206,8 @@ export interface FleetPriceOption {
 |---|---|---|---|
 | **Phase 1** | Audit & Master Plan | `docs/FLEET_PRICING_MASTER_IMPLEMENTATION_PLAN.md`, `00_CONTEXT_HANDOFF.md`, `PROGRESS.md`, `02_CHANGE_LEDGER.md` | **COMPLETED** (Supermemory ingested, all 6 audit docs active) |
 | **Phase 2** | Fleet Master Normalization | `contracts/enums/vehicle-tiers.ts`, sync to `backend/`, `admin/`, `react/` | **COMPLETED** (Contract C-ENUM-001 extended to snake_case aliases & compound tempo forms; 9/9 contract tests green, 0 drift) |
-| **Phase 3** | Fare Rule Source Normalization | `backend/src/modules/fares/fare.service.ts`, `fare.engine.ts`, `route_catalog` | **COMPLETED** (PostgreSQL fare_rules is single rate authority; canonical & legacy tier overrides normalized; tollAmountInr wired; 212 tests green) |
-| **Phase 4** | Route Fleet-Price Resolver *(Next)* | `backend/src/modules/fares/fare.strategy.ts`, `fare.engine.ts` | 5 fleets tested across 1, 100, 240, 299, 300, 301 km |
-| **Phase 5** | Package Fleet-Price Resolver | `backend/src/modules/fares/fare.service.ts`, `tour-packages.service.ts` | Package pricing totally isolated from route rates |
+| **Phase 4** | Route Fleet-Price Resolver | `backend/src/modules/fares/fare.strategy.ts`, `fare.engine.ts` | **COMPLETED** (Distance boundary matrix DIST-01 to DIST-09 verified across 5 fleets: 1, 100, 240, 299, 299.9, 300, 300.1, 350 km; 9/9 boundary tests green) |
+| **Phase 5** | Package Fleet-Price Resolver *(Next)* | `backend/src/modules/fares/fare.service.ts`, `tour-packages.service.ts` | Package pricing totally isolated from route rates |
 | **Phase 6** | Shared Customer Price Contract | `react/src/contracts/fleet-pricing.ts`, `backend/src/contracts/` | `FleetPriceOption` typecheck across customer & backend |
 | **Phase 7** | Homepage Rewire | `react/src/components/home/FleetSection.tsx`, `HomeBookingWidget.tsx` | No hardcoded starting fares (₹3499, ₹6499, ₹9500) |
 | **Phase 8** | Routes Listing & Detail Rewire | `react/src/pages/RoutesPage.tsx`, `RouteDetailPage.tsx` | Prices dynamically match distance × active rate |
