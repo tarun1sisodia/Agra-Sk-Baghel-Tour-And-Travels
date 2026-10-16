@@ -9,7 +9,9 @@
   },
   "scripts": {
     "install:all": "npm ci && npm --prefix react ci && npm --prefix admin ci && npm --prefix backend ci",
-    "verify": "npm run customer:typecheck && npm run admin:typecheck && npm run backend:typecheck && npm run customer:validate-config && npm test && npm run customer:seo && npm run build:all",
+    "contracts:sync": "node --experimental-strip-types contracts/scripts/sync-contracts.ts",
+    "contracts:check": "node --experimental-strip-types contracts/scripts/sync-contracts.ts --check",
+    "verify": "npm run contracts:check && npm run customer:typecheck && npm run admin:typecheck && npm run backend:typecheck && npm run customer:validate-config && npm test && npm run customer:seo && npm run build:all",
     "typecheck": "npm run customer:typecheck && npm run admin:typecheck && npm run backend:typecheck",
     "dev": "npm --prefix react run dev",
     "dev:all": "node scripts/dev-all.mjs",

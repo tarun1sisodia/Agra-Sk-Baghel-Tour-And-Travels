@@ -377,3 +377,11 @@ export type {
   UpdatePromoCodeInput,
 } from "@/contracts/promos";
 
+export type {
+  PublicCatalogMedia,
+  PublicCatalogItem,
+  CatalogItem as CanonicalCatalogItem,
+  CreateCatalogItemInput,
+  UpdateCatalogItemInput,
+} from "@/contracts/catalog";
+

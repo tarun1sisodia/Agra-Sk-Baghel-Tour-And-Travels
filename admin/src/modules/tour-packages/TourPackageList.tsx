@@ -120,8 +120,9 @@ export function TourPackageList({
                   <span>{pkg.durationText}</span>
                   <span>·</span>
                   <span className="text-primary font-medium">📍 {pkg.source || "Agra"} → {pkg.destination || "Tour"}</span>
-                  <span>·</span>
-                  <span className="font-semibold text-ink font-mono">{formatINR(pkg.startingPriceInr)}</span>
+                  <span className="font-semibold text-ink font-mono">
+                    {pkg.startingPriceInr != null && pkg.startingPriceInr > 0 ? formatINR(pkg.startingPriceInr) : "On request"}
+                  </span>
                   {Array.isArray(pkg.inclusions) && pkg.inclusions.length > 0 && (
                     <span className="text-emerald-400 font-sans text-[11px] font-medium">✓ {pkg.inclusions.length} incl</span>
                   )}

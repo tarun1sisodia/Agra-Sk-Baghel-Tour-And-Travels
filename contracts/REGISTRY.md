@@ -73,6 +73,20 @@ Status: `PILOT` = proven on 2 contracts · `FROZEN` = defined, not yet locked ·
   - Customer booking & pricing presentation components (rollout in Phases 7–10)
 - **Tests:** `backend/tests/unit/contracts.test.ts`
 
+## C-CATALOG-001 — Shared Catalog Item Contract (`PublicCatalogItem`, `CatalogItem`) · Status: PILOT
+- **Source:** `contracts/catalog.ts`. Generated copies:
+  `backend/src/contracts/catalog.ts`, `admin/src/contracts/catalog.ts`,
+  `react/src/contracts/catalog.ts` (via `contracts/scripts/sync-contracts.ts`).
+- **Values / Schema:** `PublicCatalogItem`, `CatalogItem`, `CreateCatalogItemInput`, `UpdateCatalogItemInput`,
+  `CatalogType`, `CatalogAvailability`, `PublicCatalogMedia`.
+  Pins `startingPriceInr` to `number | null` (eliminating ₹0 price fallback), `distanceKm` to `number | null`,
+  and canonical category enums.
+- **Rule:** Unpriced catalog items must project `null` (displaying "Price on Request" / "On request") and never synthesize `0`.
+- **Consumers (backend):** `backend/src/contracts/catalog.ts` (synced), `backend/src/types/domain.ts`, `backend/src/modules/catalog/*`.
+- **Consumers (admin):** `admin/src/contracts/catalog.ts` (synced), `admin/src/lib/api.ts`, `admin/src/lib/types.ts`.
+- **Consumers (react):** `react/src/contracts/catalog.ts` (synced), `react/src/services/catalog.ts`, `react/src/components/catalog/LiveCatalogSection.tsx`.
+- **Tests:** `backend/tests/unit/legacy-schema-reconciliation.test.ts`
+
 ## Rollout queue (after pilot sign-off)
 C-ENUM-002 booking statuses · C-ENUM-003 trip types · C-API per module (23 modules) ·
 C-SCHEMA drift test (G1) · admin `FLEET_KEYS` → contract · react fleet constants → contract.

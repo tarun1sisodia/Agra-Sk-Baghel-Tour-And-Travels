@@ -2,6 +2,26 @@
 
 ## 2026-10-16
 
+### 2026-10-16 — Contract Architecture: Canonical Catalog Contract (C-CATALOG-001) & Monorepo Synchronization
+
+- **Canonical Root Contract (`contracts/catalog.ts`, `contracts/tour-packages.ts`)**:
+  - Authored `contracts/catalog.ts` (Contract C-CATALOG-001) defining canonical single sources of truth for `PublicCatalogItem`, `CatalogItem`, `CreateCatalogItemInput`, `UpdateCatalogItemInput`, `CatalogType`, `CatalogAvailability`, and `PublicCatalogMedia`.
+  - Pinned `startingPriceInr` and `distanceKm` to `number | null`, guaranteeing cross-app type-safety and preventing reintroduction of the ₹0 price regression.
+  - Aligned `contracts/tour-packages.ts` by making `baseTierCode`, `startingPriceInr`, and `nightChargeInr` truthful to database persistence (`number | null`, `string | null`).
+  - Registered `C-CATALOG-001` in `contracts/REGISTRY.md`.
+  - Added `npm run contracts:sync` and `npm run contracts:check` scripts to root `package.json`, wiring `contracts:check` into `npm run verify`.
+
+- **Tri-App Auto-Synchronization**:
+  - Ran `contracts/scripts/sync-contracts.ts` propagating identical generated copies to `admin/src/contracts/`, `backend/src/contracts/`, and `react/src/contracts/`.
+  - Re-exported `CanonicalCatalogItem`, `PublicCatalogItem`, and inputs in `admin/src/lib/types.ts`.
+  - Hardened `admin/src/modules/tour-packages/TourPackageList.tsx` and `TourPackagesPage.tsx` to handle nullable prices gracefully.
+
+- **Monorepo Verification on Main**:
+  - `contracts:check`: 100% pure pass with zero drift.
+  - All 3 typechecks green (`react`, `admin`, `backend`).
+  - 348 automated tests passed (301 backend, 36 customer, 11 admin).
+  - Production builds and SSG pre-rendering succeeded cleanly.
+
 ### 2026-10-16 — Mainline Integration (PR #72) & CodeRabbit #4296910823 Zero-Price Fix
 
 - **Mainline Branch Integration**:

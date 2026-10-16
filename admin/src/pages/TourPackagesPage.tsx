@@ -65,7 +65,7 @@ export function TourPackagesPage({ user }: { user: AdminUser }) {
       days: pkg.days,
       nights: pkg.nights,
       baseTierCode: resolveTourPackageBaseTierCode(pkg.baseTierCode),
-      startingPriceInr: pkg.startingPriceInr,
+      startingPriceInr: pkg.startingPriceInr ?? 0,
       fleetPrices: pkg.fleetPrices ? { ...pkg.fleetPrices } : {},
       nightChargeInr: pkg.nightChargeInr ?? 0,
       source: pkg.source ?? "Agra",
