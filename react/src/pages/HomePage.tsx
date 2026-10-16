@@ -755,7 +755,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                         )}
                         <a
                           className="mt-auto pt-2 border-t border-border-warm/40 inline-flex items-center gap-1 font-label-lg text-label-md text-primary hover:text-primary-container font-bold transition-colors min-h-[44px] py-2"
-                          href={`/packages/${encodeURIComponent(pkg.slug)}`}
+                          href={`/en/packages/${encodeURIComponent(pkg.slug)}/`}
                           aria-label={`View tour: ${pkg.name}`}
                         >
                           <span>View Tour</span>

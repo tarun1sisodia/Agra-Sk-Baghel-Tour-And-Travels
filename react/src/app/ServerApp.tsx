@@ -25,6 +25,7 @@ import { LoginPage } from "../pages/LoginPage";
 import { MarketingPage } from "../pages/MarketingPage";
 import { SeoLandingPage } from "../pages/SeoLandingPage";
 import { SEO_LANDING_SLUGS, type SeoLandingSlug } from "../data/seoLandingSlugs";
+import { titleCaseSlug } from "../utils/format";
 import { marketingHubs } from "./routes";
 import { SeoHead } from "../components/seo/SeoHead";
 import { packages, routes, vehicles, type Route } from "../data/catalogue";
@@ -162,7 +163,7 @@ function getSeoBase(
       "delhi-to-agra-taxi": "Delhi to Agra Taxi | One-Way ₹3,499 | Agra SK Baghel Tour and Travels",
       "taj-mahal-taxi-service": "Taj Mahal Taxi Service Agra | One-Day & Full-Day Cabs",
     };
-    const title = labels[section] || `${section.replaceAll("-", " ")} | Agra SK Baghel Tour and Travels`;
+    const title = labels[section] || `${titleCaseSlug(section)} | Agra SK Baghel Tour and Travels`;
     return { title, description: `${title}. Verified drivers, transparent fare confirmation and easy phone or WhatsApp booking.`, ogImage: "/assets/brand/og-banner.webp", keywords: [title, "Agra taxi", "Agra cab booking"] };
   }
   if (isBooking) {
@@ -308,7 +309,7 @@ function getSeoBase(
     const from = route.from[0].toUpperCase() + route.from.slice(1);
     const to = route.to[0].toUpperCase() + route.to.slice(1);
     return {
-      title: `${from} to ${to} taxi fare | Agra SK Baghel Tour and Travels`,
+      title: `${from} to ${to} Taxi Fare | Agra SK Baghel Tour and Travels`,
       description: `${route.duration} private taxi from ${from} to ${to}, with transparent fares across our fleet.`,
       ogImage: "/assets/brand/og-banner.webp",
       keywords: [`${from} to ${to} taxi`, `${from} to ${to} cab fare`, "outstation taxi Agra", "expressway cab"],

@@ -11,7 +11,7 @@ export function NotFoundPage({ language = "en" }: NotFoundPageProps) {
   const [search, setSearch] = useState("");
 
   const popularLinks = [
-    { label: "Taj Mahal Sunrise Tour", url: "/packages/taj-mahal-sunrise-tour" },
+    { label: "Taj Mahal Sunrise Tour", url: "/en/packages/taj-mahal-sunrise-tour/" },
     { label: "Agra to Delhi Taxi", url: "/book?from=Agra&to=Delhi" },
     { label: "Agra to Jaipur Cab", url: "/book?from=Agra&to=Jaipur" },
     { label: "Fleet Showroom", url: "/fleet" },

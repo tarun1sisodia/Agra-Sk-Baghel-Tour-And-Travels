@@ -30,6 +30,7 @@ const BookingConfirmationPage = lazy(() => import("../pages/BookingConfirmationP
 const LoginPage = lazy(() => import("../pages/LoginPage").then((m) => ({ default: m.LoginPage })));
 const MonumentsPage = lazy(() => import("../pages/MonumentsPage").then((m) => ({ default: m.MonumentsPage })));
 import { SEO_LANDING_SLUGS, type SeoLandingSlug } from "../data/seoLandingSlugs";
+import { titleCaseSlug } from "../utils/format";
 import { marketingHubs } from "./routes";
 import { SeoHead } from "../components/seo/SeoHead";
 import { packages, routes, vehicles, type Route, type TourPackage } from "../data/catalogue";
@@ -62,7 +63,7 @@ export function getSeo(
   activeRoute?: Route | null,
 ): SeoMetadata {
   if (SEO_LANDING_SLUGS.includes(section as SeoLandingSlug)) {
-    const title = `${section.replaceAll("-", " ")} | Agra SK Baghel Tour and Travels`;
+    const title = `${titleCaseSlug(section)} | Agra SK Baghel Tour and Travels`;
     return { title, description: `${title}. Verified drivers, transparent fare confirmation and easy phone or WhatsApp booking.`, ogImage: "/assets/brand/og-banner.webp", keywords: [title, "Agra taxi", "Agra cab booking"] };
   }
   if (isBooking) {
@@ -77,7 +78,7 @@ export function getSeo(
     const from = activeRoute.origin || (activeRoute.from ? activeRoute.from[0].toUpperCase() + activeRoute.from.slice(1) : "Agra");
     const to = activeRoute.destination || (activeRoute.to ? activeRoute.to[0].toUpperCase() + activeRoute.to.slice(1) : "Delhi");
     return {
-      title: `${from} to ${to} taxi fare | Agra SK Baghel Tour and Travels`,
+      title: `${from} to ${to} Taxi Fare | Agra SK Baghel Tour and Travels`,
       description: `${activeRoute.duration} private taxi from ${from} to ${to}, with transparent fares across our fleet.`,
       ogImage: "/assets/brand/og-banner.webp",
       keywords: [`${from} to ${to} taxi`, `${from} to ${to} cab fare`, "outstation taxi Agra", "expressway cab"],
@@ -124,7 +125,7 @@ export function getSeo(
     const from = route.from[0].toUpperCase() + route.from.slice(1);
     const to = route.to[0].toUpperCase() + route.to.slice(1);
     return {
-      title: `${from} to ${to} taxi fare | Agra SK Baghel Tour and Travels`,
+      title: `${from} to ${to} Taxi Fare | Agra SK Baghel Tour and Travels`,
       description: `${route.duration} private taxi from ${from} to ${to}, with transparent fares across our fleet.`,
       ogImage: "/assets/brand/og-banner.webp",
       keywords: [`${from} to ${to} taxi`, `${from} to ${to} cab fare`, "outstation taxi Agra", "expressway cab"],
