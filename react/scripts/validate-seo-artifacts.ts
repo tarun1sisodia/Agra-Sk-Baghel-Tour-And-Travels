@@ -33,7 +33,7 @@ function assertPublicHttpsUrl(value: string, description: string): URL {
   assert.equal(url.origin, CANONICAL_DOMAIN, description + " must use the canonical origin.");
   assert.equal(url.search, "", description + " must not contain a query string.");
   assert.equal(url.hash, "", description + " must not contain a fragment.");
-  assert.equal(/workers\\.dev|localhost|127\\.0\\.0\\.1/i.test(url.hostname), false, description + " must not use a preview or loopback hostname.");
+  assert.equal(/workers\.dev|localhost|127\.0\.0\.1/i.test(url.hostname), false, description + " must not use a preview or loopback hostname.");
   return url;
 }
 
@@ -41,7 +41,7 @@ function artifactPathForUrl(url: URL): string {
   const pathname = decodeURIComponent(url.pathname);
   if (pathname === "/") return join(distDir, "index.html");
   if (pathname.endsWith(".html")) return join(distDir, pathname.slice(1));
-  const relativePath = pathname.replace(/^\\/+|\\/+$/g, "");
+  const relativePath = pathname.replace(/^\/+|\/+$/g, "");
   return join(distDir, relativePath, "index.html");
 }
 
@@ -57,14 +57,14 @@ async function main(): Promise<void> {
   const sitemap = await readFile(sitemapPath, "utf8");
   const robots = await readFile(robotsPath, "utf8");
 
-  assert.ok(robots.split(/\\r?\\n/).some((line) => line.trim() === "Sitemap: " + CANONICAL_DOMAIN + "/sitemap.xml"),
+  assert.ok(robots.split(/\r?\n/).some((line) => line.trim() === "Sitemap: " + CANONICAL_DOMAIN + "/sitemap.xml"),
     "robots.txt must reference the canonical sitemap URL.");
-  assert.equal(/workers\\.dev|localhost|127\\.0\\.0\\.1/i.test(robots), false, "robots.txt must not reference a preview or loopback host.");
+  assert.equal(/workers\.dev|localhost|127\.0\.0\.1/i.test(robots), false, "robots.txt must not reference a preview or loopback host.");
 
-  const locValues = Array.from(sitemap.matchAll(/<loc>\\s*([^<]+)\\s*<\\/loc>/gi), (match) => match[1]!.trim());
+  const locValues = Array.from(sitemap.matchAll(/<loc>\s*([^<]+)\s*<\/loc>/gi), (match) => match[1]!.trim());
   assert.ok(locValues.length > 0, "The sitemap must contain at least one URL.");
   assert.equal(new Set(locValues).size, locValues.length, "Sitemap loc URLs must be unique.");
-  const alternateLinks = Array.from(sitemap.matchAll(/hreflang=["\']([^"\']+)["\']\\s+href=["\']([^"\']+)["\']/gi), (match) => ({
+  const alternateLinks = Array.from(sitemap.matchAll(/hreflang=["\']([^"\']+)["\']\s+href=["\']([^"\']+)["\']/gi), (match) => ({
     language: match[1]!,
     href: match[2]!,
   }));
@@ -79,12 +79,12 @@ async function main(): Promise<void> {
     const path = await assertArtifactExists(url, "Sitemap URL");
     sitemapArtifacts.set(url.href, path);
     const html = await readFile(path, "utf8");
-    const canonicalTags = tags(html, /<link\\b[^>]*\\brel=["\']canonical["\'][^>]*>/gi);
+    const canonicalTags = tags(html, /<link\b[^>]*\brel=["\']canonical["\'][^>]*>/gi);
     assert.equal(canonicalTags.length, 1, "Indexable sitemap artifact must contain exactly one canonical tag: " + url.href);
     const canonicalValue = attribute(canonicalTags[0]!, "href");
     assert.ok(canonicalValue, "Canonical tag must have an href: " + url.href);
     assert.equal(assertPublicHttpsUrl(canonicalValue, "Canonical URL").href, url.href, "Sitemap URL and page canonical must match.");
-    const robotsTags = tags(html, /<meta\\b[^>]*\\bname=["\']robots["\'][^>]*>/gi);
+    const robotsTags = tags(html, /<meta\b[^>]*\bname=["\']robots["\'][^>]*>/gi);
     const robotsContent = robotsTags.map((tag) => attribute(tag, "content") ?? "").join(" ");
     assert.equal(/noindex/i.test(robotsContent), false, "Sitemap must not include a noindex page: " + url.href);
   }
@@ -93,7 +93,7 @@ async function main(): Promise<void> {
     const url = assertPublicHttpsUrl(alternate.href, "Sitemap hreflang URL");
     const artifact = await assertArtifactExists(url, "Sitemap hreflang alternate");
     const html = await readFile(artifact, "utf8");
-    assert.equal(/noindex/i.test(tags(html, /<meta\\b[^>]*\\bname=["\']robots["\'][^>]*>/gi).map((tag) => attribute(tag, "content") ?? "").join(" ")), false, "Sitemap alternate must be indexable: " + url.href);
+    assert.equal(/noindex/i.test(tags(html, /<meta\b[^>]*\bname=["\']robots["\'][^>]*>/gi).map((tag) => attribute(tag, "content") ?? "").join(" ")), false, "Sitemap alternate must be indexable: " + url.href);
   }
 
   const htmlFiles = await walkHtml(distDir);
@@ -101,22 +101,22 @@ async function main(): Promise<void> {
   for (const path of htmlFiles) {
     const html = await readFile(path, "utf8");
     const relPath = relative(distDir, path).split(sep).join("/");
-    const canonicalTags = tags(html, /<link\\b[^>]*\\brel=["\']canonical["\'][^>]*>/gi);
+    const canonicalTags = tags(html, /<link\b[^>]*\brel=["\']canonical["\'][^>]*>/gi);
     assert.equal(canonicalTags.length, 1, "Every prerendered HTML artifact must contain exactly one canonical tag: " + relPath);
     const canonicalValue = attribute(canonicalTags[0]!, "href");
     assert.ok(canonicalValue, "Canonical tag must have an href: " + relPath);
     assertPublicHttpsUrl(canonicalValue, "Canonical URL in " + relPath);
-    assert.equal(/workers\\.dev|localhost|127\\.0\\.0\\.1/i.test(canonicalValue), false, "Canonical URL must not contain a preview host: " + relPath);
-    const pageRobots = tags(html, /<meta\\b[^>]*\\bname=["\']robots["\'][^>]*>/gi).map((tag) => attribute(tag, "content") ?? "").join(" ");
+    assert.equal(/workers\.dev|localhost|127\.0\.0\.1/i.test(canonicalValue), false, "Canonical URL must not contain a preview host: " + relPath);
+    const pageRobots = tags(html, /<meta\b[^>]*\bname=["\']robots["\'][^>]*>/gi).map((tag) => attribute(tag, "content") ?? "").join(" ");
     const indexable = !/noindex/i.test(pageRobots);
-    const ogUrlTags = tags(html, /<meta\\b[^>]*\\bproperty=["\']og:url["\'][^>]*>/gi);
+    const ogUrlTags = tags(html, /<meta\b[^>]*\bproperty=["\']og:url["\'][^>]*>/gi);
     if (indexable) {
       assert.equal(ogUrlTags.length, 1, "Every indexable HTML artifact must contain exactly one og:url tag: " + relPath);
       const ogValue = attribute(ogUrlTags[0]!, "content");
       assert.ok(ogValue, "og:url must have content: " + relPath);
       assert.equal(assertPublicHttpsUrl(ogValue, "og:url in " + relPath).href, canonicalValue, "og:url must match canonical URL: " + relPath);
     }
-    const alternateTags = tags(html, /<link\\b[^>]*\\bhreflang=["\'][^"\']+["\'][^>]*>/gi);
+    const alternateTags = tags(html, /<link\b[^>]*\bhreflang=["\'][^"\']+["\'][^>]*>/gi);
     for (const tag of alternateTags) {
       const href = attribute(tag, "href");
       if (href) assertPublicHttpsUrl(href, "HTML hreflang in " + relPath);
