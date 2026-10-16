@@ -1,16 +1,18 @@
-# Main branch verification — 762711c2226a
+# Main branch verification — 8a99514a84c9
 
 - **Result:** PASS
-- **Commit:** [762711c2226a1c10c0b147f0744af48658f13995](https://github.com/tarun1sisodia/ArenaAI/commit/762711c2226a1c10c0b147f0744af48658f13995)
-- **Checked at:** 2026-10-16T06:01:03Z
-- **Workflow run:** [38858685392](https://github.com/tarun1sisodia/ArenaAI/actions/runs/38858685392)
+- **Commit:** [8a99514a84c9e00f8a98d552ce251a996ca69aec](https://github.com/tarun1sisodia/ArenaAI/commit/8a99514a84c9e00f8a98d552ce251a996ca69aec)
+- **Checked at:** 2026-10-16T06:23:36Z
+- **Workflow run:** [38860787142](https://github.com/tarun1sisodia/ArenaAI/actions/runs/38860787142)
 
 ## Changed files
 
-- M	backend/src/modules/fares/calculators/route.calculator.ts
+- M	backend/src/db/memory.ts
+- M	backend/src/modules/fares/calculators/tour-package.calculator.ts
 - M	backend/src/modules/fares/fare.engine.ts
-- M	backend/src/modules/fares/fare.strategy.ts
-- A	backend/tests/unit/fare-strategy-boundary.test.ts
+- M	backend/src/modules/fares/fare.service.ts
+- M	backend/src/modules/fares/resolvers/product.resolver.ts
+- A	backend/tests/unit/package-fleet-price.test.ts
 - M	docs/FLEET_PRICING_MASTER_IMPLEMENTATION_PLAN.md
 - M	docs/agent/02_CHANGE_LEDGER.md
 
@@ -23,18 +25,18 @@ npm run install:all && npm run verify
 ## Verification result
 
 ```text
-  ✔ defaults missing or unknown public consent to false (0.888545ms)
-  ✔ never synthesizes ticket IDs from UUIDs; falls back to 'No Ticket' (0.210498ms)
-  ✔ preserves genuine ticket_id or booking_ticket_id when present (0.147804ms)
-✔ Admin Review Mapper — Safety & Invariant Guarantees (2.296963ms)
+  ✔ defaults missing or unknown public consent to false (1.256887ms)
+  ✔ never synthesizes ticket IDs from UUIDs; falls back to 'No Ticket' (0.315556ms)
+  ✔ preserves genuine ticket_id or booking_ticket_id when present (0.310597ms)
+✔ Admin Review Mapper — Safety & Invariant Guarantees (3.952058ms)
 ▶ Admin Booking Unmask PII Frontend State & Security Suite
-  ✔ 1. Verifies role permission matrix for 'bookings:unmask' (0.711566ms)
-  ✔ 2. Initial state is strictly masked and empty (1.38227ms)
-  ✔ 3. startUnmasking sets loading flag and clears previous errors (0.174704ms)
-  ✔ 4. Successful unmask response applies unmasked data and sets unmasked=true (0.422164ms)
-  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.203741ms)
-  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.195015ms)
-✔ Admin Booking Unmask PII Frontend State & Security Suite (4.397229ms)
+  ✔ 1. Verifies role permission matrix for 'bookings:unmask' (4.912073ms)
+  ✔ 2. Initial state is strictly masked and empty (0.686015ms)
+  ✔ 3. startUnmasking sets loading flag and clears previous errors (0.232462ms)
+  ✔ 4. Successful unmask response applies unmasked data and sets unmasked=true (0.613851ms)
+  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.277336ms)
+  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.280352ms)
+✔ Admin Booking Unmask PII Frontend State & Security Suite (9.091023ms)
 ℹ tests 9
 ℹ suites 2
 ℹ pass 9
@@ -42,7 +44,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 137.368384
+ℹ duration_ms 159.236303
 
 > sk-baghel-tour-travels@0.1.0 customer:seo
 > npm --prefix react run test:seo
@@ -52,15 +54,15 @@ npm run install:all && npm run verify
 > node --experimental-strip-types --test scripts/site-origin.test.ts && node --experimental-strip-types scripts/test-seo-lifecycle.ts
 
 ▶ canonical site origin
-  ✔ uses the approved production origin when no local override is supplied (0.882353ms)
-  ✔ normalizes a trailing slash (0.157528ms)
-  ✔ rejects preview hosts in release mode (0.392337ms)
-  ✔ requires HTTPS for non-local origins (0.156814ms)
-  ✔ allows HTTPS preview origins (0.159365ms)
-  ✔ permits HTTP only on loopback in development (0.172757ms)
-  ✔ rejects paths and credentials (0.165352ms)
-  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.198864ms)
-✔ canonical site origin (3.607136ms)
+  ✔ uses the approved production origin when no local override is supplied (1.052948ms)
+  ✔ normalizes a trailing slash (0.196094ms)
+  ✔ rejects preview hosts in release mode (0.49464ms)
+  ✔ requires HTTPS for non-local origins (0.218666ms)
+  ✔ allows HTTPS preview origins (0.186888ms)
+  ✔ permits HTTP only on loopback in development (0.245216ms)
+  ✔ rejects paths and credentials (0.262417ms)
+  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.222855ms)
+✔ canonical site origin (4.606895ms)
 ℹ tests 8
 ℹ suites 1
 ℹ pass 8
@@ -68,7 +70,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 107.135723
+ℹ duration_ms 118.308567
 SEO lifecycle checks passed.
 
 > sk-baghel-tour-travels@0.1.0 build:all
@@ -94,11 +96,6 @@ Site origin validated: https://agraskbagheltourandtravels.com (production).
 [Manifest Builder] Preserved existing snapshot at /home/runner/work/ArenaAI/ArenaAI/react/src/data/generated-published-content.json because the remote source was not fetched.
 [36mvite v7.3.6 [32mbuilding client environment for production...[36m[39m
 transforming...
-[33mnode_modules/zod/v4/core/util.js (400:0): A comment
-
-"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
-
-in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
 [33mnode_modules/zod/v4/core/regexes.js (74:0): A comment
 
 "/** Anchors a pattern source. The interpolation lives here rather than at the call site because
@@ -106,6 +103,11 @@ in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot 
  * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
 
 in "node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
+[33mnode_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
 [32m✓[39m 2552 modules transformed.
 rendering chunks...
 [2mdist/[22m[32mindex.html                                   [39m[1m[2m  4.42 kB[22m[1m[22m
@@ -146,10 +148,10 @@ rendering chunks...
 [2mdist/[22m[2massets/[22m[36mvendor-supabase-DaueY-7D.js           [39m[1m[2m224.50 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mdata-catalogue-CCpWhkOr.js            [39m[1m[2m349.46 kB[22m[1m[22m
 [2mdist/[22m[2massets/[22m[36mindex-Brvpru6O.js                     [39m[1m[2m351.85 kB[22m[1m[22m
-[32m✓ built in 4.01s[39m
+[32m✓ built in 4.60s[39m
 🚀 Starting Static HTML Pre-Renderer (SSG)...
 ✅ Generated sitemap.xml (49 URLs with source-owned lastmod values where available, priorities & xhtml:link alternates) and robots.txt pointing to https://agraskbagheltourandtravels.com/sitemap.xml
-✅ SSG Pre-Rendering Complete: 59 pages rendered + 14 redirects written (3.32 MB total) in 2.66s.
+✅ SSG Pre-Rendering Complete: 59 pages rendered + 14 redirects written (3.32 MB total) in 2.80s.
 SEO artifact checks passed: 72 HTML files, 49 sitemap URLs, canonical origin https://agraskbagheltourandtravels.com.
 
 > sk-baghel-tour-travels@0.1.0 admin:build
@@ -194,7 +196,7 @@ computing gzip size...
 [2mdist/[22m[2massets/[22m[36mvendor-motion-ETqTANL-.js              [39m[1m[2m133.36 kB[22m[1m[22m[2m │ gzip: 44.17 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-react-YWPnaJPF.js               [39m[1m[2m221.70 kB[22m[1m[22m[2m │ gzip: 68.96 kB[22m
 [2mdist/[22m[2massets/[22m[36mindex-CqOGJcPP.js                      [39m[1m[2m325.41 kB[22m[1m[22m[2m │ gzip: 89.34 kB[22m
-[32m✓ built in 3.64s[39m
+[32m✓ built in 4.00s[39m
 
 > sk-baghel-tour-travels@0.1.0 backend:build
 > npm --prefix backend run build
