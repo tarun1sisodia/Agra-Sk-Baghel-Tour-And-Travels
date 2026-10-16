@@ -95,7 +95,7 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
         if (item.status !== "published") {
           delete routes[item.slug];
         } else {
-          const startingPrice = item.startingPriceInr ?? null;
+          const startingPrice = item.startingPriceInr != null && item.startingPriceInr > 0 ? item.startingPriceInr : null;
           const existing = routes[item.slug];
           routes[item.slug] = {
             o: item.routeSummary?.split("·")[0]?.trim() || existing?.o || item.title,
@@ -265,8 +265,8 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
             category: item.type,
             kicker: item.type === "package" ? "Tour Package" : "Day Tour",
             duration: item.durationText || "1 day",
-            from: item.startingPriceInr,
-            startingPriceInr: item.startingPriceInr,
+            from: item.startingPriceInr != null && item.startingPriceInr > 0 ? item.startingPriceInr : null,
+            startingPriceInr: item.startingPriceInr != null && item.startingPriceInr > 0 ? item.startingPriceInr : null,
             image: image || "",
             gallery,
             places: (item.routeSummary || "")
@@ -466,7 +466,7 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
         status: "draft",
         durationText: input.durationText,
         routeSummary: input.routeSummary,
-        startingPriceInr: input.startingPriceInr,
+        startingPriceInr: input.startingPriceInr ?? null,
         distanceKm: input.distanceKm ?? null,
         availability: input.availability ?? "available",
         seatsLeft: input.seatsLeft ?? null,

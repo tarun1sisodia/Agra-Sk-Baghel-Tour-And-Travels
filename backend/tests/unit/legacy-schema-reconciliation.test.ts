@@ -297,5 +297,60 @@ describe("Task 2: Legacy API Modules & Canonical Schema Reconciliation", () => {
     // Close pool to clean up
     await (pgRepos as unknown as { pool: { end: () => Promise<void> } }).pool.end();
   });
+
+  it("P6: catalog starting_price_inr missing or non-positive returns null, not ₹0 (CodeRabbit #4296910823)", async () => {
+    const memoryDb = createMemoryRepositories(new Date().toISOString());
+
+    // 1. Create a catalog item with null startingPriceInr
+    await memoryDb.catalog.create({
+      id: "cat-no-price-1",
+      type: "package",
+      slug: "custom-sightseeing-tour",
+      title: "Custom Sightseeing Tour",
+      shortDescription: "Tailored itinerary on demand",
+      description: "Tailored itinerary on demand",
+      status: "published",
+      durationText: "Full day",
+      routeSummary: "Agra · Fatehpur Sikri",
+      startingPriceInr: null,
+      distanceKm: null,
+      availability: "available",
+      seatsLeft: null,
+      stops: ["Taj Mahal"],
+      tripType: null,
+      version: 1,
+      createdBy: null,
+      updatedBy: null,
+      publishedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    const { app } = await createTestApp(memoryDb);
+
+    // Public catalog item read
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/v1/catalog/custom-sightseeing-tour",
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.success).toBe(true);
+    expect(body.data.startingPriceInr).toBeNull();
+    expect(body.data.startingPriceInr).not.toBe(0);
+
+    // Manifest read
+    const manifestRes = await app.inject({
+      method: "GET",
+      url: "/api/v1/catalog/manifest",
+    });
+    expect(manifestRes.statusCode).toBe(200);
+    const manifest = manifestRes.json();
+    const pkg = manifest.data.packages.find((p: any) => p.slug === "custom-sightseeing-tour");
+    expect(pkg).toBeDefined();
+    expect(pkg.from).toBeNull();
+    expect(pkg.startingPriceInr).toBeNull();
+  });
 });
 

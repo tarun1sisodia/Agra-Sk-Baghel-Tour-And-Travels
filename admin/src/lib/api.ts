@@ -419,7 +419,7 @@ export async function createAdminCatalogItem(payload: {
   description?: string;
   durationText: string;
   routeSummary: string;
-  startingPriceInr: number;
+  startingPriceInr?: number | null;
   distanceKm?: number | null;
   availability?: CatalogAvailability;
   seatsLeft?: number | null;
@@ -446,7 +446,7 @@ export async function updateAdminCatalogItem(
     description: string;
     durationText: string;
     routeSummary: string;
-    startingPriceInr: number;
+    startingPriceInr?: number | null;
     distanceKm: number | null;
     availability: CatalogAvailability;
     seatsLeft: number | null;

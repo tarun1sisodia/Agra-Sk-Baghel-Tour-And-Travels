@@ -2494,7 +2494,7 @@ function mapCatalog(row: Record<string, unknown>): CatalogItemRecord {
     status: row.status as CatalogItemRecord["status"],
     durationText: String(row.duration_text),
     routeSummary: String(row.route_summary),
-    startingPriceInr: row.starting_price_inr != null ? num(row.starting_price_inr) : 0,
+    startingPriceInr: row.starting_price_inr != null && num(row.starting_price_inr) > 0 ? num(row.starting_price_inr) : null,
     distanceKm: row.distance_km != null ? num(row.distance_km) : null,
     availability: (row.availability as CatalogItemRecord["availability"]) ?? "available",
     seatsLeft: row.seats_left === null || row.seats_left === undefined ? null : num(row.seats_left),

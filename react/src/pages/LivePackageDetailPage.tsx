@@ -85,7 +85,7 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
   }
 
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-    `Hello Agra SK Baghel Tour and Travels, I am interested in the ${item.title}${item.availability === "unavailable" ? " (custom availability enquiry)" : ` (from ₹${item.startingPriceInr.toLocaleString("en-IN")})`}.`,
+    `Hello Agra SK Baghel Tour and Travels, I am interested in the ${item.title}${item.availability === "unavailable" ? " (custom availability enquiry)" : item.startingPriceInr != null && item.startingPriceInr > 0 ? ` (from ₹${item.startingPriceInr.toLocaleString("en-IN")})` : " (custom quote enquiry)"}.`,
   )}`;
   const galleryImages = item.gallery.filter((g) => g.mediaType === "image");
   const active = galleryImages[Math.min(activeImage, Math.max(0, galleryImages.length - 1))];
@@ -102,7 +102,7 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
         image: item.coverImage ? resolveCatalogMediaUrl(item.coverImage.url) : undefined,
         touristType: [item.tripType ? TRIP_TYPE_LABEL[item.tripType] : "Private tour"],
         itinerary: item.stops.map((stop) => ({ name: stop, description: `Stop on ${item.title}` })),
-        ...(item.availability === "unavailable"
+        ...(item.availability === "unavailable" || item.startingPriceInr == null || item.startingPriceInr <= 0
           ? {}
           : { offers: { price: item.startingPriceInr, priceCurrency: "INR", availability: item.availability === "limited" ? "LimitedAvailability" as const : "InStock" as const } }),
       }),
@@ -240,14 +240,18 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
                 </span>
                 {item.availability === "unavailable" ? (
                   <span className="font-title-md text-xl font-bold text-on-surface">Currently unavailable</span>
-                ) : (
+                ) : item.startingPriceInr != null && item.startingPriceInr > 0 ? (
                   <span className="font-title-md text-2xl font-bold text-on-surface">
                     ₹{item.startingPriceInr.toLocaleString("en-IN")}
                   </span>
+                ) : (
+                  <span className="font-title-md text-xl font-bold text-on-surface">Price on Request</span>
                 )}
-                <span className="block font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-                  28% advance reserves your vehicle
-                </span>
+                {item.startingPriceInr != null && item.startingPriceInr > 0 && (
+                  <span className="block font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                    28% advance reserves your vehicle
+                  </span>
+                )}
               </div>
             </div>
 

@@ -2,6 +2,27 @@
 
 ## 2026-10-16
 
+### 2026-10-16 — Mainline Integration (PR #72) & CodeRabbit #4296910823 Zero-Price Fix
+
+- **Mainline Branch Integration**:
+  - Confirmed feature code from `feat/phase-d-dynamic-catalog-publishing-seo` (11 commits) was not yet present on `main`.
+  - Merged `origin/feat/phase-d-dynamic-catalog-publishing-seo` directly into `main` cleanly with 0 merge conflicts.
+  - Reconciled monitoring tracking from `origin/main` to ensure zero branch drift.
+
+- **Resolution of CodeRabbit Review Comment #4296910823 (Catalog Zero-Price Fallback)**:
+  - Addressed root cause in `backend/src/db/postgres.ts`: `mapCatalog()` previously returned `0` when `starting_price_inr` was missing (dropped in migration 0038), resulting in customer-facing catalog displays showing ₹0 instead of actual pricing or "On request".
+  - Updated `startingPriceInr` in `CatalogItemRecord` (`backend/src/types/domain.ts`) to `number | null`.
+  - Updated `mapCatalog()` to evaluate `row.starting_price_inr != null && num(row.starting_price_inr) > 0 ? num(row.starting_price_inr) : null`.
+  - Updated `CreateCatalogObjectSchema` (`backend/src/modules/catalog/catalog.schema.ts`) to allow nullable/optional `startingPriceInr`.
+  - Updated `catalog.service.ts` baseline package and manifest loops to preserve `null` for unpriced items without manufacturing ₹0.
+  - Updated customer frontend (`react/src/services/catalog.ts`, `LivePackageDetailPage.tsx`, `LiveCatalogSection.tsx`) to render "Price on Request" / "On request" and omit structured `offers` when price is not configured.
+  - Added unit regression test in `backend/tests/unit/legacy-schema-reconciliation.test.ts` (P6) verifying `null` starting price handling across API and manifest.
+
+- **Monorepo Verification on Main**:
+  - Verified contracts sync check (`sync-contracts.ts --check`): clean pass.
+  - Executed all test suites: 348 passed (301 backend, 36 customer, 11 admin).
+  - Executed full `npm run verify`: 3 clean typechecks, 0 errors, 59 prerendered SSG pages, 23 redirects, and 3 production builds.
+
 ### 2026-10-16 — Acceptance Audit Remediation: Schema Alignment, Pool Limits & Contract Purity
 
 - **Generic Catalog Schema Alignment (`backend/src/db/postgres.ts`)**:

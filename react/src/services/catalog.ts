@@ -34,7 +34,7 @@ export interface PublicCatalogItem {
   description: string;
   durationText: string;
   routeSummary: string;
-  startingPriceInr: number;
+  startingPriceInr: number | null;
   distanceKm: number | null;
   availability: PublicAvailability;
   seatsLeft: number | null;
@@ -156,7 +156,7 @@ function normalizeItem(raw: Record<string, unknown>): PublicCatalogItem {
     description: String(raw.description ?? ""),
     durationText: String(raw.durationText ?? ""),
     routeSummary: String(raw.routeSummary ?? ""),
-    startingPriceInr: Number(raw.startingPriceInr) || 0,
+    startingPriceInr: raw.startingPriceInr != null && Number(raw.startingPriceInr) > 0 ? Number(raw.startingPriceInr) : null,
     distanceKm:
       raw.distanceKm === null || raw.distanceKm === undefined ? null : Number(raw.distanceKm),
     availability: (raw.availability as PublicAvailability) ?? "available",
@@ -198,7 +198,7 @@ export async function fetchCatalogItemBySlug(slug: string): Promise<PublicCatalo
       const fp = res.fleetPrices as Record<string, number> | undefined;
       const fpValues = fp ? Object.values(fp).filter((v) => typeof v === "number" && v > 0) : [];
       const minPrice = fpValues.length > 0 ? Math.min(...fpValues) : 0;
-      const startingPrice = Number(res.startingPriceInr || res.starting_price_inr || minPrice || 0);
+      const startingPrice = Number(res.startingPriceInr || res.starting_price_inr || minPrice || 0) || null;
       return {
         id: String(res.id ?? slug),
         type: "package",

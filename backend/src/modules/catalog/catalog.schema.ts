@@ -35,7 +35,7 @@ const CreateCatalogObjectSchema = z
       .optional(),
     durationText: z.string().trim().min(1).max(80),
     routeSummary: z.string().trim().min(1).max(280).transform((v) => v.replace(/<[^>]*>/g, "").trim()),
-    startingPriceInr: z.number().positive().max(1000000).finite(),
+    startingPriceInr: z.number().positive().max(1000000).finite().nullable().optional(),
     distanceKm: z.number().nonnegative().max(10000).finite().nullable().optional(),
     availability: z.enum(CATALOG_AVAILABILITY).default("available"),
     seatsLeft: z.number().int().nonnegative().max(500).nullable().optional(),

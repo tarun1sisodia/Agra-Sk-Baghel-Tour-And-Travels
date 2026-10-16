@@ -253,7 +253,7 @@ export type CatalogItemRecord = {
   status: ContentStatus;
   durationText: string;
   routeSummary: string;
-  startingPriceInr: number;
+  startingPriceInr: number | null;
   /** Distance benchmark in km (outstation routes / excursion corridors). */
   distanceKm: number | null;
   availability: CatalogAvailability;

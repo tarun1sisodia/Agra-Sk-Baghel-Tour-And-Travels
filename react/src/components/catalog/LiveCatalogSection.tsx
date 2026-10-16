@@ -197,10 +197,12 @@ export function LiveCatalogSection({
                 <div className="mt-auto pt-4 flex items-end justify-between gap-3">
                   <div>
                     <span className="block font-label-caps text-label-caps uppercase tracking-wider text-on-surface-variant">
-                      Starting from
+                      {item.startingPriceInr != null && item.startingPriceInr > 0 ? "Starting from" : "Tariff"}
                     </span>
                     <span className="font-title-md text-lg font-bold text-ink-charcoal">
-                      ₹{item.startingPriceInr.toLocaleString("en-IN")}
+                      {item.startingPriceInr != null && item.startingPriceInr > 0
+                        ? `₹${item.startingPriceInr.toLocaleString("en-IN")}`
+                        : "On request"}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
