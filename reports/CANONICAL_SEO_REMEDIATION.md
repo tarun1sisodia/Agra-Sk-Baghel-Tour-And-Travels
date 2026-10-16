@@ -5,7 +5,7 @@
 **Inspected baseline:** `32b7be227d8cf76702e1bade0691e66bae8bf898`  
 **Implementation branch:** `fix/canonical-origin-hindi-indexing`  
 **Pull request:** [#71](https://github.com/tarun1sisodia/ArenaAI/pull/71)  
-**Status:** Implementation opened for review; CI verification pending.
+**Status:** Implementation is in draft PR #71. GitHub Actions checks passed on source commit `e50cef11b07bb46fe0930589e0be140f5334d00c`.
 
 ## Findings confirmed from source
 
@@ -30,7 +30,9 @@
 ## Verification and boundaries
 
 - Source-level inspection was performed against the GitHub branch after the edits. The Rental page content guard reports no Devanagari characters, no `isHi` references, and no `RNT-CONFIRMED` literal in that file.
-- Automated GitHub Actions runs were started by PR #71. Final build/test results must be checked before merge.
+- GitHub Actions on the verified source commit passed: customer site quality gate, admin quality gate, backend quality gate, root script guard, and full monorepo verification.
+- The customer quality gate ran with `VITE_SITE_MODE=production`, `RELEASE_BUILD=1`, and the approved `VITE_SITE_URL`; artifact checks passed for 72 HTML files and 49 sitemap URLs.
+- The first artifact-gate run correctly exposed that `dist/assets/brand/index.html` is a non-page sentinel; the validator now skips asset directories, and the subsequent customer build passed.
 - A local install/build/test run was **not completed**: the local environment could not resolve GitHub during repository cloning.
 - No production database migration, production-data mutation, deployment, live browser check, or production hostname fetch was performed.
 
