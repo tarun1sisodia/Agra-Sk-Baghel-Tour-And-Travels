@@ -54,6 +54,10 @@ jobs:
         run: npm run build
         env:
           VITE_BASE_PATH: "/"
+          VITE_SITE_URL: https://agraskbagheltourandtravels.com
+          VITE_SITE_MODE: production
+          VITE_HINDI_INDEXING_ENABLED: "false"
+          RELEASE_BUILD: "1"
           # Prerender runs with --experimental-strip-types; no secrets needed at build time.
 
       - name: Verify dist/ was produced
