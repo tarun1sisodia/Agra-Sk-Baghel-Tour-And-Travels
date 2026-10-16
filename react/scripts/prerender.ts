@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
 import { renderToString } from "react-dom/server";
 import { createElement } from "react";
-import { generateSitemapAndRobots, isSitemapSafeSlug } from "./generate-sitemap.ts";
+import { generateSitemapAndRobots, isSitemapSafeSlug, HINDI_INDEXING_ENABLED } from "./generate-sitemap.ts";
 import { assertBuildSafeSeo, inspectSeoHtml } from "./seo-content-guardrails.ts";
 import { SEO_LANDING_SLUGS } from "../src/data/seoLandingSlugs.ts";
 import { FLEETS } from "../src/data/fleets.ts";
@@ -343,8 +343,10 @@ export async function prerender(): Promise<void> {
       const isBooking = route.endsWith("book.html") || route.includes("/book");
       const is404 = route.includes("404");
       const { language, section } = getMarketingPath(route);
+      const isDisabledHindiPage = language === "hi" && !HINDI_INDEXING_ENABLED;
+      const effectiveLanguage = isDisabledHindiPage ? "en" : language;
       const effectiveSection = is404 ? "404" : (route === "/" || route === "/en/" || route === "/hi/") ? "home" : section;
-      const seo = getSeo(route, effectiveSection, language, isBooking);
+      const seo = getSeo(route, effectiveSection, effectiveLanguage, isBooking);
 
       // Render React component tree to string
       const appHtml = renderToString(createElement(App, { pathname: route }));
@@ -354,16 +356,20 @@ export async function prerender(): Promise<void> {
       const prefix = "../".repeat(Math.max(depth, 0));
 
       // Resolve SEO tags
-      const canonicalPath = normalizePath(route);
+      const normalizedPath = normalizePath(route);
+      const canonicalPath = normalizedPath === "/en/" ? "/" : normalizedPath;
       const canonicalUrl = `${CANONICAL_DOMAIN}${canonicalPath}`;
-      const alternates = resolveHreflangAlternates(route, isBooking || is404);
-      const robotsContent = isBooking || is404
+      const effectiveNoindex = isBooking || is404 || isDisabledHindiPage;
+      const alternates = resolveHreflangAlternates(route, effectiveNoindex);
+      const robotsContent = effectiveNoindex
         ? "noindex, nofollow"
         : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
 
       const ogImageUrl = resolveAbsoluteUrl(seo.ogImage);
-      const ogLocale = language === "hi" ? "hi_IN" : "en_IN";
-      const ogLocaleAlt = language === "hi" ? "en_IN" : "hi_IN";
+      const ogLocale = effectiveLanguage === "hi" ? "hi_IN" : "en_IN";
+      const ogLocaleAlt = HINDI_INDEXING_ENABLED
+        ? (effectiveLanguage === "hi" ? "en_IN" : "hi_IN")
+        : undefined;
 
       // Build consolidated <head> metadata block
       const headTags = [
@@ -381,7 +387,7 @@ export async function prerender(): Promise<void> {
         `<meta property="og:image:height" content="630" />`,
         `<meta property="og:image:alt" content="${escapeHtml(seo.title)}" />`,
         `<meta property="og:locale" content="${ogLocale}" />`,
-        `<meta property="og:locale:alternate" content="${ogLocaleAlt}" />`,
+        ogLocaleAlt ? `<meta property="og:locale:alternate" content="${ogLocaleAlt}" />` : "",
         `<meta property="og:site_name" content="Agra SK Baghel Tour and Travels" />`,
         `<meta property="og:type" content="website" />`,
         `<meta name="twitter:card" content="summary_large_image" />`,
@@ -401,7 +407,7 @@ export async function prerender(): Promise<void> {
       let html = baseTemplate;
 
       // 1. Set html lang attribute
-      html = html.replace(/<html lang="[^"]*"/, `<html lang="${language === "hi" ? "hi-IN" : "en-IN"}" dir="ltr"`);
+      html = html.replace(/<html lang="[^"]*"/, `<html lang="${effectiveLanguage === "hi" ? "hi-IN" : "en-IN"}" dir="ltr"`);
 
       // Extract hoisted head elements (React 19 emits hoisted links at the start of appHtml)
       let cleanAppHtml = appHtml;
