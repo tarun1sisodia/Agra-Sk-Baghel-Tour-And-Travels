@@ -1,3 +1,5 @@
+import { resolveSiteOrigin, type SiteOriginMode } from "./config/siteOrigin";
+
 export type SupportedLanguage = "en" | "hi";
 
 export type SiteContact = {
@@ -26,8 +28,14 @@ export type SiteConfig = {
 
 export const siteConfig: SiteConfig = {
   name: "Agra SK Baghel Tour and Travels",
-  domain:
-    import.meta.env.VITE_SITE_URL || "https://skbagheltravels-customer.coccoder999.workers.dev",
+  domain: resolveSiteOrigin(
+    import.meta.env.VITE_SITE_URL,
+    (import.meta.env.VITE_SITE_MODE === "production"
+      ? "production"
+      : import.meta.env.MODE === "development"
+      ? "development"
+      : "preview") as SiteOriginMode,
+  ),
   defaultLanguage: "en",
   supportedLanguages: ["en", "hi"],
   contact: {
