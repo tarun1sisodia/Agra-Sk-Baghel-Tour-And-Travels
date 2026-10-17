@@ -183,11 +183,20 @@ export function getFallbackPublishedCatalog(): PublishedCatalogResponse {
 // 1. Published Catalog
 export async function fetchPublishedCatalog(): Promise<PublishedCatalogResponse> {
   try {
-    return await apiRequest<PublishedCatalogResponse>(
+    const res = await apiRequest<PublishedCatalogResponse>(
       "/api/v1/catalog",
       { method: "GET" },
       PublishedCatalogResponse
     );
+    if (res && Array.isArray(res.products) && res.products.length > 0 && Array.isArray(res.groups) && res.groups.length > 0) {
+      return res;
+    }
+    const fallback = getFallbackPublishedCatalog();
+    return {
+      products: res?.products && res.products.length > 0 ? res.products : fallback.products,
+      groups: res?.groups && res.groups.length > 0 ? res.groups : fallback.groups,
+      vehicles: res?.vehicles && res.vehicles.length > 0 ? res.vehicles : fallback.vehicles,
+    };
   } catch (err) {
     console.warn("fetchPublishedCatalog: live API unavailable, returning fallback catalog.", err);
     return getFallbackPublishedCatalog();

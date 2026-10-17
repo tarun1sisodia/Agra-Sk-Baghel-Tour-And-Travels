@@ -182,8 +182,13 @@ export async function fetchPublishedCatalog(
   if (filter.type) params.set("type", filter.type);
   if (filter.tripType) params.set("tripType", filter.tripType);
   const qs = params.toString();
-  const data = await getJson<unknown[]>(`/api/v1/catalog${qs ? `?${qs}` : ""}`);
-  return (Array.isArray(data) ? data : []).filter(isRecord).map(normalizeItem);
+  try {
+    const raw = await getJson<any>(`/api/v1/catalog${qs ? `?${qs}` : ""}`);
+    const items = Array.isArray(raw) ? raw : (Array.isArray(raw?.products) ? raw.products : []);
+    return items.filter(isRecord).map(normalizeItem);
+  } catch {
+    return [];
+  }
 }
 
 /** Published catalog item by slug (used by dynamic detail pages). */

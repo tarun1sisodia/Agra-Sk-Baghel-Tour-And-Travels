@@ -210,7 +210,7 @@ async function run() {
         await client.query(
           `INSERT INTO fare_rules (category, vehicle_model_id, tour_package_id, amount, is_active)
            VALUES ('tour_package', $1, $2, $3, true)
-           ON CONFLICT (category, vehicle_model_id, local_package_id, transfer_id, tour_package_id)
+           ON CONFLICT (category, vehicle_model_id, local_package_id, transfer_id, tour_package_id) WHERE is_active
            DO UPDATE SET amount = EXCLUDED.amount, is_active = true;`,
           [pair.modelId, p.id, pair.amt]
         );
@@ -274,19 +274,19 @@ async function run() {
     for (const t of transfers) {
       await client.query(
         `INSERT INTO transfers (
-          id, code, name, direction, hub_name, description, inclusions, exclusions, status, created_at
+          id, code, name, pickup_name, drop_name, description, inclusions, exclusions, status, created_at
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, NOW()
         )
         ON CONFLICT (code) DO UPDATE SET
           name = EXCLUDED.name,
-          direction = EXCLUDED.direction,
-          hub_name = EXCLUDED.hub_name,
+          pickup_name = EXCLUDED.pickup_name,
+          drop_name = EXCLUDED.drop_name,
           description = EXCLUDED.description,
           inclusions = EXCLUDED.inclusions,
           exclusions = EXCLUDED.exclusions,
           status = EXCLUDED.status;`,
-        [t.id, t.code, t.name, t.direction, t.hub_name, t.description, JSON.stringify(t.inclusions), JSON.stringify(t.exclusions), t.status]
+        [t.id, t.code, t.name, "Agra City / Hotel", t.hub_name, t.description, JSON.stringify(t.inclusions), JSON.stringify(t.exclusions), t.status]
       );
 
       // Seed fare_rules for transfer
@@ -303,7 +303,7 @@ async function run() {
         await client.query(
           `INSERT INTO fare_rules (category, vehicle_model_id, transfer_id, amount, is_active)
            VALUES ('transfer', $1, $2, $3, true)
-           ON CONFLICT (category, vehicle_model_id, local_package_id, transfer_id, tour_package_id)
+           ON CONFLICT (category, vehicle_model_id, local_package_id, transfer_id, tour_package_id) WHERE is_active
            DO UPDATE SET amount = EXCLUDED.amount, is_active = true;`,
           [pair.modelId, t.id, pair.amt]
         );
@@ -418,7 +418,7 @@ async function run() {
         await client.query(
           `INSERT INTO fare_rules (category, vehicle_model_id, local_package_id, amount, is_active)
            VALUES ('local_package', $1, $2, $3, true)
-           ON CONFLICT (category, vehicle_model_id, local_package_id, transfer_id, tour_package_id)
+           ON CONFLICT (category, vehicle_model_id, local_package_id, transfer_id, tour_package_id) WHERE is_active
            DO UPDATE SET amount = EXCLUDED.amount, is_active = true;`,
           [pair.modelId, l.id, pair.amt]
         );

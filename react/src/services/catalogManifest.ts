@@ -3,6 +3,9 @@ import { getApiBaseUrl } from "./api";
 import { resolveCatalogMediaUrl } from "./catalog";
 import generatedPublishedLocalPackages from "../data/generated-published-local-packages.json";
 import generatedPublishedTransferRoutes from "../data/generated-published-transfer-routes.json";
+import generatedPublishedTourPackages from "../data/generated-published-tour-packages.json";
+import generatedCatalog from "../data/generated-catalog.json";
+import { getFallbackPublishedCatalog } from "./cleanFareApi";
 
 export interface CompressedRoute {
   o: string;              // Origin
@@ -156,11 +159,12 @@ export async function fetchCatalogManifest(): Promise<CatalogManifestData | null
 }
 
 export async function loadRoutesManifest(): Promise<Record<string, CompressedRoute>> {
+  const staticRoutes = ((generatedCatalog as any)?.routes || {}) as Record<string, CompressedRoute>;
   const manifest = await fetchCatalogManifest();
   if (manifest?.routes && Object.keys(manifest.routes).length > 0) {
-    return manifest.routes;
+    return { ...staticRoutes, ...manifest.routes };
   }
-  return {};
+  return staticRoutes;
 }
 
 export async function loadPublishedPackages(): Promise<TourPackage[]> {
@@ -198,7 +202,8 @@ export async function loadPublishedPackages(): Promise<TourPackage[]> {
     // Manifest snapshot unavailable
   }
 
-  return [];
+  // 3. Fallback to generated-published-tour-packages
+  return ((generatedPublishedTourPackages as any[]) || []).map(toDossierTourPackage);
 }
 
 export function toTourPackage(item: any): TourPackage {
@@ -331,7 +336,8 @@ export async function fetchPublishedTransferRoutes(): Promise<any[]> {
     const res = await fetch(`${apiBase}/api/v1/transfers`, { headers: { Accept: "application/json" } });
     if (res.ok) {
       const json = await res.json();
-      return Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+      const items = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+      if (items.length > 0) return items;
     }
   } catch {
     // Return empty on offline/static
@@ -346,7 +352,8 @@ export async function fetchPublishedLocalTransfers(): Promise<any[]> {
     const res = await fetch(`${apiBase}/api/v1/local-tours`, { headers: { Accept: "application/json" } });
     if (res.ok) {
       const json = await res.json();
-      return Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+      const items = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+      if (items.length > 0) return items;
     }
   } catch {
     // Return empty on offline/static
@@ -362,12 +369,13 @@ export async function fetchFleet(): Promise<any[]> {
     if (res.ok) {
       const json = await res.json();
       const payload = json?.data ?? json;
-      return Array.isArray(payload?.vehicles) ? payload.vehicles : Array.isArray(payload) ? payload : [];
+      const vehicles = Array.isArray(payload?.vehicles) ? payload.vehicles : Array.isArray(payload) ? payload : [];
+      if (vehicles.length > 0) return vehicles;
     }
   } catch {
     // Return empty on offline/static
   }
-  return [];
+  return getFallbackPublishedCatalog().vehicles;
 }
 
 

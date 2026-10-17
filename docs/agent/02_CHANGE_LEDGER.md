@@ -2,6 +2,32 @@
 
 ## 2026-10-17
 
+### 2026-10-17 — Canonical Catalog API URL Audit, Seeding & Zero-Empty Frontend Fallback Hardening
+
+- **Supermemory & API Structure Audit**:
+  - Queried Supermemory (`sk_baghel_travels`) for canonical catalog endpoint patterns and conventions (C-CATALOG-001, single source of truth risk when static manifests override or get overwritten).
+  - Verified the exact canonical public URLs on Fastify backend vs Customer React frontend:
+    - `GET /api/v1/catalog`: Returns `{ products: [...], groups: [...], vehicles: [...] }` (4 canonical groups: sedan, suv, luxury, tempo_traveller).
+    - `GET /api/v1/catalog/manifest`: Returns compressed route matrix and published packages.
+    - `GET /api/v1/catalog/:category/:code`: Detail handler for outstation, local_package, transfer, and tour_package.
+    - `GET /api/v1/tour-packages/manifest`: Returns published tour packages.
+    - `GET /api/v1/transfers` & `GET /api/v1/local-tours`: Returns transfers and local sightseeing packages.
+    - `GET /api/v1/fleet`: Returns live fleet models grouped under the 4 canonical groups.
+- **Root Cause of Empty Customer Site on Wiped DB**:
+  - When the database is wiped, backend returns HTTP 200 OK with empty arrays (`products: []`, `routes: {}`, `packages: []`).
+  - Frontend services (`cleanFareApi.ts`, `catalogManifest.ts`, `catalog.ts`) previously treated empty 200 OK responses as valid data, replacing good static fallback catalogs with empty objects and wiping out the UI.
+- **Frontend Fallback Guard Hardening**:
+  - `cleanFareApi.ts` (`fetchPublishedCatalog`): If live API returns empty `products` or `groups`, gracefully merges with `getFallbackPublishedCatalog()`.
+  - `catalogManifest.ts` (`loadRoutesManifest`): Merges live `manifest.routes` with `generatedCatalog.routes` (963 routes) so routes are never wiped out.
+  - `catalogManifest.ts` (`loadPublishedPackages`, `fetchPublishedTransferRoutes`, `fetchPublishedLocalTransfers`, `fetchFleet`): Only overrides fallbacks when live array length > 0.
+  - `catalog.ts` (`fetchPublishedCatalog`): Correctly unpacks `{ products: [...] }` object response instead of expecting a raw array.
+- **Database Canonical Catalog Seeding**:
+  - Fixed `backend/scripts/seed-canonical-catalog.ts` SQL conflict targets (`WHERE is_active`) and `transfers` columns (`pickup_name`, `drop_name`).
+  - Re-seeded 4 vehicle groups, 10 vehicle models, 70 fare rules, 3 tour packages, 4 transfers, and 5 local packages.
+- **Live Browser & Monorepo Test Verification**:
+  - Verified live in browser: Home Booking Widget, Fleet Section, Routes directory (`/en/routes/`), Packages directory (`/en/packages/`), and Rental showroom (`/en/taxis/rent/`) all render full dynamic data with 0 errors.
+  - All 357 tests passed (backend: 306, customer: 40, admin: 11) and `npm run typecheck` passed with 0 errors across all 3 applications.
+
 ### 2026-10-17 — Live Browser QA & Customer Interface Verification
 
 - **Packages Page Null-Reference Error Resolved (`PackagesPage.tsx`)**:
