@@ -3,6 +3,8 @@ import type { CreateBookingRequest, QuoteResponse } from "../../contracts/fare-s
 import type { BookingsRepository, BookingEntity } from "./bookings.repository.js";
 import type { QuotesService } from "../quotes/quotes.service.js";
 
+const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
 export class PriceChangedError extends Error {
   constructor(public freshQuote: QuoteResponse) {
     super("PRICE_CHANGED");
@@ -67,6 +69,9 @@ export class BookingsService {
   }
 
   async getBookingById(id: string): Promise<BookingEntity | null> {
+    if (!UUID_REGEX.test(id)) {
+      return null;
+    }
     return this.bookingsRepo.getById(id);
   }
 

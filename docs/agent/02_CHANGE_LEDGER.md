@@ -2,6 +2,27 @@
 
 ## 2026-10-17
 
+### 2026-10-17 — End-to-End Multi-Vertical Booking Verification (Tour Package, Local Sightseeing, Transfers & Outstation) & Zero-Flash Booking Page Hardening
+
+- **Clean Booking Page Instant Load & Zero-Flash Hardening (`CleanBookingPage.tsx`)**:
+  - Replaced blocking full-page catalog spinner with synchronous initialization from `getFallbackPublishedCatalog()`.
+  - Added `resolveProductFromCatalog()` helper to resolve initial category and product code immediately on frame 0, starting live quotes without layout shift or UI delay.
+  - Background live catalog sync (`fetchPublishedCatalog()`) updates products seamlessly without blocking user interaction or throwing errors on initial render.
+- **Backend Booking Lookup Hardening (`bookings.service.ts`)**:
+  - Added UUID regex validation to `getBookingById()` before executing SQL query against PostgreSQL `bookings.id` UUID column.
+  - Prevents PostgreSQL `invalid input syntax for type uuid` errors when looking up bookings by Ticket ID (`AGR-...`), allowing safe fallthrough to `getBookingByTicketId()`.
+- **Client Fare API Response Unpacking (`cleanFareApi.ts`)**:
+  - Hardened `createBooking()`, `fetchBookingById()`, and `createBookingPayment()` to cleanly unpack wrapped `{ success: true, booking: { ... } }` responses from the Fastify API into contract-compliant `BookingDetailResponse`, `BookingCreateResponse`, and `PaymentOrderResponse`.
+  - Maps vehicle models and product names gracefully so customer confirmation vouchers (`/booking/confirmation?id=...`) render cleanly with zero contract validation errors.
+- **Live Multi-Vertical Booking Verification Completed (PostgreSQL & Browser UI)**:
+  - **Tour Package**: Booked `Same Day Agra Taj Mahal Tour` (`d0000000-0000-4000-a000-000000000001`) with Maruti Dzire for Vikram Malhotra. Ticket ID: `AGR-20261017-5222` (Total: ₹3,499, Advance: ₹980). Voucher verified in browser.
+  - **Local Sightseeing Tour**: Booked `Agra Standard Sightseeing (8 Hours / 80 Km)` (`f0000000-0000-4000-a000-000000000001`) with Maruti Dzire for Ananya Sharma. Ticket ID: `AGR-20261017-6032` (Total: ₹1,900, Advance: ₹532). Voucher verified in browser.
+  - **Airport / Station Transfer**: Booked `Agra Cantt Railway Station (AGC) Transfer` (`e0000000-0000-4000-a000-000000000001`) with Maruti Dzire for Karan Kapoor. Ticket ID: `AGR-20261017-1027` (Total: ₹800, Advance: ₹224).
+  - **Outstation Corridor**: Booked for Rohan Sharma. Ticket ID: `AGR-20261017-9056` (Total: ₹2,500, Advance: ₹700).
+  - **Admin Operations Desk Verification**: Verified all 4 bookings appear in the live Admin Desk (`http://localhost:5174/bookings`) with real-time status `Pending payment`, correct customer names, vehicle classes, and total amounts.
+- **Monorepo Build Verification**:
+  - Full `npm run verify` passed: 4 typechecks clean (contracts, customer, admin, backend), 357 passing tests, SSG 72 pages + 23 redirects rendered, and 3 production builds green.
+
 ### 2026-10-17 — Cloudflare Build 404 Resolution, 876 Route Database Ingestion, Customer Manifest Decoupling & Admin Quick Access
 
 - **Cloudflare Release Build Unblocked (`react/scripts/build-manifest.ts`, `react/scripts/catalog-sources.ts`)**:

@@ -27,6 +27,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import {
   fetchPublishedCatalog,
+  getFallbackPublishedCatalog,
   fetchQuoteOptions,
   createBooking,
   createBookingPayment,
@@ -105,6 +106,76 @@ const MONUMENT_TO_PACKAGE_MAP: Record<string, string> = {
   "ram-bagh-to-sikandra-tour": "agra-fort-heritage-tour",
 };
 
+function resolveProductFromCatalog(
+  cat: PublishedCatalogResponse,
+  targetCategory: CategoryCode,
+  productParam: string,
+  fromParam: string,
+  toParam: string
+): { category: CategoryCode; code: string } {
+  let matchedProduct: PublishedProductSummary | undefined;
+  const cleanParam = productParam.replace(/-(?:taxi|services|service)$/i, "").trim().toLowerCase();
+
+  if (cleanParam) {
+    const mappedCode = (MONUMENT_TO_PACKAGE_MAP[cleanParam] || MONUMENT_TO_PACKAGE_MAP[productParam] || cleanParam).toLowerCase();
+    matchedProduct = cat.products.find(
+      (p) =>
+        p.code.toLowerCase() === mappedCode ||
+        p.id.toLowerCase() === mappedCode ||
+        p.code.toLowerCase() === cleanParam ||
+        p.id.toLowerCase() === productParam.toLowerCase()
+    );
+
+    if (!matchedProduct) {
+      matchedProduct = cat.products.find((p) => {
+        const pCode = p.code.toLowerCase();
+        return (
+          pCode === cleanParam ||
+          pCode.replace(/-/g, "").includes(cleanParam.replace(/-/g, "")) ||
+          cleanParam.replace(/-/g, "").includes(pCode.replace(/-/g, ""))
+        );
+      });
+    }
+  }
+
+  if (!matchedProduct && (toParam || (fromParam && toParam))) {
+    const mappedFromTo = MONUMENT_TO_PACKAGE_MAP[toParam.trim().toLowerCase()];
+    if (mappedFromTo) {
+      matchedProduct = cat.products.find((p) => p.code.toLowerCase() === mappedFromTo);
+    }
+    if (!matchedProduct && fromParam && toParam) {
+      matchedProduct = cat.products.find((p) => {
+        const pCode = p.code.toLowerCase();
+        const pName = p.name.toLowerCase();
+        return (
+          (pCode.includes(fromParam) && pCode.includes(toParam)) ||
+          (pName.includes(fromParam) && pName.includes(toParam))
+        );
+      });
+    }
+    if (!matchedProduct && toParam) {
+      matchedProduct = cat.products.find((p) => {
+        const pCode = p.code.toLowerCase();
+        const pName = p.name.toLowerCase();
+        return pCode.includes(toParam) || pName.includes(toParam);
+      });
+    }
+  }
+
+  if (matchedProduct) {
+    return { category: matchedProduct.category, code: matchedProduct.code };
+  }
+
+  const availableInCat = cat.products.filter((p) => p.category === targetCategory);
+  if (availableInCat.length > 0) {
+    return { category: targetCategory, code: availableInCat[0].code };
+  }
+  if (cat.products.length > 0) {
+    return { category: cat.products[0].category, code: cat.products[0].code };
+  }
+  return { category: targetCategory, code: "" };
+}
+
 export function CleanBookingPage() {
   // 1. Initial State from URL Search Params
   const searchParams = useMemo(() => {
@@ -124,12 +195,18 @@ export function CleanBookingPage() {
   const initialTo = (normalizedParams.to || "").toLowerCase();
   const initialVehicle = (normalizedParams.car || "").toLowerCase();
 
-  // 2. Selection Parameters
-  const [catalog, setCatalog] = useState<PublishedCatalogResponse | null>(null);
-  const [catalogLoading, setCatalogLoading] = useState(true);
+  // 2. Synchronous Baseline Catalog for Instant Zero-Flash Interaction
+  const baselineCatalog = useMemo(() => getFallbackPublishedCatalog(), []);
+  const initialSelection = useMemo(
+    () => resolveProductFromCatalog(baselineCatalog, initialCategory, initialProductParam, initialFrom, initialTo),
+    [baselineCatalog, initialCategory, initialProductParam, initialFrom, initialTo]
+  );
 
-  const [category, setCategory] = useState<CategoryCode>(initialCategory);
-  const [selectedProductCode, setSelectedProductCode] = useState<string>(initialProductParam);
+  const [catalog, setCatalog] = useState<PublishedCatalogResponse>(baselineCatalog);
+  const [catalogLoading, setCatalogLoading] = useState(false);
+
+  const [category, setCategory] = useState<CategoryCode>(initialSelection.category);
+  const [selectedProductCode, setSelectedProductCode] = useState<string>(initialSelection.code);
   const [unmatchedRouteError, setUnmatchedRouteError] = useState<string | null>(null);
   const [tripType, setTripType] = useState<"one_way" | "round_trip">(initialTripType);
   const [passengerCount, setPassengerCount] = useState<number>(initialPassengers);
@@ -215,7 +292,7 @@ export function CleanBookingPage() {
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Load Catalog on mount
+  // Revalidate with live database catalog in background
   useEffect(() => {
     let active = true;
     fetchPublishedCatalog()
@@ -223,80 +300,20 @@ export function CleanBookingPage() {
         if (!active) return;
         setCatalog(data);
 
-        // Smart match product from URL params
-        let matchedProduct: PublishedProductSummary | undefined;
-
-        const cleanParam = initialProductParam
-          .replace(/-(?:taxi|services|service)$/i, "")
-          .trim()
-          .toLowerCase();
-
-        if (cleanParam) {
-          const mappedCode = (MONUMENT_TO_PACKAGE_MAP[cleanParam] || MONUMENT_TO_PACKAGE_MAP[initialProductParam] || cleanParam).toLowerCase();
-          matchedProduct = data.products.find(
-            (p) =>
-              p.code.toLowerCase() === mappedCode ||
-              p.id.toLowerCase() === mappedCode ||
-              p.code.toLowerCase() === cleanParam ||
-              p.id.toLowerCase() === initialProductParam
-          );
-
-          if (!matchedProduct) {
-            matchedProduct = data.products.find((p) => {
-              const pCode = p.code.toLowerCase();
-              return (
-                pCode === cleanParam ||
-                pCode.replace(/-/g, "").includes(cleanParam.replace(/-/g, "")) ||
-                cleanParam.replace(/-/g, "").includes(pCode.replace(/-/g, ""))
-              );
-            });
-          }
-        }
-
-        if (!matchedProduct && (initialTo || (initialFrom && initialTo))) {
-          const mappedFromTo = MONUMENT_TO_PACKAGE_MAP[initialTo.trim().toLowerCase()];
-          if (mappedFromTo) {
-            matchedProduct = data.products.find((p) => p.code.toLowerCase() === mappedFromTo);
-          }
-          if (!matchedProduct && initialFrom && initialTo) {
-            matchedProduct = data.products.find((p) => {
-              const pCode = p.code.toLowerCase();
-              const pName = p.name.toLowerCase();
-              return (
-                (pCode.includes(initialFrom) && pCode.includes(initialTo)) ||
-                (pName.includes(initialFrom) && pName.includes(initialTo))
-              );
-            });
-          }
-          if (!matchedProduct && initialTo) {
-            matchedProduct = data.products.find((p) => {
-              const pCode = p.code.toLowerCase();
-              const pName = p.name.toLowerCase();
-              return pCode.includes(initialTo) || pName.includes(initialTo);
-            });
-          }
-        }
-
-        if (matchedProduct) {
-          setCategory(matchedProduct.category);
-          setSelectedProductCode(matchedProduct.code);
-          setUnmatchedRouteError(null);
-        } else {
-          // Fall back gracefully to the first product in the requested category so quote options load
-          const availableInCat = data.products.filter((p) => p.category === initialCategory);
-          if (availableInCat.length > 0) {
-            setSelectedProductCode(availableInCat[0].code);
-            setCategory(initialCategory);
-            setUnmatchedRouteError(null);
-          } else if (data.products.length > 0) {
-            setSelectedProductCode(data.products[0].code);
-            setCategory(data.products[0].category);
-            setUnmatchedRouteError(null);
-          }
-        }
+        // Keep current product if still present in live catalog, otherwise re-resolve
+        const resolved = resolveProductFromCatalog(data, initialCategory, initialProductParam, initialFrom, initialTo);
+        setCategory((prevCat) => {
+          const catExists = data.products.some((p) => p.category === prevCat);
+          return catExists ? prevCat : resolved.category;
+        });
+        setSelectedProductCode((prevCode) => {
+          const codeExists = data.products.some((p) => p.code === prevCode);
+          return codeExists ? prevCode : resolved.code;
+        });
+        setUnmatchedRouteError(null);
       })
       .catch((err) => {
-        console.error("Failed to load published catalog:", err);
+        console.warn("fetchPublishedCatalog background refresh warning:", err);
       })
       .finally(() => {
         if (active) setCatalogLoading(false);
@@ -304,7 +321,7 @@ export function CleanBookingPage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [initialCategory, initialProductParam, initialFrom, initialTo]);
 
   // Update selected product when category changes
   const productsInCategory = useMemo(() => {
@@ -607,7 +624,7 @@ export function CleanBookingPage() {
     }
   };
 
-  if (catalogLoading) {
+  if (catalogLoading && (!catalog || catalog.products.length === 0)) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center bg-bg">
         <div className="text-center">
