@@ -27,6 +27,9 @@ export function normalizeBookingUrlParams(
 ): NormalizedBookingInitialState {
   const rawCat = (
     searchParams.get("category") ||
+    searchParams.get("service") ||
+    searchParams.get("serviceType") ||
+    searchParams.get("service_type") ||
     searchParams.get("type") ||
     ""
   ).toLowerCase();
@@ -38,10 +41,18 @@ export function normalizeBookingUrlParams(
   ).toLowerCase();
 
   let category: CategoryCode = "outstation";
-  if (rawCat === "local_package" || rawCat === "local" || rawTrip === "local") {
+  if (
+    rawCat === "local_package" ||
+    rawCat === "local" ||
+    rawCat === "localtour" ||
+    rawCat === "local-tour" ||
+    rawCat === "local_tour" ||
+    rawTrip === "local"
+  ) {
     category = "local_package";
   } else if (
     rawCat === "transfer" ||
+    rawCat === "transfers" ||
     rawCat === "airport" ||
     rawTrip === "transfer" ||
     rawTrip === "airport-transfer"
@@ -50,7 +61,11 @@ export function normalizeBookingUrlParams(
   } else if (
     rawCat === "tour_package" ||
     rawCat === "package" ||
-    rawTrip === "package"
+    rawCat === "packages" ||
+    rawCat === "tour" ||
+    rawCat === "tours" ||
+    rawTrip === "package" ||
+    Boolean(searchParams.get("package") || searchParams.get("pkg"))
   ) {
     category = "tour_package";
   } else if (rawCat === "outstation" || rawTrip === "outstation") {

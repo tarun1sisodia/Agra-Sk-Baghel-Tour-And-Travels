@@ -34,7 +34,7 @@ for (const svc of services) {
     cwd: svc.cwd,
     stdio: ["ignore", "pipe", "pipe"],
     shell: isWindows,
-    env: { ...process.env, FORCE_COLOR: "1" },
+    env: { ...process.env, NODE_ENV: "development", FORCE_COLOR: "1" },
   });
 
   child.stdout?.on("data", (data) => {

@@ -29,6 +29,15 @@ const PaymentResumePage = lazy(() => import("../pages/PaymentResumePage").then((
 const BookingConfirmationPage = lazy(() => import("../pages/BookingConfirmationPage").then((m) => ({ default: m.BookingConfirmationPage })));
 const LoginPage = lazy(() => import("../pages/LoginPage").then((m) => ({ default: m.LoginPage })));
 const MonumentsPage = lazy(() => import("../pages/MonumentsPage").then((m) => ({ default: m.MonumentsPage })));
+const TransferDetailPage = lazy(() => import("../pages/TransferDetailPage").then((m) => ({ default: m.TransferDetailPage })));
+const LocalPackageDetailPage = lazy(() => import("../pages/LocalPackageDetailPage").then((m) => ({ default: m.LocalPackageDetailPage })));
+const MonumentDetailPage = lazy(() => import("../pages/MonumentDetailPage").then((m) => ({ default: m.MonumentDetailPage })));
+import generatedPublishedTransferRoutes from "../data/generated-published-transfer-routes.json";
+import generatedPublishedLocalPackages from "../data/generated-published-local-packages.json";
+import generatedPublishedContent from "../data/generated-published-content.json";
+import type { DossierTransferRouteItem } from "../pages/TransferDetailPage";
+import type { DossierLocalPackageItem } from "../pages/LocalPackageDetailPage";
+import type { DossierMonumentItem } from "../pages/MonumentDetailPage";
 import { SEO_LANDING_SLUGS, type SeoLandingSlug } from "../data/seoLandingSlugs";
 import { titleCaseSlug } from "../utils/format";
 import { marketingHubs } from "./routes";
@@ -471,6 +480,10 @@ export function App({ pathname: propPathname }: AppProps = {}) {
     };
   }, [section, pathname, matchedRoute, isHome, isBooking, isMarketingHub]);
 
+  const dossierTourPackage = pathname.includes("/packages/")
+    ? (generatedPublishedTourPackages as any[]).find((item) => pathname.replace(/\/$/, "").endsWith(`/packages/${item.slug}`))
+    : undefined;
+
   const matchedPackage = pathname.includes("/packages/") && publishedPackages.find((item) => {
     const p = pathname.replace(/\/$/, "");
     return p.endsWith(`/${item.slug}`) || p.endsWith(item.slug);
@@ -480,9 +493,29 @@ export function App({ pathname: propPathname }: AppProps = {}) {
   // resolved against the backend catalog at runtime (single source of trips).
   const livePackageSlug =
     !matchedPackage &&
+    !dossierTourPackage &&
     /\/packages\/[a-z0-9-]+/i.test(pathname.replace(/\.html$/, ""))
       ? (pathname.replace(/\/$/, "").replace(/\.html$/, "").match(/\/packages\/([a-z0-9-]+)/i)?.[1] ?? null)
       : null;
+
+  const dossierTransferRoute = pathname.includes("/transfers/")
+    ? (generatedPublishedTransferRoutes as unknown as DossierTransferRouteItem[]).find((item) =>
+        pathname.replace(/\/$/, "").endsWith(`/transfers/${item.slug}`)
+      )
+    : undefined;
+
+  const dossierLocalPackage = pathname.includes("/local-packages/")
+    ? (generatedPublishedLocalPackages as unknown as DossierLocalPackageItem[]).find((item) =>
+        pathname.replace(/\/$/, "").endsWith(`/local-packages/${item.slug}`)
+      )
+    : undefined;
+
+  const dossierMonument = pathname.includes("/monuments/")
+    ? (((generatedPublishedContent as any)?.monuments || []) as DossierMonumentItem[]).find((item) => {
+        const slug = item.slug ?? item.monumentCode ?? (item.name ? item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "");
+        return pathname.replace(/\/$/, "").endsWith(`/monuments/${slug}`);
+      })
+    : undefined;
 
   const matchedVehicle =
     (pathname.includes("/vehicles/") || pathname.includes("/fleet/")) &&
@@ -498,15 +531,19 @@ export function App({ pathname: propPathname }: AppProps = {}) {
     isPrivateCustomerPage ||
     isMarketingHub ||
     isRental ||
+    Boolean(activeRoute) ||
+    Boolean(dossierTourPackage) ||
+    Boolean(matchedPackage) ||
+    Boolean(livePackageSlug) ||
+    Boolean(dossierTransferRoute) ||
+    Boolean(dossierLocalPackage) ||
+    Boolean(dossierMonument) ||
     Boolean(cleanProductMatch) ||
     section === "monuments" ||
     cleanPath === "/monuments" ||
     cleanPath === "/en/monuments" ||
-    Boolean(activeRoute) ||
-    Boolean(matchedPackage) ||
     Boolean(matchedVehicle) ||
     isSeoLanding ||
-    Boolean(livePackageSlug) ||
     publishedPackages.some((item) => pathname.endsWith(item.slug) || pathname.endsWith(item.slug + "/"));
 
   const is404 =
@@ -551,29 +588,37 @@ export function App({ pathname: propPathname }: AppProps = {}) {
             <BookingConfirmationPage />
           ) : isBooking ? (
             <BookingPage />
-          ) : isRental ? (
-            <RentalPage language={language} />
-          ) : cleanProductMatch ? (
-            <ProductDetailPage category={cleanProductMatch.category} code={cleanProductMatch.code} />
           ) : isHome ? (
             <HomePage language={language} />
           ) : activeRoute ? (
             <RouteDetailPage language={language} route={activeRoute} />
+          ) : dossierTourPackage ? (
+            <PackageDetailPage language={language} pkg={toDossierTourPackage(dossierTourPackage)} />
           ) : matchedPackage ? (
             <PackageDetailPage language={language} pkg={matchedPackage} />
           ) : livePackageSlug ? (
             <DynamicPackageDetailPage language={language} slug={livePackageSlug} />
-        ) : matchedVehicle ? (
-          <VehicleDetailPage language={language} vehicle={matchedVehicle} />
-        ) : isSeoLanding ? (
-          <SeoLandingPage slug={section as SeoLandingSlug} />
+          ) : dossierTransferRoute ? (
+            <TransferDetailPage language={language} item={dossierTransferRoute} />
+          ) : dossierLocalPackage ? (
+            <LocalPackageDetailPage language={language} item={dossierLocalPackage} />
+          ) : dossierMonument ? (
+            <MonumentDetailPage language={language} item={dossierMonument} />
+          ) : isRental ? (
+            <RentalPage language={language} />
+          ) : cleanProductMatch ? (
+            <ProductDetailPage category={cleanProductMatch.category} code={cleanProductMatch.code} />
+          ) : matchedVehicle ? (
+            <VehicleDetailPage language={language} vehicle={matchedVehicle} />
+          ) : isSeoLanding ? (
+            <SeoLandingPage slug={section as SeoLandingSlug} />
           ) : section === "services" ? (
             <ServicesPage language={language} />
           ) : section === "routes" ? (
             <RoutesPage language={language} />
           ) : section === "packages" ? (
             <PackagesPage language={language} />
-          ) : section === "monuments" || cleanPath === "/monuments" ? (
+          ) : section === "monuments" || cleanPath === "/monuments" || cleanPath === "/en/monuments" ? (
             <MonumentsPage language={language} />
           ) : section === "fleet" ? (
             <FleetPage language={language} />

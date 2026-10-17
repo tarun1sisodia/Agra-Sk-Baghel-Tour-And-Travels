@@ -67,7 +67,7 @@ export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
   const tokenAdvance = Math.round(startingFare * 0.28);
   const fareDateFormatted = formatFareDate(item.updatedAt);
 
-  const bookingUrl = `/book.html?trip=local&package=${encodeURIComponent(item.slug)}&step=1`;
+  const bookingUrl = `/book.html?category=local_package&product=${encodeURIComponent(item.slug)}&from=Agra&to=${encodeURIComponent(item.name)}&car=sedan`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
     `Hello Agra SK Baghel Tour & Travels, I want to book local sightseeing package "${item.name}" from ₹${startingFare.toLocaleString("en-IN")}.`
   )}`;
@@ -339,7 +339,7 @@ export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
 
                   <a
                     className="mt-space-md w-full inline-flex items-center justify-center gap-1 bg-terracotta-deep text-white py-2.5 rounded text-label-lg font-label-lg shadow-sm hover:bg-terracotta-sunlit transition-all text-center"
-                    href={`/book.html?trip=local&package=${encodeURIComponent(item.slug)}&vehicle=${tier}&step=1`}
+                    href={`/book.html?category=local_package&product=${encodeURIComponent(item.slug)}&from=Agra&to=${encodeURIComponent(item.name)}&car=${tier}&step=1`}
                   >
                     <span>Select {tier === "innova-crysta" ? "Innova" : tier.split("-")[0]}</span>
                     <span className="material-symbols-outlined text-icon-16">arrow_forward</span>

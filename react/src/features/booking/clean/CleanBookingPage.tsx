@@ -95,6 +95,14 @@ const MONUMENT_TO_PACKAGE_MAP: Record<string, string> = {
   "aram-bagh": "agra-standard-sightseeing",
   "aram bagh": "agra-standard-sightseeing",
   "ram bagh": "agra-standard-sightseeing",
+  "same-day-tour-of-fatehpur-sikri": "fatehpur-sikri-tour",
+  "same-day-fatehpur-sikri": "fatehpur-sikri-tour",
+  "gatimaan-express": "gatimaan-express-agra-tour",
+  "golden-triangle-3d": "golden-triangle",
+  "agra-unhurried": "agra-sightseeing",
+  "same-day-agra-tour": "agra-sightseeing",
+  "agra-8h-80km": "agra-fort-heritage-tour",
+  "ram-bagh-to-sikandra-tour": "agra-fort-heritage-tour",
 };
 
 export function CleanBookingPage() {
@@ -218,15 +226,31 @@ export function CleanBookingPage() {
         // Smart match product from URL params
         let matchedProduct: PublishedProductSummary | undefined;
 
-        if (initialProductParam) {
-          const mappedCode = MONUMENT_TO_PACKAGE_MAP[initialProductParam] || initialProductParam;
+        const cleanParam = initialProductParam
+          .replace(/-(?:taxi|services|service)$/i, "")
+          .trim()
+          .toLowerCase();
+
+        if (cleanParam) {
+          const mappedCode = (MONUMENT_TO_PACKAGE_MAP[cleanParam] || MONUMENT_TO_PACKAGE_MAP[initialProductParam] || cleanParam).toLowerCase();
           matchedProduct = data.products.find(
             (p) =>
-              p.code.toLowerCase() === mappedCode.toLowerCase() ||
-              p.id.toLowerCase() === mappedCode.toLowerCase() ||
-              p.code.toLowerCase() === initialProductParam ||
+              p.code.toLowerCase() === mappedCode ||
+              p.id.toLowerCase() === mappedCode ||
+              p.code.toLowerCase() === cleanParam ||
               p.id.toLowerCase() === initialProductParam
           );
+
+          if (!matchedProduct) {
+            matchedProduct = data.products.find((p) => {
+              const pCode = p.code.toLowerCase();
+              return (
+                pCode === cleanParam ||
+                pCode.replace(/-/g, "").includes(cleanParam.replace(/-/g, "")) ||
+                cleanParam.replace(/-/g, "").includes(pCode.replace(/-/g, ""))
+              );
+            });
+          }
         }
 
         if (!matchedProduct && (initialTo || (initialFrom && initialTo))) {
@@ -244,24 +268,31 @@ export function CleanBookingPage() {
               );
             });
           }
+          if (!matchedProduct && initialTo) {
+            matchedProduct = data.products.find((p) => {
+              const pCode = p.code.toLowerCase();
+              const pName = p.name.toLowerCase();
+              return pCode.includes(initialTo) || pName.includes(initialTo);
+            });
+          }
         }
 
         if (matchedProduct) {
           setCategory(matchedProduct.category);
           setSelectedProductCode(matchedProduct.code);
           setUnmatchedRouteError(null);
-        } else if (!initialProductParam && !(initialFrom && initialTo)) {
-          // Pre-select first product in category only if no specific route was requested
+        } else {
+          // Fall back gracefully to the first product in the requested category so quote options load
           const availableInCat = data.products.filter((p) => p.category === initialCategory);
           if (availableInCat.length > 0) {
             setSelectedProductCode(availableInCat[0].code);
+            setCategory(initialCategory);
+            setUnmatchedRouteError(null);
+          } else if (data.products.length > 0) {
+            setSelectedProductCode(data.products[0].code);
+            setCategory(data.products[0].category);
+            setUnmatchedRouteError(null);
           }
-        } else {
-          // Specific route or product requested was not found in published catalog
-          setSelectedProductCode("");
-          setUnmatchedRouteError(
-            initialProductParam || `${normalizedParams.from || initialFrom} to ${normalizedParams.to || initialTo}`
-          );
         }
       })
       .catch((err) => {
@@ -283,17 +314,16 @@ export function CleanBookingPage() {
 
   useEffect(() => {
     if (unmatchedRouteError) {
-      setSelectedProductCode("");
       return;
     }
     if (productsInCategory.length > 0) {
-      if (!productsInCategory.some((p) => p.code === selectedProductCode)) {
+      if (!selectedProductCode || !productsInCategory.some((p) => p.code === selectedProductCode)) {
         setSelectedProductCode(productsInCategory[0].code);
       }
     } else {
       setSelectedProductCode("");
     }
-  }, [category, productsInCategory, unmatchedRouteError]);
+  }, [category, productsInCategory, selectedProductCode, unmatchedRouteError]);
 
   // Active product summary
   const activeProduct = useMemo<PublishedProductSummary | null>(() => {
@@ -371,11 +401,21 @@ export function CleanBookingPage() {
               if (matched) return { vehicle: matched, quote: matched.quote };
             }
             if (initialVehicle) {
-              const vehicleMatch = allVehicles.find((v) =>
-                v.quote.vehicle.group_code.toLowerCase() === initialVehicle ||
-                v.display_name.toLowerCase().includes(initialVehicle) ||
-                v.vehicle_model_id?.toLowerCase() === initialVehicle
-              );
+              const cleanInitial = initialVehicle.replace(/[-_]/g, "").toLowerCase();
+              const vehicleMatch = allVehicles.find((v) => {
+                const group = v.quote.vehicle.group_code.toLowerCase();
+                const cleanGroup = group.replace(/[-_]/g, "");
+                const name = v.display_name.toLowerCase();
+                const modelId = (v.vehicle_model_id || "").toLowerCase();
+                return (
+                  group === initialVehicle ||
+                  cleanGroup.includes(cleanInitial) ||
+                  cleanInitial.includes(cleanGroup) ||
+                  name.includes(initialVehicle) ||
+                  name.replace(/[-_]/g, "").includes(cleanInitial) ||
+                  modelId === initialVehicle
+                );
+              });
               if (vehicleMatch) return { vehicle: vehicleMatch, quote: vehicleMatch.quote };
             }
             return { vehicle: allVehicles[0], quote: allVehicles[0].quote };
@@ -617,7 +657,16 @@ export function CleanBookingPage() {
                   <button
                     key={cat.code}
                     type="button"
-                    onClick={() => setCategory(cat.code)}
+                    onClick={() => {
+                      setCategory(cat.code);
+                      setUnmatchedRouteError(null);
+                      const inCat = catalog?.products.filter((p) => p.category === cat.code) || [];
+                      if (inCat.length > 0) {
+                        setSelectedProductCode(inCat[0].code);
+                      } else {
+                        setSelectedProductCode("");
+                      }
+                    }}
                     className={cn(
                       "rounded-md border p-3 text-left transition-colors",
                       category === cat.code

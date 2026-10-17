@@ -816,7 +816,7 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
             const packageDetailUrl = `/en/packages/${pkg.slug}`;
             const fromParam = encodeURIComponent(pkg.source || "Agra");
             const toParam = encodeURIComponent(pkg.destination || pkg.name);
-            const bookStep1Url = `/book.html?trip=package&package=${encodeURIComponent(pkg.slug)}&from=${fromParam}&to=${toParam}&step=1`;
+            const bookStep1Url = `/book.html?category=tour_package&product=${encodeURIComponent(pkg.slug)}&from=${fromParam}&to=${toParam}`;
             const whatsappPackageUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
               `Hello Agra SK Baghel Tour and Travels, I am interested in the ${pkg.name}.`
             )}`;

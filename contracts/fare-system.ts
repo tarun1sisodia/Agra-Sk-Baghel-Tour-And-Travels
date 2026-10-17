@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+export const Uuid = z.string().regex(UUID_REGEX, "Invalid UUID");
+
 export const CategoryCode = z.enum(["outstation", "local_package", "transfer", "tour_package"]);
 export type CategoryCode = z.infer<typeof CategoryCode>;
 
@@ -7,7 +10,7 @@ export const VehicleGroupCode = z.enum(["sedan", "suv", "luxury", "tempo_travell
 export type VehicleGroupCode = z.infer<typeof VehicleGroupCode>;
 
 const Common = z.object({
-  vehicle_model_id: z.string().uuid(),
+  vehicle_model_id: Uuid,
   passenger_count: z.number().int().min(1),
   pickup_at: z.string().datetime({ offset: true }), // future; server-checked
 });
@@ -15,13 +18,13 @@ const Common = z.object({
 export const QuoteRequest = z.discriminatedUnion("category", [
   Common.extend({
     category: z.literal("outstation"),
-    route_id: z.string().uuid(),
+    route_id: Uuid,
     trip_type: z.enum(["one_way", "round_trip"]),
     return_at: z.string().datetime({ offset: true }).optional(), // required for round_trip; after pickup_at
   }),
-  Common.extend({ category: z.literal("local_package"), local_package_id: z.string().uuid() }),
-  Common.extend({ category: z.literal("transfer"), transfer_id: z.string().uuid() }),
-  Common.extend({ category: z.literal("tour_package"), tour_package_id: z.string().uuid() }),
+  Common.extend({ category: z.literal("local_package"), local_package_id: Uuid }),
+  Common.extend({ category: z.literal("transfer"), transfer_id: Uuid }),
+  Common.extend({ category: z.literal("tour_package"), tour_package_id: Uuid }),
 ]);
 export type QuoteRequest = z.infer<typeof QuoteRequest>;
 
@@ -35,7 +38,7 @@ export type QuoteLine = z.infer<typeof QuoteLine>;
 export const QuoteResponse = z.object({
   category: CategoryCode,
   vehicle: z.object({
-    vehicle_model_id: z.string().uuid(),
+    vehicle_model_id: Uuid,
     display_name: z.string(),
     group_code: VehicleGroupCode,
     passenger_capacity: z.number().int().positive(),
@@ -66,18 +69,18 @@ const OptionsCommon = z.object({
 export const OptionsRequest = z.discriminatedUnion("category", [
   OptionsCommon.extend({
     category: z.literal("outstation"),
-    route_id: z.string().uuid(),
+    route_id: Uuid,
     trip_type: z.enum(["one_way", "round_trip"]),
     return_at: z.string().datetime({ offset: true }).optional(),
   }),
-  OptionsCommon.extend({ category: z.literal("local_package"), local_package_id: z.string().uuid() }),
-  OptionsCommon.extend({ category: z.literal("transfer"), transfer_id: z.string().uuid() }),
-  OptionsCommon.extend({ category: z.literal("tour_package"), tour_package_id: z.string().uuid() }),
+  OptionsCommon.extend({ category: z.literal("local_package"), local_package_id: Uuid }),
+  OptionsCommon.extend({ category: z.literal("transfer"), transfer_id: Uuid }),
+  OptionsCommon.extend({ category: z.literal("tour_package"), tour_package_id: Uuid }),
 ]);
 export type OptionsRequest = z.infer<typeof OptionsRequest>;
 
 export const OptionsVehicleItem = z.object({
-  vehicle_model_id: z.string().uuid(),
+  vehicle_model_id: Uuid,
   display_name: z.string(),
   passenger_capacity: z.number().int(),
   luggage_capacity: z.number().int().nullable().optional(),
@@ -128,7 +131,7 @@ export const BookingEntryParams = z.object({
   return_date: z.string().date().optional(),
   return_time: z.string().regex(/^\d{2}:\d{2}$/).optional(),
   pax: z.coerce.number().int().min(1).optional(),
-  car: z.string().uuid().optional(),
+  car: z.string().max(80).optional(),
   src: z.string().regex(/^[a-z0-9_]{1,40}$/).optional(),
 });
 export type BookingEntryParams = z.infer<typeof BookingEntryParams>;
@@ -137,6 +140,7 @@ export type BookingEntryParams = z.infer<typeof BookingEntryParams>;
 export const TermsSide = z.object({
   inclusions: z.array(z.string().min(1)).default([]),
   exclusions: z.array(z.string().min(1)).default([]),
+  mandatory: z.array(z.string().min(1)).default([]),
 });
 export type TermsSide = z.infer<typeof TermsSide>;
 
@@ -149,7 +153,7 @@ export type OutstationTerms = z.infer<typeof OutstationTerms>;
 export const RouteVehiclesPut = z.object({
   vehicles: z.array(
     z.object({
-      vehicle_model_id: z.string().uuid(),
+      vehicle_model_id: Uuid,
       one_way_amount: z.number().int().positive().nullable(),
       round_trip_enabled: z.boolean(),
       terms: OutstationTerms,
@@ -187,10 +191,10 @@ export type VehicleGroupPatch = z.infer<typeof VehicleGroupPatch>;
 
 export const FareRuleCreate = z.object({
   category: CategoryCode,
-  vehicle_model_id: z.string().uuid(),
-  local_package_id: z.string().uuid().optional(),
-  transfer_id: z.string().uuid().optional(),
-  tour_package_id: z.string().uuid().optional(),
+  vehicle_model_id: Uuid,
+  local_package_id: Uuid.optional(),
+  transfer_id: Uuid.optional(),
+  tour_package_id: Uuid.optional(),
   amount: z.number().int().positive(),
 });
 export type FareRuleCreate = z.infer<typeof FareRuleCreate>;
@@ -204,10 +208,10 @@ export type FareRulePatch = z.infer<typeof FareRulePatch>;
 export const ExtraChargeCreate = z.object({
   category: CategoryCode,
   vehicle_group_code: VehicleGroupCode.optional(),
-  route_id: z.string().uuid().optional(),
-  local_package_id: z.string().uuid().optional(),
-  transfer_id: z.string().uuid().optional(),
-  tour_package_id: z.string().uuid().optional(),
+  route_id: Uuid.optional(),
+  local_package_id: Uuid.optional(),
+  transfer_id: Uuid.optional(),
+  tour_package_id: Uuid.optional(),
   label: z.string().min(1),
   amount: z.number().int().positive().optional(),
 });
@@ -241,7 +245,7 @@ export type RouteCalculateResponse = z.infer<typeof RouteCalculateResponse>;
 
 // --- Booking Creation & Detail Contracts ---
 export const BookingCreateResponse = z.object({
-  booking_id: z.string().uuid(),
+  booking_id: Uuid,
   ticket_id: z.string(),
   guest_access_token: z.string(),
   status: z.string(),
@@ -253,7 +257,7 @@ export const BookingCreateResponse = z.object({
 export type BookingCreateResponse = z.infer<typeof BookingCreateResponse>;
 
 export const BookingDetailResponse = z.object({
-  booking_id: z.string().uuid(),
+  booking_id: Uuid,
   ticket_id: z.string(),
   status: z.string(),
   category: CategoryCode,
@@ -268,7 +272,7 @@ export const BookingDetailResponse = z.object({
   return_at: z.string().nullable().optional(),
   passenger_count: z.number().int().positive(),
   vehicle_model: z.object({
-    id: z.string().uuid(),
+    id: Uuid,
     display_name: z.string(),
     group_code: VehicleGroupCode,
   }),
@@ -283,7 +287,7 @@ export type BookingDetailResponse = z.infer<typeof BookingDetailResponse>;
 
 // --- Payment Order Contracts ---
 export const PaymentOrderResponse = z.object({
-  payment_id: z.string().uuid(),
+  payment_id: Uuid,
   order_id: z.string(),
   currency: z.literal("INR"),
   amount_paise: z.number().int().positive(),
@@ -299,7 +303,7 @@ export const ProductStatus = z.enum(["published", "archived", "draft"]);
 export type ProductStatus = z.infer<typeof ProductStatus>;
 
 export const PublishedProductSummary = z.object({
-  id: z.string().uuid(),
+  id: Uuid,
   category: CategoryCode,
   code: z.string(),
   name: z.string(),
@@ -326,7 +330,7 @@ export const PublishedCatalogResponse = z.object({
   ),
   vehicles: z.array(
     z.object({
-      id: z.string().uuid(),
+      id: Uuid,
       group_code: VehicleGroupCode,
       make: z.string(),
       model_name: z.string(),
@@ -359,7 +363,7 @@ export type PublishedProductDetail = z.infer<typeof PublishedProductDetail>;
 
 // --- Reviews & Gallery Public Contracts ---
 export const PublicReviewItem = z.object({
-  id: z.string().uuid(),
+  id: Uuid,
   author_name: z.string(),
   rating: z.number().int().min(1).max(5).nullable(),
   review_text: z.string(),
@@ -372,7 +376,7 @@ export const PublicReviewItem = z.object({
 export type PublicReviewItem = z.infer<typeof PublicReviewItem>;
 
 export const PublicGalleryItem = z.object({
-  id: z.string().uuid(),
+  id: Uuid,
   image_url: z.string(),
   caption: z.string().nullable(),
   author_name: z.string(),
@@ -381,9 +385,9 @@ export type PublicGalleryItem = z.infer<typeof PublicGalleryItem>;
 
 // --- Publishing Events & Audit Logs Contracts ---
 export const PublishEventItem = z.object({
-  id: z.string().uuid(),
+  id: Uuid,
   entity_type: z.string(),
-  entity_id: z.string().uuid(),
+  entity_id: Uuid,
   event_type: z.string(),
   status: z.enum(["pending", "processing", "triggered", "succeeded", "failed"]),
   attempt_count: z.number().int(),
@@ -394,7 +398,7 @@ export const PublishEventItem = z.object({
 export type PublishEventItem = z.infer<typeof PublishEventItem>;
 
 export const AdminAuditLogItem = z.object({
-  id: z.string().uuid(),
+  id: Uuid,
   actor_id: z.string().nullable(),
   actor_role: z.string(),
   action: z.string(),

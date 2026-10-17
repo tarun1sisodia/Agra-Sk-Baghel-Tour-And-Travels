@@ -13,7 +13,7 @@ interface FleetVehicle {
   id: string;
   name: string;
   classTag: string;
-  category: "all" | "sedan" | "mpv" | "suv" | "group";
+  category: "all" | "sedan" | "suv" | "luxury" | "tempo_traveller";
   highlightBadge: string;
   description: string;
   image: string;
@@ -66,7 +66,7 @@ const FLEET_DATA: FleetVehicle[] = [
     id: "ertiga",
     name: "Maruti Ertiga Hybrid",
     classTag: "CLASS 02",
-    category: "mpv",
+    category: "suv",
     highlightBadge: "FAMILY FAVORITE • ECONOMY 6-SEATER",
     description:
       "A versatile, fuel-efficient 6-passenger transporter designed for nuclear families, pilgrimage circles to Mathura-Vrindavan, and intercity sightseeing.",
@@ -119,10 +119,38 @@ const FLEET_DATA: FleetVehicle[] = [
     bestSuitedFor: "Foreign dignitaries, executive business delegations, and Golden Triangle multi-day loops.",
   },
   {
+    id: "luxury",
+    name: "Toyota Camry / Vellfire Luxury",
+    classTag: "CLASS 04",
+    category: "luxury",
+    highlightBadge: "PRESIDENTIAL LUXURY • CHAUFFEUR DRIVEN",
+    description:
+      "Presidential-class luxury travel with whisper-quiet cabin acoustics, ottoman reclining seating, and elite executive presentation.",
+    image: "/assets/fleet/innova.webp",
+    rates: {
+      outstationPerKm: 40,
+      local8h80km: 9500,
+      fullDayYamuna: 16500,
+    },
+    specs: {
+      seats: "4–6 Executive Seats",
+      luggage: "3 Large + 2 Cabin Bags",
+      climate: "Multi-Zone Nanoe™ AC",
+      fuel: "Self-Charging Hybrid / V6",
+    },
+    amenities: [
+      "Plush leatherette ottoman seating",
+      "Executive reading lounge lighting",
+      "Acoustic insulated private cabin",
+      "Chilled Evian mineral water bottles",
+    ],
+    bestSuitedFor: "Corporate CXOs, luxury destination weddings, and VIP dignitary heritage travel.",
+  },
+  {
     id: "tempo",
     name: "Force Tempo Traveller",
-    classTag: "CLASS 04",
-    category: "group",
+    classTag: "CLASS 05",
+    category: "tempo_traveller",
     highlightBadge: "GROUP TRAVEL • 12 TO 26 SEATER",
     description:
       "Roomy, high-roof touring van for large family groups, corporate offsites, and multi-city tourist parties who travel together in high comfort.",
@@ -150,8 +178,8 @@ const FLEET_DATA: FleetVehicle[] = [
   {
     id: "urbania",
     name: "Force Urbania VIP",
-    classTag: "CLASS 05",
-    category: "group",
+    classTag: "CLASS 06",
+    category: "tempo_traveller",
     highlightBadge: "VIP MONOCOQUE VAN • EUROPEAN STYLING",
     description:
       "State-of-the-art European monocoque architecture delivering whisper-quiet highway ride, plush passenger lounge, and wide panoramic windows.",
@@ -213,7 +241,7 @@ const TIER_TO_ID: Record<string, string> = {
 };
 
 export function FleetPage({ language = "en" }: FleetPageProps) {
-  const [activeCategory, setActiveCategory] = useState<"all" | "sedan" | "mpv" | "suv" | "group">("all");
+  const [activeCategory, setActiveCategory] = useState<"all" | "sedan" | "suv" | "luxury" | "tempo_traveller">("all");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   // Live fleet from the admin "Fleet & Fare Rules" editor — names, seats,
   // per-km rates and availability flow through automatically.
@@ -268,7 +296,6 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
   }, []);
 
   const fleet = useMemo(() => {
-    if (liveFleet.length === 0) return [];
     return FLEET_DATA.map((veh) => {
       const live = liveFleet.find((v) => TIER_TO_ID[v.tier] === veh.id || TIER_TO_ID[v.id] === veh.id);
       if (!live) return veh;
@@ -397,11 +424,11 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
       <section className="w-full bg-surface border-b border-border-warm/60 py-4 sticky top-20 z-30 backdrop-blur-md bg-surface/90">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2 overflow-x-auto">
           {[
-            { id: "all", label: "All Vehicles (5)" },
-            { id: "sedan", label: "Executive Sedans" },
-            { id: "mpv", label: "Family MPVs (6-Seater)" },
-            { id: "suv", label: "Premium SUV (Innova Crysta)" },
-            { id: "group", label: "Group Vans & Minibus" },
+            { id: "all", label: "All Vehicles" },
+            { id: "sedan", label: "Sedan" },
+            { id: "suv", label: "SUV" },
+            { id: "luxury", label: "Luxury" },
+            { id: "tempo_traveller", label: "Tempo Traveller" },
           ].map((cat) => (
             <button
               key={cat.id}
@@ -616,7 +643,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                     </a>
                     <a
                       className="w-full sm:w-auto px-4 py-2 rounded-lg bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-lg text-xs inline-flex items-center justify-center gap-1.5 shadow-xs transition-all shrink-0 font-semibold"
-                      href={`/book?vehicle=${veh.id}&step=2`}
+                      href={`/book.html?category=outstation&car=${veh.id}`}
                     >
                       <span>Book {veh.name.split(" ")[0]}</span>
                       <span className="material-symbols-outlined text-icon-15">arrow_forward</span>
@@ -669,7 +696,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                   <td className="py-2.5 px-3.5 align-middle text-right whitespace-nowrap">
                     <a
                       className="inline-block px-2.5 py-1 rounded bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-caps text-body-sm tracking-wider transition-all shadow-xs font-bold"
-                      href="/book?vehicle=sedan&step=2"
+                      href="/book.html?category=outstation&car=sedan"
                     >
                       Select Sedan
                     </a>
@@ -687,7 +714,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                   <td className="py-2.5 px-3.5 align-middle text-right whitespace-nowrap">
                     <a
                       className="inline-block px-2.5 py-1 rounded bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-caps text-body-sm tracking-wider transition-all shadow-xs font-bold"
-                      href="/book?vehicle=ertiga&step=2"
+                      href="/book.html?category=outstation&car=ertiga"
                     >
                       Select MPV
                     </a>
@@ -705,7 +732,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                   <td className="py-2.5 px-3.5 align-middle text-right whitespace-nowrap">
                     <a
                       className="inline-block px-2.5 py-1 rounded bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-caps text-body-sm tracking-wider transition-all shadow-xs font-bold"
-                      href="/book?vehicle=innova&step=2"
+                      href="/book.html?category=outstation&car=innova"
                     >
                       Select Crysta
                     </a>
@@ -723,7 +750,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                   <td className="py-2.5 px-3.5 align-middle text-right whitespace-nowrap">
                     <a
                       className="inline-block px-2.5 py-1 rounded bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-caps text-body-sm tracking-wider transition-all shadow-xs font-bold"
-                      href="/book?vehicle=tempo&step=2"
+                      href="/book.html?category=outstation&car=tempo"
                     >
                       Select Minibus
                     </a>
@@ -741,7 +768,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                   <td className="py-2.5 px-3.5 align-middle text-right whitespace-nowrap">
                     <a
                       className="inline-block px-2.5 py-1 rounded bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-caps text-body-sm tracking-wider transition-all shadow-xs font-bold"
-                      href="/book?vehicle=urbania&step=2"
+                      href="/book.html?category=outstation&car=urbania"
                     >
                       Select Urbania
                     </a>

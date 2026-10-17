@@ -11,6 +11,8 @@ export interface DossierTransferRouteItem {
   slug: string;
   routeCode?: string;
   name: string;
+  pickupName?: string | null;
+  dropName?: string | null;
   distanceText?: string | null;
   directionNote?: string | null;
   fleetPrices: Record<string, number>;
@@ -52,7 +54,7 @@ export function TransferDetailPage({ item }: TransferDetailPageProps) {
   const startingFare = Number(item.fleetPrices?.sedan ?? 800);
   const tokenAdvance = Math.round(startingFare * 0.28);
   const fareDateFormatted = formatFareDate(item.updatedAt);
-  const bookingUrl = `/book.html?from=Agra&to=${encodeURIComponent(item.name)}&vehicle=sedan`;
+  const bookingUrl = `/book.html?category=transfer&product=${encodeURIComponent(item.slug)}&from=${encodeURIComponent(item.pickupName || "Agra")}&to=${encodeURIComponent(item.dropName || item.name)}&car=sedan`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
     `Hello Agra SK Baghel Tour & Travels, I want to book transfer "${item.name}" from ₹${startingFare.toLocaleString("en-IN")}.`
   )}`;
@@ -284,7 +286,7 @@ export function TransferDetailPage({ item }: TransferDetailPageProps) {
                 ? startingFare
                 : null;
               const tierToken = tierPrice ? Math.round(tierPrice * 0.28) : null;
-              const tierBookingUrl = `/book.html?from=Agra&to=${encodeURIComponent(item.name)}&vehicle=${fleet.id}`;
+              const tierBookingUrl = `/book.html?category=transfer&product=${encodeURIComponent(item.slug)}&from=${encodeURIComponent(item.pickupName || "Agra")}&to=${encodeURIComponent(item.dropName || item.name)}&car=${fleet.id}`;
 
               return (
                 <div

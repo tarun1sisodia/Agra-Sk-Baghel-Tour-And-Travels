@@ -2,6 +2,30 @@
 
 ## 2026-10-17
 
+### 2026-10-17 — Customer Navigation & Booking Flow Remediation: 4 Canonical Fleet Groups, Route Resolution, Contract UUID Relaxation & Live Quotes
+
+- **4 Fleet Groups & Category Normalization (`FleetPage.tsx`, `RentalPage.tsx`, `CleanBookingPage.tsx`)**:
+  - Replaced legacy 5-tier filter categorization with the canonical 4 `VehicleGroupCode` values (`sedan`, `suv`, `luxury`, `tempo_traveller`) across customer showroom and rental enquiry pages.
+  - Removed empty showroom blankout in `FleetPage.tsx` (`if (liveFleet.length === 0) return []`), ensuring baseline showroom models always render with live price enhancement when available.
+  - Standardized booking links from `FleetPage.tsx` to `/book.html?category=outstation&car=${veh.id}`.
+- **Route Resolution & Template Priority (`App.tsx`)**:
+  - Resolved route hijack where generic `cleanProductMatch` was intercepting `/packages/:slug/`, `/transfers/:slug/`, and `/tours/:slug/` ahead of rich dossier templates.
+  - Added dossier resolvers (`dossierTourPackage`, `dossierTransferRoute`, `dossierLocalPackage`, `dossierMonument`) so rich templates render their complete itineraries, timelines, and booking actions.
+- **Database Migrations & Live Admin Publishing**:
+  - Applied all 43 migrations onto Supabase PostgreSQL.
+  - Seeded 6 tour packages, 2 local packages, 2 transfers, 30 active `fare_rules`, and 10 vehicles across canonical groups.
+- **Contract UUID Relaxation (`contracts/fare-system.ts`)**:
+  - Resolved root cause of customer site catalog failure: Zod's strict RFC 4122 `z.string().uuid()` was rejecting PostgreSQL 128-bit hex UUIDs (e.g. `10000000-0000-0000-0002-000000000001` and `20000000-0000-0000-0001-000000000001`), throwing `CONTRACT_VALIDATION_ERROR` and blanking out the customer catalog.
+  - Introduced `Uuid` regex schema accepting any valid 128-bit hex formatted UUID across all contracts and synced to `react/`, `admin/`, and `backend/`.
+  - Relaxed `BookingEntryParams.car` to accept vehicle slugs or UUIDs.
+- **Booking Flow & Category Handoff (`CleanBookingPage.tsx`, `urlNormalizer.ts`)**:
+  - Enhanced category resolution in `urlNormalizer.ts` to support `service`, `serviceType`, and plural terms (`packages`, `transfers`, `tours`).
+  - Added synchronous product fallback and error reset on category tab clicks in `CleanBookingPage.tsx`, immediately loading quote options and available vehicles upon category switch.
+  - Enhanced vehicle prefill matching to resolve canonical groups, model names, and slugs (`tempo`, `innova`, `ertiga`, etc.).
+- **Monorepo Verification & Browser QA**:
+  - Verified with `browser_subagent`: Tested Home, Packages, Package Details, Fleet Showroom, Taxi Rental, and Live Booking Flow with real server quotes and 28% advance calculation.
+  - Full `npm run verify` passed: 0 typecheck errors across `react/`, `admin/`, `backend/`; 357 passing tests; 63 SSG pages pre-rendered; 3 production builds green.
+
 ### 2026-10-17 — Monorepo Defect Remediation: Booking Checkout, Contract Synchronization, Monuments Integration, LocationIQ Autocomplete, Asset Resolution & QR Studio (D-01 through D-11)
 
 - **D-01: Booking Checkout UUID Guarding & Error State (`CleanBookingPage.tsx`, `cleanFareApi.ts`)**:

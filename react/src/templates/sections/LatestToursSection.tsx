@@ -78,7 +78,7 @@ export function LatestToursSection({
             const startingFare = Number(sedanResolved.value || 1900);
             const token = Math.round(startingFare * 0.28);
             const tourUrl = `/packages/${t.slug}/`;
-            const bookUrl = `/book.html?trip=local&package=${encodeURIComponent(t.slug)}&step=1`;
+            const bookUrl = `/book.html?category=local_package&product=${encodeURIComponent(t.slug)}&from=Agra&to=${encodeURIComponent(t.name)}`;
 
             return (
               <div
