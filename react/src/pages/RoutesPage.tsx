@@ -4,7 +4,9 @@ import { contact } from "../data/contact";
 import { WhatsAppIcon } from "../components/icons";
 import { InstantRouteCalculator } from "../components/routes/InstantRouteCalculator";
 import { Pagination } from "../components/ui/Pagination";
-import { loadRoutesManifest } from "../services/catalogManifest";
+import { loadRoutesManifest, fetchPublishedTransferRoutes, fetchPublishedLocalTransfers } from "../services/catalogManifest";
+import generatedPublishedTransferRoutes from "../data/generated-published-transfer-routes.json";
+import generatedPublishedLocalPackages from "../data/generated-published-local-packages.json";
 import { LatestRoutesSection } from "../templates/sections/LatestRoutesSection";
 
 export interface RoutesPageProps {
@@ -72,6 +74,8 @@ const ROUTE_FAQS = [
 
 export function RoutesPage({ language = "en" }: RoutesPageProps) {
   const [manifest, setManifest] = useState<Record<string, ManifestRouteData> | null>(null);
+  const [transferRoutes, setTransferRoutes] = useState<any[]>([]);
+  const [localPackages, setLocalPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
@@ -114,6 +118,33 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchPublishedTransferRoutes()
+      .then((data) => {
+        if (isMounted && data && data.length > 0) setTransferRoutes(data);
+      })
+      .catch(() => {});
+    fetchPublishedLocalTransfers()
+      .then((data) => {
+        if (isMounted && data && data.length > 0) setLocalPackages(data);
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const activeTransfers = useMemo(() => {
+    const list = transferRoutes && transferRoutes.length > 0 ? transferRoutes : (generatedPublishedTransferRoutes as any[]);
+    return list.slice(0, 3);
+  }, [transferRoutes]);
+
+  const activeLocalCharters = useMemo(() => {
+    const list = localPackages && localPackages.length > 0 ? localPackages : (generatedPublishedLocalPackages as any[]);
+    return list.slice(0, 3);
+  }, [localPackages]);
 
   const allRoutes = useMemo<RouteItem[]>(() => {
     if (!manifest || Object.keys(manifest).length === 0) return [];
@@ -593,161 +624,74 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-            <a
-              href="/en/transfers/agc-station-drop/"
-              className="p-4 rounded-xl bg-surface-container-lowest border border-border-warm/70 shadow-2xs hover:shadow-sm hover:border-primary/50 transition-all flex flex-col justify-between group"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <span className="px-2 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone text-label-caps font-bold uppercase">
-                    Railway Transfer
-                  </span>
-                  <span className="text-body-sm text-primary font-bold">Fixed Transfer Fare</span>
-                </div>
-                <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
-                  Agra Cantt Station (AGC) Drop/Pickup
-                </h3>
-                <p className="font-body-sm text-xs text-on-surface-variant mt-1 leading-relaxed">
-                  Doorstep hotel drop or pickup synchronized with Gatimaan &amp; Shatabdi train schedules.
-                </p>
-              </div>
-              <div className="mt-3 pt-2 border-t border-border-warm/30 flex items-center justify-between text-xs text-secondary font-medium">
-                <span>~15–20 km</span>
-                <span className="text-primary font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                  View Fares →
-                </span>
-              </div>
-            </a>
+            {activeTransfers.map((item: any) => {
+              const slug = item.slug || item.routeCode || "";
+              const startingFare = item.fleetPrices?.sedan || item.fleetPrices?.dzire || 800;
+              const isAirport = (item.name || "").toLowerCase().includes("airport") || slug.includes("airport");
+              return (
+                <a
+                  key={`transfer-${slug || item.id}`}
+                  href={`/en/transfers/${slug}/`}
+                  className="p-4 rounded-xl bg-surface-container-lowest border border-border-warm/70 shadow-2xs hover:shadow-sm hover:border-primary/50 transition-all flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <span className="px-2 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone text-label-caps font-bold uppercase">
+                        {isAirport ? "Airport Corridor" : "Station Transfer"}
+                      </span>
+                      <span className="text-body-sm text-primary font-bold">From ₹{Number(startingFare).toLocaleString("en-IN")}</span>
+                    </div>
+                    <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
+                      {item.name}
+                    </h3>
+                    <p className="font-body-sm text-xs text-on-surface-variant mt-1 leading-relaxed line-clamp-2">
+                      {item.directionNote || "Doorstep hotel pickup or drop synchronized with flight & train arrivals."}
+                    </p>
+                  </div>
+                  <div className="mt-3 pt-2 border-t border-border-warm/30 flex items-center justify-between text-xs text-secondary font-medium">
+                    <span>{item.distanceText || "Direct Transfer"}</span>
+                    <span className="text-primary font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                      View Fares →
+                    </span>
+                  </div>
+                </a>
+              );
+            })}
 
-            <a
-              href="/en/transfers/delhi-igi-oneway/"
-              className="p-4 rounded-xl bg-surface-container-lowest border border-border-warm/70 shadow-2xs hover:shadow-sm hover:border-primary/50 transition-all flex flex-col justify-between group"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <span className="px-2 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone text-label-caps font-bold uppercase">
-                    Airport Corridor
-                  </span>
-                  <span className="text-body-sm text-primary font-bold">Tolls Included</span>
-                </div>
-                <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
-                  Delhi IGI Airport (DEL) Direct Transfer
-                </h3>
-                <p className="font-body-sm text-xs text-on-surface-variant mt-1 leading-relaxed">
-                  Direct express highway transfer via Yamuna Expressway with all tolls &amp; terminal parking included.
-                </p>
-              </div>
-              <div className="mt-3 pt-2 border-t border-border-warm/30 flex items-center justify-between text-xs text-secondary font-medium">
-                <span>225 km Express</span>
-                <span className="text-primary font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                  View Fares →
-                </span>
-              </div>
-            </a>
-
-            <a
-              href="/en/transfers/kheria-airport/"
-              className="p-4 rounded-xl bg-surface-container-lowest border border-border-warm/70 shadow-2xs hover:shadow-sm hover:border-primary/50 transition-all flex flex-col justify-between group"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <span className="px-2 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone text-label-caps font-bold uppercase">
-                    Airport Drop
-                  </span>
-                  <span className="text-body-sm text-primary font-bold">Terminal Drop</span>
-                </div>
-                <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
-                  Agra Airport (Kheria AGR) Transfer
-                </h3>
-                <p className="font-body-sm text-xs text-on-surface-variant mt-1 leading-relaxed">
-                  Smooth doorstep pickup and luggage assistance for commercial flight departures from Kheria.
-                </p>
-              </div>
-              <div className="mt-3 pt-2 border-t border-border-warm/30 flex items-center justify-between text-xs text-secondary font-medium">
-                <span>~15–25 km</span>
-                <span className="text-primary font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                  View Fares →
-                </span>
-              </div>
-            </a>
-
-            <a
-              href="/en/local-packages/agra-standard-sightseeing/"
-              className="p-4 rounded-xl bg-surface-container-lowest border border-border-warm/70 shadow-2xs hover:shadow-sm hover:border-primary/50 transition-all flex flex-col justify-between group"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-label-caps font-bold uppercase">
-                    8 Hr / 80 KM
-                  </span>
-                  <span className="text-body-sm text-primary font-bold">Full Day City Charter</span>
-                </div>
-                <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
-                  Agra Standard Sightseeing Charter
-                </h3>
-                <p className="font-body-sm text-xs text-on-surface-variant mt-1 leading-relaxed">
-                  Taj Mahal, Agra Fort, Mehtab Bagh &amp; Baby Taj with dedicated private AC car and verified chauffeur.
-                </p>
-              </div>
-              <div className="mt-3 pt-2 border-t border-border-warm/30 flex items-center justify-between text-xs text-secondary font-medium">
-                <span>Full Day City Tour</span>
-                <span className="text-primary font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                  View Details →
-                </span>
-              </div>
-            </a>
-
-            <a
-              href="/en/local-packages/agra-extended-city-tour/"
-              className="p-4 rounded-xl bg-surface-container-lowest border border-border-warm/70 shadow-2xs hover:shadow-sm hover:border-primary/50 transition-all flex flex-col justify-between group"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-label-caps font-bold uppercase">
-                    12 Hr / 120 KM
-                  </span>
-                  <span className="text-body-sm text-primary font-bold">Extended Heritage</span>
-                </div>
-                <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
-                  Agra Extended Heritage &amp; Fatehpur Sikri
-                </h3>
-                <p className="font-body-sm text-xs text-on-surface-variant mt-1 leading-relaxed">
-                  Complete heritage circuit including Emperor Akbar's ghost citadel at Fatehpur Sikri &amp; Taj Mahal.
-                </p>
-              </div>
-              <div className="mt-3 pt-2 border-t border-border-warm/30 flex items-center justify-between text-xs text-secondary font-medium">
-                <span>Extended Circuit</span>
-                <span className="text-primary font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                  View Details →
-                </span>
-              </div>
-            </a>
-
-            <a
-              href="/en/transfers/af-station-drop/"
-              className="p-4 rounded-xl bg-surface-container-lowest border border-border-warm/70 shadow-2xs hover:shadow-sm hover:border-primary/50 transition-all flex flex-col justify-between group"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <span className="px-2 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone text-label-caps font-bold uppercase">
-                    Station Transfer
-                  </span>
-                  <span className="text-body-sm text-primary font-bold">Fixed Transfer Fare</span>
-                </div>
-                <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
-                  Agra Fort Railway Station (AF) Transfer
-                </h3>
-                <p className="font-body-sm text-xs text-on-surface-variant mt-1 leading-relaxed">
-                  Convenient doorstep cab transfers connecting Agra Fort railway station with local hotels &amp; monuments.
-                </p>
-              </div>
-              <div className="mt-3 pt-2 border-t border-border-warm/30 flex items-center justify-between text-xs text-secondary font-medium">
-                <span>~12–15 km</span>
-                <span className="text-primary font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                  View Fares →
-                </span>
-              </div>
-            </a>
+            {activeLocalCharters.map((pkg: any) => {
+              const slug = pkg.slug || pkg.packageCode || "";
+              const startingFare = pkg.fleetPrices?.sedan || pkg.fleetPrices?.dzire || 1900;
+              const durationHours = pkg.durationHours || 8;
+              const includedKm = pkg.includedKm || 80;
+              return (
+                <a
+                  key={`charter-${slug || pkg.id}`}
+                  href={`/en/local-packages/${slug}/`}
+                  className="p-4 rounded-xl bg-surface-container-lowest border border-border-warm/70 shadow-2xs hover:shadow-sm hover:border-primary/50 transition-all flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-label-caps font-bold uppercase">
+                        {durationHours} Hr / {includedKm} KM
+                      </span>
+                      <span className="text-body-sm text-primary font-bold">From ₹{Number(startingFare).toLocaleString("en-IN")}</span>
+                    </div>
+                    <h3 className="font-title-md text-sm font-bold text-ink-charcoal group-hover:text-primary transition-colors">
+                      {pkg.name}
+                    </h3>
+                    <p className="font-body-sm text-xs text-on-surface-variant mt-1 leading-relaxed line-clamp-2">
+                      {pkg.covers || pkg.description || "Comprehensive city tour with dedicated private AC car and verified chauffeur."}
+                    </p>
+                  </div>
+                  <div className="mt-3 pt-2 border-t border-border-warm/30 flex items-center justify-between text-xs text-secondary font-medium">
+                    <span>Sightseeing Charter</span>
+                    <span className="text-primary font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                      View Details →
+                    </span>
+                  </div>
+                </a>
+              );
+            })}
           </div>
         </div>
       </section>

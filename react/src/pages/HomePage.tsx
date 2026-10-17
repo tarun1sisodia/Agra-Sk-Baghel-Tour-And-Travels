@@ -23,7 +23,7 @@ import {
   fetchPublishedLocalTransfers,
   type CompressedRoute,
 } from "../services/catalogManifest";
-import type { TourPackage } from "../data";
+import { packages as staticPackages, type TourPackage } from "../data";
 import { onUserInteractionOrIdle } from "../utils/deferredRevalidation";
 
 const FLEET_PRESENTATION: Record<string, { label: string; sub: string; note: string; img: string }> = {
@@ -122,8 +122,8 @@ export function HomePage({ language = "en" }: HomePageProps) {
   const [fleetLoading, setFleetLoading] = useState(true);
   const [manifestRoutes, setManifestRoutes] = useState<Record<string, CompressedRoute>>({});
   const [routesLoading, setRoutesLoading] = useState(true);
-  const [publishedPackages, setPublishedPackages] = useState<TourPackage[]>([]);
-  const [packagesLoading, setPackagesLoading] = useState(true);
+  const [publishedPackages, setPublishedPackages] = useState<TourPackage[]>(() => [...staticPackages]);
+  const [packagesLoading, setPackagesLoading] = useState(false);
   const [transferRoutes, setTransferRoutes] = useState<any[]>([]);
   const [localPackages, setLocalPackages] = useState<any[]>([]);
   const [popularTripMode, setPopularTripMode] = useState<"oneway" | "round">("oneway");

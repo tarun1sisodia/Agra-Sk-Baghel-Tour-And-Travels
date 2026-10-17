@@ -614,7 +614,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                 className="w-full h-80 rounded-xl bg-cover bg-center shadow-lg relative overflow-hidden border border-border-warm/50"
                 style={{
                   backgroundImage:
-                    'url("/assets/fleet/innova.webp")',
+                    'url("/assets/places/gallery/taj-mahal-01-1600.webp")',
                 }}
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight/80 via-transparent to-transparent flex items-end p-space-md">

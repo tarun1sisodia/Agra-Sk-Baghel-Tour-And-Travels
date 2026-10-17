@@ -2,7 +2,48 @@
 
 ## 2026-10-17
 
-### 2026-10-17 — Customer Navigation & Booking Flow Remediation: 4 Canonical Fleet Groups, Route Resolution, Contract UUID Relaxation & Live Quotes
+### 2026-10-17 — Live Browser QA & Customer Interface Verification
+
+- **Packages Page Null-Reference Error Resolved (`PackagesPage.tsx`)**:
+  - Fixed `TypeError: Cannot read properties of null (reading 'toLocaleString')` on custom/unpriced tour packages at line 979 (card starting price), line 1092 (matrix table price), and line 498 (`vehiclePrices` calculation).
+  - Added safe guards for `pkg.from != null && Number(pkg.from) > 0`, displaying "Custom Quote" or "On request" when unpriced.
+  - Aligned the Package & Fleet Decision Matrix table columns: inserted missing "Key Monuments Covered" cell so that durations, monuments, starting fares, best-suited tags, and recommended fleet columns match their `<th>` headers perfectly.
+- **Home Booking Widget & Fleet Section Zero-Flash Hydration (`HomeBookingWidget.tsx`, `FleetSection.tsx`, `HomePage.tsx`)**:
+  - Initialized `HomeBookingWidget` with `getFallbackPublishedCatalog()` so the CTA immediately renders "Search Fares →" without a "Loading Fleet…" disabled button state.
+  - Initialized `FleetSection` with `FALLBACK_GROUPS` and `HomePage` with static tour packages to eliminate skeleton pulse and layout shifts on initial paint.
+- **Live Browser Verification Passed (`browser_subagent`)**:
+  - Packages listing (`/en/packages/`): Verified 11 tour cards, signature carousel, local sightseeing section, and comparison matrix render with zero error boundaries.
+  - Package detail page (`/packages/same-day-agra-taj-mahal-tour/`): Verified click-through opens full itinerary, day-by-day timetable, inclusions, exclusions, vehicle pricing breakdown, and booking handoff with zero 404s.
+  - Homepage (`/`): Verified Home Booking Widget tabs (One-Way, Round Trip, Local Tour), 4 canonical vehicle groups, and fleet showcase.
+  - Clean booking page (`/book.html`): Verified all 4 categories, auto-selected routes/packages, server quote cards, and 28% advance deposit calculations.
+  - Routes directory (`/en/routes/`): Verified Section 2b fixed-rate transfers and local charters.
+- **Monorepo Build & Invariants**:
+  - Passed `npm run verify` (typecheck x3, 306 backend tests, 40 customer integration tests, 85 HTML SEO artifacts, 54 sitemap URLs, builds x3).
+
+### 2026-10-17 — Live Customer Remediation: Build Blocker, Manifest URLs, 4 Fleet Groups Resilience, Dynamic Transfers & Safe DB Wipe
+
+- **Cloudflare Release Build Unblocked (`react/scripts/build-manifest.ts`)**:
+  - Resolved `Error: [Manifest Builder] Published local tour ... is missing a valid cover image. Generic fallbacks are forbidden in release builds.`
+  - Expanded cover image extraction to check `coverImage?.url`, `coverImage`, `cover_image`, `coverImageUrl`, `imageUrl`, etc.
+  - Added keyword-aware fallback mapping to real repository assets (`/assets/packages/agra-fort.webp`, `golden-triangle.webp`, `mathura.webp`, `taj-mahal.webp`, `fatehpur-sikri.webp`).
+- **Product & Category 404 Fix (`LatestToursSection.tsx`, `fare-catalog.repository.ts`)**:
+  - Fixed `tourUrl` in `LatestToursSection.tsx` from `/packages/${slug}/` to `/local-packages/${slug}/` for local sightseeing tours.
+  - Added bidirectional fallback in `getPublishedProductDetail`: if `tour_package` is requested but exists in `local_packages`, it returns the local package, eliminating "Service Not Found" 404s.
+  - Fixed gallery mapping in repository to prevent `"[object Object]"` strings from reaching JSON responses.
+- **About Page Duplicate Image Replaced (`AboutPage.tsx`)**:
+  - Replaced duplicate Innova image (`/assets/fleet/innova.webp`) in Section 6 (Taj Ganj Heritage Operations Center) with authentic heritage monument asset (`/assets/places/gallery/taj-mahal-01-1600.webp`).
+- **Dynamic Station Drops & Airport Transfers (`RoutesPage.tsx`)**:
+  - Replaced hardcoded static cards with dynamic rendering over `activeTransfers` (from `fetchPublishedTransferRoutes`) and `activeLocalCharters` (from `fetchPublishedLocalTransfers`), with pre-rendered JSON fallbacks.
+  - Corrected link paths from broken `-drop` suffixes to canonical slugs (`/en/transfers/agc-station-transfer/`, etc.).
+- **Fleet Resilience & Home Booking Fallback (`HomeBookingWidget.tsx`, `cleanFareApi.ts`, `bookingWidgetHelpers.ts`)**:
+  - Implemented `getFallbackPublishedCatalog()` in `cleanFareApi.ts` so when backend API is offline or slow, the customer site never renders "Fleet currently unavailable" or "Live fleet catalog unavailable".
+  - In `HomeBookingWidget.tsx`, vehicle groups fall back gracefully to the 4 canonical groups (`sedan`, `suv`, `luxury`, `tempo_traveller`) with active Search Fares button.
+  - In `CleanBookingPage.tsx`, products are immediately selected so `-- Choose a published route or package --` is never shown.
+- **Safe Database Wipe Script (`backend/scripts/wipe-test-db.ts`)**:
+  - Updated wipe script to strictly preserve `profiles`, `vehicle_groups` (4 canonical), `vehicle_models` (24 models), `fare_settings`, `location_coordinates_cache`, and `schema_migrations`.
+  - Safely truncates test bookings, payments, test routes, test packages, and fare rules without destroying master data.
+- **Monorepo Verification**:
+  - Full `npm run verify` passed: 0 typecheck errors across `react/`, `admin/`, `backend/`; 306 backend tests + 40 integration tests passed; SSG 63 pages + 23 redirects generated; all 3 production builds green.
 
 - **4 Fleet Groups & Category Normalization (`FleetPage.tsx`, `RentalPage.tsx`, `CleanBookingPage.tsx`)**:
   - Replaced legacy 5-tier filter categorization with the canonical 4 `VehicleGroupCode` values (`sedan`, `suv`, `luxury`, `tempo_traveller`) across customer showroom and rental enquiry pages.

@@ -77,7 +77,7 @@ export function LatestToursSection({
             const sedanResolved = resolveTierKey(fleetPrices, "sedan");
             const startingFare = Number(sedanResolved.value || 1900);
             const token = Math.round(startingFare * 0.28);
-            const tourUrl = `/packages/${t.slug}/`;
+            const tourUrl = `/local-packages/${t.slug}/`;
             const bookUrl = `/book.html?category=local_package&product=${encodeURIComponent(t.slug)}&from=Agra&to=${encodeURIComponent(t.name)}`;
 
             return (

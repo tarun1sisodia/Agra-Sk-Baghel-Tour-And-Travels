@@ -236,15 +236,15 @@ function resolveVehicleImage(v: CanonicalFleetVehicle): string {
 }
 
 export function FleetSection({ language = "en" }: FleetSectionProps) {
-  const [groups, setGroups] = useState<CanonicalFleetGroup[]>([]);
+  const [groups, setGroups] = useState<CanonicalFleetGroup[]>(FALLBACK_GROUPS);
   const [activeGroupCode, setActiveGroupCode] = useState<string>("sedan");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
   const headingId = useId();
 
   async function loadFleet() {
-    setLoading(true);
+    if (groups.length === 0) setLoading(true);
     setError(false);
     try {
       const res = await fetch("/api/v1/fleet", { headers: { Accept: "application/json" } });

@@ -8,6 +8,7 @@ import {
   BookingDetailResponse,
   PaymentOrderResponse,
   PublishedCatalogResponse,
+  PublishedProductSummary,
   PublishedProductDetail,
   PublicReviewItem,
   PublicGalleryItem,
@@ -84,13 +85,113 @@ async function apiRequest<T>(
   return body as T;
 }
 
+import generatedPublishedRoutes from "../data/generated-published-routes.json";
+import generatedPublishedLocalPackages from "../data/generated-published-local-packages.json";
+import generatedPublishedTransferRoutes from "../data/generated-published-transfer-routes.json";
+import generatedPublishedTourPackages from "../data/generated-published-tour-packages.json";
+
+const UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+export function getFallbackPublishedCatalog(): PublishedCatalogResponse {
+  const products: PublishedProductSummary[] = [];
+
+  // 1. Outstation Routes
+  (generatedPublishedRoutes as any[]).forEach((r, idx) => {
+    const rawId = r.id && UUID_REGEX.test(r.id) ? r.id : `c0000000-0000-4000-a000-${String(idx + 1).padStart(12, "0")}`;
+    products.push({
+      id: rawId,
+      category: "outstation",
+      code: r.slug || `outstation-${idx + 1}`,
+      name: `${r.sourceCity || "Agra"} to ${r.destinationCity || "Delhi"}`,
+      description: `Verified outstation corridor via ${r.highway || "Expressway"}.`,
+      starting_price_inr: r.faresInr?.sedan ?? 2800,
+      status: "published",
+      distance_km: r.distanceKm ?? 210,
+      duration_minutes: 210,
+    });
+  });
+
+  // 2. Local Sightseeing Packages
+  (generatedPublishedLocalPackages as any[]).forEach((lp, idx) => {
+    const rawId = lp.id && UUID_REGEX.test(lp.id) ? lp.id : `f0000000-0000-4000-a000-${String(idx + 1).padStart(12, "0")}`;
+    products.push({
+      id: rawId,
+      category: "local_package",
+      code: lp.slug || lp.packageCode || `local-package-${idx + 1}`,
+      name: lp.name || "Agra Sightseeing",
+      description: lp.covers || lp.description || "Agra local sightseeing charter",
+      starting_price_inr: lp.fleetPrices?.sedan ?? 1900,
+      status: "published",
+      distance_km: lp.includedKm ?? 80,
+      duration_minutes: (lp.durationHours || 8) * 60,
+    });
+  });
+
+  // 3. Transfers
+  (generatedPublishedTransferRoutes as any[]).forEach((tr, idx) => {
+    const rawId = tr.id && UUID_REGEX.test(tr.id) ? tr.id : `e0000000-0000-4000-a000-${String(idx + 1).padStart(12, "0")}`;
+    products.push({
+      id: rawId,
+      category: "transfer",
+      code: tr.slug || tr.routeCode || `transfer-${idx + 1}`,
+      name: tr.name || "Transfer",
+      description: tr.directionNote || "Direct station / airport transfer",
+      starting_price_inr: tr.fleetPrices?.sedan ?? 800,
+      status: "published",
+      distance_km: 20,
+      duration_minutes: 45,
+    });
+  });
+
+  // 4. Tour Packages
+  (generatedPublishedTourPackages as any[]).forEach((tp, idx) => {
+    const rawId = tp.id && UUID_REGEX.test(tp.id) ? tp.id : `d0000000-0000-4000-a000-${String(idx + 1).padStart(12, "0")}`;
+    products.push({
+      id: rawId,
+      category: "tour_package",
+      code: tp.slug || tp.packageCode || `tour-package-${idx + 1}`,
+      name: tp.name || tp.title || "Tour Package",
+      description: tp.inclusionsHighlight || tp.shortDescription || "Curated multi-day package",
+      starting_price_inr: tp.startingPriceInr ?? (tp.fleetPrices?.sedan ?? 3499),
+      status: "published",
+      distance_km: null,
+      duration_minutes: (tp.days || 1) * 24 * 60,
+    });
+  });
+
+  return {
+    products,
+    groups: [
+      { group_code: "sedan", name: "Sedan", driver_allowance_per_day: 400, one_way_night_charge: 250, round_trip_halt_per_night: 300, sort_order: 1 },
+      { group_code: "suv", name: "SUV", driver_allowance_per_day: 500, one_way_night_charge: 300, round_trip_halt_per_night: 400, sort_order: 2 },
+      { group_code: "luxury", name: "Luxury", driver_allowance_per_day: 700, one_way_night_charge: 500, round_trip_halt_per_night: 600, sort_order: 3 },
+      { group_code: "tempo_traveller", name: "Tempo Traveller", driver_allowance_per_day: 800, one_way_night_charge: 600, round_trip_halt_per_night: 800, sort_order: 4 },
+    ],
+    vehicles: [
+      { id: "a0000000-0000-4000-a000-000000000001", group_code: "sedan", make: "Maruti", model_name: "Dzire", display_name: "Maruti Dzire", passenger_capacity: 4, luggage_capacity: 2, image_url: "/assets/fleet/dzire.webp" },
+      { id: "a0000000-0000-4000-a000-000000000002", group_code: "sedan", make: "Toyota", model_name: "Etios", display_name: "Toyota Etios", passenger_capacity: 4, luggage_capacity: 3, image_url: "/assets/fleet/etios.webp" },
+      { id: "a0000000-0000-4000-a000-000000000003", group_code: "suv", make: "Maruti", model_name: "Ertiga", display_name: "Maruti Ertiga", passenger_capacity: 6, luggage_capacity: 3, image_url: "/assets/fleet/ertiga.webp" },
+      { id: "a0000000-0000-4000-a000-000000000004", group_code: "suv", make: "Toyota", model_name: "Innova Crysta", display_name: "Innova Crysta", passenger_capacity: 6, luggage_capacity: 4, image_url: "/assets/fleet/innova.webp" },
+      { id: "a0000000-0000-4000-a000-000000000005", group_code: "luxury", make: "Mercedes-Benz", model_name: "E-Class", display_name: "Mercedes E-Class", passenger_capacity: 4, luggage_capacity: 3, image_url: "/assets/fleet/mercedes.webp" },
+      { id: "a0000000-0000-4000-a000-000000000006", group_code: "luxury", make: "BMW", model_name: "5-Series", display_name: "BMW 5-Series", passenger_capacity: 4, luggage_capacity: 3, image_url: "/assets/fleet/bmw.webp" },
+      { id: "a0000000-0000-4000-a000-000000000007", group_code: "tempo_traveller", make: "Force", model_name: "Tempo Traveller 12", display_name: "Tempo Traveller (12S)", passenger_capacity: 12, luggage_capacity: 8, image_url: "/assets/fleet/tempo-traveller.webp" },
+      { id: "a0000000-0000-4000-a000-000000000008", group_code: "tempo_traveller", make: "Force", model_name: "Urbania", display_name: "Force Urbania Luxury", passenger_capacity: 10, luggage_capacity: 8, image_url: "/assets/fleet/urbania.webp" },
+    ],
+  };
+}
+
 // 1. Published Catalog
 export async function fetchPublishedCatalog(): Promise<PublishedCatalogResponse> {
-  return apiRequest<PublishedCatalogResponse>(
-    "/api/v1/catalog",
-    { method: "GET" },
-    PublishedCatalogResponse
-  );
+  try {
+    return await apiRequest<PublishedCatalogResponse>(
+      "/api/v1/catalog",
+      { method: "GET" },
+      PublishedCatalogResponse
+    );
+  } catch (err) {
+    console.warn("fetchPublishedCatalog: live API unavailable, returning fallback catalog.", err);
+    return getFallbackPublishedCatalog();
+  }
 }
 
 // 2. Published Product Detail
@@ -98,11 +199,36 @@ export async function fetchPublishedProduct(
   category: CategoryCode | string,
   code: string
 ): Promise<PublishedProductDetail> {
-  return apiRequest<PublishedProductDetail>(
-    `/api/v1/catalog/${category}/${code}`,
-    { method: "GET" },
-    PublishedProductDetail
-  );
+  try {
+    return await apiRequest<PublishedProductDetail>(
+      `/api/v1/catalog/${category}/${code}`,
+      { method: "GET" },
+      PublishedProductDetail
+    );
+  } catch (err) {
+    const catalog = getFallbackPublishedCatalog();
+    const found = catalog.products.find((p) => p.code.toLowerCase() === code.toLowerCase() || p.id.toLowerCase() === code.toLowerCase());
+    if (found) {
+      return {
+        ...found,
+        gallery: [found.image_url || "/assets/packages/agra-fort.webp"],
+        inclusions: ["Verified AC Vehicle", "Tolls & State Taxes", "Chauffeur Allowance"],
+        exclusions: ["Monument Entry Fees", "Personal Expenses"],
+        highlights: found.description || "Scenic travel corridor with professional chauffeur.",
+        notes: "Flexible departure times. 24/7 dispatch support.",
+        itinerary: null,
+        origin: null,
+        destination: null,
+        pickup_name: null,
+        drop_name: null,
+        covers: null,
+        duration_hours: found.duration_minutes ? Math.round(found.duration_minutes / 60) : 8,
+        included_km: found.distance_km ?? 80,
+        related_products: catalog.products.filter((p) => p.category === found.category && p.code !== found.code).slice(0, 3),
+      };
+    }
+    throw err;
+  }
 }
 
 // 3. Quotes Options (Grouped Availability)

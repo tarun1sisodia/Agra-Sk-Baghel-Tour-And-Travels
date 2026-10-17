@@ -10,13 +10,19 @@ Older trackers (`docs/project/PROGRESS.md`, `docs/project/AUDIT_PROGRESS.md`) ar
 
 ## Current State
 
-- **Current Phase:** Phase D.4 — Tour Package Base Tier Normalization & Image Management Fix (COMPLETED).
-- **Current Step:** Resolved tour package `base_tier_code: Expected string, received null` validation failure during image/gallery management:
-  * Root Cause Resolution: Normalized API legacy `null`/`undefined` base tier values to domain default `"sedan"` in the admin edit form using `resolveTourPackageBaseTierCode()`, while strictly preserving valid stored tiers (e.g. `innova-crysta`).
-  * Automated Regression Testing: Added `admin/src/modules/tour-packages/tour-packages.constants.test.ts` covering null, undefined, and valid tier preservation (11/11 admin tests passing).
-  * Domain Image Audit: Audited image and gallery management across CMS catalog items, tour packages, local sightseeing packages, and transfer routes; verified correct media URL resolution and Phase D.3 atomic outbox invariants.
-  * Monorepo Verification: Full `npm run verify` passed cleanly (3 clean typechecks, 347 total automated unit/contract tests across backend, customer, and admin, 59 prerendered SSG pages, 23 redirects, and 3 production builds).
-- **Last updated:** 2026-10-16
+- **Current Phase:** Live Customer Site & Monorepo Defect Remediation (VERIFIED IN LIVE BROWSER).
+- **Current Step:** Customer Frontend Remediation & Build Stability:
+  * Packages Page Null-Reference Error Resolved: Fixed `TypeError: Cannot read properties of null (reading 'toLocaleString')` on custom/unpriced tour packages in `PackagesPage.tsx` and aligned comparison matrix table columns.
+  * Home Booking Widget & Fleet Section Zero-Flash Hydration: Initialized `HomeBookingWidget` with `getFallbackPublishedCatalog()` and `FleetSection` with `FALLBACK_GROUPS` to eliminate loading state delays and skeleton flashes.
+  * Live Browser End-to-End Verification: Tested live in browser using `browser_subagent` across `/en/packages/`, package detail page (`/packages/same-day-agra-taj-mahal-tour/`), homepage (`/`), clean booking page (`/book.html`), and routes directory (`/en/routes/`). All pages rendered cleanly with complete data and 0 errors.
+  * Cloudflare Release Build Blocker Resolved: Fixed `build-manifest.ts` cover image resolution with keyword-aware fallback mapping to real repository assets.
+  * Product Detail & Category 404 Fix: Fixed `tourUrl` in `LatestToursSection.tsx` and added bidirectional fallback in `fare-catalog.repository.ts` so local sightseeing tours open without 404.
+  * Duplicate Image Removal: Replaced duplicate Innova asset on `AboutPage.tsx` with authentic Taj Ganj heritage image.
+  * Dynamic Transfers & Charters: Dynamic mapping in `RoutesPage.tsx` for station drops and airport transfers from DB/JSON with active pricing.
+  * 4 Canonical Fleet Groups Resilience: Fallback catalog in `cleanFareApi.ts` and `HomeBookingWidget.tsx` ensures the customer site never renders "Fleet currently unavailable" or "Live fleet catalog unavailable".
+  * Safe Database Wipe Script: `backend/scripts/wipe-test-db.ts` updated to strictly preserve `profiles`, `vehicle_groups` (4 canonical), `vehicle_models` (24 models), `fare_settings`, `location_coordinates_cache`, and `schema_migrations`.
+  * Monorepo Verification: Full `npm run verify` passed cleanly (3 clean typechecks, 346 tests, 63 SSG pages, 23 redirects, and 3 production builds).
+- **Last updated:** 2026-10-17
 - **Summary:** All HTML designs from `react/new_design/` are completely converted into the React application with ultra-luxury aesthetic styling, design tokens (`theme.css`), and the strict English-only mandate:
   * Multi-Agent Orchestration Engine (`agents/`): Automated agent pipeline with `code_extractor.py`, dynamic language templates (`task_template.py`), `tenacity` exponential retry logic, and specialized agents (`schema_agent.py`, `service_agent.py`, `frontend_agent.py`, `test_agent.py`, `seo_content_agent.py`, `orchestrator.py`).
   * Commercial Exception Rules & Strategy Pattern (`backend/src/modules/fares/fare.strategy.ts`): Implemented strict commercial booking rules for group vehicles ("Urbania", "Force Tempo", and any "Force" variants): forced round-trip billing (`km * 2`), 300 km/day minimum distance floor (`Math.max(km * 2, 300 * days)`), ₹500/day driver allowance, and locked fixed-rate pricing structure (zero promo discounts).

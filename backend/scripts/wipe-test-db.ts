@@ -22,10 +22,37 @@ async function run() {
     const tables = res.rows.map((r: any) => r.table_name);
     console.log("Found tables:", tables);
 
-    // Filter out migrations tracking table so schema versioning is preserved
-    const tablesToWipe = tables.filter((t: string) => t !== "schema_migrations" && t !== "_prisma_migrations");
+    // Tables to strictly preserve:
+    const PRESERVED_TABLES = new Set([
+      "schema_migrations",
+      "_prisma_migrations",
+      "profiles",
+      "vehicle_groups",
+      "vehicle_models",
+      "fare_settings",
+      "location_coordinates_cache",
+    ]);
 
-    console.log("\nTruncating tables...");
+    const tablesToWipe = [
+      "review_submissions",
+      "review_links",
+      "payments",
+      "payment_webhook_events",
+      "bookings",
+      "rental_enquiries",
+      "extra_charges",
+      "fare_rules",
+      "outstation_route_vehicles",
+      "outstation_routes",
+      "local_packages",
+      "transfers",
+      "tour_packages",
+      "publish_events",
+    ].filter((t) => tables.includes(t));
+
+    console.log("\nPreserving master tables:", Array.from(PRESERVED_TABLES));
+    console.log("Truncating test data tables:", tablesToWipe);
+
     for (const tbl of tablesToWipe) {
       try {
         await client.query(`TRUNCATE TABLE "${tbl}" CASCADE;`);

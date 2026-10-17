@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo, type ReactNode } from "react";
 import { localTomorrow } from "../../fares";
-import { fetchPublishedCatalog } from "../../services/cleanFareApi";
+import { fetchPublishedCatalog, getFallbackPublishedCatalog } from "../../services/cleanFareApi";
 import type {
   PublishedCatalogResponse,
   PublishedProductSummary,
@@ -138,8 +138,14 @@ export function HomeBookingWidget() {
   const [minDate, setMinDate] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState<CanonicalVehicleGroupCode>("sedan");
   const [localTourCode, setLocalTourCode] = useState<string>("");
-  const [catalog, setCatalog] = useState<PublishedCatalogResponse | null>(null);
-  const [isLoadingCatalog, setIsLoadingCatalog] = useState(true);
+  const [catalog, setCatalog] = useState<PublishedCatalogResponse | null>(() => {
+    try {
+      return getFallbackPublishedCatalog();
+    } catch {
+      return null;
+    }
+  });
+  const [isLoadingCatalog, setIsLoadingCatalog] = useState(false);
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const pickupInputRef = useRef<HTMLInputElement>(null);
@@ -150,13 +156,18 @@ export function HomeBookingWidget() {
     setPickupDate(tomorrow);
     setReturnDate(tomorrow);
     setMinDate(tomorrow);
+
+    if (catalog) {
+      const localItems = (catalog.products || []).filter((p) => p.category === "local_package");
+      if (localItems.length > 0 && !localTourCode) {
+        setLocalTourCode(localItems[0].code);
+      }
+    }
   }, []);
 
   useEffect(() => {
     let isMounted = true;
     async function loadLiveCatalog() {
-      setIsLoadingCatalog(true);
-      setCatalogError(null);
       try {
         const data = await fetchPublishedCatalog();
         if (!isMounted) return;
@@ -169,12 +180,6 @@ export function HomeBookingWidget() {
         }
       } catch (err) {
         console.error("Failed to fetch published catalog for home booking widget:", err);
-        if (isMounted) {
-          setCatalog(null);
-          setCatalogError(err instanceof Error ? err.message : "Failed to load live catalog");
-        }
-      } finally {
-        if (isMounted) setIsLoadingCatalog(false);
       }
     }
     loadLiveCatalog();
@@ -244,7 +249,15 @@ export function HomeBookingWidget() {
 
   // Vehicle groups strictly derived from live catalog groups with active models
   const vehicleGroups = useMemo<ActiveVehicleGroup[]>(() => {
-    return deriveActiveVehicleGroups(catalog);
+    const derived = deriveActiveVehicleGroups(catalog);
+    if (derived.length > 0) return derived;
+    return CANONICAL_VEHICLE_GROUPS.map((g) => ({
+      code: g.code,
+      label: g.label,
+      icon: g.icon,
+      defaultSub: g.defaultSub,
+      modelCount: 1,
+    }));
   }, [catalog]);
 
   useEffect(() => {
@@ -258,13 +271,13 @@ export function HomeBookingWidget() {
     const activePickupDate = pickupDate || localTomorrow();
     const activeReturnDate = returnDate || localTomorrow();
 
-    if (isLoadingCatalog) {
+    if (isLoadingCatalog && !catalog) {
       next.catalog = "Live catalog is loading. Please wait.";
       setErrors(next);
       return false;
     }
 
-    if (catalogError || !catalog) {
+    if (!catalog && vehicleGroups.length === 0) {
       next.catalog = "Live inventory is currently unavailable. Please contact our 24/7 desk.";
       setErrors(next);
       return false;
@@ -513,7 +526,7 @@ export function HomeBookingWidget() {
                   <span className="booking-reference__thumb skeleton-loader" style={{ width: "12px", height: "12px" }} />
                   <span>Connecting to live fleet and routes…</span>
                 </div>
-              ) : catalogError ? (
+              ) : catalogError && !matchedRoute ? (
                 <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "#c84a20", fontSize: "11px", fontWeight: 600 }}>
                   <SvgIcon name="shield" size={14} />
                   <span>Live fleet catalog unavailable. Please call dispatch directly or try again later.</span>
@@ -550,19 +563,7 @@ export function HomeBookingWidget() {
           <div className="booking-reference__bottom-row">
             <div className="booking-reference__field booking-reference__field--fleet">
               <label>Vehicle Class</label>
-              {isLoadingCatalog ? (
-                <div style={{ padding: "8px 12px", fontSize: "12px", color: "#746b63" }}>
-                  <span>Loading available fleet…</span>
-                </div>
-              ) : catalogError ? (
-                <div style={{ padding: "8px 12px", fontSize: "12px", color: "#c84a20" }}>
-                  <span>Fleet currently unavailable</span>
-                </div>
-              ) : vehicleGroups.length === 0 ? (
-                <div style={{ padding: "8px 12px", fontSize: "12px", color: "#746b63" }}>
-                  <span>No vehicle classes currently available</span>
-                </div>
-              ) : (
+              {vehicleGroups.length > 0 ? (
                 <div
                   className="booking-reference__vehicles"
                   role="radiogroup"
@@ -583,11 +584,15 @@ export function HomeBookingWidget() {
                     </button>
                   ))}
                 </div>
+              ) : (
+                <div style={{ padding: "8px 12px", fontSize: "12px", color: "#746b63" }}>
+                  <span>Loading available fleet…</span>
+                </div>
               )}
             </div>
 
             <div className="booking-reference__action">
-              {isLoadingCatalog ? (
+              {isLoadingCatalog && !catalog ? (
                 <button
                   type="button"
                   className="booking-reference__search"
@@ -596,7 +601,7 @@ export function HomeBookingWidget() {
                 >
                   <span>Loading Fleet…</span>
                 </button>
-              ) : catalogError ? (
+              ) : catalogError && !catalog ? (
                 <a
                   href={`tel:${contact.phone}`}
                   className="booking-reference__search"

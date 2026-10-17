@@ -485,16 +485,23 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
       };
 
       const fp = pkg.fleetPrices;
-      const hasLivePrices = fp && Object.keys(fp).length > 0;
-      const vehiclePrices: { label: string; price: string }[] = hasLivePrices
+      const hasRecognizedFleet = Boolean(
+        fp &&
+        ((fp.sedan != null && Number(fp.sedan) > 0) ||
+         (fp.ertiga != null && Number(fp.ertiga) > 0) ||
+         (fp.innova != null && Number(fp.innova) > 0) ||
+         (fp.tempo != null && Number(fp.tempo) > 0) ||
+         (fp.urbania != null && Number(fp.urbania) > 0))
+      );
+      const vehiclePrices: { label: string; price: string }[] = hasRecognizedFleet && fp
         ? [
-            ...(fp.sedan ? [{ label: "Sedan", price: `₹${Number(fp.sedan).toLocaleString("en-IN")}` }] : []),
-            ...(fp.ertiga ? [{ label: "Ertiga", price: `₹${Number(fp.ertiga).toLocaleString("en-IN")}` }] : []),
-            ...(fp.innova ? [{ label: "Innova", price: `₹${Number(fp.innova).toLocaleString("en-IN")}` }] : []),
-            ...(fp.tempo ? [{ label: "Tempo", price: `₹${Number(fp.tempo).toLocaleString("en-IN")}` }] : []),
-            ...(fp.urbania ? [{ label: "Urbania", price: `₹${Number(fp.urbania).toLocaleString("en-IN")}` }] : []),
+            ...(fp.sedan != null && Number(fp.sedan) > 0 ? [{ label: "Sedan", price: `₹${Number(fp.sedan).toLocaleString("en-IN")}` }] : []),
+            ...(fp.ertiga != null && Number(fp.ertiga) > 0 ? [{ label: "Ertiga", price: `₹${Number(fp.ertiga).toLocaleString("en-IN")}` }] : []),
+            ...(fp.innova != null && Number(fp.innova) > 0 ? [{ label: "Innova", price: `₹${Number(fp.innova).toLocaleString("en-IN")}` }] : []),
+            ...(fp.tempo != null && Number(fp.tempo) > 0 ? [{ label: "Tempo", price: `₹${Number(fp.tempo).toLocaleString("en-IN")}` }] : []),
+            ...(fp.urbania != null && Number(fp.urbania) > 0 ? [{ label: "Urbania", price: `₹${Number(fp.urbania).toLocaleString("en-IN")}` }] : []),
           ]
-        : pkg.from && Number(pkg.from) > 0
+        : pkg.from != null && Number(pkg.from) > 0
         ? [{ label: "Starting From", price: `₹${Number(pkg.from).toLocaleString("en-IN")}` }]
         : [{ label: "All Vehicles", price: "On request" }];
 
@@ -976,9 +983,11 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
                       <div>
                         <span className="font-body-sm text-body-sm text-on-surface-variant block">Sedan Starting</span>
                         <span className="font-price-display text-lg text-primary leading-none font-bold">
-                          ₹{pkg.from.toLocaleString("en-IN")}
+                          {pkg.from != null && Number(pkg.from) > 0 ? `₹${Number(pkg.from).toLocaleString("en-IN")}` : "Custom Quote"}
                         </span>
-                        <span className="font-body-sm text-body-sm text-on-surface-variant"> / group</span>
+                        {pkg.from != null && Number(pkg.from) > 0 && (
+                          <span className="font-body-sm text-body-sm text-on-surface-variant"> / group</span>
+                        )}
                       </div>
                       <div className="text-right font-label-caps text-label-caps text-on-surface-variant space-y-0.5">
                         {item.vehiclePrices.map((vp, vIdx) => (
@@ -1079,8 +1088,12 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
                         </a>
                       </td>
                       <td className="py-2.5 px-3 text-on-surface-variant">{pkg.duration}</td>
-                      <td className="py-2.5 px-3 text-body-md">{pkg.places.join(", ")}</td>
-                      <td className="py-2.5 px-3 font-bold text-primary">₹{pkg.from.toLocaleString("en-IN")}</td>
+                      <td className="py-2.5 px-3 text-on-surface-variant max-w-[220px] truncate" title={(meta.stops || pkg.places || []).join(", ")}>
+                        {(meta.stops || pkg.places || []).slice(0, 3).join(", ") || "Taj Mahal, Agra Fort"}
+                      </td>
+                      <td className="py-2.5 px-3 font-bold text-primary">
+                        {pkg.from != null && Number(pkg.from) > 0 ? `₹${Number(pkg.from).toLocaleString("en-IN")}` : "On request"}
+                      </td>
                       <td className="py-2.5 px-3">
                         <span className="px-2 py-0.5 rounded bg-sandstone-wash text-ink-charcoal font-label-caps text-label-caps">
                           {meta.suitedFor}

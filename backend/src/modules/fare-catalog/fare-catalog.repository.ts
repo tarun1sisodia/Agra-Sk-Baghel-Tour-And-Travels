@@ -565,9 +565,22 @@ export class FareCatalogRepository {
       };
     }
 
+    const extractGalleryUrls = (gallery: any[]): string[] => {
+      if (!Array.isArray(gallery)) return [];
+      return gallery
+        .map((item) => (typeof item === "string" ? item : (item?.url ? String(item.url) : "")))
+        .filter(Boolean);
+    };
+
     if (category === "local_package") {
       const pkg = await this.getLocalPackageByIdOrCode(code);
-      if (!pkg || pkg.status === "draft") return null;
+      if (!pkg || pkg.status === "draft") {
+        const fallbackTour = await this.getTourPackageByIdOrCode(code);
+        if (fallbackTour && fallbackTour.status !== "draft") {
+          return this.getPublishedProductDetail("tour_package", code);
+        }
+        return null;
+      }
 
       const priceRes = await this.pool.query(
         `SELECT MIN(amount) as min_price FROM fare_rules WHERE local_package_id = $1 AND is_active = true`,
@@ -594,7 +607,7 @@ export class FareCatalogRepository {
         covers: pkg.covers,
         duration_hours: pkg.duration_hours,
         included_km: pkg.included_km,
-        gallery: pkg.gallery.map(String),
+        gallery: extractGalleryUrls(pkg.gallery),
         inclusions: pkg.inclusions,
         exclusions: pkg.exclusions,
         highlights: pkg.inclusions_highlight,
@@ -631,7 +644,7 @@ export class FareCatalogRepository {
         status: tf.status as ProductStatus,
         pickup_name: tf.pickup_name,
         drop_name: tf.drop_name,
-        gallery: tf.gallery.map(String),
+        gallery: extractGalleryUrls(tf.gallery),
         inclusions: tf.inclusions,
         exclusions: tf.exclusions,
         highlights: tf.inclusions_highlight,
@@ -642,7 +655,13 @@ export class FareCatalogRepository {
 
     if (category === "tour_package") {
       const tp = await this.getTourPackageByIdOrCode(code);
-      if (!tp || tp.status === "draft") return null;
+      if (!tp || tp.status === "draft") {
+        const fallbackLocal = await this.getLocalPackageByIdOrCode(code);
+        if (fallbackLocal && fallbackLocal.status !== "draft") {
+          return this.getPublishedProductDetail("local_package", code);
+        }
+        return null;
+      }
 
       const priceRes = await this.pool.query(
         `SELECT MIN(amount) as min_price FROM fare_rules WHERE tour_package_id = $1 AND is_active = true`,
@@ -668,7 +687,7 @@ export class FareCatalogRepository {
         status: tp.status as ProductStatus,
         duration_minutes: tp.days * 24 * 60,
         itinerary: tp.itinerary,
-        gallery: tp.gallery.map(String),
+        gallery: extractGalleryUrls(tp.gallery),
         inclusions: tp.inclusions,
         exclusions: tp.exclusions,
         highlights: `${tp.days} Days / ${tp.nights} Nights Private Tour`,

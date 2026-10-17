@@ -1,45 +1,45 @@
 # ArenaAI live Supabase schema inventory
 
-Generated from the live Supabase PostgreSQL inspection on 2026-10-11 06:24:08 (IST).
-Total applied migrations: **40**.
+Generated from the live Supabase PostgreSQL inspection on 2026-10-17 06:36:00 (IST).
+Total applied migrations: **44**.
 
 ## Table summary
 
 | Table | Rows | RLS | Primary key |
 |---|---:|:---:|---|
-| `public.admin_audit_logs` | 32 | enabled | `id` |
-| `public.bookings` | 3 | enabled | `id` |
-| `public.cancellation_policies` | 0 | enabled | `id` |
+| `public.admin_audit_logs` | 161 | enabled | `id` |
+| `public.bookings` | 13 | enabled | `id` |
+| `public.cancellation_policies` | 9 | enabled | `id` |
 | `public.catalog_item_media` | 5 | enabled | `id` |
 | `public.catalog_items` | 11 | enabled | `id` |
-| `public.company_profile` | 0 | enabled | `id` |
+| `public.company_profile` | 1 | enabled | `id` |
 | `public.device_registrations` | 1 | enabled | `id` |
-| `public.dossier_signoffs` | 0 | enabled | `id` |
-| `public.extra_charges` | 4 | enabled | `id` |
-| `public.fare_rules` | 10 | enabled | `id` |
+| `public.dossier_signoffs` | 10 | enabled | `id` |
+| `public.extra_charges` | 6 | enabled | `id` |
+| `public.fare_rules` | 64 | enabled | `id` |
 | `public.fare_settings` | 5 | enabled | `key` |
-| `public.inquiries` | 2 | enabled | `id` |
-| `public.local_packages` | 0 | enabled | `id` |
-| `public.location_cache` | 6 | enabled | `cache_key` |
-| `public.monuments` | 0 | enabled | `id` |
+| `public.inquiries` | 4 | enabled | `id` |
+| `public.local_packages` | 4 | enabled | `id` |
+| `public.location_cache` | 92 | enabled | `cache_key` |
+| `public.monuments` | 10 | enabled | `id` |
 | `public.notification_jobs` | 1 | enabled | `id` |
-| `public.outstation_route_vehicles` | 10 | enabled | `id` |
-| `public.outstation_routes` | 2 | enabled | `id` |
+| `public.outstation_route_vehicles` | 120 | enabled | `id` |
+| `public.outstation_routes` | 5 | enabled | `id` |
 | `public.payment_webhook_events` | 0 | enabled | `id` |
-| `public.payments` | 2 | enabled | `id` |
-| `public.pet_taxi_policy` | 0 | enabled | `id` |
+| `public.payments` | 11 | enabled | `id` |
+| `public.pet_taxi_policy` | 1 | enabled | `id` |
 | `public.profiles` | 6 | enabled | `id` |
-| `public.rental_enquiries` | 0 | enabled | `id` |
+| `public.rental_enquiries` | 1 | enabled | `id` |
 | `public.review_images` | 0 | enabled | `id` |
 | `public.review_links` | 0 | enabled | `id` |
 | `public.review_submissions` | 0 | enabled | `id` |
-| `public.schema_migrations` | 40 | enabled | `id` |
-| `public.site_publish_events` | 0 | enabled | `id` |
-| `public.tour_packages` | 0 | enabled | `id` |
-| `public.transfers` | 0 | enabled | `id` |
+| `public.schema_migrations` | 44 | enabled | `id` |
+| `public.site_publish_events` | 18 | enabled | `id` |
+| `public.tour_packages` | 10 | enabled | `id` |
+| `public.transfers` | 4 | enabled | `id` |
 | `public.url_redirects` | 0 | enabled | `id` |
 | `public.vehicle_groups` | 4 | enabled | `id` |
-| `public.vehicle_models` | 14 | enabled | `id` |
+| `public.vehicle_models` | 24 | enabled | `id` |
 
 ## Columns and types
 
@@ -310,6 +310,7 @@ Total applied migrations: **40**.
 | `exclusions` | `jsonb` | no | `'[]'::jsonb` | — |
 | `status` | `text` | no | `'draft'::text` | (status = ANY (ARRAY['draft'::text, 'published'::text, 'archived'::text])) |
 | `created_at` | `timestamptz` | no | `now()` | — |
+| `updated_at` | `timestamptz` | no | `now()` | — |
 
 **Foreign keys & relations:**
 
@@ -398,6 +399,7 @@ Total applied migrations: **40**.
 | `gallery` | `jsonb` | no | `'[]'::jsonb` | — |
 | `status` | `text` | no | `'draft'::text` | (status = ANY (ARRAY['draft'::text, 'published'::text, 'archived'::text])) |
 | `created_at` | `timestamptz` | no | `now()` | — |
+| `updated_at` | `timestamptz` | no | `now()` | — |
 
 **Foreign keys & relations:**
 
@@ -483,7 +485,7 @@ Total applied migrations: **40**.
 | `name` | `text` | no | `—` | — |
 | `phone` | `text` | no | `—` | — |
 | `email` | `text` | yes | `—` | — |
-| `car_tier` | `text` | no | `—` | (car_tier = ANY (ARRAY['sedan'::text, 'ertiga'::text, 'innova'::text, 'tempo'::text, 'urbania'::text])) |
+| `car_tier` | `text` | yes | `—` | (car_tier = ANY (ARRAY['sedan'::text, 'ertiga'::text, 'innova'::text, 'tempo'::text, 'urbania'::text])) |
 | `pickup_date` | `date` | no | `—` | — |
 | `return_date` | `date` | no | `—` | (return_date >= pickup_date) |
 | `pickup_location` | `text` | no | `—` | — |
@@ -493,6 +495,16 @@ Total applied migrations: **40**.
 | `notes` | `_text` | no | `'{}'::text[]` | — |
 | `created_at` | `timestamptz` | no | `now()` | — |
 | `updated_at` | `timestamptz` | no | `now()` | — |
+| `vehicle_group_code` | `text` | yes | `—` | (vehicle_group_code = ANY (ARRAY['sedan'::text, 'suv'::text, 'luxury'::text, 'tempo_traveller'::text])) |
+| `vehicle_model_id` | `uuid` | yes | `—` | — |
+| `destination_or_itinerary` | `text` | yes | `—` | — |
+| `passengers` | `int4` | yes | `—` | ((passengers IS NULL) OR (passengers > 0)) |
+
+**Foreign keys & relations:**
+
+| Constraint | Source | Target | Direction |
+|---|---|---|---|
+| `rental_enquiries_vehicle_model_id_fkey` | `public.rental_enquiries` (`vehicle_model_id`) | `public.vehicle_models` (`id`) | Outgoing (Foreign Key) |
 
 ### `public.review_images`
 
@@ -586,7 +598,7 @@ Total applied migrations: **40**.
 |---|---|:---:|---|---|
 | `id` | `uuid` | no | `gen_random_uuid()` | — |
 | `entity_type` | `text` | no | `—` | (entity_type = ANY (ARRAY['outstation_route'::text, 'local_package'::text, 'transfer'::text, 'tour_package'::text, 'review'::text])) |
-| `entity_id` | `uuid` | no | `—` | — |
+| `entity_id` | `text` | no | `—` | — |
 | `event_type` | `text` | no | `—` | (event_type = ANY (ARRAY['published'::text, 'updated'::text, 'archived'::text, 'slug_changed'::text, 'price_changed'::text, 'review_approved'::text])) |
 | `status` | `text` | no | `'pending'::text` | (status = ANY (ARRAY['pending'::text, 'processing'::text, 'triggered'::text, 'succeeded'::text, 'failed'::text, 'superseded'::text])) |
 | `attempt_count` | `int4` | no | `0` | — |
@@ -618,6 +630,7 @@ Total applied migrations: **40**.
 | `itinerary` | `jsonb` | no | `'[]'::jsonb` | — |
 | `status` | `text` | no | `'draft'::text` | (status = ANY (ARRAY['draft'::text, 'published'::text, 'archived'::text])) |
 | `created_at` | `timestamptz` | no | `now()` | — |
+| `updated_at` | `timestamptz` | no | `now()` | — |
 
 **Foreign keys & relations:**
 
@@ -645,6 +658,7 @@ Total applied migrations: **40**.
 | `exclusions` | `jsonb` | no | `'[]'::jsonb` | — |
 | `status` | `text` | no | `'draft'::text` | (status = ANY (ARRAY['draft'::text, 'published'::text, 'archived'::text])) |
 | `created_at` | `timestamptz` | no | `now()` | — |
+| `updated_at` | `timestamptz` | no | `now()` | — |
 
 **Foreign keys & relations:**
 
@@ -706,6 +720,7 @@ Total applied migrations: **40**.
 | `bookings_vehicle_model_id_fkey` | `public.bookings` (`vehicle_model_id`) | `public.vehicle_models` (`id`) | Incoming (Referenced by) |
 | `fare_rules_vehicle_model_id_fkey` | `public.fare_rules` (`vehicle_model_id`) | `public.vehicle_models` (`id`) | Incoming (Referenced by) |
 | `outstation_route_vehicles_vehicle_model_id_fkey` | `public.outstation_route_vehicles` (`vehicle_model_id`) | `public.vehicle_models` (`id`) | Incoming (Referenced by) |
+| `rental_enquiries_vehicle_model_id_fkey` | `public.rental_enquiries` (`vehicle_model_id`) | `public.vehicle_models` (`id`) | Incoming (Referenced by) |
 
 ## Live advisory & RLS State
 
