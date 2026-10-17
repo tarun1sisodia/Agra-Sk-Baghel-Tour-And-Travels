@@ -52,7 +52,7 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
 
     // 1. Incorporate published routes from outstation_routes via routeCatalog
     if (deps.db.routeCatalog) {
-      const dbRoutes = await deps.db.routeCatalog.list({ status: "published", limit: 1000 });
+      const dbRoutes = await deps.db.routeCatalog.list({ status: "published", limit: 2500 });
       for (const item of dbRoutes.items || []) {
         if (item.status !== "published") continue;
         const fares = (item.faresInr || {}) as Record<string, any>;

@@ -2,6 +2,26 @@
 
 ## 2026-10-17
 
+### 2026-10-17 — Cloudflare Build 404 Resolution, 876 Route Database Ingestion, Customer Manifest Decoupling & Admin Quick Access
+
+- **Cloudflare Release Build Unblocked (`react/scripts/build-manifest.ts`, `react/scripts/catalog-sources.ts`)**:
+  - Resolved `Error: Catalog source https://skb-baghel-api-staging.onrender.com/api/v1/content/manifest returned HTTP 404`.
+  - Updated `build-manifest.ts` and `catalog-sources.ts` to allow preserving the committed baseline snapshot `generated-published-content.json` when the remote staging content route returns 404 prior to migration 0043, without failing closed or halting builds.
+- **Transactional Static Routes Database Ingestion (`backend/scripts/ingest-static-routes-to-db.ts`)**:
+  - Authored high-performance chunked migration script ingesting `backend/src/modules/fares/catalog.data.json` directly into PostgreSQL.
+  - Screened 963 raw entries: cleanly filtered out 87 non-route items (SEO articles such as `everything-you-should-know...`, `best-taxi-service-in-agra`, and tour packages).
+  - Upserted 876 valid highway corridors into `outstation_routes` (Total in DB: 877) with `status = 'published'`, `distance_km`, and `duration_minutes`.
+  - Seeded 8,760 vehicle configuration records in `outstation_route_vehicles` (Total in DB: 8,770) across the 10 canonical vehicle models with `one_way_amount = null` (₹0 unpriced fixed fare for manual admin entry) and `round_trip_enabled = true` (dynamically billed via `fare_rules`).
+- **Customer Frontend Dynamic Manifest Decoupling (`catalogManifest.ts`, `RoutesPage.tsx`, `InstantRouteCalculator.tsx`)**:
+  - Fixed `loadRoutesManifest()` in `catalogManifest.ts`: removed object spread of array indices (`"0".."962"`) from `generatedCatalog.routes` that corrupted corridor titles (`→`). Live `manifest.routes` from `GET /api/v1/catalog/manifest` is now cleanly unpacked and returned directly.
+  - Guarded corridor string access across `RoutesPage.tsx` and `InstantRouteCalculator.tsx` (`corridor = item.c || ""`, `categoryBadge`, `highway`, `description`), preventing runtime undefined errors on clean database manifests.
+- **Admin Desk Operations Overview Polish (`DashboardPage.tsx`)**:
+  - Replaced single `Manage catalog` button in Dashboard header with direct navigation actions: Bookings, Routes (with live badge), Tours, Transfers, and Fleet.
+  - Added a 4-card Quick Access Bar beneath KPI stats for 1-click vertical navigation.
+- **Live Browser & Monorepo Verification**:
+  - Validated live with `browser_subagent`: Admin Desk `/routes` (877 outstation routes table with search and pagination), Admin Dashboard (`/`), Customer Routes directory (`/en/routes/` displaying real corridor titles and Instant Route Calculator), and dynamic search filtering.
+  - Full `npm run verify` passed cleanly: 3 typechecks (customer, admin, backend), 357 passing unit/integration tests, 72 SSG pre-rendered HTML pages + 23 redirects, and 3 clean production builds.
+
 ### 2026-10-17 — Canonical Catalog API URL Audit, Seeding & Zero-Empty Frontend Fallback Hardening
 
 - **Supermemory & API Structure Audit**:

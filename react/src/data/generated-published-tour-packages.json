@@ -6,14 +6,12 @@
     "durationText": "1 day",
     "days": 1,
     "nights": 0,
-    "baseTierCode": "sedan",
+    "baseTierCode": null,
     "startingPriceInr": 3499,
     "fleetPrices": {
-      "sedan": 3499,
-      "ertiga": 4299,
-      "urbania": 8999
+      "ertiga": 4299
     },
-    "nightChargeInr": 0,
+    "nightChargeInr": null,
     "inclusionsHighlight": "Dedicated AC Cab, Uniformed Chauffeur, Highway Tolls & Chilled Water",
     "inclusionsNote": "Doorstep hotel or railway station pickup anywhere in Agra.",
     "source": "Agra",
@@ -62,68 +60,35 @@
     "imageUrl": "/assets/places/gallery/taj-mahal-01.jpg",
     "gallery": [
       {
-        "alt": "Taj Mahal dawn reflection Agra",
         "url": "/assets/places/gallery/taj-mahal-01.jpg",
-        "caption": "Taj Mahal reflection pool at dawn"
+        "alt": "Taj Mahal dawn reflection Agra",
+        "caption": "Taj Mahal reflection pool at dawn",
+        "sortOrder": 0
       },
       {
-        "alt": "Amar Singh Gate Agra Red Fort",
         "url": "/assets/places/gallery/agra-fort-01.jpg",
-        "caption": "Grand Amar Singh Gate at Agra Red Fort"
+        "alt": "Amar Singh Gate Agra Red Fort",
+        "caption": "Grand Amar Singh Gate at Agra Red Fort",
+        "sortOrder": 1
       },
       {
-        "alt": "Sunset vantage point over Yamuna",
         "url": "/assets/places/gallery/mehtab-bagh-01.jpg",
-        "caption": "Sunset vantage point over Yamuna"
+        "alt": "Sunset vantage point over Yamuna",
+        "caption": "Sunset vantage point over Yamuna",
+        "sortOrder": 2
       },
       {
-        "alt": "Taj Mahal marble archways",
         "url": "/assets/places/gallery/taj-mahal-02.jpg",
-        "caption": "Taj Mahal marble archways & minarets"
+        "alt": "Taj Mahal marble archways",
+        "caption": "Taj Mahal marble archways & minarets",
+        "sortOrder": 3
       }
     ],
     "status": "published",
     "isActive": true,
-    "createdAt": "2026-10-08T10:32:20.000Z",
-    "updatedAt": "2026-10-08T10:32:20.000Z",
-    "upgrades": [
-      {
-        "id": "ce84bbf7-ce1f-47ea-8d6c-a17eabf05581",
-        "packageId": null,
-        "tierCode": "ertiga",
-        "passengerNote": "Up to 6 Passengers with Luggage",
-        "surchargeInr": 800,
-        "createdAt": "2026-10-08T10:32:20.000Z",
-        "updatedAt": "2026-10-08T10:32:20.000Z"
-      },
-      {
-        "id": "6c06181e-6be4-47ee-886b-301f1ed892a2",
-        "packageId": null,
-        "tierCode": "innova-crysta",
-        "passengerNote": "VIP Executive Comfort (6–7 Passengers)",
-        "surchargeInr": 1800,
-        "createdAt": "2026-10-08T10:32:20.000Z",
-        "updatedAt": "2026-10-08T10:32:20.000Z"
-      },
-      {
-        "id": "d190f2a1-a2c0-49e2-8564-22d65eafd51b",
-        "packageId": null,
-        "tierCode": "tempo-traveller",
-        "passengerNote": "Large Family / Group (12–16 Passengers)",
-        "surchargeInr": 3500,
-        "createdAt": "2026-10-08T10:32:20.000Z",
-        "updatedAt": "2026-10-08T10:32:20.000Z"
-      },
-      {
-        "id": "16ce9891-1c21-4266-8bd3-f4a4101465a4",
-        "packageId": null,
-        "tierCode": "urbania",
-        "passengerNote": "Ultra-Luxury Chauffeur Cruiser (10–17 Passengers)",
-        "surchargeInr": 5500,
-        "createdAt": "2026-10-08T10:32:20.000Z",
-        "updatedAt": "2026-10-08T10:32:20.000Z"
-      }
-    ],
+    "createdAt": "2026-10-17T13:32:27.081Z",
+    "updatedAt": "2026-10-17T13:32:27.081Z",
+    "upgrades": [],
     "slug": "same-day-agra-taj-mahal-tour",
     "image": "/assets/places/gallery/taj-mahal-01.jpg"
   },
@@ -134,14 +99,12 @@
     "durationText": "1 day",
     "days": 1,
     "nights": 0,
-    "baseTierCode": "sedan",
+    "baseTierCode": null,
     "startingPriceInr": 3999,
     "fleetPrices": {
-      "sedan": 3999,
-      "ertiga": 4799,
-      "urbania": 9499
+      "ertiga": 4799
     },
-    "nightChargeInr": 0,
+    "nightChargeInr": null,
     "inclusionsHighlight": "Pre-Dawn Hotel Pickup, Chauffeur Allowance & Sanitized AC Cab",
     "inclusionsNote": "Optimal pre-dawn timing avoids midday tourist crowds.",
     "source": "Agra",
@@ -177,63 +140,29 @@
     "imageUrl": "/assets/places/gallery/taj-mahal-02.jpg",
     "gallery": [
       {
-        "alt": "Taj Mahal dome architecture",
         "url": "/assets/places/gallery/taj-mahal-02.jpg",
-        "caption": "Taj Mahal marble archways & minarets"
+        "alt": "Taj Mahal dome architecture",
+        "caption": "Taj Mahal marble archways & minarets",
+        "sortOrder": 0
       },
       {
-        "alt": "Taj Mahal dawn reflection Agra",
         "url": "/assets/places/gallery/taj-mahal-01.jpg",
-        "caption": "Taj Mahal reflection pool at dawn"
+        "alt": "Taj Mahal dawn reflection Agra",
+        "caption": "Taj Mahal reflection pool at dawn",
+        "sortOrder": 1
       },
       {
-        "alt": "Diwan-i-Khas Agra Fort",
         "url": "/assets/places/gallery/agra-fort-02.jpg",
-        "caption": "Diwan-i-Khas marble royal pavilion"
+        "alt": "Diwan-i-Khas Agra Fort",
+        "caption": "Diwan-i-Khas marble royal pavilion",
+        "sortOrder": 2
       }
     ],
     "status": "published",
     "isActive": true,
-    "createdAt": "2026-10-08T10:32:20.000Z",
-    "updatedAt": "2026-10-08T10:32:20.000Z",
-    "upgrades": [
-      {
-        "id": "ce84bbf7-ce1f-47ea-8d6c-a17eabf05581",
-        "packageId": null,
-        "tierCode": "ertiga",
-        "passengerNote": "Up to 6 Passengers with Luggage",
-        "surchargeInr": 800,
-        "createdAt": "2026-10-08T10:32:20.000Z",
-        "updatedAt": "2026-10-08T10:32:20.000Z"
-      },
-      {
-        "id": "6c06181e-6be4-47ee-886b-301f1ed892a2",
-        "packageId": null,
-        "tierCode": "innova-crysta",
-        "passengerNote": "VIP Executive Comfort (6–7 Passengers)",
-        "surchargeInr": 1800,
-        "createdAt": "2026-10-08T10:32:20.000Z",
-        "updatedAt": "2026-10-08T10:32:20.000Z"
-      },
-      {
-        "id": "d190f2a1-a2c0-49e2-8564-22d65eafd51b",
-        "packageId": null,
-        "tierCode": "tempo-traveller",
-        "passengerNote": "Large Family / Group (12–16 Passengers)",
-        "surchargeInr": 3500,
-        "createdAt": "2026-10-08T10:32:20.000Z",
-        "updatedAt": "2026-10-08T10:32:20.000Z"
-      },
-      {
-        "id": "16ce9891-1c21-4266-8bd3-f4a4101465a4",
-        "packageId": null,
-        "tierCode": "urbania",
-        "passengerNote": "Ultra-Luxury Chauffeur Cruiser (10–17 Passengers)",
-        "surchargeInr": 5500,
-        "createdAt": "2026-10-08T10:32:20.000Z",
-        "updatedAt": "2026-10-08T10:32:20.000Z"
-      }
-    ],
+    "createdAt": "2026-10-17T13:32:27.081Z",
+    "updatedAt": "2026-10-17T13:32:27.081Z",
+    "upgrades": [],
     "slug": "taj-mahal-sunrise-tour",
     "image": "/assets/places/gallery/taj-mahal-02.jpg"
   },
@@ -244,14 +173,12 @@
     "durationText": "1 day",
     "days": 1,
     "nights": 0,
-    "baseTierCode": "sedan",
+    "baseTierCode": null,
     "startingPriceInr": 3200,
     "fleetPrices": {
-      "sedan": 3200,
-      "ertiga": 3900,
-      "urbania": 8500
+      "ertiga": 3900
     },
-    "nightChargeInr": 0,
+    "nightChargeInr": null,
     "inclusionsHighlight": "Dedicated Chauffeur, Interstate Permits, Parking & Fuel",
     "inclusionsNote": "Seamless temple coordination for Banke Bihari & Prem Mandir.",
     "source": "Agra",
@@ -290,64 +217,75 @@
     "imageUrl": "/assets/places/gallery/mathura-vrindavan-01.jpg",
     "gallery": [
       {
-        "alt": "Prem Mandir illuminated at night",
         "url": "/assets/places/gallery/mathura-vrindavan-01.jpg",
-        "caption": "Prem Mandir & Banke Bihari illumination"
+        "alt": "Prem Mandir illuminated at night",
+        "caption": "Prem Mandir & Banke Bihari illumination",
+        "sortOrder": 0
       },
       {
-        "alt": "Buland Darwaza Fatehpur Sikri",
         "url": "/assets/places/gallery/fatehpur-sikri-01.jpg",
-        "caption": "Buland Darwaza imperial gate"
+        "alt": "Buland Darwaza Fatehpur Sikri",
+        "caption": "Buland Darwaza imperial gate",
+        "sortOrder": 1
       },
       {
-        "alt": "Mehtab Bagh across Yamuna River",
         "url": "/assets/places/gallery/mehtab-bagh-01.jpg",
-        "caption": "Mehtab Bagh sunset vantage point"
+        "alt": "Mehtab Bagh across Yamuna River",
+        "caption": "Mehtab Bagh sunset vantage point",
+        "sortOrder": 2
       }
     ],
     "status": "published",
     "isActive": true,
-    "createdAt": "2026-10-08T10:32:20.000Z",
-    "updatedAt": "2026-10-08T10:32:20.000Z",
-    "upgrades": [
-      {
-        "id": "ce84bbf7-ce1f-47ea-8d6c-a17eabf05581",
-        "packageId": null,
-        "tierCode": "ertiga",
-        "passengerNote": "Up to 6 Passengers with Luggage",
-        "surchargeInr": 800,
-        "createdAt": "2026-10-08T10:32:20.000Z",
-        "updatedAt": "2026-10-08T10:32:20.000Z"
-      },
-      {
-        "id": "6c06181e-6be4-47ee-886b-301f1ed892a2",
-        "packageId": null,
-        "tierCode": "innova-crysta",
-        "passengerNote": "VIP Executive Comfort (6–7 Passengers)",
-        "surchargeInr": 1800,
-        "createdAt": "2026-10-08T10:32:20.000Z",
-        "updatedAt": "2026-10-08T10:32:20.000Z"
-      },
-      {
-        "id": "d190f2a1-a2c0-49e2-8564-22d65eafd51b",
-        "packageId": null,
-        "tierCode": "tempo-traveller",
-        "passengerNote": "Large Family / Group (12–16 Passengers)",
-        "surchargeInr": 3500,
-        "createdAt": "2026-10-08T10:32:20.000Z",
-        "updatedAt": "2026-10-08T10:32:20.000Z"
-      },
-      {
-        "id": "16ce9891-1c21-4266-8bd3-f4a4101465a4",
-        "packageId": null,
-        "tierCode": "urbania",
-        "passengerNote": "Ultra-Luxury Chauffeur Cruiser (10–17 Passengers)",
-        "surchargeInr": 5500,
-        "createdAt": "2026-10-08T10:32:20.000Z",
-        "updatedAt": "2026-10-08T10:32:20.000Z"
-      }
-    ],
+    "createdAt": "2026-10-17T13:32:27.081Z",
+    "updatedAt": "2026-10-17T13:32:27.081Z",
+    "upgrades": [],
     "slug": "mathura-vrindavan",
     "image": "/assets/places/gallery/mathura-vrindavan-01.jpg"
+  },
+  {
+    "id": "33c61479-e652-472e-9b0f-ffeae6591bb4",
+    "packageCode": "qa-draft-package",
+    "name": "QA Draft Package",
+    "durationText": "1 Day",
+    "days": 1,
+    "nights": 0,
+    "baseTierCode": null,
+    "startingPriceInr": 1200,
+    "fleetPrices": {},
+    "nightChargeInr": null,
+    "inclusionsHighlight": "Private AC Cab, Chauffeur Allowance, Fuel & State Taxes",
+    "inclusionsNote": null,
+    "source": "Agra",
+    "destination": "Jaipur",
+    "inclusions": [
+      "Private AC Cab dedicated exclusively to your group",
+      "Police-verified professional chauffeur & fuel charges",
+      "All highway toll taxes & state border permits",
+      "Doorstep hotel / railway station pickup & drop",
+      "Chilled packaged drinking water bottles"
+    ],
+    "exclusions": [
+      "Monument entry tickets & camera/drone permits",
+      "Meals, buffet lunches & personal snacks/dining",
+      "Chauffeur / guide discretionary tips & gratuities"
+    ],
+    "itinerary": [],
+    "imageUrl": "/assets/places/gallery/taj-mahal-01.jpg",
+    "gallery": [
+      {
+        "url": "/assets/places/gallery/taj-mahal-01.jpg",
+        "alt": "Taj Mahal dawn reflection Agra",
+        "caption": "Taj Mahal reflection pool at dawn",
+        "sortOrder": 0
+      }
+    ],
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-10-17T14:23:55.216Z",
+    "updatedAt": "2026-10-17T14:24:36.708Z",
+    "upgrades": [],
+    "slug": "qa-draft-package",
+    "image": "/assets/places/gallery/taj-mahal-01.jpg"
   }
 ]

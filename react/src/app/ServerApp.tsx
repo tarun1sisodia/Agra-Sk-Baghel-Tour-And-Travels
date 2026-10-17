@@ -65,19 +65,19 @@ type GeneratedRouteItem = {
   [key: string]: unknown;
 };
 
-const publishedCatalog = (generatedPublishedCatalog as GeneratedCatalogItem[]).filter(
+const publishedCatalog = (generatedPublishedCatalog as unknown as GeneratedCatalogItem[]).filter(
   (item) => Boolean(item && item.slug && item.title),
 );
-const publishedRoutes = (generatedPublishedRoutes as GeneratedRouteItem[]).filter(
+const publishedRoutes = (generatedPublishedRoutes as unknown as GeneratedRouteItem[]).filter(
   (item) => Boolean(item && item.slug && item.sourceCity),
 );
-const publishedTourPackages = (generatedPublishedTourPackages as DossierTourPackageItem[]).filter(
+const publishedTourPackages = (generatedPublishedTourPackages as unknown as DossierTourPackageItem[]).filter(
   (item) => Boolean(item && item.slug && item.name),
 );
-const publishedTransferRoutes = (generatedPublishedTransferRoutes as DossierTransferRouteItem[]).filter(
+const publishedTransferRoutes = (generatedPublishedTransferRoutes as unknown as DossierTransferRouteItem[]).filter(
   (item) => Boolean(item && item.slug && item.name),
 );
-const publishedLocalPackages = (generatedPublishedLocalPackages as DossierLocalPackageItem[]).filter(
+const publishedLocalPackages = (generatedPublishedLocalPackages as unknown as DossierLocalPackageItem[]).filter(
   (item) => Boolean(item && item.slug && item.name),
 );
 const publishedMonuments = (

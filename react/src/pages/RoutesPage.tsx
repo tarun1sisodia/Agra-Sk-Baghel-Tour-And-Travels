@@ -149,10 +149,13 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
   const allRoutes = useMemo<RouteItem[]>(() => {
     if (!manifest || Object.keys(manifest).length === 0) return [];
     return Object.entries(manifest).map(([slug, item]) => {
+      const origin = item.o || "";
+      const destination = item.d || "";
+      const corridor = item.c || "";
       const isLocal = item.pm === "day120";
       const isTempo = item.pm === "tempo";
       let category: RouteCategory = "expressway";
-      const cLower = (item.c || "").toLowerCase();
+      const cLower = corridor.toLowerCase();
       if (cLower.includes("expressway") || cLower.includes("delhi") || cLower.includes("gurgaon") || cLower.includes("noida")) {
         category = "expressway";
       } else if (cLower.includes("jaipur") || cLower.includes("golden") || cLower.includes("rajasthan")) {
@@ -169,30 +172,30 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
         category = "expressway";
       }
 
-      const durationHrs = Math.floor(item.m / 60);
-      const durationMins = item.m % 60;
+      const durationHrs = Math.floor((item.m || 0) / 60);
+      const durationMins = (item.m || 0) % 60;
       const durationStr = `${durationHrs}h${durationMins ? ` ${durationMins}m` : ""}`;
-      const dist = item.km > 0 ? item.km : durationHrs * 55;
+      const dist = (item.km || 0) > 0 ? item.km : durationHrs * 55;
 
       return {
         id: slug,
-        name: `${item.o} → ${item.d}`,
-        origin: item.o,
-        destination: item.d,
+        name: `${origin} → ${destination}`,
+        origin,
+        destination,
         category,
-        categoryBadge: item.c ? item.c.replace("->", "→") : (isLocal ? "LOCAL 120KM PACKAGE" : "OUTSTATION CORRIDOR"),
+        categoryBadge: corridor ? corridor.replace("->", "→") : (isLocal ? "LOCAL 120KM PACKAGE" : "OUTSTATION CORRIDOR"),
         distanceKm: dist,
         duration: durationStr,
-        highway: item.c.includes("->") ? item.c.replace("->", "⇄") : item.c || "Direct Highway Corridor",
+        highway: corridor.includes("->") ? corridor.replace("->", "⇄") : corridor || "Direct Highway Corridor",
         description: isLocal
-          ? `Dedicated 120 km full-day local & outstation chauffeur service connecting ${item.o} to ${item.d}.`
+          ? `Dedicated 120 km full-day local & outstation chauffeur service connecting ${origin} to ${destination}.`
           : isTempo
-          ? `Spacious 9-26 seater Tempo Traveller & Force Urbania group rental connecting ${item.o} to ${item.d}.`
-          : `Point-to-point AC outstation cab directly connecting ${item.o} to ${item.d} with transparent pricing.`,
+          ? `Spacious 9-26 seater Tempo Traveller & Force Urbania group rental connecting ${origin} to ${destination}.`
+          : `Point-to-point AC outstation cab directly connecting ${origin} to ${destination} with transparent pricing.`,
         tollNote: item.toll === 1 ? "Highway tolls included in one-way fare" : "Tolls as per actuals",
-        stateTaxNote: item.o.toLowerCase().includes("delhi") || item.d.toLowerCase().includes("delhi")
+        stateTaxNote: origin.toLowerCase().includes("delhi") || destination.toLowerCase().includes("delhi")
           ? "Delhi/Haryana state permit included"
-          : item.o.toLowerCase().includes("jaipur") || item.d.toLowerCase().includes("jaipur")
+          : origin.toLowerCase().includes("jaipur") || destination.toLowerCase().includes("jaipur")
           ? "Rajasthan state entry tax included"
           : "Interstate commercial permits clear",
         pricingModel: item.pm,
@@ -200,8 +203,8 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
           sedan: item.fs ?? 0,
           ertiga: item.fe ?? 0,
           crysta: item.fi ?? 0,
-          tempo: item.ft > 100 ? item.ft : (dist > 0 && item.ft ? dist * item.ft : 0),
-          urbania: item.fu > 100 ? item.fu : (dist > 0 && item.fu ? dist * item.fu : 0),
+          tempo: (item.ft || 0) > 100 ? item.ft : (dist > 0 && item.ft ? dist * item.ft : 0),
+          urbania: (item.fu || 0) > 100 ? item.fu : (dist > 0 && item.fu ? dist * item.fu : 0),
         },
       };
     });
@@ -248,12 +251,12 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
       if (!matchesFilter) return false;
       if (!q) return true;
       return (
-        route.name.toLowerCase().includes(q) ||
-        (route.origin && route.origin.toLowerCase().includes(q)) ||
-        (route.destination && route.destination.toLowerCase().includes(q)) ||
-        route.categoryBadge.toLowerCase().includes(q) ||
-        route.highway.toLowerCase().includes(q) ||
-        route.description.toLowerCase().includes(q)
+        (route.name || "").toLowerCase().includes(q) ||
+        (route.origin || "").toLowerCase().includes(q) ||
+        (route.destination || "").toLowerCase().includes(q) ||
+        (route.categoryBadge || "").toLowerCase().includes(q) ||
+        (route.highway || "").toLowerCase().includes(q) ||
+        (route.description || "").toLowerCase().includes(q)
       );
     });
   }, [allRoutes, selectedFilter, searchQuery]);

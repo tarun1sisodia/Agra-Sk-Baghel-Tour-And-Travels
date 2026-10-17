@@ -95,11 +95,13 @@ export function InstantRouteCalculator({
 
     // 1. Exact match on raw names
     for (const [slug, item] of Object.entries(manifest)) {
+      if (!item || typeof item.o !== "string" || typeof item.d !== "string") continue;
       if (item.o.toLowerCase() === cleanO && item.d.toLowerCase() === cleanD) return { slug, ...item };
     }
     // 2. Normalized city token match
     if (normO && normD) {
       for (const [slug, item] of Object.entries(manifest)) {
+        if (!item || typeof item.o !== "string" || typeof item.d !== "string") continue;
         const itemNormO = cleanCityName(item.o);
         const itemNormD = cleanCityName(item.d);
         if (itemNormO === normO && itemNormD === normD) {
@@ -109,6 +111,7 @@ export function InstantRouteCalculator({
     }
     // 3. Substring match
     for (const [slug, item] of Object.entries(manifest)) {
+      if (!item || typeof item.o !== "string" || typeof item.d !== "string") continue;
       const itemOLower = item.o.toLowerCase();
       const itemDLower = item.d.toLowerCase();
       if (
@@ -121,7 +124,7 @@ export function InstantRouteCalculator({
     // 4. Fallback slug search
     const slugKey = `${normO || cleanO.replace(/\s+/g, "-")}-to-${normD || cleanD.replace(/\s+/g, "-")}`;
     for (const [slug, item] of Object.entries(manifest)) {
-      if (slug.includes(slugKey)) {
+      if (typeof slug === "string" && slug.includes(slugKey)) {
         return { slug, ...item };
       }
     }

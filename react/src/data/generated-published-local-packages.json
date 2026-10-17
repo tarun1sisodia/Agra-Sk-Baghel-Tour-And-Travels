@@ -1,123 +1,26 @@
 [
   {
-    "id": "f0000000-0000-4000-a000-000000000001",
-    "packageCode": "agra-standard-sightseeing",
-    "name": "Agra Standard Sightseeing (8 Hours / 80 Km)",
-    "durationHours": 8,
-    "includedKm": 80,
-    "covers": "Taj Mahal, Agra Fort, Mehtab Bagh, Itmad-Ud-Daulah (Baby Taj), Sadar Bazaar",
-    "parkingNote": "Monument entry fees & parking billed at actuals",
-    "fleetPrices": {
-      "sedan": 1900,
-      "ertiga": 2600,
-      "innova-crysta": 2850,
-      "tempo-traveller": 5500,
-      "urbania": 7500
-    },
-    "usePerKm": false,
-    "extraRates": {
-      "sedan": { "per_hr": 150, "per_km": 10 },
-      "ertiga": { "per_hr": 200, "per_km": 14 },
-      "innova-crysta": { "per_hr": 250, "per_km": 18 },
-      "tempo-traveller": { "per_hr": 400, "per_km": 25 },
-      "urbania": { "per_hr": 600, "per_km": 34 }
-    },
-    "nightChargeInr": 0,
-    "status": "published",
-    "isActive": true,
-    "createdAt": "2026-10-08T10:32:20.000Z",
-    "updatedAt": "2026-10-08T10:32:20.000Z",
-    "slug": "agra-standard-sightseeing"
-  },
-  {
     "id": "f0000000-0000-4000-a000-000000000002",
     "packageCode": "taj-mahal-sightseeing",
     "name": "Taj Mahal & Mehtab Bagh Sunrise Tour (4 Hours / 40 Km)",
     "durationHours": 4,
     "includedKm": 40,
-    "covers": "Taj Mahal, Mehtab Bagh, Taj Nature Walk",
-    "parkingNote": "Monument entry tickets & parking billed at actuals",
+    "covers": "",
+    "parkingNote": null,
     "fleetPrices": {
-      "sedan": 1200,
-      "ertiga": 1600,
-      "innova-crysta": 1900,
-      "tempo-traveller": 3500,
-      "urbania": 5000
+      "ertiga": 1600
     },
+    "imageUrl": null,
+    "gallery": [],
     "usePerKm": false,
-    "extraRates": {
-      "sedan": { "per_hr": 150, "per_km": 10 },
-      "ertiga": { "per_hr": 200, "per_km": 14 },
-      "innova-crysta": { "per_hr": 250, "per_km": 18 },
-      "tempo-traveller": { "per_hr": 400, "per_km": 25 },
-      "urbania": { "per_hr": 600, "per_km": 34 }
-    },
-    "nightChargeInr": 0,
+    "extraRates": null,
+    "nightChargeInr": null,
     "status": "published",
     "isActive": true,
-    "createdAt": "2026-10-08T10:32:20.000Z",
-    "updatedAt": "2026-10-08T10:32:20.000Z",
-    "slug": "taj-mahal-sightseeing"
-  },
-  {
-    "id": "f0000000-0000-4000-a000-000000000003",
-    "packageCode": "agra-fort-taj-tour",
-    "name": "Taj Mahal & Agra Red Fort Express Tour (6 Hours / 60 Km)",
-    "durationHours": 6,
-    "includedKm": 60,
-    "covers": "Taj Mahal, Agra Red Fort, Kinari Bazaar",
-    "parkingNote": "Monument entry tickets & parking billed at actuals",
-    "fleetPrices": {
-      "sedan": 1600,
-      "ertiga": 2200,
-      "innova-crysta": 2500,
-      "tempo-traveller": 4500,
-      "urbania": 6500
-    },
-    "usePerKm": false,
-    "extraRates": {
-      "sedan": { "per_hr": 150, "per_km": 10 },
-      "ertiga": { "per_hr": 200, "per_km": 14 },
-      "innova-crysta": { "per_hr": 250, "per_km": 18 },
-      "tempo-traveller": { "per_hr": 400, "per_km": 25 },
-      "urbania": { "per_hr": 600, "per_km": 34 }
-    },
-    "nightChargeInr": 0,
-    "status": "published",
-    "isActive": true,
-    "createdAt": "2026-10-08T10:32:20.000Z",
-    "updatedAt": "2026-10-08T10:32:20.000Z",
-    "slug": "agra-fort-taj-tour"
-  },
-  {
-    "id": "f0000000-0000-4000-a000-000000000004",
-    "packageCode": "fatehpur-sikri-tour",
-    "name": "Fatehpur Sikri Imperial Heritage Excursion (6 Hours / 90 Km)",
-    "durationHours": 6,
-    "includedKm": 90,
-    "covers": "Fatehpur Sikri, Buland Darwaza, Salim Chishti Dargah, Panch Mahal",
-    "parkingNote": "Monument entry tickets & parking billed at actuals",
-    "fleetPrices": {
-      "sedan": 2000,
-      "ertiga": 2700,
-      "innova-crysta": 3000,
-      "tempo-traveller": 5500,
-      "urbania": 7500
-    },
-    "usePerKm": false,
-    "extraRates": {
-      "sedan": { "per_hr": 150, "per_km": 10 },
-      "ertiga": { "per_hr": 200, "per_km": 14 },
-      "innova-crysta": { "per_hr": 250, "per_km": 18 },
-      "tempo-traveller": { "per_hr": 400, "per_km": 25 },
-      "urbania": { "per_hr": 600, "per_km": 34 }
-    },
-    "nightChargeInr": 0,
-    "status": "published",
-    "isActive": true,
-    "createdAt": "2026-10-08T10:32:20.000Z",
-    "updatedAt": "2026-10-08T10:32:20.000Z",
-    "slug": "fatehpur-sikri-tour"
+    "createdAt": "2026-10-17T13:32:27.081Z",
+    "updatedAt": "2026-10-17T13:32:27.081Z",
+    "slug": "taj-mahal-sightseeing",
+    "image": "/assets/booking/taj-mahal.webp"
   },
   {
     "id": "f0000000-0000-4000-a000-000000000005",
@@ -125,28 +28,90 @@
     "name": "Baby Taj & Mehtab Bagh Sunset Sightseeing (4 Hours / 40 Km)",
     "durationHours": 4,
     "includedKm": 40,
-    "covers": "Itmad-Ud-Daulah (Baby Taj), Mehtab Bagh, Chini Ka Rauza",
-    "parkingNote": "Monument entry tickets & parking billed at actuals",
+    "covers": "",
+    "parkingNote": null,
     "fleetPrices": {
-      "sedan": 1300,
-      "ertiga": 1700,
-      "innova-crysta": 2100,
-      "tempo-traveller": 3800,
-      "urbania": 5200
+      "ertiga": 1700
     },
+    "imageUrl": null,
+    "gallery": [],
     "usePerKm": false,
-    "extraRates": {
-      "sedan": { "per_hr": 150, "per_km": 10 },
-      "ertiga": { "per_hr": 200, "per_km": 14 },
-      "innova-crysta": { "per_hr": 250, "per_km": 18 },
-      "tempo-traveller": { "per_hr": 400, "per_km": 25 },
-      "urbania": { "per_hr": 600, "per_km": 34 }
-    },
-    "nightChargeInr": 0,
+    "extraRates": null,
+    "nightChargeInr": null,
     "status": "published",
     "isActive": true,
-    "createdAt": "2026-10-08T10:32:20.000Z",
-    "updatedAt": "2026-10-08T10:32:20.000Z",
-    "slug": "baby-taj-mehtab-bagh"
+    "createdAt": "2026-10-17T13:32:27.081Z",
+    "updatedAt": "2026-10-17T13:32:27.081Z",
+    "slug": "baby-taj-mehtab-bagh",
+    "image": "/assets/booking/taj-mahal.webp"
+  },
+  {
+    "id": "f0000000-0000-4000-a000-000000000003",
+    "packageCode": "agra-fort-taj-tour",
+    "name": "Taj Mahal & Agra Red Fort Express Tour (6 Hours / 60 Km)",
+    "durationHours": 6,
+    "includedKm": 60,
+    "covers": "",
+    "parkingNote": null,
+    "fleetPrices": {
+      "ertiga": 2200
+    },
+    "imageUrl": null,
+    "gallery": [],
+    "usePerKm": false,
+    "extraRates": null,
+    "nightChargeInr": null,
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-10-17T13:32:27.081Z",
+    "updatedAt": "2026-10-17T13:32:27.081Z",
+    "slug": "agra-fort-taj-tour",
+    "image": "/assets/packages/agra-fort.webp"
+  },
+  {
+    "id": "f0000000-0000-4000-a000-000000000004",
+    "packageCode": "fatehpur-sikri-tour",
+    "name": "Fatehpur Sikri Imperial Heritage Excursion (6 Hours / 90 Km)",
+    "durationHours": 6,
+    "includedKm": 90,
+    "covers": "",
+    "parkingNote": null,
+    "fleetPrices": {
+      "ertiga": 2700
+    },
+    "imageUrl": null,
+    "gallery": [],
+    "usePerKm": false,
+    "extraRates": null,
+    "nightChargeInr": null,
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-10-17T13:32:27.081Z",
+    "updatedAt": "2026-10-17T13:32:27.081Z",
+    "slug": "fatehpur-sikri-tour",
+    "image": "/assets/booking/fatehpur-sikri.webp"
+  },
+  {
+    "id": "f0000000-0000-4000-a000-000000000001",
+    "packageCode": "agra-standard-sightseeing",
+    "name": "Agra Standard Sightseeing (8 Hours / 80 Km)",
+    "durationHours": 8,
+    "includedKm": 80,
+    "covers": "",
+    "parkingNote": null,
+    "fleetPrices": {
+      "ertiga": 2600
+    },
+    "imageUrl": null,
+    "gallery": [],
+    "usePerKm": false,
+    "extraRates": null,
+    "nightChargeInr": null,
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-10-17T13:32:27.081Z",
+    "updatedAt": "2026-10-17T13:32:27.081Z",
+    "slug": "agra-standard-sightseeing",
+    "image": "/assets/booking/taj-mahal.webp"
   }
 ]

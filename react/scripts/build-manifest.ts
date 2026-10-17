@@ -84,7 +84,14 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
     try {
       return await fetchCatalogJson(source.url);
     } catch (error) {
-      if (failClosed) throw error;
+      if (failClosed) {
+        const contentSnapshotPath = join(reactRoot, "src", "data", "generated-published-content.json");
+        if (name === "content-manifest" && error instanceof Error && error.message.includes("404") && existsSync(contentSnapshotPath)) {
+          console.warn(`⚠️ [Manifest Builder] Remote ${name} returned 404 at ${redactCatalogUrl(source.url)}. Preserving committed baseline snapshot at ${contentSnapshotPath}.`);
+          return null;
+        }
+        throw error;
+      }
       console.warn(`⚠️ [Manifest Builder] ${name} unavailable (${error instanceof Error ? error.message : String(error)}); leaving the existing snapshot untouched.`);
       return null;
     }

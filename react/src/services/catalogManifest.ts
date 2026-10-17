@@ -159,12 +159,33 @@ export async function fetchCatalogManifest(): Promise<CatalogManifestData | null
 }
 
 export async function loadRoutesManifest(): Promise<Record<string, CompressedRoute>> {
-  const staticRoutes = ((generatedCatalog as any)?.routes || {}) as Record<string, CompressedRoute>;
   const manifest = await fetchCatalogManifest();
   if (manifest?.routes && Object.keys(manifest.routes).length > 0) {
-    return { ...staticRoutes, ...manifest.routes };
+    return manifest.routes;
   }
-  return staticRoutes;
+  const rawList = (generatedCatalog as any)?.routes;
+  if (Array.isArray(rawList)) {
+    const fallback: Record<string, CompressedRoute> = {};
+    for (const item of rawList) {
+      if (!item?.id) continue;
+      fallback[item.id] = {
+        o: item.origin || item.from || "",
+        d: item.destination || item.to || "",
+        km: Number(item.km) || 0,
+        m: Number(item.durationMins) || 0,
+        fs: item.fares?.sedan ?? null,
+        fe: item.fares?.ertiga ?? null,
+        fi: item.fares?.innova ?? null,
+        ft: item.fares?.tempo ?? null,
+        fu: item.fares?.urbania ?? null,
+        pm: item.pricingModel || "oneway",
+        c: item.corridor || "Direct Highway Corridor",
+        toll: item.toll === 0 ? 0 : 1,
+      };
+    }
+    return fallback;
+  }
+  return {};
 }
 
 export async function loadPublishedPackages(): Promise<TourPackage[]> {

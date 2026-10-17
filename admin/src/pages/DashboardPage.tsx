@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, CheckCircle2, IndianRupee, MessageSquare } from "lucide-react";
+import { CalendarDays, Car, CheckCircle2, IndianRupee, Map, MessageSquare, Package, Plane } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { AreaChart, DonutChart, RankedBars, VerticalBars } from "@/components/charts/Charts";
 import { StatCard } from "@/components/admin/StatCard";
@@ -185,10 +185,23 @@ export function DashboardPage() {
               Refresh
             </Button>
             <Button variant="outline" size="sm" className="min-h-[44px] sm:min-h-[32px]" onClick={() => navigate("/bookings")}>
-              Open bookings
+              Bookings
             </Button>
-            <Button variant="gold" size="sm" className="min-h-[44px] sm:min-h-[32px]" onClick={() => navigate("/catalog")}>
-              Manage catalog
+            <Button variant="gold" size="sm" className="min-h-[44px] sm:min-h-[32px]" onClick={() => navigate("/routes")}>
+              <Map className="mr-1.5 h-3.5 w-3.5" />
+              Routes
+            </Button>
+            <Button variant="outline" size="sm" className="min-h-[44px] sm:min-h-[32px]" onClick={() => navigate("/tour-packages")}>
+              <Package className="mr-1.5 h-3.5 w-3.5" />
+              Tours
+            </Button>
+            <Button variant="outline" size="sm" className="min-h-[44px] sm:min-h-[32px]" onClick={() => navigate("/local-transfers")}>
+              <Plane className="mr-1.5 h-3.5 w-3.5" />
+              Transfers
+            </Button>
+            <Button variant="outline" size="sm" className="min-h-[44px] sm:min-h-[32px]" onClick={() => navigate("/vehicles")}>
+              <Car className="mr-1.5 h-3.5 w-3.5" />
+              Fleet
             </Button>
           </div>
         }
@@ -233,6 +246,54 @@ export function DashboardPage() {
         />
         <StatCard index={2} label="Trips in transit" value={inTransit} format="number" icon={CheckCircle2} />
         <StatCard index={3} label="New inquiries" value={newInquiries} format="number" icon={MessageSquare} />
+      </div>
+
+      {/* Catalog & Verticals Quick Access Bar */}
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <button
+          type="button"
+          onClick={() => navigate("/routes")}
+          className="flex flex-col items-start gap-1 rounded-lg border border-border bg-surface-card p-3.5 text-left transition hover:border-gold/50 hover:bg-surface-card-hover"
+        >
+          <div className="flex items-center gap-2">
+            <Map className="h-4 w-4 text-gold" />
+            <span className="font-semibold text-sm text-ink">Outstation Routes</span>
+          </div>
+          <span className="text-xs text-ink-soft">Intercity highways & one-way fares</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate("/tour-packages")}
+          className="flex flex-col items-start gap-1 rounded-lg border border-border bg-surface-card p-3.5 text-left transition hover:border-teal/50 hover:bg-surface-card-hover"
+        >
+          <div className="flex items-center gap-2">
+            <Package className="h-4 w-4 text-teal" />
+            <span className="font-semibold text-sm text-ink">Tour Packages</span>
+          </div>
+          <span className="text-xs text-ink-soft">Multi-day itineraries & fixed packages</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate("/local-transfers")}
+          className="flex flex-col items-start gap-1 rounded-lg border border-border bg-surface-card p-3.5 text-left transition hover:border-gold-deep/50 hover:bg-surface-card-hover"
+        >
+          <div className="flex items-center gap-2">
+            <Plane className="h-4 w-4 text-gold-deep" />
+            <span className="font-semibold text-sm text-ink">Local & Transfers</span>
+          </div>
+          <span className="text-xs text-ink-soft">Airport hubs & 4h/8h city packages</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate("/vehicles")}
+          className="flex flex-col items-start gap-1 rounded-lg border border-border bg-surface-card p-3.5 text-left transition hover:border-ink-bright/50 hover:bg-surface-card-hover"
+        >
+          <div className="flex items-center gap-2">
+            <Car className="h-4 w-4 text-ink-bright" />
+            <span className="font-semibold text-sm text-ink">Fleet & Vehicles</span>
+          </div>
+          <span className="text-xs text-ink-soft">Models, groups & base fare rules</span>
+        </button>
       </div>
 
       {/* Revenue + status mix */}
