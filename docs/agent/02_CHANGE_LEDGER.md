@@ -2,6 +2,27 @@
 
 ## 2026-10-17
 
+### 2026-10-18 — Zero-Fallback Booking Policy Enforcement, Canonical UUID Regex Fix & Multi-Service Razorpay Verification
+
+- **Root Cause & Fix for "Please select an available vehicle model to proceed" (`CleanBookingPage.tsx`, `admin.service.ts`)**:
+  - `UUID_REGEX` in `CleanBookingPage.tsx` was previously using an RFC4122 v4-restrictive pattern (`[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}`), which failed validation on valid sequential seed UUIDs (such as `10000000-0000-0000-0002-000000000001` for Maruti Dzire and `20000000-0000-0000-0001-000000000001` for Agra to Delhi).
+  - Aligned regex to the monorepo-wide canonical 36-hex UUID standard (`/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/`).
+  - Form validation now immediately recognizes selected database vehicle models and allows smooth progression into the payment gateway.
+- **Strict Server-Authoritative Zero-Fallback Policy (`cleanFareApi.ts`, `bookings.service.ts`, `bookings.routes.ts`)**:
+  - Removed all mock/fabricated vehicle and product fallbacks (including fallback ID `a0000000-0000-4000-a000-000000000001` and dummy `"Maruti Dzire"` object) in `react/src/services/cleanFareApi.ts`.
+  - Customer voucher loading now strictly parses the backend response with `BookingDetailResponse.parse()` and `PaymentOrderResponse.parse()`, failing closed if required data is missing.
+  - Implemented `getBookingDetail()` in `BookingsService` and `BookingsRepository` with direct database joins against `tour_packages`, `local_packages`, `transfers`, and `outstation_routes` (`origin_name`, `destination_name`).
+- **Razorpay Test-Mode Payment Gateway Verification (`payments.service.ts`, `payments.routes.ts`)**:
+  - Backend payment order creation returns canonical `PaymentOrderResponse` containing server test key ID (`rzp_test_TjMGAr6XxRjSev`), Razorpay order ID, and integer paise advance amount.
+  - Verified checkout modal launch in browser with live `Secured by Razorpay` test frame.
+- **Fresh Multi-Service End-to-End Bookings Executed & Verified**:
+  - **Tour Package**: `Taj Mahal Sunrise Tour` (`d0000000-0000-4000-a000-000000000002`) with Maruti Dzire for Vikram Malhotra — Ticket `AGR-20261017-8648` (₹3,999 total, ₹1,120 advance) → status `confirmed`.
+  - **Local Sightseeing**: `Baby Taj & Mehtab Bagh Sunset Sightseeing` (`f0000000-0000-4000-a000-000000000005`) with Maruti Ertiga for Pooja Sharma — Ticket `AGR-20261017-3353` (₹1,700 total, ₹476 advance) → status `confirmed`.
+  - **Airport Transfer**: `Agra Airport (Kheria AGR) Transfer` (`e0000000-0000-4000-a000-000000000003`) with Innova Crysta for Captain Rahul Deshmukh — Ticket `AGR-20261017-8187` (₹1,250 total, ₹350 advance) → status `confirmed`.
+  - **Outstation Route**: `Agra to Delhi` (`20000000-0000-0000-0001-000000000001`) with Innova Crysta for Sunita Agarwal — Ticket `AGR-20261017-8972` (₹4,500 total, ₹1,260 advance) → status `confirmed`.
+  - Verified all 4 bookings appear with status `confirmed` in the live Admin Desk (`http://localhost:5174/bookings`).
+- **Monorepo Verification**: Full `npm run verify` passed cleanly (types x 3, 357 tests, SSG 72 pages, builds x 3).
+
 ### 2026-10-17 — End-to-End Multi-Vertical Booking Verification (Tour Package, Local Sightseeing, Transfers & Outstation) & Zero-Flash Booking Page Hardening
 
 - **Clean Booking Page Instant Load & Zero-Flash Hardening (`CleanBookingPage.tsx`)**:
