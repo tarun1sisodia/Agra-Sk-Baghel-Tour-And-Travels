@@ -531,6 +531,7 @@ export async function createAdminBooking(payload: {
   pickupAddress: string;
   dropAddress: string;
   pickupDatetime: string;
+  returnDatetime?: string;
   specialNotes?: string;
 }): Promise<any> {
   const json = await apiFetch(`/api/v1/bookings/draft`, {

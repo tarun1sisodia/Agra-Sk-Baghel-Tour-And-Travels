@@ -91,6 +91,7 @@ export function BookingsPage({ user }: { user: AdminUser }) {
 
   // New Booking Modal State
   const tomorrow = new Date(Date.now() + 24 * 3600 * 1000).toISOString().slice(0, 10);
+  const dayAfterTomorrow = new Date(Date.now() + 48 * 3600 * 1000).toISOString().slice(0, 10);
   const [isNewBookingOpen, setIsNewBookingOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -107,6 +108,8 @@ export function BookingsPage({ user }: { user: AdminUser }) {
     dropAddress: "",
     pickupDate: tomorrow,
     pickupTime: "10:00",
+    returnDate: dayAfterTomorrow,
+    returnTime: "10:00",
     specialNotes: "",
   });
 
@@ -121,6 +124,14 @@ export function BookingsPage({ user }: { user: AdminUser }) {
       if (isNaN(dt.getTime()) || dt.getTime() < Date.now() + 50 * 60 * 1000) {
         throw new Error("Pickup datetime must be at least 1 hour in the future.");
       }
+      let returnDatetime: string | undefined;
+      if (newForm.tripType === "round-trip") {
+        const returnDt = new Date(`${newForm.returnDate}T${newForm.returnTime}:00`);
+        if (isNaN(returnDt.getTime()) || returnDt.getTime() <= dt.getTime()) {
+          throw new Error("Return datetime must be after pickup for a round-trip booking.");
+        }
+        returnDatetime = returnDt.toISOString();
+      }
 
       const res = await createAdminBooking({
         customerName: newForm.customerName.trim(),
@@ -132,6 +143,7 @@ export function BookingsPage({ user }: { user: AdminUser }) {
         pickupAddress: newForm.pickupAddress.trim(),
         dropAddress: newForm.dropAddress.trim() || newForm.destinationName.trim(),
         pickupDatetime: dt.toISOString(),
+        returnDatetime,
         specialNotes: newForm.specialNotes.trim() || undefined,
       });
 
@@ -151,6 +163,8 @@ export function BookingsPage({ user }: { user: AdminUser }) {
           dropAddress: "",
           pickupDate: tomorrow,
           pickupTime: "10:00",
+          returnDate: dayAfterTomorrow,
+          returnTime: "10:00",
           specialNotes: "",
         });
       }, 1500);
@@ -726,6 +740,30 @@ export function BookingsPage({ user }: { user: AdminUser }) {
               />
             </div>
           </div>
+
+          {newForm.tripType === "round-trip" && (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-ink">Return Date *</label>
+                <Input
+                  type="date"
+                  required
+                  min={newForm.pickupDate}
+                  value={newForm.returnDate}
+                  onChange={(e) => setNewForm((f) => ({ ...f, returnDate: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-ink">Return Time *</label>
+                <Input
+                  type="time"
+                  required
+                  value={newForm.returnTime}
+                  onChange={(e) => setNewForm((f) => ({ ...f, returnTime: e.target.value }))}
+                />
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="mb-1 block text-xs font-semibold text-ink">Special Instructions / Dispatch Notes</label>

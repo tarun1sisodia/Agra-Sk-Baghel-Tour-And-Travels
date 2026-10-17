@@ -69,6 +69,14 @@ export const CreateDraftBookingSchema = CreateDraftBookingBaseSchema
     if (data.bookingSelection && "source" in data.bookingSelection && data.bookingSelection.source === "historical") {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["bookingSelection", "source"], message: "Historical booking selections are read-only." });
     }
+    const effectiveTripType = data.bookingSelection?.kind === "outstation"
+      ? data.bookingSelection.tripType
+      : data.bookingSelection
+        ? undefined
+        : data.tripType;
+    if (effectiveTripType === "round-trip" && !data.returnDatetime) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["returnDatetime"], message: "Return datetime is required for round-trip bookings." });
+    }
     if (!data.bookingSelection) {
       if (!data.tripType) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["tripType"], message: "Trip type is required." });
       if (!data.originName) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["originName"], message: "Origin is required for direct bookings without a selection." });
@@ -121,8 +129,8 @@ export const CreateDraftBookingSchema = CreateDraftBookingBaseSchema
   })
   .refine((data) => {
     if (!data.returnDatetime) return true;
-    return new Date(data.returnDatetime).getTime() >= new Date(data.pickupDatetime).getTime();
-  }, { message: "Return datetime must be at or after pickup", path: ["returnDatetime"] })
+    return new Date(data.returnDatetime).getTime() > new Date(data.pickupDatetime).getTime();
+  }, { message: "Return datetime must be after pickup", path: ["returnDatetime"] })
   .refine((data) => {
     if (!data.returnDatetime) return true;
     const diffDays = (new Date(data.returnDatetime).getTime() - new Date(data.pickupDatetime).getTime()) / (24 * 60 * 60 * 1000);
