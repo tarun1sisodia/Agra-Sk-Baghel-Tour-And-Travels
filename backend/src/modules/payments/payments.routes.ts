@@ -9,7 +9,9 @@ export function registerPaymentsRoutes(app: FastifyInstance, paymentsService: Pa
   ) => {
     const { id } = req.params;
     try {
-      const payment = await paymentsService.createPaymentOrder(id);
+      const payment = typeof paymentsService.getPaymentOrder === "function"
+        ? await paymentsService.getPaymentOrder(id)
+        : await paymentsService.createPaymentOrder(id);
       return reply.status(200).send({
         success: true,
         payment,

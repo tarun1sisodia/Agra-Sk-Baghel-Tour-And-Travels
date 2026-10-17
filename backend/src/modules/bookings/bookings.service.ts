@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import type { CreateBookingRequest, QuoteResponse } from "../../contracts/fare-system.js";
+import type { CreateBookingRequest, QuoteResponse, BookingDetailResponse } from "../../contracts/fare-system.js";
 import type { BookingsRepository, BookingEntity } from "./bookings.repository.js";
 import type { QuotesService } from "../quotes/quotes.service.js";
 
@@ -81,6 +81,10 @@ export class BookingsService {
 
   async getBookingByGuestToken(token: string): Promise<BookingEntity | null> {
     return this.bookingsRepo.getByGuestAccessToken(token);
+  }
+
+  async getBookingDetail(idOrTicketId: string): Promise<BookingDetailResponse | null> {
+    return this.bookingsRepo.getBookingDetail(idOrTicketId);
   }
 
   private generateTicketId(): string {

@@ -68,6 +68,13 @@ export function registerBookingsRoutes(app: FastifyInstance, bookingsService: Bo
     reply: FastifyReply
   ) => {
     const { id } = req.params;
+    if (typeof bookingsService.getBookingDetail === "function") {
+      const detail = await bookingsService.getBookingDetail(id);
+      if (detail) {
+        return reply.send({ success: true, booking: detail });
+      }
+    }
+
     let booking = await bookingsService.getBookingById(id);
     if (!booking) {
       booking = await bookingsService.getBookingByTicketId(id);
@@ -77,21 +84,6 @@ export function registerBookingsRoutes(app: FastifyInstance, bookingsService: Bo
         error: "NOT_FOUND",
         message: "Booking not found",
       });
-    }
-
-    // Guest token check if requested via token
-    const token = req.query.token || (req.headers["x-guest-token"] as string);
-    const user = (req as any).user;
-    if (booking.user_id && user && user.id === booking.user_id) {
-      return reply.send({ success: true, booking });
-    }
-    if (token && booking.guest_access_token === token) {
-      return reply.send({ success: true, booking });
-    }
-    if (!booking.user_id && !token) {
-      // Return public safe view without token
-      const { guest_access_token, ...safe } = booking;
-      return reply.send({ success: true, booking: safe });
     }
 
     return reply.send({ success: true, booking });

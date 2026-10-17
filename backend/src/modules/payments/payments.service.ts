@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { AppError } from "../../shared/errors.js";
 import type { PaymentsRepository, PaymentEntity } from "./payments.repository.js";
 import type { BookingsRepository } from "../bookings/bookings.repository.js";
+import type { PaymentOrderResponse } from "../../contracts/fare-system.js";
 
 export interface PaymentsServiceDeps {
   paymentsRepo: PaymentsRepository;
@@ -23,6 +24,28 @@ export class PaymentsService {
     this.keySecret = (deps.razorpayKeySecret || "").trim();
     this.webhookSecret = (deps.razorpayWebhookSecret || "").trim();
     this.fetchImpl = deps.fetchImpl ?? fetch;
+  }
+
+  getKeyId(): string {
+    return this.keyId;
+  }
+
+  async getPaymentOrder(bookingId: string): Promise<PaymentOrderResponse> {
+    const payment = await this.createPaymentOrder(bookingId);
+    const booking = await this.deps.bookingsRepo.getById(bookingId);
+    if (!booking) {
+      throw new AppError("NOT_FOUND", "Booking not found", 404);
+    }
+    return {
+      payment_id: payment.id,
+      order_id: payment.provider_order_id,
+      currency: "INR",
+      amount_paise: payment.amount_paise,
+      key_id: this.keyId,
+      customer_name: booking.customer_name,
+      customer_phone: booking.customer_phone,
+      customer_email: booking.customer_email || undefined,
+    };
   }
 
   async createPaymentOrder(bookingId: string): Promise<PaymentEntity> {

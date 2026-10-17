@@ -20,8 +20,8 @@ import {
 import { toCanonicalTierKey } from "../../contracts/vehicle-tiers.js";
 
 function toUuid(id?: string | null): string {
-  if (id && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
-    return id;
+  if (id && /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id.trim())) {
+    return id.trim();
   }
   return "00000000-0000-0000-0000-000000000001";
 }

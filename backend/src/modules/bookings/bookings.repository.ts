@@ -1,5 +1,5 @@
 import type pg from "pg";
-import type { CategoryCode, QuoteResponse } from "../../contracts/fare-system.js";
+import type { CategoryCode, QuoteResponse, BookingDetailResponse } from "../../contracts/fare-system.js";
 
 export interface BookingEntity {
   id: string;
@@ -160,5 +160,82 @@ export class BookingsRepository {
       [status, id]
     );
     return (res.rowCount ?? 0) > 0;
+  }
+
+  async getBookingDetail(idOrTicketId: string): Promise<BookingDetailResponse | null> {
+    const isUuid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(idOrTicketId);
+    const query = isUuid
+      ? "SELECT * FROM bookings WHERE id = $1"
+      : "SELECT * FROM bookings WHERE ticket_id = $1";
+    const res = await this.pool.query(query, [idOrTicketId]);
+    if (res.rows.length === 0) return null;
+    const r = res.rows[0];
+
+    const fareBreakdown: QuoteResponse = typeof r.fare_breakdown === "string" ? JSON.parse(r.fare_breakdown) : r.fare_breakdown;
+
+    let productCode = "";
+    let productName = "";
+
+    if (r.category === "tour_package" && r.tour_package_id) {
+      const pRes = await this.pool.query("SELECT code, name FROM tour_packages WHERE id = $1", [r.tour_package_id]);
+      if (pRes.rows[0]) {
+        productCode = pRes.rows[0].code;
+        productName = pRes.rows[0].name;
+      }
+    } else if (r.category === "local_package" && r.local_package_id) {
+      const pRes = await this.pool.query("SELECT code, name FROM local_packages WHERE id = $1", [r.local_package_id]);
+      if (pRes.rows[0]) {
+        productCode = pRes.rows[0].code;
+        productName = pRes.rows[0].name;
+      }
+    } else if (r.category === "transfer" && r.transfer_id) {
+      const pRes = await this.pool.query("SELECT code, name FROM transfers WHERE id = $1", [r.transfer_id]);
+      if (pRes.rows[0]) {
+        productCode = pRes.rows[0].code;
+        productName = pRes.rows[0].name;
+      }
+    } else if (r.category === "outstation" && r.route_id) {
+      const pRes = await this.pool.query("SELECT code, origin_name, destination_name FROM outstation_routes WHERE id = $1", [r.route_id]);
+      if (pRes.rows[0]) {
+        productCode = pRes.rows[0].code;
+        productName = `${pRes.rows[0].origin_name} to ${pRes.rows[0].destination_name}`;
+      }
+    }
+
+    if (!productCode || !productName) {
+      throw new Error(`Product not found for booking ${r.ticket_id}`);
+    }
+
+    if (!fareBreakdown?.vehicle?.vehicle_model_id || !fareBreakdown?.vehicle?.display_name) {
+      throw new Error(`Authoritative vehicle model not found on booking ${r.ticket_id}`);
+    }
+
+    return {
+      booking_id: r.id,
+      ticket_id: r.ticket_id,
+      status: r.status,
+      category: r.category,
+      product_code: productCode,
+      product_name: productName,
+      customer_name: r.customer_name,
+      customer_phone: r.customer_phone,
+      customer_email: r.customer_email || undefined,
+      pickup_address: r.pickup_address,
+      drop_address: r.drop_address || undefined,
+      pickup_at: r.pickup_at,
+      return_at: r.return_at || undefined,
+      passenger_count: Number(r.passenger_count),
+      vehicle_model: {
+        id: fareBreakdown.vehicle.vehicle_model_id,
+        display_name: fareBreakdown.vehicle.display_name,
+        group_code: fareBreakdown.vehicle.group_code,
+      },
+      total_amount: Number(r.total_amount),
+      advance_amount: Number(r.advance_amount),
+      balance_amount: Number(r.balance_amount),
+      fare_breakdown: fareBreakdown,
+      payment_status: r.status,
+      created_at: r.created_at,
+    };
   }
 }

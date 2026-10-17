@@ -335,41 +335,7 @@ export async function fetchBookingById(
     throw new CleanFareApiError("NOT_FOUND", "Booking not found", 404);
   }
 
-  const vehicleObj = b.vehicle_model || (b.fare_breakdown?.vehicle ? {
-    id: b.vehicle_model_id || b.fare_breakdown.vehicle.vehicle_model_id,
-    display_name: b.fare_breakdown.vehicle.display_name,
-    group_code: b.fare_breakdown.vehicle.group_code,
-  } : {
-    id: b.vehicle_model_id || "a0000000-0000-4000-a000-000000000001",
-    display_name: "Maruti Dzire",
-    group_code: "sedan",
-  });
-
-  const formatted: BookingDetailResponse = {
-    booking_id: b.booking_id || b.id,
-    ticket_id: b.ticket_id,
-    status: b.status || "pending_payment",
-    category: b.category,
-    product_code: b.product_code || b.route_id || b.local_package_id || b.transfer_id || b.tour_package_id || "booking",
-    product_name: b.product_name || b.trip_title || (b.fare_breakdown?.details?.route_name) || `${String(b.category || "booking").replace(/_/g, " ").toUpperCase()}`,
-    customer_name: b.customer_name,
-    customer_phone: b.customer_phone,
-    customer_email: b.customer_email || undefined,
-    pickup_address: b.pickup_address,
-    drop_address: b.drop_address || undefined,
-    pickup_at: b.pickup_at,
-    return_at: b.return_at || undefined,
-    passenger_count: b.passenger_count || 1,
-    vehicle_model: vehicleObj,
-    total_amount: Number(b.total_amount),
-    advance_amount: Number(b.advance_amount),
-    balance_amount: Number(b.balance_amount),
-    fare_breakdown: b.fare_breakdown,
-    payment_status: b.payment_status || b.status,
-    created_at: b.created_at,
-  };
-
-  return BookingDetailResponse.parse(formatted);
+  return BookingDetailResponse.parse(b);
 }
 
 // 7. Payment Order (Razorpay)
@@ -379,17 +345,10 @@ export async function createBookingPayment(bookingId: string): Promise<PaymentOr
     { method: "POST" }
   );
   const p = raw?.payment || raw;
-  const formatted: PaymentOrderResponse = {
-    payment_id: p.payment_id || p.id,
-    order_id: p.order_id || p.provider_order_id,
-    amount_paise: Number(p.amount_paise),
-    currency: p.currency || "INR",
-    key_id: p.key_id || "rzp_test_TjMGAr6XxRjSev",
-    customer_name: p.customer_name || "Guest",
-    customer_phone: p.customer_phone || "",
-    customer_email: p.customer_email || undefined,
-  };
-  return PaymentOrderResponse.parse(formatted);
+  if (!p) {
+    throw new CleanFareApiError("SERVER_ERROR", "Payment order creation failed", 500);
+  }
+  return PaymentOrderResponse.parse(p);
 }
 
 // 8. Public Reviews
