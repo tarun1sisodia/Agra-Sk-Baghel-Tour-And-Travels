@@ -66,7 +66,7 @@ export class ReviewsRepository {
       INSERT INTO review_links (
         kind, token_hash, booking_id, label, prefill, expires_at, created_by
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      VALUES ($1, $2, $3, $4, $5, $6, (SELECT id FROM profiles WHERE id::text = $7::text))
       RETURNING *
     `,
       [

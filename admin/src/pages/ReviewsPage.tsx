@@ -71,7 +71,7 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
 
   const activeReviewUrl = useMemo(() => {
     if (generatedToken) {
-      return `${env.CUSTOMER_SITE_URL}/review/${generatedToken}`;
+      return `${env.CUSTOMER_SITE_URL}/review/${encodeURIComponent(generatedToken)}`;
     }
     const params = new URLSearchParams();
     if (customerName.trim()) params.set("name", customerName.trim());
@@ -113,6 +113,9 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
           tourName: tourName.trim() || undefined,
         },
       });
+      if (!res.token || typeof res.token !== "string") {
+        throw new Error("The server did not return a review token. No official link was created.");
+      }
       setGeneratedToken(res.token);
       setActionSuccess("Official review invitation token generated successfully!");
     } catch (err) {
@@ -445,13 +448,17 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
                 </a>
 
                 <a
-                  href={activeReviewUrl}
+                  href={generatedToken ? activeReviewUrl : undefined}
+                  aria-disabled={!generatedToken}
+                  onClick={(event) => {
+                    if (!generatedToken) event.preventDefault();
+                  }}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 rounded-md border border-hairline bg-surface-2 px-3 py-2 text-xs font-medium text-ink hover:bg-hairline transition-colors"
                 >
                   <ExternalLink className="h-3.5 w-3.5 text-ink-soft" />
-                  Preview Review Form
+                  {generatedToken ? "Preview Review Form" : "Generate Token to Preview"}
                 </a>
               </div>
             </div>

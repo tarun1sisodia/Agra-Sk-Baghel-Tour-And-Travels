@@ -21,17 +21,27 @@ function tokenFromPath(): string {
   return match ? decodeURIComponent(match[1]) : "";
 }
 
+function draftPreviewFromUrl(): { customerName: string; tourName: string } {
+  if (typeof window === "undefined") return { customerName: "", tourName: "" };
+  const params = new URLSearchParams(window.location.search);
+  return {
+    customerName: params.get("name") ?? "",
+    tourName: params.get("tour") ?? "",
+  };
+}
+
 export function ReviewPage() {
   const token = tokenFromPath();
+  const draftPreview = draftPreviewFromUrl();
   const [link, setLink] = useState<ReviewLinkResponse | null>(null);
   const [rating, setRating] = useState(5);
-  const [displayName, setDisplayName] = useState("");
+  const [displayName, setDisplayName] = useState(draftPreview.customerName);
   const [reviewText, setReviewText] = useState("");
-  const [tourName, setTourName] = useState("");
+  const [tourName, setTourName] = useState(draftPreview.tourName);
   const [consentPublic, setConsentPublic] = useState(true);
   const [loading, setLoading] = useState(Boolean(token));
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(token ? null : "This review link is incomplete.");
+  const [error, setError] = useState<string | null>(token || draftPreview.customerName || draftPreview.tourName ? null : "This review link is incomplete.");
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
@@ -64,7 +74,10 @@ export function ReviewPage() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!token) return;
+    if (!token) {
+      setError("This is a draft preview. Generate the official review token before submitting.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
