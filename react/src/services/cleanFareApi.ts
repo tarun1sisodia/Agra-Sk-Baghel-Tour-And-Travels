@@ -338,11 +338,11 @@ export async function fetchPublicGallery(): Promise<PublicGalleryItem[]> {
 
 // 10. Review Link & Submission
 export async function fetchReviewLink(token: string): Promise<any> {
-  return apiRequest<any>(`/api/v1/reviews/links/${token}`, { method: "GET" });
+  return apiRequest<any>(`/api/v1/reviews/links/${encodeURIComponent(token)}`, { method: "GET" });
 }
 
 export async function submitReview(token: string, payload: any): Promise<any> {
-  return apiRequest<any>(`/api/v1/reviews/links/${token}/submissions`, {
+  return apiRequest<any>(`/api/v1/reviews/links/${encodeURIComponent(token)}/submissions`, {
     method: "POST",
     body: JSON.stringify(payload),
   });

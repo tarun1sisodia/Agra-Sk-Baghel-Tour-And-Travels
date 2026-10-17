@@ -28,6 +28,7 @@ const MyBookingsPage = lazy(() => import("../pages/MyBookingsPage").then((m) => 
 const PaymentResumePage = lazy(() => import("../pages/PaymentResumePage").then((m) => ({ default: m.PaymentResumePage })));
 const BookingConfirmationPage = lazy(() => import("../pages/BookingConfirmationPage").then((m) => ({ default: m.BookingConfirmationPage })));
 const LoginPage = lazy(() => import("../pages/LoginPage").then((m) => ({ default: m.LoginPage })));
+const ReviewPage = lazy(() => import("../pages/ReviewPage").then((m) => ({ default: m.ReviewPage })));
 const MonumentsPage = lazy(() => import("../pages/MonumentsPage").then((m) => ({ default: m.MonumentsPage })));
 const TransferDetailPage = lazy(() => import("../pages/TransferDetailPage").then((m) => ({ default: m.TransferDetailPage })));
 const LocalPackageDetailPage = lazy(() => import("../pages/LocalPackageDetailPage").then((m) => ({ default: m.LocalPackageDetailPage })));
@@ -295,7 +296,8 @@ export function App({ pathname: propPathname }: AppProps = {}) {
     cleanPath === "/booking/confirmation.html" ||
     cleanPath === "/booking-confirmation";
   const isLogin = cleanPath === "/login" || cleanPath === "/auth/login";
-  const isPrivateCustomerPage = isAuthCallback || isMyBookings || isPaymentResume || isLogin || isBookingConfirmation;
+  const isReview = cleanPath === "/review" || /^\/review\/[^/]+$/i.test(cleanPath);
+  const isPrivateCustomerPage = isAuthCallback || isMyBookings || isPaymentResume || isLogin || isBookingConfirmation || isReview;
   const isBooking =
     !isBookingConfirmation &&
     (cleanPath.endsWith("book.html") ||
@@ -586,6 +588,8 @@ export function App({ pathname: propPathname }: AppProps = {}) {
             <LoginPage />
           ) : isBookingConfirmation ? (
             <BookingConfirmationPage />
+          ) : isReview ? (
+            <ReviewPage />
           ) : isBooking ? (
             <BookingPage />
           ) : isHome ? (

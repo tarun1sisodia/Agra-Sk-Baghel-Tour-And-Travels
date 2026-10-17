@@ -370,6 +370,7 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
       auditRepo: fareAdminRepo,
       resendApiKey: env.RESEND_API_KEY,
       emailFrom: env.EMAIL_FROM,
+      customerSiteUrl: env.CUSTOMER_SITE_URL,
     });
     await registerReviewsRoutes(app, reviewsService);
   } else {

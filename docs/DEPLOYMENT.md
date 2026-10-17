@@ -158,6 +158,12 @@ npm run deploy:customer
 
 The customer site is **pre-rendered** by `react/scripts/prerender.ts`: every marketing URL is real HTML **plus a real `404.html`**, and it deploys with `not_found_handling: "404-page"` (root `wrangler.jsonc`, `react/wrangler.jsonc`). Do **not** add a catch-all rewrite to `index.html` here — it would turn genuine 404s into 200s and break crawler semantics.
 
+### Tokenized customer review links
+
+Review invitations use `https://agraskbagheltourandtravels.com/review/:token`. The customer build publishes `dist/review/index.html`, and `react/functions/review/[[token]].ts` is the explicit Cloudflare Pages server-side rewrite for `/review` and `/review/:token`; it serves only the review SPA shell and preserves the original browser pathname so the frontend can validate the token through `GET /api/v1/reviews/links/:token`. The customer router handles the same route before the 404 decision, and submission uses `POST /api/v1/reviews/links/:token/submissions`.
+
+Keep `CUSTOMER_SITE_URL=https://agraskbagheltourandtravels.com` in the production API environment and `VITE_CUSTOMER_SITE_URL=https://agraskbagheltourandtravels.com` in the production Admin Pages environment. The backend uses `CUSTOMER_SITE_URL` when emailing booking review links; the Admin review studio uses `VITE_CUSTOMER_SITE_URL`. Preview/staging hostnames may be used only in their matching environment and must not replace the canonical production hostname in generated production links.
+
 ## 4. Publish the admin panel on Cloudflare Pages
 
 1. In Cloudflare Pages, create a second Git-connected project named `skbagheltravels-admin`.

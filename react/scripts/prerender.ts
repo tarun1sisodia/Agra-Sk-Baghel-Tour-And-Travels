@@ -305,6 +305,16 @@ export async function prerender(): Promise<void> {
   }
   const baseTemplate = await readFile(indexPath, "utf8");
 
+  // Tokenized review invitations are served by the explicit Pages Function at
+  // functions/review/[[token]].ts. Keep a shell at its rewrite target without
+  // placing a real customer token in the public build.
+  await mkdir(join(dist, "review"), { recursive: true });
+  const reviewShell = baseTemplate.replace(
+    "</head>",
+    '<meta name="robots" content="noindex, nofollow" /><link rel="canonical" href="https://agraskbagheltourandtravels.com/review" /></head>',
+  );
+  await writeFile(join(dist, "review", "index.html"), reviewShell, "utf8");
+
   // Spin up Vite in middleware mode to load TypeScript/TSX modules with alias resolution
   const vite = await createServer({
     server: { middlewareMode: true },

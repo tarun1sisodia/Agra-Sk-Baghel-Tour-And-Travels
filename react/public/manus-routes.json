@@ -10,6 +10,7 @@
     { "path": "/contact", "title": "Contact Agra SK Baghel Tour and Travels" },
     { "path": "/faq", "title": "Taxi FAQ" },
     { "path": "/terms", "title": "Terms and Conditions" },
-    { "path": "/privacy", "title": "Privacy Policy" }
+    { "path": "/privacy", "title": "Privacy Policy" },
+    { "path": "/review/:token", "title": "Customer Review" }
   ]
 }

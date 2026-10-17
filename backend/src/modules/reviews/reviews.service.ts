@@ -39,6 +39,7 @@ export interface ReviewsServiceDeps {
   auditRepo?: FareAdminRepository;
   resendApiKey?: string;
   emailFrom?: string;
+  customerSiteUrl?: string;
   fetchImpl?: typeof fetch;
 }
 
@@ -103,7 +104,7 @@ export class ReviewsService {
 
   async sendReviewEmail(linkId: string, booking: any, token: string): Promise<boolean> {
     try {
-      const reviewUrl = `https://agraskbagheltourandtravels.com/review/${token}`;
+      const reviewUrl = `${(this.deps.customerSiteUrl || "https://agraskbagheltourandtravels.com").replace(/\/+$/, "")}/review/${encodeURIComponent(token)}`;
       const tripSummary = `${booking.category} trip (Ticket ${booking.ticket_id})`;
 
       const res = await this.fetchImpl("https://api.resend.com/emails", {
