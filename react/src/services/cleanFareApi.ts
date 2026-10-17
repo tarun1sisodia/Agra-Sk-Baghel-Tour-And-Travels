@@ -285,7 +285,10 @@ export async function fetchQuote(req: QuoteRequest): Promise<QuoteResponse> {
 }
 
 // 5. Create Booking
-export async function createBooking(req: CreateBookingRequest): Promise<BookingCreateResponse> {
+export async function createBooking(
+  req: CreateBookingRequest,
+  accessToken?: string | null
+): Promise<BookingCreateResponse> {
   const parseResult = CreateBookingRequest.safeParse(req);
   if (!parseResult.success) {
     const issues = parseResult.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ");
@@ -296,10 +299,15 @@ export async function createBooking(req: CreateBookingRequest): Promise<BookingC
       parseResult.error.issues
     );
   }
+  const headers: Record<string, string> = {};
+  if (accessToken && accessToken.trim()) {
+    headers["Authorization"] = `Bearer ${accessToken.trim()}`;
+  }
   const raw = await apiRequest<any>(
     "/api/v1/bookings",
     {
       method: "POST",
+      headers,
       body: JSON.stringify(parseResult.data),
     }
   );

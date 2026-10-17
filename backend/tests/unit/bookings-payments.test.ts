@@ -814,4 +814,99 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
     expect(newPayment.id).not.toBe(payment.id);
     expect(newPayment.status).toBe("pending");
   });
+
+  it("EM-01: sendBookingConfirmationEmail sends branded voucher via Resend with Idempotency-Key", async () => {
+    let calledUrl = "";
+    let calledOptions: any = null;
+
+    const mockFetch = async (url: any, opts: any) => {
+      calledUrl = String(url);
+      calledOptions = opts;
+      return {
+        ok: true,
+        json: async () => ({ id: "email_123" }),
+      } as any;
+    };
+
+    const emailPaymentsService = new PaymentsService({
+      paymentsRepo: paymentsRepo as any,
+      bookingsRepo: bookingsRepo as any,
+      razorpayWebhookSecret: webhookSecret,
+      resendApiKey: "re_test_key_123",
+      emailFrom: "bookings@skbagheltravels.in",
+      customerSiteUrl: "https://agraskbagheltourandtravels.com",
+      fetchImpl: mockFetch as any,
+    });
+
+    const booking = await bookingsService.createBooking({
+      quote: baseQuoteReq,
+      quoted_total: 2500,
+      customer_name: "Aarav Sharma",
+      customer_phone: "9876543210",
+      customer_email: "aarav@example.com",
+      pickup_address: "Agra Cantt Railway Station",
+    });
+
+    const sent = await emailPaymentsService.sendBookingConfirmationEmail(booking.id, "pay_test_captured_123");
+    expect(sent).toBe(true);
+    expect(calledUrl).toBe("https://api.resend.com/emails");
+    expect(calledOptions.headers.Authorization).toBe("Bearer re_test_key_123");
+    expect(calledOptions.headers["Idempotency-Key"]).toBe(`booking-confirmed/${booking.id}`);
+
+    const body = JSON.parse(calledOptions.body);
+    expect(body.from).toBe("bookings@skbagheltravels.in");
+    expect(body.to).toEqual(["aarav@example.com"]);
+    expect(body.subject).toContain(`Confirmed: Your Chauffeur Booking Voucher [${booking.ticket_id}]`);
+    expect(body.html).toContain(booking.ticket_id);
+    expect(body.html).toContain("SK BAGHEL TOUR &amp; TRAVELS");
+    expect(body.html).toContain("Aarav Sharma");
+    expect(body.html).toContain("pay_test_captured_123");
+    expect(body.text).toContain(booking.ticket_id);
+  });
+
+  it("EM-02: sendBookingConfirmationEmail gracefully returns false when customer email is not provided", async () => {
+    const emailPaymentsService = new PaymentsService({
+      paymentsRepo: paymentsRepo as any,
+      bookingsRepo: bookingsRepo as any,
+      resendApiKey: "re_test_key_123",
+    });
+
+    const booking = await bookingsService.createBooking({
+      quote: baseQuoteReq,
+      quoted_total: 2500,
+      customer_name: "Phone Only Customer",
+      customer_phone: "9876543210",
+      pickup_address: "Agra Cantt",
+    });
+
+    const sent = await emailPaymentsService.sendBookingConfirmationEmail(booking.id);
+    expect(sent).toBe(false);
+  });
+
+  it("EM-03: sendBookingConfirmationEmail returns false without crashing when Resend returns HTTP 500", async () => {
+    const mockFetch = async () =>
+      ({
+        ok: false,
+        text: async () => "Internal Resend Server Error",
+      } as any);
+
+    const emailPaymentsService = new PaymentsService({
+      paymentsRepo: paymentsRepo as any,
+      bookingsRepo: bookingsRepo as any,
+      resendApiKey: "re_test_key_123",
+      fetchImpl: mockFetch as any,
+    });
+
+    const booking = await bookingsService.createBooking({
+      quote: baseQuoteReq,
+      quoted_total: 2500,
+      customer_name: "Test Customer",
+      customer_phone: "9876543210",
+      customer_email: "test@example.com",
+      pickup_address: "Agra",
+    });
+
+    const sent = await emailPaymentsService.sendBookingConfirmationEmail(booking.id);
+    expect(sent).toBe(false);
+  });
 });

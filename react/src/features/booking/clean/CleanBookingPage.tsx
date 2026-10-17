@@ -42,6 +42,7 @@ import {
 } from "./dateTime";
 import { normalizeBookingUrlParams } from "./urlNormalizer";
 import { useLocationIQ } from "../../../hooks/useLocationIQ";
+import { useCustomerAuth } from "../../../auth/customerAuth";
 import type {
   CustomerFormState,
   SelectedCarState,
@@ -230,7 +231,8 @@ export function CleanBookingPage() {
   // 4. Selected Vehicle
   const [selectedCar, setSelectedCar] = useState<SelectedCarState | null>(null);
 
-  // 5. Customer Details Form
+  // 5. Customer Details Form & Google Auth Pre-fill
+  const { user, accessToken } = useCustomerAuth();
   const [customer, setCustomer] = useState<CustomerFormState>({
     name: "",
     phone: "",
@@ -242,6 +244,21 @@ export function CleanBookingPage() {
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [bookingError, setBookingError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      const metadata = user.user_metadata as Record<string, any> | undefined;
+      const fullName =
+        metadata?.full_name ||
+        metadata?.name ||
+        (user.email ? user.email.split("@")[0] : "");
+      setCustomer((prev) => ({
+        ...prev,
+        name: prev.name.trim() ? prev.name : (fullName || ""),
+        email: prev.email.trim() ? prev.email : (user.email || ""),
+      }));
+    }
+  }, [user]);
 
   // 6. Booking & Payment Execution State
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
@@ -544,7 +561,7 @@ export function CleanBookingPage() {
     };
 
     try {
-      const bookingRes = await createBooking(bookingPayload);
+      const bookingRes = await createBooking(bookingPayload, accessToken);
 
       // Protect guest token in sessionStorage; never expose in URL search params
       if (bookingRes.guest_access_token) {

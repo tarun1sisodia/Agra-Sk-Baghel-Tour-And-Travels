@@ -2,6 +2,25 @@
 
 ## 2026-10-17
 
+### 2026-10-18 — Automated Booking Confirmation Emails via Resend & Customer Google Auth Reservation Pre-fill
+
+- **Automated Branded Chauffeur Booking Confirmation Email via Resend (`payments.service.ts`, `app.ts`)**:
+  - Implemented `sendBookingConfirmationEmail()` in `PaymentsService` invoked post-transaction when a Razorpay `payment.captured` webhook fires.
+  - Leverages Resend API (`https://api.resend.com/emails`) with native `Idempotency-Key: booking-confirmed/${booking.id}` to guarantee exactly one email dispatch even under webhook retries.
+  - Generates responsive, luxury branded HTML Chauffeur Booking Voucher and matching text fallback with:
+    - Official Ticket ID reference (`AGR-YYYYMMDD-XXXX`).
+    - Verified service package name, vehicle model assigned, pickup schedule in IST, pickup address, and drop address.
+    - Transparent Tariff breakdown (Total Fare, 28% advance deposit received with payment reference ID, and 72% balance payable to chauffeur upon completion).
+    - Direct action CTA button linking securely to `/booking/confirmation?id=...`.
+    - 24/7 Operations helpline (+91 97628 17598) and WhatsApp direct dispatch link.
+  - **Financial Isolation & Non-Blocking Resilience**: Email dispatch is encapsulated in an isolated try-catch error boundary. If Resend experiences network timeouts or rate limits, the PostgreSQL transaction never rolls back and the confirmed booking status remains safe.
+- **Customer Frontend Google Auth Auto-Fill & Authorization Header Binding (`CleanBookingPage.tsx`, `cleanFareApi.ts`)**:
+  - Bound `useCustomerAuth()` in `CleanBookingPage.tsx`. Automatically pre-fills customer name (`user_metadata.full_name` or `name`) and verified email (`user.email`) if not already entered by the customer.
+  - Updated `createBooking(request, accessToken)` in `cleanFareApi.ts` to attach `Authorization: Bearer ${accessToken}` when signed in, automatically linking `user_id` on the PostgreSQL booking record.
+- **Unit & Contract Verification**:
+  - Added test cases `EM-01`, `EM-02`, and `EM-03` in `backend/tests/unit/bookings-payments.test.ts` verifying Resend API headers, idempotency keys, recipient mapping, and graceful error handling on upstream network failures.
+  - Full repo verification (`npm run verify`) passed cleanly: 3x typechecks clean, 357 passing tests, SSG 72 pages + 23 redirects rendered, and 3 production builds green.
+
 ### 2026-10-18 — Zero-Fallback Booking Policy Enforcement, Canonical UUID Regex Fix & Multi-Service Razorpay Verification
 
 - **Root Cause & Fix for "Please select an available vehicle model to proceed" (`CleanBookingPage.tsx`, `admin.service.ts`)**:

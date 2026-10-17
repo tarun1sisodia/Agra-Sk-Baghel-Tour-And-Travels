@@ -10,6 +10,9 @@ export interface PaymentsServiceDeps {
   razorpayKeyId?: string;
   razorpayKeySecret?: string;
   razorpayWebhookSecret?: string;
+  resendApiKey?: string;
+  emailFrom?: string;
+  customerSiteUrl?: string;
   fetchImpl?: typeof fetch;
 }
 
@@ -202,6 +205,14 @@ export class PaymentsService {
         providerPaymentId,
         webhookEventId: recordedEvent?.id,
       });
+
+      // Post-transaction email voucher dispatch (isolated error boundary)
+      try {
+        await this.sendBookingConfirmationEmail(payment.booking_id, providerPaymentId);
+      } catch (emailErr: any) {
+        console.warn(`[payments] Background confirmation email delivery skipped: ${emailErr?.message || emailErr}`);
+      }
+
       return { status: "captured" };
     }
 
@@ -216,5 +227,280 @@ export class PaymentsService {
     }
 
     return { status: "ignored" };
+  }
+
+  async sendBookingConfirmationEmail(
+    bookingId: string,
+    providerPaymentId?: string
+  ): Promise<boolean> {
+    try {
+      if (!this.deps.resendApiKey) {
+        return false;
+      }
+
+      let booking: any = null;
+      try {
+        if (typeof this.deps.bookingsRepo.getBookingDetail === "function") {
+          booking = await this.deps.bookingsRepo.getBookingDetail(bookingId);
+        }
+      } catch {
+        // Fallback to getById if getBookingDetail throws (e.g. mock repositories without pool)
+      }
+      if (!booking) {
+        booking = await this.deps.bookingsRepo.getById(bookingId);
+      }
+
+      if (!booking) return false;
+
+      const customerEmail = booking.customer_email?.trim();
+      if (!customerEmail) {
+        return false;
+      }
+
+      const ticketId = booking.ticket_id || "BOOKING";
+      const customerName = booking.customer_name || "Valued Customer";
+      const totalAmount = Number(booking.total_amount) || 0;
+      const advanceAmount = Number(booking.advance_amount) || 0;
+      const balanceAmount = Number(booking.balance_amount) || (totalAmount - advanceAmount);
+
+      const productName =
+        (booking as any).product_name ||
+        (booking.category === "tour_package"
+          ? "Tour Package"
+          : booking.category === "local_package"
+          ? "Local Sightseeing"
+          : booking.category === "transfer"
+          ? "Airport / Station Transfer"
+          : "Outstation Taxi");
+
+      const vehicleName =
+        (booking as any).vehicle_model?.display_name ||
+        (booking as any).vehicle_display_name ||
+        "Air-Conditioned Commercial Vehicle";
+
+      const pickupAddress = booking.pickup_address || "Specified Pickup Location";
+      const dropAddress = booking.drop_address || "";
+      const pickupAt = booking.pickup_at
+        ? new Date(booking.pickup_at).toLocaleString("en-IN", {
+            timeZone: "Asia/Kolkata",
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          })
+        : "As scheduled";
+
+      const siteUrl = (this.deps.customerSiteUrl || "https://agraskbagheltourandtravels.com").replace(/\/+$/, "");
+      const voucherUrl = `${siteUrl}/booking/confirmation?id=${encodeURIComponent(
+        (booking as any).booking_id || booking.id || bookingId
+      )}`;
+
+      const paymentReference = providerPaymentId ? ` (Payment Ref: ${providerPaymentId})` : "";
+
+      const voucherHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmation - ${ticketId}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; padding: 32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="background-color: #7c2d12; padding: 28px 32px; text-align: left;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: -0.02em;">SK BAGHEL TOUR &amp; TRAVELS</h1>
+              <p style="margin: 4px 0 0 0; color: #fed7aa; font-size: 13px; font-weight: 400;">Agra's Trusted Chauffeur &amp; Tour Service &bull; Est. 2013</p>
+            </td>
+          </tr>
+
+          <!-- Confirmation Badge & Intro -->
+          <tr>
+            <td style="padding: 32px 32px 24px 32px;">
+              <div style="display: inline-block; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 9999px; padding: 6px 14px; margin-bottom: 16px;">
+                <span style="color: #065f46; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">&bull; Booking Confirmed &bull; Advance Received</span>
+              </div>
+              <h2 style="margin: 0 0 12px 0; color: #0f172a; font-size: 20px; font-weight: 700;">Namaste, ${customerName}!</h2>
+              <p style="margin: 0; color: #475569; font-size: 15px; line-height: 1.6;">
+                Your chauffeur booking has been confirmed and your advance deposit is secured${paymentReference}. Below are your official booking details and trip summary.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Core Details Card -->
+          <tr>
+            <td style="padding: 0 32px 24px 32px;">
+              <table role="presentation" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;">
+                <tr>
+                  <td style="padding: 6px 0; color: #64748b; font-size: 13px; font-weight: 500; width: 38%;">Ticket Reference</td>
+                  <td style="padding: 6px 0; color: #0f172a; font-size: 14px; font-weight: 700;">${ticketId}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #64748b; font-size: 13px; font-weight: 500;">Service / Package</td>
+                  <td style="padding: 6px 0; color: #0f172a; font-size: 14px; font-weight: 600;">${productName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #64748b; font-size: 13px; font-weight: 500;">Vehicle Assigned</td>
+                  <td style="padding: 6px 0; color: #0f172a; font-size: 14px; font-weight: 600;">${vehicleName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #64748b; font-size: 13px; font-weight: 500;">Pickup Schedule</td>
+                  <td style="padding: 6px 0; color: #0f172a; font-size: 14px; font-weight: 600;">${pickupAt} (IST)</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #64748b; font-size: 13px; font-weight: 500;">Pickup Address</td>
+                  <td style="padding: 6px 0; color: #0f172a; font-size: 14px; line-height: 1.4;">${pickupAddress}</td>
+                </tr>
+                ${
+                  dropAddress
+                    ? `
+                <tr>
+                  <td style="padding: 6px 0; color: #64748b; font-size: 13px; font-weight: 500;">Drop Address</td>
+                  <td style="padding: 6px 0; color: #0f172a; font-size: 14px; line-height: 1.4;">${dropAddress}</td>
+                </tr>
+                `
+                    : ""
+                }
+              </table>
+            </td>
+          </tr>
+
+          <!-- Tariff Breakdown -->
+          <tr>
+            <td style="padding: 0 32px 28px 32px;">
+              <h3 style="margin: 0 0 12px 0; color: #0f172a; font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">Payment &amp; Tariff Summary</h3>
+              <table role="presentation" width="100%" style="border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                  <td style="padding: 8px 0; color: #475569; font-size: 14px;">Total Guaranteed Fare</td>
+                  <td align="right" style="padding: 8px 0; color: #0f172a; font-size: 14px; font-weight: 600;">₹${Math.round(
+                    totalAmount
+                  ).toLocaleString("en-IN")}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                  <td style="padding: 8px 0; color: #059669; font-size: 14px; font-weight: 600;">Advance Deposit Received (28%)</td>
+                  <td align="right" style="padding: 8px 0; color: #059669; font-size: 14px; font-weight: 700;">₹${Math.round(
+                    advanceAmount
+                  ).toLocaleString("en-IN")}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0 4px 0; color: #0f172a; font-size: 15px; font-weight: 700;">Balance Due to Chauffeur (72%)</td>
+                  <td align="right" style="padding: 10px 0 4px 0; color: #9a3412; font-size: 16px; font-weight: 800;">₹${Math.round(
+                    balanceAmount
+                  ).toLocaleString("en-IN")}</td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="padding: 0; color: #64748b; font-size: 12px;">* Balance payable at the end of the journey directly to the driver via UPI or Cash.</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Action CTA Button -->
+          <tr>
+            <td align="center" style="padding: 0 32px 32px 32px;">
+              <table role="presentation" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td align="center" style="background-color: #9f3c16; border-radius: 8px;">
+                    <a href="${voucherUrl}" target="_blank" style="display: inline-block; padding: 14px 28px; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600; letter-spacing: 0.01em;">View &amp; Print Chauffeur Voucher &rarr;</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Chauffeur Dispatch Notice -->
+          <tr>
+            <td style="padding: 24px 32px; background-color: #fffbeb; border-top: 1px solid #fef3c7; border-bottom: 1px solid #fef3c7;">
+              <p style="margin: 0; color: #92400e; font-size: 13px; line-height: 1.5;">
+                <strong>Important Notice:</strong> Your chauffeur's full name, mobile number, and vehicle registration plate will be sent to you via SMS and WhatsApp <strong>2 hours prior to pickup</strong>. Clean vehicle guarantee and commercial transport permit included on all trips.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer & Support -->
+          <tr>
+            <td style="padding: 28px 32px; background-color: #ffffff; text-align: center; color: #94a3b8; font-size: 12px; line-height: 1.6;">
+              <p style="margin: 0 0 6px 0; color: #475569; font-weight: 600;">Need assistance or itinerary modifications?</p>
+              <p style="margin: 0 0 12px 0;">24/7 Operations Desk: <a href="tel:+919762817598" style="color: #9f3c16; text-decoration: none; font-weight: 600;">+91 97628 17598</a> &bull; WhatsApp: <a href="https://wa.me/919762817598" style="color: #9f3c16; text-decoration: none; font-weight: 600;">+91 97628 17598</a></p>
+              <p style="margin: 0; color: #94a3b8; font-size: 11px;">SK Baghel Tour &amp; Travels &bull; Agra Cantt, Uttar Pradesh 282001, India &bull; https://agraskbagheltourandtravels.com</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+      `.trim();
+
+      const voucherText = `
+CONFIRMED: CHAUFFEUR BOOKING VOUCHER [${ticketId}]
+SK Baghel Tour & Travels — Agra's Trusted Chauffeur & Tour Service (Est. 2013)
+
+Dear ${customerName},
+
+Your booking is confirmed and your advance payment has been received${paymentReference}.
+
+TRIP SUMMARY
+- Ticket ID: ${ticketId}
+- Service / Package: ${productName}
+- Vehicle Model: ${vehicleName}
+- Pickup Schedule: ${pickupAt} (IST)
+- Pickup Address: ${pickupAddress}
+${dropAddress ? `- Drop Address: ${dropAddress}\n` : ""}
+TARIFF DETAILS
+- Total Guaranteed Fare: ₹${Math.round(totalAmount).toLocaleString("en-IN")}
+- Advance Paid (28%): ₹${Math.round(advanceAmount).toLocaleString("en-IN")}
+- Balance to Chauffeur (72%): ₹${Math.round(balanceAmount).toLocaleString("en-IN")} (Payable in Cash / UPI at destination)
+
+VIEW OFFICIAL VOUCHER & INVOICE:
+${voucherUrl}
+
+NOTICE:
+Driver name, mobile number, and license plate number will be sent to your phone 2 hours prior to scheduled pickup.
+
+24/7 Helpline: +91 97628 17598
+WhatsApp: https://wa.me/919762817598
+Warm regards,
+SK Baghel Tour & Travels
+      `.trim();
+
+      const fromAddress = this.deps.emailFrom || "bookings@skbagheltravels.in";
+
+      const res = await this.fetchImpl("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.deps.resendApiKey}`,
+          "Content-Type": "application/json",
+          "Idempotency-Key": `booking-confirmed/${(booking as any).id || (booking as any).booking_id || bookingId}`,
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [customerEmail],
+          subject: `Confirmed: Your Chauffeur Booking Voucher [${ticketId}] — SK Baghel Tour & Travels`,
+          html: voucherHtml,
+          text: voucherText,
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "");
+        console.warn(`[payments] Resend confirmation email delivery failed for ${ticketId}: ${errText.slice(0, 300)}`);
+        return false;
+      }
+
+      return true;
+    } catch (err: any) {
+      console.warn(`[payments] Error dispatching confirmation email for ${bookingId}:`, err?.message || err);
+      return false;
+    }
   }
 }

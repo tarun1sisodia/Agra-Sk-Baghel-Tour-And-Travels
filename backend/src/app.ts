@@ -355,6 +355,9 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
       razorpayKeyId: env.RAZORPAY_KEY_ID,
       razorpayKeySecret: env.RAZORPAY_KEY_SECRET,
       razorpayWebhookSecret: env.RAZORPAY_WEBHOOK_SECRET,
+      resendApiKey: env.RESEND_API_KEY,
+      emailFrom: env.EMAIL_FROM,
+      customerSiteUrl: env.CUSTOMER_SITE_URL,
     });
     await registerPaymentsRoutes(app, paymentsService);
 
