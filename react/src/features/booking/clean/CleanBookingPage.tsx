@@ -31,6 +31,7 @@ import {
   fetchQuoteOptions,
   createBooking,
   createBookingPayment,
+  verifyBookingPayment,
   CleanFareApiError,
 } from "../../../services/cleanFareApi";
 import { loadRazorpayScript } from "../razorpay";
@@ -234,13 +235,13 @@ export function CleanBookingPage() {
   // 5. Customer Details Form & Google Auth Pre-fill
   const { user, accessToken } = useCustomerAuth();
   const [customer, setCustomer] = useState<CustomerFormState>({
-    name: "",
-    phone: "",
-    email: "",
-    pickup_address: "",
-    drop_address: "",
-    flight_train_number: "",
-    notes: "",
+    name: searchParams.get("name") || "",
+    phone: searchParams.get("phone") || "",
+    email: searchParams.get("email") || "",
+    pickup_address: searchParams.get("pickup") || searchParams.get("pickup_address") || "",
+    drop_address: searchParams.get("drop") || searchParams.get("drop_address") || "",
+    flight_train_number: searchParams.get("flight") || "",
+    notes: searchParams.get("notes") || "",
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [bookingError, setBookingError] = useState<string | null>(null);
@@ -589,7 +590,7 @@ export function CleanBookingPage() {
             order_id: paymentRes.order_id,
             amount: paymentRes.amount_paise,
             currency: "INR",
-            name: "SK Baghel Tour & Travels",
+            name: "Agra SK Baghel Tour & Travels",
             description: `Advance Deposit for ${bookingRes.ticket_id}`,
             prefill: {
               name: customer.name,
@@ -602,7 +603,18 @@ export function CleanBookingPage() {
                 window.location.href = `/booking/confirmation?id=${bookingRes.booking_id}`;
               },
             },
-            handler: () => {
+            handler: async (response: any) => {
+              if (response?.razorpay_payment_id && response?.razorpay_order_id && response?.razorpay_signature) {
+                try {
+                  await verifyBookingPayment(bookingRes.booking_id, {
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature,
+                  });
+                } catch (verifyErr) {
+                  console.warn("Payment verification notification deferred to webhook:", verifyErr);
+                }
+              }
               window.location.href = `/booking/confirmation?id=${bookingRes.booking_id}`;
             },
           });
@@ -1001,10 +1013,12 @@ export function CleanBookingPage() {
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-ink">
+                  <label htmlFor="input-customer-name" className="mb-1 block text-xs font-semibold text-ink">
                     Primary Passenger Name *
                   </label>
                   <input
+                    id="input-customer-name"
+                    name="customerName"
                     type="text"
                     required
                     placeholder="e.g. Rajesh Sharma"
@@ -1018,10 +1032,12 @@ export function CleanBookingPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-ink">
+                  <label htmlFor="input-customer-phone" className="mb-1 block text-xs font-semibold text-ink">
                     Mobile Number (WhatsApp) *
                   </label>
                   <input
+                    id="input-customer-phone"
+                    name="customerPhone"
                     type="tel"
                     required
                     placeholder="e.g. 9876543210"
@@ -1035,10 +1051,12 @@ export function CleanBookingPage() {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="mb-1 block text-xs font-semibold text-ink">
+                  <label htmlFor="input-customer-email" className="mb-1 block text-xs font-semibold text-ink">
                     Email Address (Optional)
                   </label>
                   <input
+                    id="input-customer-email"
+                    name="customerEmail"
                     type="email"
                     placeholder="For booking confirmation & digital receipt"
                     value={customer.email}
@@ -1049,7 +1067,7 @@ export function CleanBookingPage() {
 
                 <div className="sm:col-span-2 relative" ref={pickupWrapperRef}>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-semibold text-ink">
+                    <label htmlFor="input-pickup-address" className="block text-xs font-semibold text-ink">
                       Pickup Address / Hotel / Landmark *
                     </label>
                     {pickupLocationIQ.isLoading && (
@@ -1059,6 +1077,8 @@ export function CleanBookingPage() {
                     )}
                   </div>
                   <input
+                    id="input-pickup-address"
+                    name="pickupAddress"
                     type="text"
                     required
                     placeholder="e.g. Hotel ITC Mughal or Taj East Gate Road"
@@ -1104,7 +1124,7 @@ export function CleanBookingPage() {
 
                 <div className="sm:col-span-2 relative" ref={dropWrapperRef}>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-semibold text-ink">
+                    <label htmlFor="input-drop-address" className="block text-xs font-semibold text-ink">
                       Drop-off Address (Optional)
                     </label>
                     {dropLocationIQ.isLoading && (
@@ -1114,6 +1134,8 @@ export function CleanBookingPage() {
                     )}
                   </div>
                   <input
+                    id="input-drop-address"
+                    name="dropAddress"
                     type="text"
                     placeholder="e.g. Terminal 3, IGI Airport Delhi"
                     value={customer.drop_address}
@@ -1239,6 +1261,7 @@ export function CleanBookingPage() {
 
                   {/* Submission CTA */}
                   <button
+                    id="btn-proceed-booking"
                     type="button"
                     disabled={bookingSubmitting}
                     onClick={() => handleProceedToBooking()}

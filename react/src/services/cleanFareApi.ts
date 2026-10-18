@@ -359,6 +359,23 @@ export async function createBookingPayment(bookingId: string): Promise<PaymentOr
   return PaymentOrderResponse.parse(p);
 }
 
+export async function verifyBookingPayment(
+  bookingId: string,
+  paymentDetails: {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
+  }
+): Promise<{ status: string }> {
+  return apiRequest<{ status: string }>(
+    `/api/v1/bookings/${bookingId}/verify-payment`,
+    {
+      method: "POST",
+      body: JSON.stringify(paymentDetails),
+    }
+  );
+}
+
 // 8. Public Reviews
 export async function fetchPublicReviews(): Promise<PublicReviewItem[]> {
   const data = await apiRequest<any>("/api/v1/public/reviews", { method: "GET" });

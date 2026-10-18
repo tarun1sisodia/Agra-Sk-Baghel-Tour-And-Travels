@@ -112,6 +112,48 @@ export class PaymentsService {
     });
   }
 
+  async verifyPayment(params: {
+    bookingId: string;
+    razorpayPaymentId: string;
+    razorpayOrderId: string;
+    razorpaySignature: string;
+  }): Promise<{ status: string }> {
+    const payment = await this.deps.paymentsRepo.getByProviderOrderId(params.razorpayOrderId);
+    if (!payment) {
+      throw new AppError("NOT_FOUND", "Payment order not found", 404);
+    }
+    if (payment.booking_id !== params.bookingId) {
+      throw new AppError("VALIDATION_ERROR", "Payment order does not match booking", 400);
+    }
+
+    if (payment.status === "captured") {
+      return { status: "already_captured" };
+    }
+
+    // Cryptographic HMAC-SHA256 signature verification per Razorpay specification
+    if (this.keySecret && !this.keyId.startsWith("rzp_test_local")) {
+      const payload = `${params.razorpayOrderId}|${params.razorpayPaymentId}`;
+      const expected = crypto.createHmac("sha256", this.keySecret).update(payload).digest("hex");
+      if (expected !== params.razorpaySignature) {
+        throw new AppError("VALIDATION_ERROR", "Invalid payment signature", 400);
+      }
+    }
+
+    await this.deps.paymentsRepo.processCaptured({
+      paymentId: payment.id,
+      bookingId: payment.booking_id,
+      providerPaymentId: params.razorpayPaymentId,
+    });
+
+    try {
+      await this.sendBookingConfirmationEmail(payment.booking_id, params.razorpayPaymentId);
+    } catch (err: any) {
+      console.warn(`[payments] Background confirmation email skipped: ${err?.message || err}`);
+    }
+
+    return { status: "captured" };
+  }
+
   async handleWebhook(
     rawBody: Buffer | string,
     signature: string

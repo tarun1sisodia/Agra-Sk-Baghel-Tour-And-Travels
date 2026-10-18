@@ -57,8 +57,55 @@ export function registerPaymentsRoutes(app: FastifyInstance, paymentsService: Pa
     }
   };
 
+  const handleVerifyPayment = async (
+    req: FastifyRequest<{
+      Params: { id: string };
+      Body: {
+        razorpay_payment_id: string;
+        razorpay_order_id: string;
+        razorpay_signature: string;
+      };
+    }>,
+    reply: FastifyReply
+  ) => {
+    const { id } = req.params;
+    const body = (req.body || {}) as any;
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = body;
+
+    if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+      return reply.status(400).send({
+        error: "VALIDATION_ERROR",
+        message: "Missing razorpay_payment_id, razorpay_order_id, or razorpay_signature",
+      });
+    }
+
+    try {
+      const result = await paymentsService.verifyPayment({
+        bookingId: id,
+        razorpayPaymentId: razorpay_payment_id,
+        razorpayOrderId: razorpay_order_id,
+        razorpaySignature: razorpay_signature,
+      });
+      return reply.status(200).send({
+        success: true,
+        ...result,
+      });
+    } catch (err: any) {
+      if (err instanceof AppError) {
+        return reply.status(err.statusCode).send({
+          error: err.code,
+          message: err.message,
+        });
+      }
+      throw err;
+    }
+  };
+
   app.post("/bookings/:id/payment", handleCreatePayment);
   app.post("/api/v1/bookings/:id/payment", handleCreatePayment);
+
+  app.post("/bookings/:id/verify-payment", handleVerifyPayment);
+  app.post("/api/v1/bookings/:id/verify-payment", handleVerifyPayment);
 
   app.post("/webhooks/payment", handleWebhook);
   app.post("/api/v1/webhooks/payment", handleWebhook);

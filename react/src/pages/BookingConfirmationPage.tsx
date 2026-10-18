@@ -80,7 +80,14 @@ export function BookingConfirmationPage() {
 
         // If payment is pending and we're polling, keep polling for up to 6 cycles (15s)
         const isPaid =
-          data.payment_status === "paid" || data.status === "paid_confirmed";
+          data.payment_status === "paid" ||
+          data.payment_status === "captured" ||
+          data.payment_status === "confirmed" ||
+          data.status === "paid_confirmed" ||
+          data.status === "confirmed" ||
+          data.status === "driver_assigned" ||
+          data.status === "in_transit" ||
+          data.status === "completed";
         if (!isPaid && pollCountRef.current < 6) {
           pollCountRef.current += 1;
           setTimeout(() => {
@@ -154,7 +161,14 @@ export function BookingConfirmationPage() {
   };
 
   const isPaid =
-    booking?.payment_status === "paid" || booking?.status === "paid_confirmed";
+    booking?.payment_status === "paid" ||
+    booking?.payment_status === "captured" ||
+    booking?.payment_status === "confirmed" ||
+    booking?.status === "paid_confirmed" ||
+    booking?.status === "confirmed" ||
+    booking?.status === "driver_assigned" ||
+    booking?.status === "in_transit" ||
+    booking?.status === "completed";
 
   const whatsappMsg = booking
     ? encodeURIComponent(
