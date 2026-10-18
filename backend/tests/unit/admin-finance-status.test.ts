@@ -645,5 +645,66 @@ describe("Admin Finance Visibility & Booking Status Alignment", () => {
       expect(() => assertTransition("confirmed", "paid_confirmed")).not.toThrow();
       expect(() => assertTransition("paid_confirmed", "confirmed")).not.toThrow();
     });
+
+    it("safeguards booking creation when user_id is not present in profiles", async () => {
+      let insertedUserId: any = "NOT_CALLED";
+      const mockPool = {
+        query: vi.fn().mockImplementation(async (sql: string, params: any[]) => {
+          if (sql.includes("SELECT id FROM profiles")) {
+            return { rows: [] }; // Profile does not exist
+          }
+          if (sql.includes("INSERT INTO profiles")) {
+            throw new Error("violates foreign key constraint on auth.users");
+          }
+          if (sql.includes("INSERT INTO bookings")) {
+            insertedUserId = params[1];
+            return {
+              rows: [{
+                id: "bkg-safe-1",
+                ticket_id: params[0],
+                user_id: params[1],
+                guest_access_token: params[2],
+                customer_name: params[3],
+                customer_phone: params[4],
+                customer_email: params[5],
+                fare_breakdown: {},
+                total_amount: 2500,
+                advance_amount: 700,
+                balance_amount: 1800,
+                passenger_count: 2,
+                status: "pending_payment",
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              }],
+            };
+          }
+          return { rows: [] };
+        }),
+      } as any;
+
+      const { BookingsRepository } = await import("../../src/modules/bookings/bookings.repository.js");
+      const repo = new BookingsRepository(mockPool);
+
+      const booking = await repo.create({
+        ticket_id: "AGR-20261018-TEST",
+        user_id: "non-existent-user-id",
+        guest_access_token: "tok_123",
+        customer_name: "Test Customer",
+        customer_phone: "+919876543299",
+        customer_email: "test.customer@agraskbagheltourandtravels.com",
+        category: "outstation",
+        vehicle_model_id: "sedan",
+        passenger_count: 2,
+        pickup_at: new Date().toISOString(),
+        pickup_address: "Taj Mahal Agra",
+        fare_breakdown: {} as any,
+        total_amount: 2500,
+        advance_amount: 700,
+      });
+
+      expect(booking.id).toBe("bkg-safe-1");
+      // Must have fallen back to null user_id so database FK constraint is never violated
+      expect(insertedUserId).toBeNull();
+    });
   });
 });

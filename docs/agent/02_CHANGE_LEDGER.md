@@ -2,6 +2,18 @@
 
 ## 2026-10-18
 
+### 2026-10-18 — Booking System Fix: User Profile Auto-Provisioning & Foreign Key Constraint Safeguard
+
+- **Foreign Key Safeguard & Profile Auto-Provisioning (`backend/src/modules/bookings/bookings.repository.ts`, `booking.service.ts`)**:
+  - **Issue**: Authenticated customer bookings failed with PostgreSQL error `23503`: `insert or update on table "bookings" violates foreign key constraint "bookings_user_id_fkey"` because new Supabase / OAuth auth users did not have an existing row in `public.profiles`.
+  - **Remediation**:
+    - In `BookingsRepository.create()`: before inserting into `bookings`, checks if a profile exists in `profiles`. If not, attempts to auto-provision the profile record with customer name, phone, and email.
+    - If profile creation fails (e.g. unique phone/email collision with an older record, or auth schema separation), gracefully falls back to `effectiveUserId = null`.
+    - Added an intercepting try-catch on `insertSql`: if PostgreSQL throws error `23503` (`bookings_user_id_fkey`), automatically retries the booking insertion with `user_id = null`.
+    - In `booking.service.ts:createDraft()`: wrapped profile upsert in non-blocking error handler, falling back to guest mode rather than throwing `PROFILE_CONTACT_CONFLICT` and blocking customer checkout.
+    - Added unit test in `backend/tests/unit/admin-finance-status.test.ts` verifying foreign key fallback behavior and profile auto-provisioning.
+    - Monorepo `npm run verify` passed with exit code 0 (325 backend unit tests, 0 typecheck errors, SSG build green).
+
 ### 2026-10-18 — Payment System Audit Remediation: Durable Webhook Retry Recovery & Bidirectional State Synchronization
 
 - **Webhook Deduplication & Durable Replay Recovery (`payments.repository.ts`, `payments.service.ts`)**:

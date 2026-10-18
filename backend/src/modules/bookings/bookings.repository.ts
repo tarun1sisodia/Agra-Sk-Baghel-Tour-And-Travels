@@ -60,8 +60,39 @@ export class BookingsRepository {
     total_amount: number;
     advance_amount: number;
   }): Promise<BookingEntity> {
-    const res = await this.pool.query(
-      `
+    let effectiveUserId: string | null = null;
+    if (data.user_id) {
+      try {
+        const check = await this.pool.query("SELECT id FROM profiles WHERE id = $1 LIMIT 1", [data.user_id]);
+        if (check.rows.length > 0) {
+          effectiveUserId = data.user_id;
+        } else {
+          // Profile row does not exist for this authenticated user yet. Attempt to auto-provision.
+          const phone = data.customer_phone?.trim() || "+910000000000";
+          const email = data.customer_email?.trim() || null;
+          try {
+            await this.pool.query(
+              `INSERT INTO profiles (id, full_name, phone, email, role, created_at, updated_at)
+               VALUES ($1, $2, $3, $4, 'customer', NOW(), NOW())
+               ON CONFLICT (id) DO UPDATE SET
+                 full_name = COALESCE(EXCLUDED.full_name, profiles.full_name),
+                 updated_at = NOW()`,
+              [data.user_id, data.customer_name, phone, email]
+            );
+            effectiveUserId = data.user_id;
+          } catch (profileErr: any) {
+            console.warn(`[bookings] Profile auto-provision skipped for ${data.user_id}: ${profileErr?.message || profileErr}`);
+            const recheck = await this.pool.query("SELECT id FROM profiles WHERE id = $1 LIMIT 1", [data.user_id]);
+            effectiveUserId = recheck.rows.length > 0 ? data.user_id : null;
+          }
+        }
+      } catch (err: any) {
+        console.warn(`[bookings] Error verifying profile for ${data.user_id}: ${err?.message || err}`);
+        effectiveUserId = null;
+      }
+    }
+
+    const insertSql = `
       INSERT INTO bookings (
         ticket_id, user_id, guest_access_token, customer_name, customer_phone, customer_email,
         category, vehicle_model_id, passenger_count, route_id, local_package_id, transfer_id, tour_package_id,
@@ -70,33 +101,46 @@ export class BookingsRepository {
       )
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, 'pending_payment')
       RETURNING *
-    `,
-      [
-        data.ticket_id,
-        data.user_id ?? null,
-        data.guest_access_token,
-        data.customer_name,
-        data.customer_phone,
-        data.customer_email ?? null,
-        data.category,
-        data.vehicle_model_id,
-        data.passenger_count,
-        data.route_id ?? null,
-        data.local_package_id ?? null,
-        data.transfer_id ?? null,
-        data.tour_package_id ?? null,
-        data.trip_type ?? null,
-        data.pickup_at,
-        data.return_at ?? null,
-        data.pickup_address,
-        data.drop_address ?? null,
-        data.flight_train_number ?? null,
-        data.special_notes ?? null,
-        JSON.stringify(data.fare_breakdown),
-        data.total_amount,
-        data.advance_amount,
-      ]
-    );
+    `;
+
+    const buildParams = (uid: string | null) => [
+      data.ticket_id,
+      uid,
+      data.guest_access_token,
+      data.customer_name,
+      data.customer_phone,
+      data.customer_email ?? null,
+      data.category,
+      data.vehicle_model_id,
+      data.passenger_count,
+      data.route_id ?? null,
+      data.local_package_id ?? null,
+      data.transfer_id ?? null,
+      data.tour_package_id ?? null,
+      data.trip_type ?? null,
+      data.pickup_at,
+      data.return_at ?? null,
+      data.pickup_address,
+      data.drop_address ?? null,
+      data.flight_train_number ?? null,
+      data.special_notes ?? null,
+      JSON.stringify(data.fare_breakdown),
+      data.total_amount,
+      data.advance_amount,
+    ];
+
+    let res;
+    try {
+      res = await this.pool.query(insertSql, buildParams(effectiveUserId));
+    } catch (insertErr: any) {
+      if (insertErr?.code === "23503" && effectiveUserId) {
+        // FK violation fallback: retry with null user_id so customer booking is never aborted
+        console.warn(`[bookings] FK constraint violation on user_id ${effectiveUserId}. Retrying booking with guest mode to guarantee customer checkout.`);
+        res = await this.pool.query(insertSql, buildParams(null));
+      } else {
+        throw insertErr;
+      }
+    }
 
     const r = res.rows[0];
     return {
