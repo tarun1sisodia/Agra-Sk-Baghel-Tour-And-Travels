@@ -63,6 +63,16 @@ const TRANSITIONS: Partial<Record<BookingStatus, { to: BookingStatus; label: str
     { to: "completed", label: "Mark completed", tone: "default" },
     { to: "cancelled", label: "Cancel booking", tone: "destructive" },
   ],
+  confirmed: [
+    { to: "in_transit", label: "Start trip", tone: "gold" },
+    { to: "completed", label: "Mark completed", tone: "default" },
+    { to: "cancelled", label: "Cancel booking", tone: "destructive" },
+  ],
+  driver_assigned: [
+    { to: "in_transit", label: "Start trip", tone: "gold" },
+    { to: "completed", label: "Mark completed", tone: "default" },
+    { to: "cancelled", label: "Cancel booking", tone: "destructive" },
+  ],
   in_transit: [{ to: "completed", label: "Complete trip", tone: "default" }],
 };
 
@@ -231,7 +241,13 @@ export function BookingsPage({ user }: { user: AdminUser }) {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return bookings.filter((b) => {
-      if (status !== "all" && b.status !== status) return false;
+      if (status !== "all") {
+        const matchesStatus =
+          status === "paid_confirmed"
+            ? b.status === "paid_confirmed" || b.status === "confirmed"
+            : b.status === status;
+        if (!matchesStatus) return false;
+      }
       if (vehicle !== "all" && b.vehicleTier !== vehicle) return false;
       if (
         q &&
@@ -247,7 +263,12 @@ export function BookingsPage({ user }: { user: AdminUser }) {
   const tabs = STATUSES.map((s) => ({
     value: s,
     label: s === "all" ? "All" : s.replace("_", " "),
-    count: s === "all" ? bookings.length : bookings.filter((b) => b.status === s).length,
+    count:
+      s === "all"
+        ? bookings.length
+        : s === "paid_confirmed"
+        ? bookings.filter((b) => b.status === "paid_confirmed" || b.status === "confirmed").length
+        : bookings.filter((b) => b.status === s).length,
   }));
 
   async function transition(b: Booking, to: BookingStatus) {

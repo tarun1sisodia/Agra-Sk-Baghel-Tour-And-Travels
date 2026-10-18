@@ -255,7 +255,7 @@ class MockPaymentsRepository extends PaymentsRepository {
   override async recordWebhookEvent(data: any): Promise<{ inserted: boolean; event: PaymentWebhookEventEntity | null }> {
     const key = `${data.provider}:${data.event_id}`;
     if (this.webhookEvents.has(key)) {
-      return { inserted: false, event: null };
+      return { inserted: false, event: this.webhookEvents.get(key) || null };
     }
     const id = `event-${this.webhookEvents.size + 1}`;
     const entity: PaymentWebhookEventEntity = {
@@ -271,6 +271,12 @@ class MockPaymentsRepository extends PaymentsRepository {
     return { inserted: true, event: entity };
   }
 
+  override async markWebhookEventProcessed(id: string): Promise<void> {
+    for (const ev of this.webhookEvents.values()) {
+      if (ev.id === id) ev.processed = true;
+    }
+  }
+
   override async processCaptured(params: any): Promise<void> {
     const p = this.payments.get(params.paymentId);
     if (p) {
@@ -283,6 +289,9 @@ class MockPaymentsRepository extends PaymentsRepository {
       b.status = "confirmed";
       b.updated_at = new Date().toISOString();
     }
+    if (params.webhookEventId) {
+      await this.markWebhookEventProcessed(params.webhookEventId);
+    }
   }
 
   override async processNeedsReview(params: any): Promise<void> {
@@ -293,6 +302,9 @@ class MockPaymentsRepository extends PaymentsRepository {
       if (params.providerPaymentId) p.provider_payment_id = params.providerPaymentId;
       p.updated_at = new Date().toISOString();
     }
+    if (params.webhookEventId) {
+      await this.markWebhookEventProcessed(params.webhookEventId);
+    }
   }
 
   override async processFailed(params: any): Promise<void> {
@@ -301,6 +313,9 @@ class MockPaymentsRepository extends PaymentsRepository {
       p.status = "failed";
       p.failure_reason = params.reason;
       p.updated_at = new Date().toISOString();
+    }
+    if (params.webhookEventId) {
+      await this.markWebhookEventProcessed(params.webhookEventId);
     }
   }
 }

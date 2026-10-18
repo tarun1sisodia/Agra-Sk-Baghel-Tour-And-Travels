@@ -2,16 +2,26 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { PaymentsService } from "./payments.service.js";
 import { AppError } from "../../shared/errors.js";
 
+function extractCallerToken(req: FastifyRequest): string | null {
+  const h = req.headers["x-booking-token"] || req.headers["x-guest-token"] || req.headers["x-guest-access-token"];
+  if (typeof h === "string" && h.trim()) return h.trim();
+  const q = (req.query as any)?.token;
+  if (typeof q === "string" && q.trim()) return q.trim();
+  return null;
+}
+
 export function registerPaymentsRoutes(app: FastifyInstance, paymentsService: PaymentsService) {
   const handleCreatePayment = async (
     req: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply
   ) => {
     const { id } = req.params;
+    const callerToken = extractCallerToken(req);
+    const user = (req as any).user;
     try {
       const payment = typeof paymentsService.getPaymentOrder === "function"
-        ? await paymentsService.getPaymentOrder(id)
-        : await paymentsService.createPaymentOrder(id);
+        ? await paymentsService.getPaymentOrder(id, callerToken, user)
+        : await paymentsService.createPaymentOrder(id, callerToken, user);
       return reply.status(200).send({
         success: true,
         payment,
@@ -79,12 +89,17 @@ export function registerPaymentsRoutes(app: FastifyInstance, paymentsService: Pa
       });
     }
 
+    const callerToken = extractCallerToken(req);
+    const user = (req as any).user;
+
     try {
       const result = await paymentsService.verifyPayment({
         bookingId: id,
         razorpayPaymentId: razorpay_payment_id,
         razorpayOrderId: razorpay_order_id,
         razorpaySignature: razorpay_signature,
+        callerToken,
+        user,
       });
       return reply.status(200).send({
         success: true,
@@ -101,14 +116,17 @@ export function registerPaymentsRoutes(app: FastifyInstance, paymentsService: Pa
     }
   };
 
-  app.post("/bookings/:id/payment", handleCreatePayment);
-  app.post("/api/v1/bookings/:id/payment", handleCreatePayment);
+  const paymentOpts = { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } };
+  const webhookOpts = { config: { rateLimit: { max: 120, timeWindow: "1 minute" } } };
 
-  app.post("/bookings/:id/verify-payment", handleVerifyPayment);
-  app.post("/api/v1/bookings/:id/verify-payment", handleVerifyPayment);
+  app.post("/bookings/:id/payment", paymentOpts, handleCreatePayment);
+  app.post("/api/v1/bookings/:id/payment", paymentOpts, handleCreatePayment);
 
-  app.post("/webhooks/payment", handleWebhook);
-  app.post("/api/v1/webhooks/payment", handleWebhook);
-  app.post("/webhooks/razorpay", handleWebhook);
-  app.post("/api/v1/webhooks/razorpay", handleWebhook);
+  app.post("/bookings/:id/verify-payment", paymentOpts, handleVerifyPayment);
+  app.post("/api/v1/bookings/:id/verify-payment", paymentOpts, handleVerifyPayment);
+
+  app.post("/webhooks/payment", webhookOpts, handleWebhook);
+  app.post("/api/v1/webhooks/payment", webhookOpts, handleWebhook);
+  app.post("/webhooks/razorpay", webhookOpts, handleWebhook);
+  app.post("/api/v1/webhooks/razorpay", webhookOpts, handleWebhook);
 }

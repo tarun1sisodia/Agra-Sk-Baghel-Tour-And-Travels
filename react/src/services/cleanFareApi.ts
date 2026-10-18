@@ -29,14 +29,21 @@ export function getApiBaseUrl(): string {
 }
 
 export class CleanFareApiError extends Error {
+  code: string;
+  status: number;
+  details?: any;
+
   constructor(
-    public code: string,
+    code: string,
     message: string,
-    public status: number,
-    public details?: any
+    status: number,
+    details?: any
   ) {
     super(message);
     this.name = "CleanFareApiError";
+    this.code = code;
+    this.status = status;
+    this.details = details;
   }
 }
 
@@ -46,12 +53,22 @@ async function apiRequest<T>(
   schema?: z.ZodType<T>
 ): Promise<T> {
   const url = `${getApiBaseUrl()}${path}`;
+
+  // Safely normalize caller headers whether plain object, array of entries, or Headers instance
+  const customHeaders = options?.headers instanceof Headers
+    ? Object.fromEntries(options.headers.entries())
+    : Array.isArray(options?.headers)
+    ? Object.fromEntries(options.headers)
+    : (options?.headers as Record<string, string> | undefined) || {};
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...customHeaders,
+  };
+
   const res = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options?.headers || {}),
-    },
     ...options,
+    headers,
   });
 
   const body = await res.json().catch(() => ({}));
@@ -347,10 +364,17 @@ export async function fetchBookingById(
 }
 
 // 7. Payment Order (Razorpay)
-export async function createBookingPayment(bookingId: string): Promise<PaymentOrderResponse> {
+export async function createBookingPayment(
+  bookingId: string,
+  guestToken?: string
+): Promise<PaymentOrderResponse> {
+  const headers: Record<string, string> = {};
+  if (guestToken) {
+    headers["x-guest-token"] = guestToken;
+  }
   const raw = await apiRequest<any>(
     `/api/v1/bookings/${bookingId}/payment`,
-    { method: "POST" }
+    { method: "POST", headers }
   );
   const p = raw?.payment || raw;
   if (!p) {
@@ -365,12 +389,18 @@ export async function verifyBookingPayment(
     razorpay_payment_id: string;
     razorpay_order_id: string;
     razorpay_signature: string;
-  }
+  },
+  guestToken?: string
 ): Promise<{ status: string }> {
+  const headers: Record<string, string> = {};
+  if (guestToken) {
+    headers["x-guest-token"] = guestToken;
+  }
   return apiRequest<{ status: string }>(
     `/api/v1/bookings/${bookingId}/verify-payment`,
     {
       method: "POST",
+      headers,
       body: JSON.stringify(paymentDetails),
     }
   );

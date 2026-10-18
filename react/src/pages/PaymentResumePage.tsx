@@ -69,7 +69,8 @@ export function PaymentResumePage() {
             providerPaymentId: response.razorpay_payment_id,
             signature: response.razorpay_signature,
           });
-          if (verified.status === "captured" && verified.bookingStatus === "paid_confirmed") {
+          const isConfirmed = (s?: string) => s === "paid_confirmed" || s === "confirmed";
+          if (verified.status === "captured" && isConfirmed(verified.bookingStatus)) {
             try { setConfirmedBooking(await getMyBooking(current.bookingId, accessToken!)); }
             catch { setError("Payment is verified. Your voucher details are not available yet; open My Bookings to retrieve them."); }
             clearPaymentResumeReference();
@@ -80,7 +81,7 @@ export function PaymentResumePage() {
           }
           for (let attempt = 0; attempt < 10; attempt += 1) {
             const result = await getOwnerPaymentStatus(checkout.paymentId, accessToken!);
-            if (result.status === "captured" && result.bookingStatus === "paid_confirmed") {
+            if (result.status === "captured" && isConfirmed(result.bookingStatus)) {
               try { setConfirmedBooking(await getMyBooking(current.bookingId, accessToken!)); }
               catch { setError("Payment is verified. Your voucher details are not available yet; open My Bookings to retrieve them."); }
               clearPaymentResumeReference();
@@ -130,7 +131,7 @@ export function PaymentResumePage() {
     setBusy(true);
     void getMyBooking(reference.bookingId, accessToken)
       .then((booking) => {
-        if (booking.status === "paid_confirmed") {
+        if (booking.status === "paid_confirmed" || booking.status === "confirmed") {
           setConfirmedBooking(booking);
           clearPaymentResumeReference();
           setReference(null);

@@ -7,7 +7,7 @@ export interface PaymentEntity {
   provider_order_id: string;
   provider_payment_id: string | null;
   amount_paise: number;
-  status: "pending" | "captured" | "failed" | "needs_review";
+  status: "pending" | "captured" | "failed" | "needs_review" | "refunded" | "partially_refunded";
   failure_reason: string | null;
   created_at: string;
   updated_at: string;
@@ -24,7 +24,7 @@ export interface PaymentWebhookEventEntity {
 }
 
 export class PaymentsRepository {
-  constructor(private pool: pg.Pool) {}
+  constructor(private pool: pg.Pool) {} 
 
   async create(data: {
     booking_id: string;
@@ -91,9 +91,20 @@ export class PaymentsRepository {
     );
 
     if (res.rows.length === 0) {
-      return { inserted: false, event: null };
+      const existing = await this.pool.query(
+        `SELECT * FROM payment_webhook_events WHERE provider = $1 AND event_id = $2 LIMIT 1`,
+        [data.provider, data.event_id]
+      );
+      return { inserted: false, event: existing.rows[0] ?? null };
     }
     return { inserted: true, event: res.rows[0] };
+  }
+
+  async markWebhookEventProcessed(id: string): Promise<void> {
+    await this.pool.query(
+      `UPDATE payment_webhook_events SET processed = true WHERE id = $1`,
+      [id]
+    );
   }
 
   async processCaptured(params: {

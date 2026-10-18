@@ -1,0 +1,649 @@
+import crypto from "node:crypto";
+import { describe, it, expect, vi } from "vitest";
+import Fastify from "fastify";
+import { createAdminService } from "../../src/modules/admin/admin.service.js";
+import { createPaymentService } from "../../src/modules/payments/payment.service.js";
+import { PaymentsService } from "../../src/modules/payments/payments.service.js";
+import { canTransition, assertTransition } from "../../src/shared/stateMachine.js";
+import { registerBookingsRoutes } from "../../src/modules/bookings/bookings.routes.js";
+import type { BookingRecord, PaymentRecord, RefundRecord } from "../../src/types/domain.js";
+
+describe("Admin Finance Visibility & Booking Status Alignment", () => {
+  describe("admin.service: listPayments", () => {
+    it("maps payments with amount in INR, resolved ticketId, fallback capturedAt and reconciliationStatus", async () => {
+      const mockBooking: BookingRecord = {
+        id: "bkg-123",
+        ticketId: "SKB-20261018-0001",
+        userId: null,
+        guestAccessToken: "token-123",
+        tripType: "one-way",
+        vehicleTier: "sedan",
+        originName: "Agra",
+        destinationName: "Delhi",
+        bookingSelection: null,
+        selectedCatalogItemId: null,
+        pickupAddress: "Taj Ganj",
+        dropAddress: null,
+        pickupDatetime: "2026-10-18T10:00:00Z",
+        returnDatetime: null,
+        flightTrainNumber: null,
+        distanceKm: 240,
+        customerName: "Rohan Sharma",
+        customerPhone: "+919876543210",
+        customerEmail: "rohan@example.com",
+        baseFare: 4500,
+        nightAllowance: 0,
+        driverAllowance: 0,
+        discountAmount: 0,
+        promoCode: null,
+        totalFare: 4500,
+        advanceAmount: 1260,
+        balanceAmount: 3240,
+        fareRulesVersion: "2.0",
+        fareSnapshot: {} as any,
+        status: "confirmed",
+        version: 1,
+        specialNotes: null,
+        packageId: null,
+        createdAt: "2026-10-18T04:00:00.000Z",
+        updatedAt: "2026-10-18T04:05:00.000Z",
+      };
+
+      const mockPayment: PaymentRecord = {
+        id: "pay-123",
+        bookingId: "bkg-123",
+        provider: "razorpay",
+        providerOrderId: "order_rzp_123",
+        providerPaymentId: "pay_rzp_456",
+        checkoutSessionId: null,
+        checkoutUrl: null,
+        publicClientToken: null,
+        amountMinor: 126000,
+        currency: "INR",
+        inrAmountPaise: 126000,
+        status: "captured",
+        paymentMethod: null,
+        feeMinor: 2500,
+        taxMinor: 450,
+        idempotencyKey: "order_rzp_123",
+        webhookEventId: "evt_123",
+        reconciliationStatus: "pending",
+        failureReason: null,
+        verifiedAt: null,
+        expiresAt: "2026-10-18T05:00:00.000Z",
+        createdAt: "2026-10-18T04:01:00.000Z",
+        updatedAt: "2026-10-18T04:02:00.000Z",
+      };
+
+      const mockDb = {
+        payments: {
+          list: vi.fn().mockResolvedValue({
+            items: [mockPayment],
+            total: 1,
+            totalCapturedPaise: 126000,
+            totalRefundedPaise: 0,
+          }),
+        },
+        bookings: {
+          getById: vi.fn().mockResolvedValue(mockBooking),
+        },
+      } as any;
+
+      const adminService = createAdminService({ db: mockDb });
+      const res = await adminService.listPayments({});
+
+      expect(res.total).toBe(1);
+      expect(res.totalCapturedPaise).toBe(126000);
+      expect(res.items).toHaveLength(1);
+
+      const item = res.items[0]!;
+      // Amount in INR: 126000 paise = ₹1260
+      expect(item.amount).toBe(1260);
+      expect(item.amountPaise).toBe(126000);
+      // Resolved ticket ID from booking
+      expect(item.bookingTicketId).toBe("SKB-20261018-0001");
+      // Method fallback for razorpay
+      expect(item.method).toBe("upi");
+      // Fallback capturedAt from updatedAt when verifiedAt is null
+      expect(item.capturedAt).toBe("2026-10-18T04:02:00.000Z");
+      // Captured payments with pending reconciliation auto-match
+      expect(item.reconciliationStatus).toBe("matched");
+    });
+  });
+
+  describe("stateMachine: confirmed status transitions", () => {
+    it("allows valid lifecycle transitions from confirmed status", () => {
+      expect(canTransition("confirmed", "driver_assigned")).toBe(true);
+      expect(canTransition("confirmed", "in_transit")).toBe(true);
+      expect(canTransition("confirmed", "completed")).toBe(true);
+      expect(canTransition("confirmed", "refunded")).toBe(true);
+      expect(canTransition("confirmed", "cancelled")).toBe(true);
+      expect(() => assertTransition("confirmed", "refunded")).not.toThrow();
+    });
+
+    it("rejects invalid transitions from confirmed", () => {
+      expect(canTransition("confirmed", "draft")).toBe(false);
+      expect(canTransition("confirmed", "pending_payment")).toBe(false);
+      expect(() => assertTransition("confirmed", "draft")).toThrow();
+    });
+  });
+
+  describe("payment.service: refund eligibility for confirmed bookings", () => {
+    it("successfully refunds a booking in 'confirmed' status", async () => {
+      const mockBooking: BookingRecord = {
+        id: "bkg-conf-1",
+        ticketId: "SKB-20261018-CONF",
+        userId: null,
+        guestAccessToken: "tok-conf",
+        tripType: "one-way",
+        vehicleTier: "sedan",
+        originName: "Agra",
+        destinationName: "Jaipur",
+        bookingSelection: null,
+        selectedCatalogItemId: null,
+        pickupAddress: "Agra Cantt",
+        dropAddress: null,
+        pickupDatetime: "2026-10-19T08:00:00Z",
+        returnDatetime: null,
+        flightTrainNumber: null,
+        distanceKm: 240,
+        customerName: "Aman Gupta",
+        customerPhone: "+919876543211",
+        customerEmail: "aman@example.com",
+        baseFare: 5000,
+        nightAllowance: 0,
+        driverAllowance: 0,
+        discountAmount: 0,
+        promoCode: null,
+        totalFare: 5000,
+        advanceAmount: 1400,
+        balanceAmount: 3600,
+        fareRulesVersion: "2.0",
+        fareSnapshot: {} as any,
+        status: "confirmed" as any,
+        version: 1,
+        specialNotes: null,
+        packageId: null,
+        createdAt: "2026-10-18T05:00:00Z",
+        updatedAt: "2026-10-18T05:05:00Z",
+      };
+
+      const mockPayment: PaymentRecord = {
+        id: "pay-conf-1",
+        bookingId: "bkg-conf-1",
+        provider: "razorpay",
+        providerOrderId: "order_conf_1",
+        providerPaymentId: "pay_conf_1",
+        checkoutSessionId: null,
+        checkoutUrl: null,
+        publicClientToken: null,
+        amountMinor: 140000,
+        currency: "INR",
+        inrAmountPaise: 140000,
+        status: "captured",
+        paymentMethod: "upi",
+        feeMinor: 2800,
+        taxMinor: 504,
+        idempotencyKey: "order_conf_1",
+        webhookEventId: null,
+        reconciliationStatus: "matched",
+        failureReason: null,
+        verifiedAt: "2026-10-18T05:06:00Z",
+        expiresAt: "2026-10-18T06:00:00Z",
+        createdAt: "2026-10-18T05:01:00Z",
+        updatedAt: "2026-10-18T05:06:00Z",
+      };
+
+      let updatedBookingStatus: string | null = null;
+      let updatedPaymentStatus: string | null = null;
+      let createdRefund: RefundRecord | null = null;
+
+      const trx = {
+        refunds: {
+          getByIdempotencyKey: vi.fn().mockResolvedValue(null),
+          listByBookingId: vi.fn().mockResolvedValue([]),
+          create: vi.fn().mockImplementation(async (record: RefundRecord) => {
+            createdRefund = record;
+            return record;
+          }),
+        },
+        bookings: {
+          getById: vi.fn().mockResolvedValue(mockBooking),
+          getByTicketId: vi.fn().mockResolvedValue(null),
+          update: vi.fn().mockImplementation(async (b: BookingRecord) => {
+            updatedBookingStatus = b.status;
+            return b;
+          }),
+        },
+        payments: {
+          listByBookingId: vi.fn().mockResolvedValue([mockPayment]),
+          update: vi.fn().mockImplementation(async (p: PaymentRecord) => {
+            updatedPaymentStatus = p.status;
+            return p;
+          }),
+        },
+      };
+
+      const mockDb = {
+        refunds: {
+          getByIdempotencyKey: vi.fn().mockResolvedValue(null),
+        },
+        transaction: vi.fn().mockImplementation(async (fn: any) => fn(trx)),
+      } as any;
+
+      const mockRazorpay = {
+        refund: vi.fn().mockResolvedValue({
+          providerRefundId: "rfnd_rzp_999",
+          status: "processed",
+        }),
+      } as any;
+
+      const paymentService = createPaymentService({
+        db: mockDb,
+        clock: { now: () => new Date() } as any,
+        env: {} as any,
+        providers: { razorpay: mockRazorpay } as any,
+        notifications: {} as any,
+      });
+
+      const result = await paymentService.refund({
+        bookingId: "bkg-conf-1",
+        reason: "Customer requested cancellation within free window",
+        idempotencyKey: "idem_rfnd_123",
+        actorId: "admin-actor-1",
+      });
+
+      expect(mockRazorpay.refund).toHaveBeenCalledWith({
+        providerPaymentId: "pay_conf_1",
+        amountMinor: 140000,
+        currency: "INR",
+        reason: "Customer requested cancellation within free window",
+        idempotencyKey: "idem_rfnd_123",
+      });
+
+      expect(updatedPaymentStatus).toBe("refunded");
+      expect(updatedBookingStatus).toBe("refunded");
+      expect(createdRefund).not.toBeNull();
+      expect(result.providerRefundId).toBe("rfnd_rzp_999");
+    });
+
+    it("rejects refund when booking is in pending_payment state", async () => {
+      const mockBooking = {
+        id: "bkg-pend-1",
+        status: "pending_payment",
+      } as any;
+
+      const trx = {
+        refunds: {
+          getByIdempotencyKey: vi.fn().mockResolvedValue(null),
+        },
+        bookings: {
+          getById: vi.fn().mockResolvedValue(mockBooking),
+          getByTicketId: vi.fn().mockResolvedValue(null),
+        },
+      };
+
+      const mockDb = {
+        refunds: {
+          getByIdempotencyKey: vi.fn().mockResolvedValue(null),
+        },
+        transaction: vi.fn().mockImplementation(async (fn: any) => fn(trx)),
+      } as any;
+
+      const paymentService = createPaymentService({
+        db: mockDb,
+        clock: { now: () => new Date() } as any,
+        env: {} as any,
+        providers: { razorpay: {} } as any,
+        notifications: {} as any,
+      });
+
+      await expect(
+        paymentService.refund({
+          bookingId: "bkg-pend-1",
+          reason: "Customer cancellation request",
+          idempotencyKey: "idem_pend_1",
+          actorId: "admin-actor-1",
+        })
+      ).rejects.toThrow("Booking is not eligible for refund.");
+    });
+  });
+
+  describe("bookings.routes: guest-token ownership proof", () => {
+    it("returns 403 on GET /api/v1/bookings/:id when guest token is missing or invalid", async () => {
+      const app = Fastify();
+      const mockBookingsService = {
+        createBooking: vi.fn(),
+        getBookingById: vi.fn().mockResolvedValue({
+          id: "00000000-0000-0000-0000-000000000099",
+          ticket_id: "SKB-20261018-9999",
+          guest_access_token: "super_secret_guest_token_xyz",
+          status: "confirmed",
+        }),
+        getBookingByTicketId: vi.fn().mockResolvedValue(null),
+      } as any;
+
+      registerBookingsRoutes(app, mockBookingsService);
+
+      // 1. Missing token -> 403
+      const resNoToken = await app.inject({
+        method: "GET",
+        url: "/api/v1/bookings/00000000-0000-0000-0000-000000000099",
+      });
+      expect(resNoToken.statusCode).toBe(403);
+      expect(resNoToken.json().error).toBe("FORBIDDEN");
+
+      // 2. Wrong token -> 403
+      const resWrongToken = await app.inject({
+        method: "GET",
+        url: "/api/v1/bookings/00000000-0000-0000-0000-000000000099",
+        headers: {
+          "x-guest-token": "wrong_guest_token_12345",
+        },
+      });
+      expect(resWrongToken.statusCode).toBe(403);
+      expect(resWrongToken.json().error).toBe("FORBIDDEN");
+
+      // 3. Valid x-guest-token header -> 200
+      const resValidHeader = await app.inject({
+        method: "GET",
+        url: "/api/v1/bookings/00000000-0000-0000-0000-000000000099",
+        headers: {
+          "x-guest-token": "super_secret_guest_token_xyz",
+        },
+      });
+      expect(resValidHeader.statusCode).toBe(200);
+      expect(resValidHeader.json().booking.ticket_id).toBe("SKB-20261018-9999");
+
+      // 4. Valid token in query param -> 200
+      const resValidQuery = await app.inject({
+        method: "GET",
+        url: "/api/v1/bookings/00000000-0000-0000-0000-000000000099?token=super_secret_guest_token_xyz",
+      });
+      expect(resValidQuery.statusCode).toBe(200);
+      expect(resValidQuery.json().booking.ticket_id).toBe("SKB-20261018-9999");
+    });
+  });
+
+  describe("PaymentsService.verifyPayment: upstream Razorpay provider verification", () => {
+    const keySecret = "secret_rzp_test_123456";
+    const keyId = "rzp_live_testkey123";
+    const orderId = "order_rzp_upstream_001";
+    const paymentId = "pay_rzp_upstream_001";
+    const signature = crypto
+      .createHmac("sha256", keySecret)
+      .update(`${orderId}|${paymentId}`)
+      .digest("hex");
+
+    const mockBooking = {
+      id: "bkg-up-1",
+      ticket_id: "SKB-20261018-UP1",
+      guest_access_token: "guest_tok_up1",
+    };
+
+    const mockPayment = {
+      id: "pay-entity-1",
+      booking_id: "bkg-up-1",
+      amount_paise: 50000,
+      status: "pending",
+    };
+
+    it("successfully captures when signature and upstream Razorpay API payment details match", async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          id: paymentId,
+          order_id: orderId,
+          amount: 50000,
+          currency: "INR",
+          status: "captured",
+          method: "upi",
+        }),
+      });
+
+      const mockPaymentsRepo = {
+        getByProviderOrderId: vi.fn().mockResolvedValue(mockPayment),
+        processCaptured: vi.fn().mockResolvedValue(undefined),
+        processNeedsReview: vi.fn(),
+        processFailed: vi.fn(),
+      } as any;
+
+      const mockBookingsRepo = {
+        getById: vi.fn().mockResolvedValue(mockBooking),
+      } as any;
+
+      const service = new PaymentsService({
+        paymentsRepo: mockPaymentsRepo,
+        bookingsRepo: mockBookingsRepo,
+        razorpayKeyId: keyId,
+        razorpayKeySecret: keySecret,
+        razorpayWebhookSecret: "whsec_test",
+        fetchImpl: mockFetch as any,
+      });
+
+      const res = await service.verifyPayment({
+        bookingId: "bkg-up-1",
+        razorpayPaymentId: paymentId,
+        razorpayOrderId: orderId,
+        razorpaySignature: signature,
+        callerToken: "guest_tok_up1",
+      });
+
+      expect(res.status).toBe("captured");
+      expect(mockPaymentsRepo.processCaptured).toHaveBeenCalledWith({
+        paymentId: "pay-entity-1",
+        bookingId: "bkg-up-1",
+        providerPaymentId: paymentId,
+      });
+      expect(mockPaymentsRepo.processNeedsReview).not.toHaveBeenCalled();
+    });
+
+    it("moves payment to needs_review when upstream currency is not INR", async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          id: paymentId,
+          order_id: orderId,
+          amount: 50000,
+          currency: "USD",
+          status: "captured",
+        }),
+      });
+
+      const mockPaymentsRepo = {
+        getByProviderOrderId: vi.fn().mockResolvedValue(mockPayment),
+        processCaptured: vi.fn(),
+        processNeedsReview: vi.fn().mockResolvedValue(undefined),
+        processFailed: vi.fn(),
+      } as any;
+
+      const mockBookingsRepo = {
+        getById: vi.fn().mockResolvedValue(mockBooking),
+      } as any;
+
+      const service = new PaymentsService({
+        paymentsRepo: mockPaymentsRepo,
+        bookingsRepo: mockBookingsRepo,
+        razorpayKeyId: keyId,
+        razorpayKeySecret: keySecret,
+        razorpayWebhookSecret: "whsec_test",
+        fetchImpl: mockFetch as any,
+      });
+
+      const res = await service.verifyPayment({
+        bookingId: "bkg-up-1",
+        razorpayPaymentId: paymentId,
+        razorpayOrderId: orderId,
+        razorpaySignature: signature,
+        callerToken: "guest_tok_up1",
+      });
+
+      expect(res.status).toBe("needs_review");
+      expect(mockPaymentsRepo.processNeedsReview).toHaveBeenCalledWith({
+        paymentId: "pay-entity-1",
+        reason: "currency_mismatch",
+        providerPaymentId: paymentId,
+      });
+      expect(mockPaymentsRepo.processCaptured).not.toHaveBeenCalled();
+    });
+
+    it("moves payment to needs_review when upstream amount does not match ledger amount", async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          id: paymentId,
+          order_id: orderId,
+          amount: 1000, // Expected 50000
+          currency: "INR",
+          status: "captured",
+        }),
+      });
+
+      const mockPaymentsRepo = {
+        getByProviderOrderId: vi.fn().mockResolvedValue(mockPayment),
+        processCaptured: vi.fn(),
+        processNeedsReview: vi.fn().mockResolvedValue(undefined),
+        processFailed: vi.fn(),
+      } as any;
+
+      const mockBookingsRepo = {
+        getById: vi.fn().mockResolvedValue(mockBooking),
+      } as any;
+
+      const service = new PaymentsService({
+        paymentsRepo: mockPaymentsRepo,
+        bookingsRepo: mockBookingsRepo,
+        razorpayKeyId: keyId,
+        razorpayKeySecret: keySecret,
+        razorpayWebhookSecret: "whsec_test",
+        fetchImpl: mockFetch as any,
+      });
+
+      const res = await service.verifyPayment({
+        bookingId: "bkg-up-1",
+        razorpayPaymentId: paymentId,
+        razorpayOrderId: orderId,
+        razorpaySignature: signature,
+        callerToken: "guest_tok_up1",
+      });
+
+      expect(res.status).toBe("needs_review");
+      expect(mockPaymentsRepo.processNeedsReview).toHaveBeenCalledWith({
+        paymentId: "pay-entity-1",
+        reason: "amount_mismatch",
+        providerPaymentId: paymentId,
+      });
+      expect(mockPaymentsRepo.processNeedsReview).toHaveBeenCalledWith({
+        paymentId: "pay-entity-1",
+        reason: "amount_mismatch",
+        providerPaymentId: paymentId,
+      });
+      expect(mockPaymentsRepo.processCaptured).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("payments.service: Durable Webhook Retry & Idempotency", () => {
+    it("handles race where webhook arrives before order, and recovers on retry", async () => {
+      const webhookSecret = "whsec_test_secret_1234567890";
+      const eventId = "evt_race_retry_101";
+      const orderId = "order_race_101";
+      const paymentId = "pay_race_101";
+
+      const webhookPayload = {
+        id: eventId,
+        event: "payment.captured",
+        payload: {
+          payment: {
+            entity: {
+              id: paymentId,
+              order_id: orderId,
+              amount: 50000,
+              currency: "INR",
+            },
+          },
+        },
+      };
+      const rawBody = JSON.stringify(webhookPayload);
+      const signature = crypto.createHmac("sha256", webhookSecret).update(Buffer.from(rawBody)).digest("hex");
+
+      const webhookEvents = new Map<string, any>();
+      let orderExists = false;
+
+      const mockPaymentsRepo = {
+        recordWebhookEvent: vi.fn().mockImplementation(async (data: any) => {
+          const key = `${data.provider}:${data.event_id}`;
+          if (webhookEvents.has(key)) {
+            return { inserted: false, event: webhookEvents.get(key) };
+          }
+          const ev = { id: "ev-1", ...data, processed: data.processed || false };
+          webhookEvents.set(key, ev);
+          return { inserted: true, event: ev };
+        }),
+        markWebhookEventProcessed: vi.fn().mockImplementation(async (id: string) => {
+          for (const ev of webhookEvents.values()) {
+            if (ev.id === id) ev.processed = true;
+          }
+        }),
+        getByProviderOrderId: vi.fn().mockImplementation(async (oid: string) => {
+          if (!orderExists || oid !== orderId) return null;
+          return {
+            id: "pay-db-1",
+            booking_id: "bkg-db-1",
+            amount_paise: 50000,
+            status: "pending",
+          };
+        }),
+        processCaptured: vi.fn().mockImplementation(async (params: any) => {
+          if (params.webhookEventId) {
+            for (const ev of webhookEvents.values()) {
+              if (ev.id === params.webhookEventId) ev.processed = true;
+            }
+          }
+        }),
+      } as any;
+
+      const mockBookingsRepo = {
+        getById: vi.fn().mockResolvedValue({
+          id: "bkg-db-1",
+          status: "pending_payment",
+        }),
+      } as any;
+
+      const service = new PaymentsService({
+        paymentsRepo: mockPaymentsRepo,
+        bookingsRepo: mockBookingsRepo,
+        razorpayKeyId: "rzp_test_1",
+        razorpayKeySecret: "secret_1",
+        razorpayWebhookSecret: webhookSecret,
+      });
+
+      // 1. Initial attempt: Webhook arrives before order is saved in DB
+      const res1 = await service.handleWebhook(rawBody, signature);
+      expect(res1.status).toBe("order_not_found");
+      expect(webhookEvents.get("razorpay:" + eventId)?.processed).toBe(false);
+
+      // 2. Order is now inserted in DB
+      orderExists = true;
+
+      // 3. Razorpay retries webhook with same event_id
+      const res2 = await service.handleWebhook(rawBody, signature);
+      expect(res2.status).toBe("captured");
+      expect(mockPaymentsRepo.processCaptured).toHaveBeenCalledWith(expect.objectContaining({
+        paymentId: "pay-db-1",
+        bookingId: "bkg-db-1",
+        providerPaymentId: paymentId,
+        webhookEventId: "ev-1",
+      }));
+      expect(webhookEvents.get("razorpay:" + eventId)?.processed).toBe(true);
+
+      // 4. Duplicate webhook after successful processing returns already_processed
+      const res3 = await service.handleWebhook(rawBody, signature);
+      expect(res3.status).toBe("already_processed");
+    });
+
+    it("allows bidirectional transition between confirmed and paid_confirmed", () => {
+      expect(() => assertTransition("confirmed", "paid_confirmed")).not.toThrow();
+      expect(() => assertTransition("paid_confirmed", "confirmed")).not.toThrow();
+    });
+  });
+});

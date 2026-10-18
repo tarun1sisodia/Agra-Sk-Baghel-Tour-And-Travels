@@ -55,6 +55,9 @@ async function testClientVerification() {
   // 3. Create Payment Order
   const payRes = await fetch(`${API_BASE}/bookings/${booking.id}/payment`, {
     method: "POST",
+    headers: {
+      "x-guest-token": booking.guest_access_token,
+    },
   });
   if (!payRes.ok) throw new Error(`Payment order creation failed: ${await payRes.text()}`);
   const { payment } = (await payRes.json()) as any;
@@ -70,7 +73,10 @@ async function testClientVerification() {
   console.log(`Submitting client verification: payment_id = ${razorpayPaymentId}`);
   const verifyRes = await fetch(`${API_BASE}/bookings/${booking.id}/verify-payment`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-guest-token": booking.guest_access_token,
+    },
     body: JSON.stringify({
       razorpay_payment_id: razorpayPaymentId,
       razorpay_order_id: payment.order_id,

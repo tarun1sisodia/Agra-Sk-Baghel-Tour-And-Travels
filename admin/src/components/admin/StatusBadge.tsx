@@ -15,6 +15,8 @@ const map: Record<string, { label: string; tone: "neutral" | "gold" | "success" 
   draft: { label: "Draft", tone: "neutral", icon: PenSquare },
   pending_payment: { label: "Pending payment", tone: "gold", icon: Clock },
   paid_confirmed: { label: "Paid", tone: "teal", icon: CreditCard },
+  confirmed: { label: "Paid", tone: "teal", icon: CreditCard },
+  driver_assigned: { label: "Driver Assigned", tone: "gold", icon: CalendarClock },
   in_transit: { label: "In transit", tone: "ink", icon: CalendarClock },
   completed: { label: "Completed", tone: "success", icon: CheckCircle2 },
   cancelled: { label: "Cancelled", tone: "error", icon: XCircle },

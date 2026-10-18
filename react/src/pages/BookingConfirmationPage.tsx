@@ -123,7 +123,9 @@ export function BookingConfirmationPage() {
     if (!booking) return;
     setPayBusy(true);
     try {
-      const paymentRes = await createBookingPayment(booking.booking_id);
+      const guestToken =
+        sessionStorage.getItem(`arenaai:guest_token:${booking.booking_id}`) || undefined;
+      const paymentRes = await createBookingPayment(booking.booking_id, guestToken);
       const ready = await loadRazorpayScript();
       if (!ready || !window.Razorpay) {
         throw new Error("Unable to initialize payment gateway. Please check your connection.");

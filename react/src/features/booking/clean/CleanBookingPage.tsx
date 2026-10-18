@@ -582,7 +582,7 @@ export function CleanBookingPage() {
 
       // Launch Razorpay
       try {
-        const paymentRes = await createBookingPayment(bookingRes.booking_id);
+        const paymentRes = await createBookingPayment(bookingRes.booking_id, bookingRes.guest_access_token);
         const scriptReady = await loadRazorpayScript();
         if (scriptReady && window.Razorpay) {
           const rzp = new window.Razorpay({
@@ -606,11 +606,15 @@ export function CleanBookingPage() {
             handler: async (response: any) => {
               if (response?.razorpay_payment_id && response?.razorpay_order_id && response?.razorpay_signature) {
                 try {
-                  await verifyBookingPayment(bookingRes.booking_id, {
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_signature: response.razorpay_signature,
-                  });
+                  await verifyBookingPayment(
+                    bookingRes.booking_id,
+                    {
+                      razorpay_payment_id: response.razorpay_payment_id,
+                      razorpay_order_id: response.razorpay_order_id,
+                      razorpay_signature: response.razorpay_signature,
+                    },
+                    bookingRes.guest_access_token
+                  );
                 } catch (verifyErr) {
                   console.warn("Payment verification notification deferred to webhook:", verifyErr);
                 }

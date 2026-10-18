@@ -202,7 +202,7 @@ export function createPaymentService(deps: {
         const freshPayment = await trx.payments.getById(payment.id);
         const freshBooking = await trx.bookings.getById(payment.bookingId);
         if (!freshPayment || !freshBooking) throw Errors.notFound("BOOKING_NOT_FOUND", "Booking not found for payment.");
-        if (freshPayment.status === "captured" && freshBooking.status === "paid_confirmed") return;
+        if (freshPayment.status === "captured" && (freshBooking.status === "paid_confirmed" || freshBooking.status === "confirmed")) return;
         if (["cancelled", "refunded"].includes(freshBooking.status)) {
           throw new AppError("BOOKING_NOT_PAYABLE", "This booking is no longer payable.", 409);
         }
@@ -463,7 +463,7 @@ export function createPaymentService(deps: {
           (await trx.bookings.getById(input.bookingId)) ??
           (await trx.bookings.getByTicketId(input.bookingId));
         if (!booking) throw Errors.notFound("BOOKING_NOT_FOUND", "Booking not found.");
-        if (booking.status !== "paid_confirmed") {
+        if (booking.status !== "paid_confirmed" && (booking.status as string) !== "confirmed") {
           throw Errors.conflict("REFUND_NOT_ELIGIBLE", "Booking is not eligible for refund.");
         }
 

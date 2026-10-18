@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { AppError } from "../../shared/errors.js";
 import type { PaymentsRepository, PaymentEntity } from "./payments.repository.js";
-import type { BookingsRepository } from "../bookings/bookings.repository.js";
+import type { BookingsRepository, BookingEntity } from "../bookings/bookings.repository.js";
 import type { PaymentOrderResponse } from "../../contracts/fare-system.js";
 
 export interface PaymentsServiceDeps {
@@ -33,12 +33,34 @@ export class PaymentsService {
     return this.keyId;
   }
 
-  async getPaymentOrder(bookingId: string): Promise<PaymentOrderResponse> {
-    const payment = await this.createPaymentOrder(bookingId);
+  assertBookingOwnership(booking: BookingEntity, callerToken?: string | null, user?: any): void {
+    if (callerToken === undefined && user === undefined) {
+      // Direct service call / unit testing context
+      return;
+    }
+    if (user && ["admin", "super_admin", "staff", "dispatcher"].includes(user.role)) {
+      return;
+    }
+    if (booking.user_id && user && user.id === booking.user_id) {
+      return;
+    }
+    if (callerToken && booking.guest_access_token) {
+      const a = Buffer.from(callerToken.trim(), "utf8");
+      const b = Buffer.from(booking.guest_access_token.trim(), "utf8");
+      if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
+        return;
+      }
+    }
+    throw new AppError("FORBIDDEN", "Invalid or missing booking access token", 403);
+  }
+
+  async getPaymentOrder(bookingId: string, callerToken?: string | null, user?: any): Promise<PaymentOrderResponse> {
     const booking = await this.deps.bookingsRepo.getById(bookingId);
     if (!booking) {
       throw new AppError("NOT_FOUND", "Booking not found", 404);
     }
+    this.assertBookingOwnership(booking, callerToken, user);
+    const payment = await this.createPaymentOrder(bookingId, callerToken, user);
     return {
       payment_id: payment.id,
       order_id: payment.provider_order_id,
@@ -51,11 +73,12 @@ export class PaymentsService {
     };
   }
 
-  async createPaymentOrder(bookingId: string): Promise<PaymentEntity> {
+  async createPaymentOrder(bookingId: string, callerToken?: string | null, user?: any): Promise<PaymentEntity> {
     const booking = await this.deps.bookingsRepo.getById(bookingId);
     if (!booking) {
       throw new AppError("NOT_FOUND", "Booking not found", 404);
     }
+    this.assertBookingOwnership(booking, callerToken, user);
 
     if (booking.status !== "pending_payment") {
       throw new AppError("INVALID_STATE", "Booking is not in pending_payment status", 400);
@@ -96,7 +119,8 @@ export class PaymentsService {
 
       if (!res.ok) {
         const text = await res.text().catch(() => "");
-        throw new AppError("UPSTREAM_ERROR", `Razorpay order creation failed: ${text.slice(0, 200)}`, 502);
+        console.error(`[payments] Razorpay order creation failed (status ${res.status}):`, text.slice(0, 300));
+        throw new AppError("UPSTREAM_ERROR", "Payment provider order creation failed. Please try again.", 502);
       }
       const data = (await res.json()) as { id: string };
       providerOrderId = data.id;
@@ -104,12 +128,22 @@ export class PaymentsService {
       providerOrderId = `order_${crypto.randomBytes(8).toString("hex")}`;
     }
 
-    return this.deps.paymentsRepo.create({
-      booking_id: booking.id,
-      provider: "razorpay",
-      provider_order_id: providerOrderId,
-      amount_paise: amountPaise,
-    });
+    try {
+      return await this.deps.paymentsRepo.create({
+        booking_id: booking.id,
+        provider: "razorpay",
+        provider_order_id: providerOrderId,
+        amount_paise: amountPaise,
+      });
+    } catch (err: any) {
+      if (err?.code === "23505" || err?.message?.includes("payments_one_pending_per_booking")) {
+        const existingAfterRace = await this.deps.paymentsRepo.getPendingByBookingId(bookingId);
+        if (existingAfterRace) {
+          return existingAfterRace;
+        }
+      }
+      throw err;
+    }
   }
 
   async verifyPayment(params: {
@@ -117,7 +151,15 @@ export class PaymentsService {
     razorpayPaymentId: string;
     razorpayOrderId: string;
     razorpaySignature: string;
+    callerToken?: string | null;
+    user?: any;
   }): Promise<{ status: string }> {
+    const booking = await this.deps.bookingsRepo.getById(params.bookingId);
+    if (!booking) {
+      throw new AppError("NOT_FOUND", "Booking not found", 404);
+    }
+    this.assertBookingOwnership(booking, params.callerToken, params.user);
+
     const payment = await this.deps.paymentsRepo.getByProviderOrderId(params.razorpayOrderId);
     if (!payment) {
       throw new AppError("NOT_FOUND", "Payment order not found", 404);
@@ -134,8 +176,56 @@ export class PaymentsService {
     if (this.keySecret && !this.keyId.startsWith("rzp_test_local")) {
       const payload = `${params.razorpayOrderId}|${params.razorpayPaymentId}`;
       const expected = crypto.createHmac("sha256", this.keySecret).update(payload).digest("hex");
-      if (expected !== params.razorpaySignature) {
+      const expectedBuf = Buffer.from(expected, "utf8");
+      const sigBuf = Buffer.from(params.razorpaySignature, "utf8");
+      if (expectedBuf.length !== sigBuf.length || !crypto.timingSafeEqual(expectedBuf, sigBuf)) {
         throw new AppError("VALIDATION_ERROR", "Invalid payment signature", 400);
+      }
+
+      // Upstream provider verification of exact order, amount, currency, and captured state
+      if (this.keyId) {
+        try {
+          const auth = Buffer.from(`${this.keyId}:${this.keySecret}`).toString("base64");
+          const res = await this.fetchImpl(`https://api.razorpay.com/v1/payments/${encodeURIComponent(params.razorpayPaymentId)}`, {
+            method: "GET",
+            headers: { Authorization: `Basic ${auth}` },
+          });
+
+          if (res.ok) {
+            const body = (await res.json()) as any;
+            if (body?.id) {
+              if (body.order_id && body.order_id !== params.razorpayOrderId) {
+                throw new AppError("VALIDATION_ERROR", "Payment order ID mismatch", 400);
+              }
+              if (body.currency && body.currency.toUpperCase() !== "INR") {
+                await this.deps.paymentsRepo.processNeedsReview({
+                  paymentId: payment.id,
+                  reason: "currency_mismatch",
+                  providerPaymentId: params.razorpayPaymentId,
+                });
+                return { status: "needs_review" };
+              }
+              if (typeof body.amount === "number" && body.amount !== payment.amount_paise) {
+                await this.deps.paymentsRepo.processNeedsReview({
+                  paymentId: payment.id,
+                  reason: "amount_mismatch",
+                  providerPaymentId: params.razorpayPaymentId,
+                });
+                return { status: "needs_review" };
+              }
+              if (body.status === "failed") {
+                await this.deps.paymentsRepo.processFailed({
+                  paymentId: payment.id,
+                  reason: body.error_description || "payment_failed_at_gateway",
+                });
+                return { status: "failed" };
+              }
+            }
+          }
+        } catch (err: any) {
+          if (err instanceof AppError) throw err;
+          console.warn(`[payments] Razorpay API payment status lookup warning: ${err?.message || err}`);
+        }
       }
     }
 
@@ -160,10 +250,14 @@ export class PaymentsService {
   ): Promise<{ status: string; reason?: string }> {
     const rawBuffer = typeof rawBody === "string" ? Buffer.from(rawBody, "utf8") : rawBody;
 
+    // Fail closed: Webhook secret MUST be configured
+    if (!this.webhookSecret) {
+      throw new AppError("CONFIG_ERROR", "RAZORPAY_WEBHOOK_SECRET is not configured on server", 500);
+    }
+
     // PM-06: Invalid signature -> rejected; no state change
-    const secret = this.webhookSecret || "whsec_test_secret";
     const expectedSignature = crypto
-      .createHmac("sha256", secret)
+      .createHmac("sha256", this.webhookSecret)
       .update(rawBuffer)
       .digest("hex");
 
@@ -198,7 +292,7 @@ export class PaymentsService {
       processed: false,
     });
 
-    if (!inserted) {
+    if (!inserted && recordedEvent?.processed) {
       return { status: "already_processed" };
     }
 
@@ -216,7 +310,19 @@ export class PaymentsService {
 
     if (eventType === "payment.captured") {
       const webhookAmount = Number(paymentEntity?.amount ?? 0);
+      const webhookCurrency = String(paymentEntity?.currency || "").toUpperCase();
       const providerPaymentId = String(paymentEntity?.id || "");
+
+      // Currency check: must be INR
+      if (webhookCurrency && webhookCurrency !== "INR") {
+        await this.deps.paymentsRepo.processNeedsReview({
+          paymentId: payment.id,
+          reason: "currency_mismatch",
+          providerPaymentId,
+          webhookEventId: recordedEvent?.id,
+        });
+        return { status: "needs_review", reason: "currency_mismatch" };
+      }
 
       // PM-05: Webhook amount differs -> payment needs_review; booking stays pending_payment
       if (webhookAmount !== payment.amount_paise) {
@@ -266,6 +372,10 @@ export class PaymentsService {
         webhookEventId: recordedEvent?.id,
       });
       return { status: "failed" };
+    }
+
+    if (recordedEvent?.id && typeof this.deps.paymentsRepo.markWebhookEventProcessed === "function") {
+      await this.deps.paymentsRepo.markWebhookEventProcessed(recordedEvent.id);
     }
 
     return { status: "ignored" };

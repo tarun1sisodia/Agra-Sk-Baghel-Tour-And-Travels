@@ -166,9 +166,15 @@ export function createAdminService(deps: { db: Repositories; clock?: Clock }) {
       }
       const items = result.items.map((payment) => ({
         ...payment,
+        amount: Math.round((payment.amountMinor || payment.inrAmountPaise || 0) / 100),
+        amountPaise: payment.amountMinor || payment.inrAmountPaise,
         bookingTicketId: ticketMap.get(payment.bookingId) ?? payment.bookingId,
-        method: payment.paymentMethod,
-        capturedAt: payment.verifiedAt,
+        method: payment.paymentMethod ?? (payment.provider === "razorpay" ? "upi" : null),
+        capturedAt: payment.verifiedAt ?? (payment.status === "captured" ? payment.updatedAt : null),
+        reconciliationStatus:
+          payment.status === "captured" && payment.reconciliationStatus === "pending"
+            ? "matched"
+            : payment.reconciliationStatus,
       }));
       return {
         total: result.total,

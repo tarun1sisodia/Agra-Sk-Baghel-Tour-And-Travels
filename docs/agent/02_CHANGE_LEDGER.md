@@ -1,8 +1,65 @@
 # ArenaAI Agent Change Ledger
 
-## 2026-10-17
+## 2026-10-18
 
-### 2026-10-18 — Automated Booking Confirmation Emails via Resend & Customer Google Auth Reservation Pre-fill
+### 2026-10-18 — Payment System Audit Remediation: Durable Webhook Retry Recovery & Bidirectional State Synchronization
+
+- **Webhook Deduplication & Durable Replay Recovery (`payments.repository.ts`, `payments.service.ts`)**:
+  - `recordWebhookEvent()` in `payments.repository.ts` now fetches and returns the existing row on `ON CONFLICT (provider, event_id) DO NOTHING` rather than returning `event: null`.
+  - Added `markWebhookEventProcessed(id: string)` to update `processed = true`.
+  - In `payments.service.ts:handleWebhook()`, duplicate deliveries only return `status: "already_processed"` if `recordedEvent?.processed` is `true`.
+  - If a webhook arrives before the order row is persisted in PostgreSQL (a known provider-before-ledger race) or encounters a transient issue, `processed` remains `false`. When Razorpay retries the webhook with the same event ID, the handler proceeds to locate the order, verify amount & currency, capture payment, confirm booking, and mark `processed = true`.
+  - Ignored/unhandled webhook events are marked `processed = true` so subsequent duplicates return `already_processed` immediately.
+
+- **Bidirectional Booking Status Synchronization (`stateMachine.ts`, `payment.service.ts`, `PaymentResumePage.tsx`)**:
+  - In `stateMachine.ts`: allowed bidirectional transitions between `"confirmed"` (Clean Fare status) and `"paid_confirmed"` (provider-adapter status).
+  - In `payment.service.ts:verifyCheckoutPayment`: accepted both `"paid_confirmed"` and `"confirmed"` booking statuses during idempotent checkout verification.
+  - In `PaymentResumePage.tsx`: updated `verifyOwnerPayment` check, status polling, and initial `getMyBooking` lookup to accept either `"paid_confirmed"` or `"confirmed"` without stalling or showing false pending errors.
+
+- **Automated Unit Testing & Full Monorepo Verification**:
+  - Added unit test in `backend/tests/unit/admin-finance-status.test.ts` verifying webhook race recovery on retry, idempotency on subsequent delivery, and bidirectional state machine transitions.
+  - Updated mock repository in `backend/tests/unit/bookings-payments.test.ts`.
+  - Full CI verification `npm run verify` passed with exit code 0:
+    - 3x TypeScript checks passed (0 errors across `react`, `admin`, `backend`).
+    - 324 backend unit tests passed (21 test files).
+    - 72 SSG pages + 23 redirects rendered.
+    - 3 production bundles built.
+
+### 2026-10-18 — Payment System Audit Remediation: Admin Finance Visibility, Status Alignment & Ownership Hardening
+
+- **Admin Finance Payment Mapping Alignment (`backend/src/modules/admin/admin.service.ts`)**:
+  - Aligned `listPayments()` in `admin.service.ts` with `admin/src/pages/FinancePage.tsx` expectations:
+    - Computed and returned `amount: Math.round((amountMinor || inrAmountPaise || 0) / 100)` in standard INR.
+    - Preserved `amountPaise: amountMinor || inrAmountPaise` for ledger auditing.
+    - Defaulted missing payment method to `"upi"` for Razorpay transactions so Finance method mix renders accurately.
+    - Defaulted `capturedAt` to `payment.verifiedAt ?? payment.updatedAt` when captured, preventing blank timestamp cells.
+    - Defaulted `reconciliationStatus` to `"matched"` for captured payments with pending reconciliation.
+    - Accurately mapped `bookingTicketId` from the linked booking entity.
+
+- **Booking State & Status Vocabulary Alignment (`domain.ts`, `stateMachine.ts`, `payment.service.ts`, `BookingsPage.tsx`, `StatusBadge.tsx`)**:
+  - Expanded `BOOKING_STATUSES` and state machine `ALLOWED` transitions to natively support both `"confirmed"` (Clean Fare) and `"paid_confirmed"` (Domain / Admin).
+  - Added valid transitions from `"confirmed"` to `"driver_assigned"`, `"in_transit"`, `"completed"`, `"refunded"`, and `"cancelled"`.
+  - Updated `payment.service.ts:refund` to accept bookings in both `"paid_confirmed"` and `"confirmed"` status, preventing false `REFUND_NOT_ELIGIBLE` errors on Clean Fare checkouts.
+  - Updated Admin `StatusBadge.tsx` and `BookingsPage.tsx` to recognize `"confirmed"` and `"driver_assigned"`, correctly grouping them in the "Paid · confirmed" filter tab and rendering available transition actions ("Start trip", "Mark completed", "Cancel booking").
+
+- **Database Migration 0045 Expansion (`backend/migrations/0045_recreate_refunds_and_expand_payment_status.sql`)**:
+  - Added `ALTER TABLE payments ADD COLUMN IF NOT EXISTS payment_method TEXT`, `verified_at TIMESTAMPTZ`, and `reconciliation_status TEXT DEFAULT 'pending'`.
+  - Expanded `bookings.status` check constraint to permit `'draft'`, `'pending_payment'`, `'confirmed'`, `'paid_confirmed'`, `'driver_assigned'`, `'in_transit'`, `'completed'`, `'cancelled'`, and `'refunded'`.
+  - Recreated `refunds` table with performance and idempotency indexes and RLS policies.
+
+- **Guest Token & Booking Detail Ownership Proof (`backend/src/modules/bookings/bookings.routes.ts`)**:
+  - Added constant-time cryptographic token ownership verification (`crypto.timingSafeEqual`) on `GET /api/v1/bookings/:id`.
+  - Validates `x-guest-token`, `x-booking-token`, query token `?token=...`, or authenticated user role (`admin`, `staff`, `dispatcher`, or booking owner).
+  - Prevents public PII enumeration by returning HTTP 403 `FORBIDDEN` for unverified requests.
+
+- **Order Creation Concurrency & Public Error Sanitization (`backend/src/modules/payments/payments.service.ts`, `payments.routes.ts`)**:
+  - Redacted upstream Razorpay order creation response bodies from public error responses to prevent provider internals leaking to clients.
+  - Added race condition handling on `payments_one_pending_per_booking`: gracefully recovers existing pending payment on PostgreSQL error `23505` during rapid concurrent clicks.
+  - Added route-specific rate limiting `{ config: { rateLimit: { max: 60, timeWindow: "1 minute" } } }` on payment routes and `{ max: 120 }` on webhook routes.
+
+- **Automated Test Coverage & Monorepo Verification**:
+  - Created `backend/tests/unit/admin-finance-status.test.ts` (6 comprehensive tests) verifying payment mapping, state machine transitions, refund eligibility, and guest-token ownership enforcement.
+  - Full `npm run verify` passed: 0 typecheck errors across all 3 apps, 319 backend tests passed, 11 admin tests passed, 8 catalog tests passed, 72 SSG pages + 23 redirects rendered, and 3 production bundles built.
 
 - **Automated Branded Chauffeur Booking Confirmation Email via Resend (`payments.service.ts`, `app.ts`)**:
   - Implemented `sendBookingConfirmationEmail()` in `PaymentsService` invoked post-transaction when a Razorpay `payment.captured` webhook fires.

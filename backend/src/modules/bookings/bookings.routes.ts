@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { CreateBookingRequest } from "../../contracts/fare-system.js";
 import { BookingsService, PriceChangedError } from "./bookings.service.js";
@@ -84,6 +85,32 @@ export function registerBookingsRoutes(app: FastifyInstance, bookingsService: Bo
         error: "NOT_FOUND",
         message: "Booking not found",
       });
+    }
+
+    if (booking.guest_access_token) {
+      const callerToken =
+        (req.headers["x-guest-token"] as string | undefined) ||
+        (req.headers["x-booking-token"] as string | undefined) ||
+        req.query?.token;
+      const user = (req as any).user;
+
+      const isAdmin = user && ["admin", "super_admin", "staff", "dispatcher"].includes(user.role);
+      const isOwnerUser = booking.user_id && user && user.id === booking.user_id;
+      let isGuestTokenValid = false;
+      if (callerToken) {
+        const a = Buffer.from(String(callerToken).trim(), "utf8");
+        const b = Buffer.from(String(booking.guest_access_token).trim(), "utf8");
+        if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
+          isGuestTokenValid = true;
+        }
+      }
+
+      if (!isAdmin && !isOwnerUser && !isGuestTokenValid) {
+        return reply.status(403).send({
+          error: "FORBIDDEN",
+          message: "Invalid or missing booking access token",
+        });
+      }
     }
 
     return reply.send({ success: true, booking });
