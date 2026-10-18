@@ -2,26 +2,24 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { PaymentsService } from "./payments.service.js";
 import { AppError } from "../../shared/errors.js";
 
-function extractCallerToken(req: FastifyRequest): string | null {
-  const h = req.headers["x-booking-token"] || req.headers["x-guest-token"] || req.headers["x-guest-access-token"];
-  if (typeof h === "string" && h.trim()) return h.trim();
-  const q = (req.query as any)?.token;
-  if (typeof q === "string" && q.trim()) return q.trim();
-  return null;
-}
-
 export function registerPaymentsRoutes(app: FastifyInstance, paymentsService: PaymentsService) {
   const handleCreatePayment = async (
     req: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply
   ) => {
     const { id } = req.params;
-    const callerToken = extractCallerToken(req);
     const user = (req as any).user;
+    if (!user || !user.id) {
+      return reply.status(401).send({
+        error: "AUTH_REQUIRED",
+        message: "You must be signed in to initialize payment.",
+      });
+    }
+
     try {
       const payment = typeof paymentsService.getPaymentOrder === "function"
-        ? await paymentsService.getPaymentOrder(id, callerToken, user)
-        : await paymentsService.createPaymentOrder(id, callerToken, user);
+        ? await paymentsService.getPaymentOrder(id, user)
+        : await paymentsService.createPaymentOrder(id, user);
       return reply.status(200).send({
         success: true,
         payment,
@@ -89,8 +87,13 @@ export function registerPaymentsRoutes(app: FastifyInstance, paymentsService: Pa
       });
     }
 
-    const callerToken = extractCallerToken(req);
     const user = (req as any).user;
+    if (!user || !user.id) {
+      return reply.status(401).send({
+        error: "AUTH_REQUIRED",
+        message: "You must be signed in to verify payment.",
+      });
+    }
 
     try {
       const result = await paymentsService.verifyPayment({
@@ -98,7 +101,6 @@ export function registerPaymentsRoutes(app: FastifyInstance, paymentsService: Pa
         razorpayPaymentId: razorpay_payment_id,
         razorpayOrderId: razorpay_order_id,
         razorpaySignature: razorpay_signature,
-        callerToken,
         user,
       });
       return reply.status(200).send({

@@ -304,8 +304,11 @@ export async function fetchQuote(req: QuoteRequest): Promise<QuoteResponse> {
 // 5. Create Booking
 export async function createBooking(
   req: CreateBookingRequest,
-  accessToken?: string | null
+  accessToken: string
 ): Promise<BookingCreateResponse> {
+  if (!accessToken || !accessToken.trim()) {
+    throw new CleanFareApiError("AUTH_REQUIRED", "Please sign in to proceed with your booking.", 401);
+  }
   const parseResult = CreateBookingRequest.safeParse(req);
   if (!parseResult.success) {
     const issues = parseResult.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ");
@@ -316,10 +319,9 @@ export async function createBooking(
       parseResult.error.issues
     );
   }
-  const headers: Record<string, string> = {};
-  if (accessToken && accessToken.trim()) {
-    headers["Authorization"] = `Bearer ${accessToken.trim()}`;
-  }
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${accessToken.trim()}`,
+  };
   const raw = await apiRequest<any>(
     "/api/v1/bookings",
     {
@@ -345,16 +347,14 @@ export async function createBooking(
 // 6. Booking Detail / Status
 export async function fetchBookingById(
   id: string,
-  guestToken?: string,
-  accessToken?: string | null
+  accessToken: string
 ): Promise<BookingDetailResponse> {
-  const headers: Record<string, string> = {};
-  if (guestToken && guestToken.trim()) {
-    headers["x-guest-token"] = guestToken.trim();
+  if (!accessToken || !accessToken.trim()) {
+    throw new CleanFareApiError("AUTH_REQUIRED", "Please sign in to view your reservation.", 401);
   }
-  if (accessToken && accessToken.trim()) {
-    headers["Authorization"] = `Bearer ${accessToken.trim()}`;
-  }
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${accessToken.trim()}`,
+  };
   const raw = await apiRequest<any>(
     `/api/v1/bookings/${id}`,
     { method: "GET", headers }
@@ -370,16 +370,14 @@ export async function fetchBookingById(
 // 7. Payment Order (Razorpay)
 export async function createBookingPayment(
   bookingId: string,
-  guestToken?: string,
-  accessToken?: string | null
+  accessToken: string
 ): Promise<PaymentOrderResponse> {
-  const headers: Record<string, string> = {};
-  if (guestToken && guestToken.trim()) {
-    headers["x-guest-token"] = guestToken.trim();
+  if (!accessToken || !accessToken.trim()) {
+    throw new CleanFareApiError("AUTH_REQUIRED", "Please sign in to initialize payment.", 401);
   }
-  if (accessToken && accessToken.trim()) {
-    headers["Authorization"] = `Bearer ${accessToken.trim()}`;
-  }
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${accessToken.trim()}`,
+  };
   const raw = await apiRequest<any>(
     `/api/v1/bookings/${bookingId}/payment`,
     { method: "POST", headers }
@@ -398,16 +396,14 @@ export async function verifyBookingPayment(
     razorpay_order_id: string;
     razorpay_signature: string;
   },
-  guestToken?: string,
-  accessToken?: string | null
+  accessToken: string
 ): Promise<{ status: string }> {
-  const headers: Record<string, string> = {};
-  if (guestToken && guestToken.trim()) {
-    headers["x-guest-token"] = guestToken.trim();
+  if (!accessToken || !accessToken.trim()) {
+    throw new CleanFareApiError("AUTH_REQUIRED", "Please sign in to verify payment.", 401);
   }
-  if (accessToken && accessToken.trim()) {
-    headers["Authorization"] = `Bearer ${accessToken.trim()}`;
-  }
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${accessToken.trim()}`,
+  };
   return apiRequest<{ status: string }>(
     `/api/v1/bookings/${bookingId}/verify-payment`,
     {

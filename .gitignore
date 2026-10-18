@@ -22,4 +22,5 @@ freellmapi/
 
 # Local IDE config
 .roo/
-test.py
+test.py
+*.mp4

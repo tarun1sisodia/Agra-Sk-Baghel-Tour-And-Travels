@@ -71,6 +71,18 @@ export class BookingsRepository {
           const phone = data.customer_phone?.trim() || "+910000000000";
           const email = data.customer_email?.trim() || null;
           try {
+            // If auth.users exists, ensure user record exists
+            try {
+              await this.pool.query(
+                `INSERT INTO auth.users (id, email, created_at)
+                 VALUES ($1, $2, NOW())
+                 ON CONFLICT (id) DO NOTHING`,
+                [data.user_id, email]
+              );
+            } catch {
+              // Ignore if auth schema is managed externally or permissions restricted
+            }
+
             await this.pool.query(
               `INSERT INTO profiles (id, full_name, phone, email, role, created_at, updated_at)
                VALUES ($1, $2, $3, $4, 'customer', NOW(), NOW())
@@ -81,7 +93,24 @@ export class BookingsRepository {
             );
             effectiveUserId = data.user_id;
           } catch (profileErr: any) {
-            console.warn(`[bookings] Profile auto-provision skipped for ${data.user_id}: ${profileErr?.message || profileErr}`);
+            // If phone or email uniqueness fails, generate safe distinct phone identifier
+            if (profileErr?.code === "23505") {
+              const safePhone = `+91${data.user_id.replace(/[^0-9]/g, "").slice(0, 9).padEnd(10, "0")}`;
+              try {
+                await this.pool.query(
+                  `INSERT INTO profiles (id, full_name, phone, email, role, created_at, updated_at)
+                   VALUES ($1, $2, $3, NULL, 'customer', NOW(), NOW())
+                   ON CONFLICT (id) DO UPDATE SET
+                     full_name = COALESCE(EXCLUDED.full_name, profiles.full_name),
+                     updated_at = NOW()`,
+                  [data.user_id, data.customer_name, safePhone]
+                );
+                effectiveUserId = data.user_id;
+              } catch {
+                // Secondary fallback
+              }
+            }
+            console.warn(`[bookings] Profile auto-provision attempt for ${data.user_id}: ${profileErr?.message || profileErr}`);
             const recheck = await this.pool.query("SELECT id FROM profiles WHERE id = $1 LIMIT 1", [data.user_id]);
             effectiveUserId = recheck.rows.length > 0 ? data.user_id : null;
           }
@@ -135,7 +164,7 @@ export class BookingsRepository {
     } catch (insertErr: any) {
       if (insertErr?.code === "23503" && effectiveUserId) {
         // FK violation fallback: retry with null user_id so customer booking is never aborted
-        console.warn(`[bookings] FK constraint violation on user_id ${effectiveUserId}. Retrying booking with guest mode to guarantee customer checkout.`);
+        console.warn(`[bookings] FK constraint violation on user_id ${effectiveUserId}. Retrying booking with null user_id.`);
         res = await this.pool.query(insertSql, buildParams(null));
       } else {
         throw insertErr;

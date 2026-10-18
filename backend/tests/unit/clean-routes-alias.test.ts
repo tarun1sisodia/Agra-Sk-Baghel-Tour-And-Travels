@@ -104,6 +104,14 @@ describe("Clean API /api/v1 Canonical Route Aliases & Envelopes", () => {
 
   it("serves bookings at /api/v1/bookings and /api/v1/bookings/:id", async () => {
     const app = Fastify();
+    app.addHook("onRequest", async (req) => {
+      (req as any).user = {
+        id: "00000000-0000-0000-0000-000000000001",
+        role: "customer",
+        email: "customer@test.local",
+      };
+    });
+
     const mockBookingsService = {
       createBooking: vi.fn().mockResolvedValue({
         id: "00000000-0000-0000-0000-000000000001",
@@ -113,6 +121,7 @@ describe("Clean API /api/v1 Canonical Route Aliases & Envelopes", () => {
       getBookingById: vi.fn().mockResolvedValue({
         id: "00000000-0000-0000-0000-000000000001",
         ticket_id: "SKB-20261012-0001",
+        user_id: "00000000-0000-0000-0000-000000000001",
         status: "pending_payment",
       }),
       getBookingByTicketId: vi.fn().mockResolvedValue(null),

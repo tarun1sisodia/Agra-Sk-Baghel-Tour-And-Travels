@@ -33,37 +33,33 @@ export class PaymentsService {
     return this.keyId;
   }
 
-  assertBookingOwnership(booking: BookingEntity, callerToken?: string | null, user?: any): void {
-    if (callerToken === undefined && user === undefined) {
+  assertBookingOwnership(booking: BookingEntity, user?: any): void {
+    if (user === undefined) {
       // Direct service call / unit testing context
       return;
     }
-    if (user && ["admin", "super_admin", "staff", "dispatcher"].includes(user.role)) {
+    if (!user || !user.id) {
+      throw new AppError("AUTH_REQUIRED", "Authentication required to access booking", 401);
+    }
+    if (["admin", "super_admin", "staff", "dispatcher"].includes(user.role)) {
       return;
     }
-    if (booking.user_id && user && user.id === booking.user_id) {
+    if (booking.user_id && user.id === booking.user_id) {
       return;
     }
-    if (booking.customer_email && user && user.email === booking.customer_email) {
+    if (booking.customer_email && user.email && user.email.toLowerCase() === booking.customer_email.toLowerCase()) {
       return;
     }
-    if (callerToken && booking.guest_access_token) {
-      const a = Buffer.from(callerToken.trim(), "utf8");
-      const b = Buffer.from(booking.guest_access_token.trim(), "utf8");
-      if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
-        return;
-      }
-    }
-    throw new AppError("FORBIDDEN", "Invalid or missing booking access token", 403);
+    throw new AppError("FORBIDDEN", "You do not have permission to access this booking", 403);
   }
 
-  async getPaymentOrder(bookingId: string, callerToken?: string | null, user?: any): Promise<PaymentOrderResponse> {
+  async getPaymentOrder(bookingId: string, user?: any): Promise<PaymentOrderResponse> {
     const booking = await this.deps.bookingsRepo.getById(bookingId);
     if (!booking) {
       throw new AppError("NOT_FOUND", "Booking not found", 404);
     }
-    this.assertBookingOwnership(booking, callerToken, user);
-    const payment = await this.createPaymentOrder(bookingId, callerToken, user);
+    this.assertBookingOwnership(booking, user);
+    const payment = await this.createPaymentOrder(bookingId, user);
     return {
       payment_id: payment.id,
       order_id: payment.provider_order_id,
@@ -76,12 +72,12 @@ export class PaymentsService {
     };
   }
 
-  async createPaymentOrder(bookingId: string, callerToken?: string | null, user?: any): Promise<PaymentEntity> {
+  async createPaymentOrder(bookingId: string, user?: any): Promise<PaymentEntity> {
     const booking = await this.deps.bookingsRepo.getById(bookingId);
     if (!booking) {
       throw new AppError("NOT_FOUND", "Booking not found", 404);
     }
-    this.assertBookingOwnership(booking, callerToken, user);
+    this.assertBookingOwnership(booking, user);
 
     if (booking.status !== "pending_payment") {
       throw new AppError("INVALID_STATE", "Booking is not in pending_payment status", 400);
@@ -154,14 +150,13 @@ export class PaymentsService {
     razorpayPaymentId: string;
     razorpayOrderId: string;
     razorpaySignature: string;
-    callerToken?: string | null;
     user?: any;
   }): Promise<{ status: string }> {
     const booking = await this.deps.bookingsRepo.getById(params.bookingId);
     if (!booking) {
       throw new AppError("NOT_FOUND", "Booking not found", 404);
     }
-    this.assertBookingOwnership(booking, params.callerToken, params.user);
+    this.assertBookingOwnership(booking, params.user);
 
     const payment = await this.deps.paymentsRepo.getByProviderOrderId(params.razorpayOrderId);
     if (!payment) {

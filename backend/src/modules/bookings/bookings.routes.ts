@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { CreateBookingRequest } from "../../contracts/fare-system.js";
 import { BookingsService, PriceChangedError } from "./bookings.service.js";
@@ -19,7 +18,13 @@ export function registerBookingsRoutes(app: FastifyInstance, bookingsService: Bo
 
     try {
       const user = (req as any).user;
-      const booking = await bookingsService.createBooking(parsed, user?.id);
+      if (!user || !user.id) {
+        return reply.status(401).send({
+          error: "AUTH_REQUIRED",
+          message: "You must be signed in to book a service.",
+        });
+      }
+      const booking = await bookingsService.createBooking(parsed, user.id);
       return reply.status(201).send({
         success: true,
         booking,
@@ -65,7 +70,7 @@ export function registerBookingsRoutes(app: FastifyInstance, bookingsService: Bo
   };
 
   const handleGetBooking = async (
-    req: FastifyRequest<{ Params: { id: string }; Querystring: { token?: string } }>,
+    req: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply
   ) => {
     const { id } = req.params;
@@ -81,32 +86,24 @@ export function registerBookingsRoutes(app: FastifyInstance, bookingsService: Bo
       });
     }
 
-    if (booking.guest_access_token) {
-      const callerToken =
-        (req.headers["x-guest-token"] as string | undefined) ||
-        (req.headers["x-booking-token"] as string | undefined) ||
-        req.query?.token;
-      const user = (req as any).user;
+    const user = (req as any).user;
+    if (!user || !user.id) {
+      return reply.status(401).send({
+        error: "AUTH_REQUIRED",
+        message: "You must be signed in to view booking details.",
+      });
+    }
 
-      const isAdmin = user && ["admin", "super_admin", "staff", "dispatcher"].includes(user.role);
-      const isOwnerUser =
-        (booking.user_id && user && user.id === booking.user_id) ||
-        (booking.customer_email && user && user.email === booking.customer_email);
-      let isGuestTokenValid = false;
-      if (callerToken) {
-        const a = Buffer.from(String(callerToken).trim(), "utf8");
-        const b = Buffer.from(String(booking.guest_access_token).trim(), "utf8");
-        if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
-          isGuestTokenValid = true;
-        }
-      }
+    const isAdmin = ["admin", "super_admin", "staff", "dispatcher"].includes(user.role);
+    const isOwnerUser =
+      (booking.user_id && user.id === booking.user_id) ||
+      (booking.customer_email && user.email && user.email.toLowerCase() === booking.customer_email.toLowerCase());
 
-      if (!isAdmin && !isOwnerUser && !isGuestTokenValid) {
-        return reply.status(403).send({
-          error: "FORBIDDEN",
-          message: "Invalid or missing booking access token",
-        });
-      }
+    if (!isAdmin && !isOwnerUser) {
+      return reply.status(403).send({
+        error: "FORBIDDEN",
+        message: "You do not have permission to view this booking.",
+      });
     }
 
     if (typeof bookingsService.getBookingDetail === "function") {

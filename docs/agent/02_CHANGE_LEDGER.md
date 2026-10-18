@@ -2,6 +2,29 @@
 
 ## 2026-10-18
 
+### 2026-10-18 — Complete Removal of Guest Tokens & Mandatory Customer Authentication for Bookings
+
+- **Total Deprecation of `x-guest-token` Across Monorepo**:
+  - Removed all `x-guest-token`, `x-booking-token`, and URL `?token=` parameter mechanisms from both frontend and backend.
+  - Public exploration is fully preserved: visitors can freely check services, browse routes, query dynamic and published fares, inspect monuments, and view packages without logging in.
+  - Making a booking now strictly requires customer authentication via Supabase / Google OAuth or email sign-in.
+- **Backend Auth Enforcement (`backend/src/modules/bookings/bookings.routes.ts`, `payments.routes.ts`, `payments.service.ts`)**:
+  - `POST /api/v1/bookings`: Requires authenticated customer (`req.user?.id`). Returns HTTP 401 `AUTH_REQUIRED` if unauthenticated.
+  - `GET /api/v1/bookings/:id`: Protected endpoint. Requires customer authentication. Verifies that `user.id === booking.user_id` or `user.email === booking.customer_email` or user is admin/staff. Returns 401 if unauthenticated, 403 if unauthorized.
+  - `POST /api/v1/bookings/:id/payment` and `POST /api/v1/bookings/:id/verify-payment`: Requires authenticated customer. Validates ownership against `req.user`.
+- **Frontend Auth Gate & Clean Fare Integration (`react/src/features/booking/clean/CleanBookingPage.tsx`, `cleanFareApi.ts`, `BookingConfirmationPage.tsx`)**:
+  - `cleanFareApi.ts`: Removed `guestToken` from all function signatures. Enforced `accessToken: string` for `createBooking`, `fetchBookingById`, `createBookingPayment`, and `verifyBookingPayment`.
+  - `CleanBookingPage.tsx`:
+    - Added an Auth Gate banner on Step 4 (Passenger & Contact Details) prompting the user to sign in via Google OAuth or test customer account.
+    - Prevents booking submission if unauthenticated, dynamically updating CTA to "Sign In to Reserve Journey".
+    - Auto-fills customer name and email from authenticated session while keeping phone and pickup inputs editable.
+  - `BookingConfirmationPage.tsx`:
+    - Removed URL `?token=` extraction and `sessionStorage` token caching.
+    - Uses `useCustomerAuth()` to pass authenticated `accessToken` to `fetchBookingById(bookingId, accessToken)`.
+    - Renders a clean sign-in prompt if unauthenticated.
+- **Automated Verification**:
+  - Monorepo `npm run verify` passed with code 0 (3x TypeScript clean, 325 backend unit tests, 72 SSG pages + 23 redirects rendered, 3 production bundles built).
+
 ### 2026-10-18 — Payment & Booking Remediation: CORS Header Whitelist, Auth Parity, Publication Outbox Schema Resolution & Qwen 3 Coder Audit
 
 - **Booking Confirmation "Failed to Fetch" Root Cause & Fix (`backend/src/app.ts`, `react/src/services/cleanFareApi.ts`, `react/src/pages/BookingConfirmationPage.tsx`, `CleanBookingPage.tsx`)**:

@@ -309,59 +309,65 @@ describe("Admin Finance Visibility & Booking Status Alignment", () => {
     });
   });
 
-  describe("bookings.routes: guest-token ownership proof", () => {
-    it("returns 403 on GET /api/v1/bookings/:id when guest token is missing or invalid", async () => {
+  describe("bookings.routes: mandatory customer authentication & ownership proof", () => {
+    it("enforces authentication (401) and ownership checks (403/200) on GET /api/v1/bookings/:id", async () => {
       const app = Fastify();
+      const mockBooking = {
+        id: "00000000-0000-0000-0000-000000000099",
+        ticket_id: "SKB-20261018-9999",
+        user_id: "00000000-0000-4000-a000-000000000001",
+        customer_email: "customer@example.com",
+        status: "confirmed",
+      };
+
       const mockBookingsService = {
         createBooking: vi.fn(),
-        getBookingById: vi.fn().mockResolvedValue({
-          id: "00000000-0000-0000-0000-000000000099",
-          ticket_id: "SKB-20261018-9999",
-          guest_access_token: "super_secret_guest_token_xyz",
-          status: "confirmed",
-        }),
+        getBookingById: vi.fn().mockResolvedValue(mockBooking),
         getBookingByTicketId: vi.fn().mockResolvedValue(null),
       } as any;
 
+      let authUser: any = undefined;
+      app.addHook("onRequest", async (req) => {
+        (req as any).user = authUser;
+      });
+
       registerBookingsRoutes(app, mockBookingsService);
 
-      // 1. Missing token -> 403
-      const resNoToken = await app.inject({
+      // 1. Missing authentication -> 401 AUTH_REQUIRED
+      authUser = undefined;
+      const resUnauth = await app.inject({
         method: "GET",
         url: "/api/v1/bookings/00000000-0000-0000-0000-000000000099",
       });
-      expect(resNoToken.statusCode).toBe(403);
-      expect(resNoToken.json().error).toBe("FORBIDDEN");
+      expect(resUnauth.statusCode).toBe(401);
+      expect(resUnauth.json().error).toBe("AUTH_REQUIRED");
 
-      // 2. Wrong token -> 403
-      const resWrongToken = await app.inject({
+      // 2. Different user without matching id or email -> 403 FORBIDDEN
+      authUser = { id: "00000000-0000-4000-a000-999999999999", role: "customer", email: "other@example.com" };
+      const resForbidden = await app.inject({
         method: "GET",
         url: "/api/v1/bookings/00000000-0000-0000-0000-000000000099",
-        headers: {
-          "x-guest-token": "wrong_guest_token_12345",
-        },
       });
-      expect(resWrongToken.statusCode).toBe(403);
-      expect(resWrongToken.json().error).toBe("FORBIDDEN");
+      expect(resForbidden.statusCode).toBe(403);
+      expect(resForbidden.json().error).toBe("FORBIDDEN");
 
-      // 3. Valid x-guest-token header -> 200
-      const resValidHeader = await app.inject({
+      // 3. Authenticated owner user -> 200
+      authUser = { id: "00000000-0000-4000-a000-000000000001", role: "customer", email: "customer@example.com" };
+      const resOwner = await app.inject({
         method: "GET",
         url: "/api/v1/bookings/00000000-0000-0000-0000-000000000099",
-        headers: {
-          "x-guest-token": "super_secret_guest_token_xyz",
-        },
       });
-      expect(resValidHeader.statusCode).toBe(200);
-      expect(resValidHeader.json().booking.ticket_id).toBe("SKB-20261018-9999");
+      expect(resOwner.statusCode).toBe(200);
+      expect(resOwner.json().booking.ticket_id).toBe("SKB-20261018-9999");
 
-      // 4. Valid token in query param -> 200
-      const resValidQuery = await app.inject({
+      // 4. Admin role -> 200
+      authUser = { id: "admin-id-1", role: "admin", email: "admin@example.com" };
+      const resAdmin = await app.inject({
         method: "GET",
-        url: "/api/v1/bookings/00000000-0000-0000-0000-000000000099?token=super_secret_guest_token_xyz",
+        url: "/api/v1/bookings/00000000-0000-0000-0000-000000000099",
       });
-      expect(resValidQuery.statusCode).toBe(200);
-      expect(resValidQuery.json().booking.ticket_id).toBe("SKB-20261018-9999");
+      expect(resAdmin.statusCode).toBe(200);
+      expect(resAdmin.json().booking.ticket_id).toBe("SKB-20261018-9999");
     });
   });
 
@@ -426,7 +432,6 @@ describe("Admin Finance Visibility & Booking Status Alignment", () => {
         razorpayPaymentId: paymentId,
         razorpayOrderId: orderId,
         razorpaySignature: signature,
-        callerToken: "guest_tok_up1",
       });
 
       expect(res.status).toBe("captured");
@@ -475,7 +480,6 @@ describe("Admin Finance Visibility & Booking Status Alignment", () => {
         razorpayPaymentId: paymentId,
         razorpayOrderId: orderId,
         razorpaySignature: signature,
-        callerToken: "guest_tok_up1",
       });
 
       expect(res.status).toBe("needs_review");
@@ -524,7 +528,6 @@ describe("Admin Finance Visibility & Booking Status Alignment", () => {
         razorpayPaymentId: paymentId,
         razorpayOrderId: orderId,
         razorpaySignature: signature,
-        callerToken: "guest_tok_up1",
       });
 
       expect(res.status).toBe("needs_review");
