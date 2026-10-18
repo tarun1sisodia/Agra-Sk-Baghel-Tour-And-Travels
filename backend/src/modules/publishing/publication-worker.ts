@@ -99,15 +99,25 @@ export class PublicationWorker {
     }
 
     if (event.entity_type === "tour_package") {
-      const tpRes = await this.pool.query(
-        "SELECT package_code, name, image_url, gallery FROM tour_packages WHERE id::text = $1 OR package_code = $1",
+      let tpRes = await this.pool.query(
+        "SELECT code, name, image_url, gallery FROM tour_packages WHERE id::text = $1 OR code = $1",
         [event.entity_id]
       ).catch(() => ({ rows: [] }));
 
+      if (tpRes.rows.length === 0 || !tpRes.rows[0]?.code) {
+        const fallback = await this.pool.query(
+          "SELECT package_code, name, image_url, gallery FROM tour_packages WHERE id::text = $1 OR package_code = $1",
+          [event.entity_id]
+        ).catch(() => ({ rows: [] }));
+        if (fallback.rows.length > 0) {
+          tpRes = fallback;
+        }
+      }
+
       if (tpRes.rows.length > 0) {
         const row = tpRes.rows[0];
-        slug = row.package_code;
-        expectedPath = `/en/packages/${row.package_code}/`;
+        slug = row.code || row.package_code;
+        expectedPath = `/en/packages/${slug}/`;
         expectedTitle = row.name;
         expectedImage = row.image_url || (Array.isArray(row.gallery) ? row.gallery[0]?.url : null) || null;
       } else {
@@ -133,15 +143,25 @@ export class PublicationWorker {
         }
       }
     } else if (event.entity_type === "local_package") {
-      const lpRes = await this.pool.query(
-        "SELECT package_code, name, image_url, gallery FROM local_sightseeing_packages WHERE id::text = $1 OR package_code = $1",
+      let lpRes = await this.pool.query(
+        "SELECT code, name, image_url, gallery FROM local_packages WHERE id::text = $1 OR code = $1",
         [event.entity_id]
       ).catch(() => ({ rows: [] }));
 
+      if (lpRes.rows.length === 0 || !lpRes.rows[0]?.code) {
+        const fallback = await this.pool.query(
+          "SELECT package_code, name, image_url, gallery FROM local_sightseeing_packages WHERE id::text = $1 OR package_code = $1",
+          [event.entity_id]
+        ).catch(() => ({ rows: [] }));
+        if (fallback.rows.length > 0) {
+          lpRes = fallback;
+        }
+      }
+
       if (lpRes.rows.length > 0) {
         const row = lpRes.rows[0];
-        slug = row.package_code;
-        expectedPath = `/en/local-packages/${row.package_code}/`;
+        slug = row.code || row.package_code;
+        expectedPath = `/en/local-packages/${slug}/`;
         expectedTitle = row.name;
         expectedImage = row.image_url || (Array.isArray(row.gallery) ? row.gallery[0]?.url : null) || null;
       } else {
@@ -165,15 +185,26 @@ export class PublicationWorker {
         }
       }
     } else if (event.entity_type === "transfer") {
-      const trRes = await this.pool.query(
-        "SELECT route_code, name FROM transfer_routes WHERE id::text = $1 OR route_code = $1",
+      let trRes = await this.pool.query(
+        "SELECT code, name FROM transfers WHERE id::text = $1 OR code = $1",
         [event.entity_id]
       ).catch(() => ({ rows: [] }));
 
+      if (trRes.rows.length === 0 || !trRes.rows[0]?.code) {
+        const fallback = await this.pool.query(
+          "SELECT route_code, name FROM transfer_routes WHERE id::text = $1 OR route_code = $1",
+          [event.entity_id]
+        ).catch(() => ({ rows: [] }));
+        if (fallback.rows.length > 0) {
+          trRes = fallback;
+        }
+      }
+
       if (trRes.rows.length > 0) {
-        slug = trRes.rows[0].route_code;
-        expectedPath = `/en/transfers/${trRes.rows[0].route_code}/`;
-        expectedTitle = trRes.rows[0].name;
+        const row = trRes.rows[0];
+        slug = row.code || row.route_code;
+        expectedPath = `/en/transfers/${slug}/`;
+        expectedTitle = row.name;
       } else {
         const catRes = await this.pool.query(
           "SELECT slug, title FROM catalog_items WHERE id = $1 OR slug = $1",
@@ -581,7 +612,8 @@ export class PublicationWorker {
             return false;
           }
           const sitemapXml = await sitemapRes.text();
-          if (!sitemapXml.includes(expectedPath)) {
+          const cleanPath = expectedPath.replace(/\/$/, "");
+          if (!sitemapXml.includes(expectedPath) && !sitemapXml.includes(cleanPath)) {
             this.logger.debug?.({ eventId: event.id, expectedPath }, "Sitemap does not include canonical detail page");
             return false;
           }

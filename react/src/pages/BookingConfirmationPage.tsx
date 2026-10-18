@@ -19,6 +19,7 @@ import { fetchBookingById, createBookingPayment } from "../services/cleanFareApi
 import { loadRazorpayScript } from "../features/booking/razorpay";
 import { contact } from "../data/contact";
 import type { BookingDetailResponse } from "../contracts/fare-system";
+import { useCustomerAuth } from "../auth/customerAuth";
 
 function formatINR(amount: number): string {
   return `₹${Math.round(amount).toLocaleString("en-IN")}`;
@@ -39,6 +40,7 @@ function formatDate(isoString: string): string {
 }
 
 export function BookingConfirmationPage() {
+  const { accessToken } = useCustomerAuth();
   const [bookingId, setBookingId] = useState<string>("");
   const [booking, setBooking] = useState<BookingDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,7 +49,7 @@ export function BookingConfirmationPage() {
   const [payBusy, setPayBusy] = useState(false);
   const pollCountRef = useRef(0);
 
-  // Read ID from URL params or sessionStorage
+  // Read ID and optional token from URL params or sessionStorage
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -55,6 +57,11 @@ export function BookingConfirmationPage() {
     const lastId = sessionStorage.getItem("arenaai:last_booking_id");
     const resolvedId = idFromUrl || lastId || "";
     setBookingId(resolvedId);
+
+    const tokenFromUrl = params.get("token");
+    if (tokenFromUrl && resolvedId) {
+      sessionStorage.setItem(`arenaai:guest_token:${resolvedId}`, tokenFromUrl);
+    }
   }, []);
 
   const loadBooking = useCallback(
@@ -72,10 +79,13 @@ export function BookingConfirmationPage() {
       }
 
       try {
+        const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
         const guestToken =
-          sessionStorage.getItem(`arenaai:guest_token:${bookingId}`) || undefined;
+          sessionStorage.getItem(`arenaai:guest_token:${bookingId}`) ||
+          params?.get("token") ||
+          undefined;
 
-        const data = await fetchBookingById(bookingId, guestToken);
+        const data = await fetchBookingById(bookingId, guestToken, accessToken);
         setBooking(data);
 
         // If payment is pending and we're polling, keep polling for up to 6 cycles (15s)
@@ -123,9 +133,12 @@ export function BookingConfirmationPage() {
     if (!booking) return;
     setPayBusy(true);
     try {
+      const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
       const guestToken =
-        sessionStorage.getItem(`arenaai:guest_token:${booking.booking_id}`) || undefined;
-      const paymentRes = await createBookingPayment(booking.booking_id, guestToken);
+        sessionStorage.getItem(`arenaai:guest_token:${booking.booking_id}`) ||
+        params?.get("token") ||
+        undefined;
+      const paymentRes = await createBookingPayment(booking.booking_id, guestToken, accessToken);
       const ready = await loadRazorpayScript();
       if (!ready || !window.Razorpay) {
         throw new Error("Unable to initialize payment gateway. Please check your connection.");

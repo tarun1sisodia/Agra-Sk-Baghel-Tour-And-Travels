@@ -345,11 +345,15 @@ export async function createBooking(
 // 6. Booking Detail / Status
 export async function fetchBookingById(
   id: string,
-  guestToken?: string
+  guestToken?: string,
+  accessToken?: string | null
 ): Promise<BookingDetailResponse> {
   const headers: Record<string, string> = {};
-  if (guestToken) {
-    headers["x-guest-token"] = guestToken;
+  if (guestToken && guestToken.trim()) {
+    headers["x-guest-token"] = guestToken.trim();
+  }
+  if (accessToken && accessToken.trim()) {
+    headers["Authorization"] = `Bearer ${accessToken.trim()}`;
   }
   const raw = await apiRequest<any>(
     `/api/v1/bookings/${id}`,
@@ -366,11 +370,15 @@ export async function fetchBookingById(
 // 7. Payment Order (Razorpay)
 export async function createBookingPayment(
   bookingId: string,
-  guestToken?: string
+  guestToken?: string,
+  accessToken?: string | null
 ): Promise<PaymentOrderResponse> {
   const headers: Record<string, string> = {};
-  if (guestToken) {
-    headers["x-guest-token"] = guestToken;
+  if (guestToken && guestToken.trim()) {
+    headers["x-guest-token"] = guestToken.trim();
+  }
+  if (accessToken && accessToken.trim()) {
+    headers["Authorization"] = `Bearer ${accessToken.trim()}`;
   }
   const raw = await apiRequest<any>(
     `/api/v1/bookings/${bookingId}/payment`,
@@ -390,11 +398,15 @@ export async function verifyBookingPayment(
     razorpay_order_id: string;
     razorpay_signature: string;
   },
-  guestToken?: string
+  guestToken?: string,
+  accessToken?: string | null
 ): Promise<{ status: string }> {
   const headers: Record<string, string> = {};
-  if (guestToken) {
-    headers["x-guest-token"] = guestToken;
+  if (guestToken && guestToken.trim()) {
+    headers["x-guest-token"] = guestToken.trim();
+  }
+  if (accessToken && accessToken.trim()) {
+    headers["Authorization"] = `Bearer ${accessToken.trim()}`;
   }
   return apiRequest<{ status: string }>(
     `/api/v1/bookings/${bookingId}/verify-payment`,

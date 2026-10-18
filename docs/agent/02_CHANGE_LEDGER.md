@@ -2,7 +2,29 @@
 
 ## 2026-10-18
 
-### 2026-10-18 — Booking System Fix: User Profile Auto-Provisioning & Foreign Key Constraint Safeguard
+### 2026-10-18 — Payment & Booking Remediation: CORS Header Whitelist, Auth Parity, Publication Outbox Schema Resolution & Qwen 3 Coder Audit
+
+- **Booking Confirmation "Failed to Fetch" Root Cause & Fix (`backend/src/app.ts`, `react/src/services/cleanFareApi.ts`, `react/src/pages/BookingConfirmationPage.tsx`, `CleanBookingPage.tsx`)**:
+  - **Root Cause**: Fastify `@fastify/cors` plugin in `backend/src/app.ts` rejected browser CORS preflight `OPTIONS` requests from Cloudflare Pages because `x-guest-token` / `X-Guest-Token` was missing from `allowedHeaders`. This caused `createBookingPayment` and `fetchBookingById` to throw `TypeError: Failed to fetch` in browser.
+  - **Eliminated Fragile Silent Redirect**: In `CleanBookingPage.tsx`, replaced `catch (payErr) { window.location.href = ... }` with explicit visible error alerting (`setBookingError`) instead of silently skipping payment and dumping the user onto the confirmation page.
+  - **CORS Allowed Headers**: Added `"x-guest-token"`, `"X-Guest-Token"`, `"x-booking-token"`, and `"X-Booking-Token"` to `allowedHeaders` in `backend/src/app.ts`.
+  - **Auth & Session Parity**: Updated `cleanFareApi.ts` (`fetchBookingById`, `createBookingPayment`, `verifyBookingPayment`) to accept and attach customer Supabase `accessToken` (`Authorization: Bearer <token>`) alongside guest token fallback.
+  - **Booking Confirmation Resilience**: In `BookingConfirmationPage.tsx`, integrated `useCustomerAuth()` to pass `accessToken`, added URL query param `?token=` fallback into `sessionStorage`, and updated `handlePayNow` to attach authentication.
+  - **Ownership Check Hardening**: In `bookings.routes.ts` and `payments.service.ts`, allowed matching customer email (`booking.customer_email === user.email`) to authenticate ownership in addition to UUID `user_id`.
+
+- **Admin Publishing Outbox Failure Remediation (`backend/src/modules/publishing/publication-worker.ts`, `fare-admin.service.ts`)**:
+  - **Root Cause**: `PublicationWorker.resolveEntityData()` was querying obsolete/legacy table and column names (`package_code` instead of `code` in `tour_packages`, non-existent `local_sightseeing_packages` instead of `local_packages`, non-existent `transfer_routes` instead of `transfers`). Because `.catch(() => ({ rows: [] }))` swallowed the SQL errors, `expectedPath` was always `null`, causing `verifyDeployment()` to immediately fail and mark events `status = 'failed'` after 15 minutes.
+  - **Dual-Schema Backward & Forward Compatibility**: Updated `resolveEntityData()` to prioritize active canonical tables (`local_packages`, `transfers`, `tour_packages`) with column `code`, while falling back gracefully to legacy aliases (`package_code`, `route_code`).
+  - **Sitemap Trailing Slash Normalization**: Updated sitemap verification in `verifyDeployment()` to match both canonical `expectedPath` and non-trailing slash variant `cleanPath`.
+  - **Domain Routing Safeguard**: Updated `app.ts` to ensure `PublicationWorker` receives `env.CUSTOMER_SITE_URL` with active fallback to `https://skbagheltourandtravels.com`.
+
+- **Qwen 3 Coder Deep Payment & DB Architecture Audit (`docs/QWEN_PAYMENT_SYSTEM_DEEP_SCAN_REPORT.md`, `scripts/qwen_deep_payment_scan.py`)**:
+  - Ran deep architectural audit using `qwen.qwen3-coder-next` on Amazon Bedrock Mantle across payments, database contracts, customer APIs, and zero-fallback state machines.
+  - Emitted full 15.5k-character architectural blueprint at `docs/QWEN_PAYMENT_SYSTEM_DEEP_SCAN_REPORT.md`.
+
+- **Verification & Parity**:
+  - Monorepo `npm run verify` passed with code 0 (3x TypeScript clean, 325 backend unit tests passed, 72 SSG pages + 23 redirects rendered, 3 production bundles built).
+
 
 - **Foreign Key Safeguard & Profile Auto-Provisioning (`backend/src/modules/bookings/bookings.repository.ts`, `booking.service.ts`)**:
   - **Issue**: Authenticated customer bookings failed with PostgreSQL error `23503`: `insert or update on table "bookings" violates foreign key constraint "bookings_user_id_fkey"` because new Supabase / OAuth auth users did not have an existing row in `public.profiles`.

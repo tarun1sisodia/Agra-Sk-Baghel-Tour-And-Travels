@@ -582,7 +582,7 @@ export function CleanBookingPage() {
 
       // Launch Razorpay
       try {
-        const paymentRes = await createBookingPayment(bookingRes.booking_id, bookingRes.guest_access_token);
+        const paymentRes = await createBookingPayment(bookingRes.booking_id, bookingRes.guest_access_token, accessToken);
         const scriptReady = await loadRazorpayScript();
         if (scriptReady && window.Razorpay) {
           const rzp = new window.Razorpay({
@@ -613,7 +613,8 @@ export function CleanBookingPage() {
                       razorpay_order_id: response.razorpay_order_id,
                       razorpay_signature: response.razorpay_signature,
                     },
-                    bookingRes.guest_access_token
+                    bookingRes.guest_access_token,
+                    accessToken
                   );
                 } catch (verifyErr) {
                   console.warn("Payment verification notification deferred to webhook:", verifyErr);
@@ -627,8 +628,8 @@ export function CleanBookingPage() {
           window.location.href = `/booking/confirmation?id=${bookingRes.booking_id}`;
         }
       } catch (payErr: any) {
-        console.warn("Payment initiation deferred:", payErr);
-        window.location.href = `/booking/confirmation?id=${bookingRes.booking_id}`;
+        console.error("Payment initiation failed:", payErr);
+        setBookingError(`Booking created (${bookingRes.ticket_id}), but payment gateway could not be launched: ${payErr?.message || "Payment initialization failed"}. You can complete payment on your confirmation page.`);
       }
     } catch (err: any) {
       if (err instanceof CleanFareApiError && err.code === "PRICE_CHANGED") {

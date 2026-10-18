@@ -44,6 +44,9 @@ export class PaymentsService {
     if (booking.user_id && user && user.id === booking.user_id) {
       return;
     }
+    if (booking.customer_email && user && user.email === booking.customer_email) {
+      return;
+    }
     if (callerToken && booking.guest_access_token) {
       const a = Buffer.from(callerToken.trim(), "utf8");
       const b = Buffer.from(booking.guest_access_token.trim(), "utf8");

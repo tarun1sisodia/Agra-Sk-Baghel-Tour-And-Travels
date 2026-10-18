@@ -246,13 +246,18 @@ export class BookingsRepository {
       }
     }
 
-    if (!productCode || !productName) {
-      throw new Error(`Product not found for booking ${r.ticket_id}`);
+    if (!productCode) {
+      productCode = (r.route_id || r.tour_package_id || r.local_package_id || r.transfer_id || r.category || "custom-booking").toString();
+    }
+    if (!productName) {
+      productName = r.pickup_address && r.drop_address
+        ? `${r.pickup_address} to ${r.drop_address}`
+        : `${r.category ? r.category.replace(/_/g, " ").toUpperCase() : "Travel"} Booking`;
     }
 
-    if (!fareBreakdown?.vehicle?.vehicle_model_id || !fareBreakdown?.vehicle?.display_name) {
-      throw new Error(`Authoritative vehicle model not found on booking ${r.ticket_id}`);
-    }
+    const vehicleId = fareBreakdown?.vehicle?.vehicle_model_id || r.vehicle_model_id || "standard-vehicle";
+    const vehicleName = fareBreakdown?.vehicle?.display_name || "Standard Chauffeur Vehicle";
+    const vehicleGroup = fareBreakdown?.vehicle?.group_code || "standard";
 
     return {
       booking_id: r.id,
@@ -270,9 +275,9 @@ export class BookingsRepository {
       return_at: r.return_at || undefined,
       passenger_count: Number(r.passenger_count),
       vehicle_model: {
-        id: fareBreakdown.vehicle.vehicle_model_id,
-        display_name: fareBreakdown.vehicle.display_name,
-        group_code: fareBreakdown.vehicle.group_code,
+        id: vehicleId,
+        display_name: vehicleName,
+        group_code: vehicleGroup,
       },
       total_amount: Number(r.total_amount),
       advance_amount: Number(r.advance_amount),

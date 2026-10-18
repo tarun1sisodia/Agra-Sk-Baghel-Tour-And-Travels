@@ -56,6 +56,7 @@
 - [x] **Phase 6:** Normalized Customer Contract (`FleetPriceOption` & `FleetPriceOptionSchema` in `contracts/fleet-pricing.ts`, synced byte-identical to `backend/src/contracts/`, `admin/src/contracts/`, and `react/src/contracts/`, zero drift, 10/10 contract tests green).
 - [x] **Phase D.2:** Connected Catalog Publishing to Verified Releases (Outbox `site_publish_events` durable enqueuing on all admin mutations, metadata-enriched deploy hook requests, fail-closed multi-table resolution & explicit archive verification in `PublicationWorker`, real production imports in `dynamic-publishing-e2e.test.ts`, all unit/integration tests passing, `npm run verify` green).
 - [x] **Phase D.3:** Publishing Reliability Closure (Mandatory & atomic outbox persistence in `db.transaction`, single authoritative deployment dispatcher via `PublicationWorker`, fail-closed release verification for archive/publish, 345/345 tests green, `npm run verify` green).
+- [x] **Phase D.4:** Payment & Publishing Outbox Production Remediation (Whitelisted `x-guest-token` in Fastify CORS, eliminated silent payment redirect fallbacks in `CleanBookingPage.tsx`, dual-schema resolution in `PublicationWorker` for canonical `local_packages`/`transfers`/`tour_packages` tables and `code` columns, matching email ownership verification in `bookings.routes.ts` & `payments.service.ts`, generated Qwen 3 Coder Deep Architecture Scan Report, `npm run verify` 100% green).
 
 ## Next Actions
 

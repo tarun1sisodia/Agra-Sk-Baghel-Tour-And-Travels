@@ -69,12 +69,6 @@ export function registerBookingsRoutes(app: FastifyInstance, bookingsService: Bo
     reply: FastifyReply
   ) => {
     const { id } = req.params;
-    if (typeof bookingsService.getBookingDetail === "function") {
-      const detail = await bookingsService.getBookingDetail(id);
-      if (detail) {
-        return reply.send({ success: true, booking: detail });
-      }
-    }
 
     let booking = await bookingsService.getBookingById(id);
     if (!booking) {
@@ -95,7 +89,9 @@ export function registerBookingsRoutes(app: FastifyInstance, bookingsService: Bo
       const user = (req as any).user;
 
       const isAdmin = user && ["admin", "super_admin", "staff", "dispatcher"].includes(user.role);
-      const isOwnerUser = booking.user_id && user && user.id === booking.user_id;
+      const isOwnerUser =
+        (booking.user_id && user && user.id === booking.user_id) ||
+        (booking.customer_email && user && user.email === booking.customer_email);
       let isGuestTokenValid = false;
       if (callerToken) {
         const a = Buffer.from(String(callerToken).trim(), "utf8");
@@ -110,6 +106,13 @@ export function registerBookingsRoutes(app: FastifyInstance, bookingsService: Bo
           error: "FORBIDDEN",
           message: "Invalid or missing booking access token",
         });
+      }
+    }
+
+    if (typeof bookingsService.getBookingDetail === "function") {
+      const detail = await bookingsService.getBookingDetail(id);
+      if (detail) {
+        return reply.send({ success: true, booking: detail });
       }
     }
 

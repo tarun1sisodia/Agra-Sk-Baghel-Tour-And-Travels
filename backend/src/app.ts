@@ -174,7 +174,18 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
     },
     credentials: true,
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Booking-Token", "X-Booking-Intent-Secret", "X-Request-Id", "X-Correlation-Id", "X-Razorpay-Signature"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Booking-Token",
+      "x-booking-token",
+      "X-Guest-Token",
+      "x-guest-token",
+      "X-Booking-Intent-Secret",
+      "X-Request-Id",
+      "X-Correlation-Id",
+      "X-Razorpay-Signature",
+    ],
   });
 
   await app.register(rateLimit, {
@@ -337,7 +348,7 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
     publicationWorker = new PublicationWorker({
       pool: farePool,
       deployHookUrl: env.PAGES_DEPLOY_HOOK_URL,
-      customerSiteUrl: process.env.CUSTOMER_SITE_URL || process.env.SITE_URL || "https://agraskbagheltourandtravels.com",
+      customerSiteUrl: env.CUSTOMER_SITE_URL || process.env.CUSTOMER_SITE_URL || process.env.SITE_URL || "https://agraskbagheltourandtravels.com",
       logger: options.logger,
     });
     const quotesService = new QuotesService(fareCatalogRepo);
