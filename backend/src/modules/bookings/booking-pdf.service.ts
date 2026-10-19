@@ -22,6 +22,21 @@ export interface BookingPdfSourceData {
   balance_amount?: number | string | null;
   status?: string | null;
   created_at?: string | Date | null;
+  return_at?: string | Date | null;
+  flight_train_number?: string | null;
+  special_notes?: string | null;
+  fare_breakdown?: {
+    lines?: Array<{ label?: string; amount?: number | string | null }>;
+    messages?: string[];
+    details?: {
+      rate_per_km?: number;
+      distance_km?: number;
+      duration_minutes?: number;
+      billable_km?: number;
+      days?: number;
+      effective_trip_type?: string;
+    };
+  } | null;
 }
 
 export function formatInr(val: number | string | null | undefined): string {
@@ -130,23 +145,98 @@ export function buildBookingPdfInput(
     ? "Payment: Advance Secured"
     : "Payment: Pending";
 
+  const quoteLines = Array.isArray(booking.fare_breakdown?.lines)
+    ? booking.fare_breakdown.lines
+        .filter((line) => typeof line?.label === "string" && line.label.trim())
+        .map((line) => `${line.label!.trim()}: ${formatInr(line.amount)}`)
+    : [];
+  const quoteDetails = booking.fare_breakdown?.details;
+  const tripMetrics: string[] = [];
+  if (typeof quoteDetails?.distance_km === "number" && Number.isFinite(quoteDetails.distance_km)) {
+    tripMetrics.push(`Distance: ${quoteDetails.distance_km.toLocaleString("en-IN", { maximumFractionDigits: 1 })} km`);
+  }
+  if (typeof quoteDetails?.billable_km === "number" && Number.isFinite(quoteDetails.billable_km)) {
+    tripMetrics.push(`Billable: ${quoteDetails.billable_km.toLocaleString("en-IN", { maximumFractionDigits: 1 })} km`);
+  }
+  if (typeof quoteDetails?.rate_per_km === "number" && Number.isFinite(quoteDetails.rate_per_km)) {
+    tripMetrics.push(`Rate: ${formatInr(quoteDetails.rate_per_km)}/km`);
+  }
+  if (typeof quoteDetails?.duration_minutes === "number" && Number.isFinite(quoteDetails.duration_minutes)) {
+    const duration = Math.max(0, Math.round(quoteDetails.duration_minutes));
+    const hours = Math.floor(duration / 60);
+    const minutes = duration % 60;
+    tripMetrics.push(`Duration: ${hours ? `${hours}h` : ""}${minutes ? ` ${minutes}m` : hours ? "" : "0m"}`);
+  }
+  if (typeof quoteDetails?.days === "number" && Number.isFinite(quoteDetails.days)) {
+    tripMetrics.push(`Days: ${quoteDetails.days}`);
+  }
+  const fareNote = [
+    quoteLines.length ? `Fare breakdown: ${quoteLines.join(" | ")}` : "",
+    tripMetrics.join(" | "),
+  ].filter(Boolean).join("\n") || "Fare agreed as per the approved booking quotation.";
+
+  const journeyNotes: string[] = [];
+  if (booking.return_at) {
+    journeyNotes.push(`Return journey: ${formatPickupDateTime(booking.return_at)}`);
+  }
+  if (booking.flight_train_number?.trim()) {
+    journeyNotes.push(`Flight / train reference: ${booking.flight_train_number.trim()}`);
+  }
+  const rawSpecialNotes = booking.special_notes?.trim() || "";
+  if (rawSpecialNotes) {
+    journeyNotes.push(`Special request: ${rawSpecialNotes.length > 220 ? `${rawSpecialNotes.slice(0, 217).trimEnd()}...` : rawSpecialNotes}`);
+  }
+  const quoteMessages = Array.isArray(booking.fare_breakdown?.messages)
+    ? booking.fare_breakdown.messages.filter((message) => typeof message === "string" && message.trim()).slice(0, 2)
+    : [];
+  if (quoteMessages.length) {
+    journeyNotes.push(`Quote notes: ${quoteMessages.join("; ").slice(0, 180)}`);
+  }
+  journeyNotes.push("Keep this voucher for reference. Please confirm pickup changes with dispatch; the balance is payable as agreed.");
+  journeyNotes.push("This is a booking voucher and payment summary, not a GST tax invoice.");
+
   return {
+    brandTitle: "SK BAGHEL TOUR & TRAVELS",
+    brandSubtitle: "AGRA | CHAUFFEUR-DRIVEN TRAVEL",
+    voucherTitle: "BOOKING VOUCHER",
     ticketId,
     statusBadge,
     bookingDateText,
     paymentIdText,
+    securityBadge: "CUSTOMER COPY",
+    sec1Title: "PASSENGER & CONTACT DETAILS",
+    custNameLbl: "LEAD PASSENGER",
     customerName,
+    custPhoneLbl: "CONTACT PHONE",
     customerPhone,
+    custEmailLbl: "EMAIL ADDRESS",
     customerEmail,
+    paxLbl: "PASSENGER / TRIP DETAILS",
     passengerInfo,
+    sec2Title: "JOURNEY & VEHICLE DETAILS",
+    srvLbl: "BOOKED SERVICE / ROUTE",
     serviceName: productName,
+    vehLbl: "VEHICLE CLASS",
     vehicleName,
+    pickTimeLbl: "PICKUP DATE & TIME",
     pickupTime: formatPickupDateTime(booking.pickup_at),
+    pickAddrLbl: "PICKUP LOCATION",
     pickupAddress,
+    dropAddrLbl: "DROP-OFF / DESTINATION",
     dropAddress,
+    sec3Title: "FARE SUMMARY",
+    fareTotLbl: "TOTAL AGREED FARE",
     fareTotalVal: formatInr(totalAmountNum),
+    fareAdvLbl: "ADVANCE PAID",
     fareAdvVal: formatInr(advanceAmountNum),
+    fareBalLbl: "BALANCE REMAINING",
     fareBalVal: formatInr(balanceAmountNum),
+    fareNote,
+    noticeTitle: "JOURNEY NOTES & SERVICE TERMS",
+    noticeBody: journeyNotes.join("\n"),
+    ftHelp: "24/7 BOOKING SUPPORT: +91 97628 17598 | bookings@agraskbagheltourandtravels.com",
+    ftAddr: "Near Taj East Gate Road, Taj Ganj, Agra, Uttar Pradesh 282001 | agraskbagheltourandtravels.com",
+    ftDisc: "Keep this voucher for reference. Not a GST tax invoice. Confirm itinerary and pickup details with dispatch.",
   };
 }
 
