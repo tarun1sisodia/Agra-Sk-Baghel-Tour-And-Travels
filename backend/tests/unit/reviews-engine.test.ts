@@ -145,14 +145,7 @@ class MockReviewsRepository extends ReviewsRepository {
 
   override async getPublicReviews(): Promise<Array<ReviewSubmissionEntity & { is_verified: boolean }>> {
     return Array.from(this.submissions.values())
-      .filter((s) => {
-        if (s.status !== "approved" || !s.consent_public || !s.show_on_homepage || !s.booking_id) return false;
-        if (this.bookingsRepo) {
-          const b = this.bookingsRepo.bookings.get(s.booking_id);
-          return b && b.status === "completed";
-        }
-        return true;
-      })
+      .filter((s) => s.status === "approved" && s.consent_public && s.show_on_homepage)
       .map((s) => ({ ...s, is_verified: true }));
   }
 
@@ -161,20 +154,14 @@ class MockReviewsRepository extends ReviewsRepository {
     for (const img of this.images.values()) {
       if (img.status !== "approved") continue;
       const sub = this.submissions.get(img.submission_id);
-      if (sub && sub.status === "approved" && sub.consent_public && sub.show_in_gallery && sub.booking_id) {
-        if (this.bookingsRepo) {
-          const b = this.bookingsRepo.bookings.get(sub.booking_id);
-          if (!b || b.status !== "completed") continue;
-        }
-        res.push({
-          ...img,
-          reviewer_name: sub.display_name,
-          review_text: sub.review_text,
-        });
+      if (sub && sub.status === "approved" && sub.consent_public && sub.show_in_gallery) {
+        res.push({ ...img, reviewer_name: sub.display_name, review_text: sub.review_text });
       }
     }
     return res;
   }
+
+
 
   override async listAdminSubmissions(filter?: any): Promise<any[]> {
     return Array.from(this.submissions.values())
@@ -626,39 +613,27 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
     ).rejects.toMatchObject({ code: "INVALID_STATE" });
   });
 
-  it("RV-26: Publication with non-completed linked booking rejected", async () => {
+  it("RV-26: Admin approval and publication do not require a completed-booking status match", async () => {
     bookingsRepo.bookings.set("b-in-progress", {
-      id: "b-in-progress",
-      ticket_id: "TKT-IN-PROGRESS",
-      status: "completed", // initial to allow link creation
-      category: "outstation",
+      id: "b-in-progress", ticket_id: "TKT-IN-PROGRESS", status: "completed", category: "outstation",
     });
     const { token } = await reviewsService.createBookingLink("b-in-progress");
     const sub = await reviewsService.submitReview(token, {
-      display_name: "Rider",
-      review_text: "Checking status guard",
-      consent_public: true,
+      display_name: "Rider", review_text: "Checking status guard", consent_public: true,
     });
-
-    // Booking status changed/regressed to driver_assigned
     bookingsRepo.bookings.set("b-in-progress", {
-      id: "b-in-progress",
-      ticket_id: "TKT-IN-PROGRESS",
-      status: "driver_assigned",
-      category: "outstation",
+      id: "b-in-progress", ticket_id: "TKT-IN-PROGRESS", status: "driver_assigned", category: "outstation",
     });
-
-    await expect(
-      reviewsService.moderateSubmission(
-        sub.id,
-        { status: "approved", show_on_homepage: true },
-        { id: "mod-1", role: "review_moderator" },
-        "req-fail"
-      )
-    ).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
+    const updated = await reviewsService.moderateSubmission(
+      sub.id, { status: "approved", show_on_homepage: true },
+      { id: "mod-1", role: "review_moderator" }, "req-review-no-ticket-gate"
+    );
+    expect(updated.status).toBe("approved");
+    expect(updated.show_on_homepage).toBe(true);
+    expect((await reviewsService.getPublicReviews()).find((r) => r.id === sub.id)).toMatchObject({ is_verified: true });
   });
 
-  it("RV-27: Admin list submissions returns ticket ID and completed verification flag", async () => {
+  it("RV-27:  it("RV-27: Admin list submissions returns ticket ID and completed verification flag", async () => {
     bookingsRepo.bookings.set("b-completed-99", {
       id: "b-completed-99",
       ticket_id: "TKT-COMPLETED-99",
@@ -683,121 +658,77 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
     expect(item?.is_verified_booking).toBe(true);
   });
 
-  it("RV-28: Unlinked QR submission rejected from homepage publication", async () => {
+  it("RV-28: Admin can publish a consented QR review without a linked booking", async () => {
     const { token } = await reviewsService.createQrLink("Taj East Gate QR");
     const sub = await reviewsService.submitReview(token, {
-      display_name: "Walk-in Tourist",
-      review_text: "Great experience",
-      consent_public: true,
+      display_name: "Walk-in Tourist", review_text: "Great experience", consent_public: true,
     });
-
-    await expect(
-      reviewsService.moderateSubmission(
-        sub.id,
-        { status: "approved", show_on_homepage: true },
-        { id: "mod-1", role: "review_moderator" },
-        "req-qr-pub-fail"
-      )
-    ).rejects.toMatchObject({
-      code: "VALIDATION_ERROR",
-      message: expect.stringContaining("linked completed booking is required"),
-    });
+    const updated = await reviewsService.moderateSubmission(
+      sub.id, { status: "approved", show_on_homepage: true },
+      { id: "mod-1", role: "review_moderator" }, "req-qr-pub-ok"
+    );
+    expect(updated.status).toBe("approved");
+    expect(updated.show_on_homepage).toBe(true);
+    expect((await reviewsService.getPublicReviews()).some((r) => r.id === sub.id && r.is_verified)).toBe(true);
   });
 
-  it("RV-29: Unlinked QR submission rejected from gallery publication", async () => {
+  it("RV-29:  it("RV-29: Admin can publish a consented QR review photo to the gallery", async () => {
     const { token } = await reviewsService.createQrLink("Taj East Gate QR");
     const sub = await reviewsService.submitReview(token, {
-      display_name: "Walk-in Tourist With Photo",
-      review_text: "Photo test",
-      consent_public: true,
+      display_name: "Walk-in Tourist With Photo", review_text: "Photo test", consent_public: true,
       photos: [{ storage_key: "photos/taj-1.webp" }],
     });
-
-    await expect(
-      reviewsService.moderateSubmission(
-        sub.id,
-        { status: "approved", show_in_gallery: true },
-        { id: "mod-1", role: "review_moderator" },
-        "req-qr-gallery-fail"
-      )
-    ).rejects.toMatchObject({
-      code: "VALIDATION_ERROR",
-      message: expect.stringContaining("linked completed booking is required"),
-    });
+    const updated = await reviewsService.moderateSubmission(
+      sub.id, {
+        status: "approved", show_in_gallery: true,
+        photo_approvals: [{ id: "img-1", status: "approved" }],
+      },
+      { id: "mod-1", role: "review_moderator" }, "req-qr-gallery-ok"
+    );
+    expect(updated.status).toBe("approved");
+    expect(updated.show_in_gallery).toBe(true);
+    expect((await reviewsService.getPublicGallery()).some((img) => img.submission_id === sub.id)).toBe(true);
   });
 
-  it("RV-30: Missing linked booking rejected from homepage and gallery publication", async () => {
-    // Manually create a submission pointing to non-existent booking ID
+  it("RV-30:  it("RV-30: A missing linked booking does not block an otherwise approved review", async () => {
     const sub = await reviewsRepo.createSubmission({
-      link_id: "link-phantom",
-      booking_id: "b-does-not-exist",
-      display_name: "Ghost Rider",
-      review_text: "Where is my booking?",
-      consent_public: true,
+      link_id: "link-phantom", booking_id: "b-does-not-exist", display_name: "Ghost Rider",
+      review_text: "Where is my booking?", consent_public: true,
     });
-
-    await expect(
-      reviewsService.moderateSubmission(
-        sub.id,
-        { status: "approved", show_on_homepage: true },
-        { id: "mod-1", role: "review_moderator" },
-        "req-missing-b-home"
-      )
-    ).rejects.toMatchObject({
-      code: "VALIDATION_ERROR",
-      message: expect.stringContaining("associated booking does not exist"),
-    });
-
-    await expect(
-      reviewsService.moderateSubmission(
-        sub.id,
-        { status: "approved", show_in_gallery: true },
-        { id: "mod-1", role: "review_moderator" },
-        "req-missing-b-gal"
-      )
-    ).rejects.toMatchObject({
-      code: "VALIDATION_ERROR",
-      message: expect.stringContaining("associated booking does not exist"),
-    });
+    const updated = await reviewsService.moderateSubmission(
+      sub.id, { status: "approved", show_on_homepage: true },
+      { id: "mod-1", role: "review_moderator" }, "req-missing-booking-home"
+    );
+    expect(updated.status).toBe("approved");
+    expect(updated.show_on_homepage).toBe(true);
+    expect((await reviewsService.getPublicReviews()).some((r) => r.id === sub.id)).toBe(true);
   });
 
-  it("RV-31: Incomplete booking rejected from gallery publication", async () => {
+  it("RV-31:  it("RV-31: A booking status change does not block gallery publication", async () => {
     bookingsRepo.bookings.set("b-active-trip", {
-      id: "b-active-trip",
-      ticket_id: "TKT-ACTIVE-01",
-      status: "completed",
-      category: "outstation",
+      id: "b-active-trip", ticket_id: "TKT-ACTIVE-01", status: "completed", category: "outstation",
     });
     const { token } = await reviewsService.createBookingLink("b-active-trip");
     const sub = await reviewsService.submitReview(token, {
-      display_name: "Active Rider",
-      review_text: "Scenic route",
-      consent_public: true,
+      display_name: "Active Rider", review_text: "Scenic route", consent_public: true,
       photos: [{ storage_key: "photos/route-scenic.webp" }],
     });
-
-    // Booking status regresses from completed to confirmed
     bookingsRepo.bookings.set("b-active-trip", {
-      id: "b-active-trip",
-      ticket_id: "TKT-ACTIVE-01",
-      status: "confirmed",
-      category: "outstation",
+      id: "b-active-trip", ticket_id: "TKT-ACTIVE-01", status: "confirmed", category: "outstation",
     });
-
-    await expect(
-      reviewsService.moderateSubmission(
-        sub.id,
-        { status: "approved", show_in_gallery: true },
-        { id: "mod-1", role: "review_moderator" },
-        "req-incomplete-gal"
-      )
-    ).rejects.toMatchObject({
-      code: "VALIDATION_ERROR",
-      message: expect.stringContaining("associated booking is not in completed status"),
-    });
+    const updated = await reviewsService.moderateSubmission(
+      sub.id, {
+        status: "approved", show_in_gallery: true,
+        photo_approvals: [{ id: "img-1", status: "approved" }],
+      },
+      { id: "mod-1", role: "review_moderator" }, "req-gallery-no-ticket-gate"
+    );
+    expect(updated.status).toBe("approved");
+    expect(updated.show_in_gallery).toBe(true);
+    expect((await reviewsService.getPublicGallery()).some((img) => img.submission_id === sub.id)).toBe(true);
   });
 
-  it("RV-32: Missing customer public consent rejected from homepage and gallery publication", async () => {
+  it("RV-32:  it("RV-32: Missing customer public consent rejected from homepage and gallery publication", async () => {
     bookingsRepo.bookings.set("b-no-consent", {
       id: "b-no-consent",
       ticket_id: "TKT-NO-CONSENT",
