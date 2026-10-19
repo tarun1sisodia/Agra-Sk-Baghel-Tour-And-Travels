@@ -17,9 +17,4 @@ export async function registerPaymentRoutes(
     config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
     handler: controller.verifyPayment,
   });
-  app.post("/api/v1/payments/webhooks/:provider", {
-    // SEC-001: generous per-IP limit allows all legitimate provider retries while blocking floods
-    config: { rateLimit: { max: 500, timeWindow: "1 minute" } },
-    handler: controller.webhook,
-  });
 }

@@ -2,6 +2,32 @@
 
 ## 2026-10-18
 
+### 2026-10-19 — Webhook Routing Unification & Resolution of raw_webhooks Relation Error
+
+- **Root Cause of `relation "raw_webhooks" does not exist` (code 42P01)**:
+  - When Razorpay sent payment webhooks to `POST /api/v1/payments/webhooks/razorpay`, the request was captured by the legacy `payment.routes.ts` handler because Clean Fare (`payments.routes.ts`) only listened on `/api/v1/webhooks/razorpay` and `/webhooks/razorpay`.
+  - The legacy `payment.service.ts` called `deps.db.webhooks.record()` in `backend/src/db/postgres.ts`, which executed raw SQL against `raw_webhooks`.
+  - Migration `0038_fare_system_clean_rebuild.sql` previously dropped `raw_webhooks` and created the canonical `payment_webhook_events` table, resulting in database error 42P01 on webhook deliveries.
+- **Why Customer Bookings & Admin Dashboard Still Succeeded**:
+  - The customer checkout flow uses Clean Fare client verification (`POST /api/v1/bookings/:id/verify-payment`), which verified the signature and transitioned `payments.status = 'captured'` and `bookings.status = 'confirmed'` directly.
+  - However, the concurrent background webhook sent by Razorpay to Render failed with HTTP 500, which would risk missed updates if a user closed their browser before client verification completed.
+- **Architectural Remediation**:
+  - **Clean Fare Webhook Expansion (`backend/src/modules/payments/payments.routes.ts`)**:
+    - Registered `POST /api/v1/payments/webhooks/razorpay` and `POST /api/v1/payments/webhooks/:provider` on Clean Fare `PaymentsService.handleWebhook()`.
+    - This ensures all incoming Razorpay webhooks trigger the authoritative Clean Fare pipeline (verifying HMAC, writing to `payment_webhook_events`, capturing payment idempotently, confirming booking, and dispatching Resend confirmation email).
+  - **Eliminated Conflicting Legacy Route (`backend/src/modules/payments/payment.routes.ts`)**:
+    - Removed `app.post("/api/v1/payments/webhooks/:provider")` from legacy payment routes so incoming provider webhooks are never intercepted by legacy handlers.
+  - **PostgreSQL Repository Alignment (`backend/src/db/postgres.ts`)**:
+    - Updated `db.webhooks.record()`, `markProcessed()`, and `hasEvent()` to query the canonical `payment_webhook_events` table with `ON CONFLICT (provider, event_id) DO NOTHING` and safe `payloadHash` defaulting.
+  - **Migration 0046 Compatibility View (`backend/migrations/0046_create_raw_webhooks_view.sql`)**:
+    - Created a backward-compatible database view `raw_webhooks` pointing to `payment_webhook_events` to safeguard against any legacy queries or tests throwing 42P01. Applied to live database.
+- **Legacy API Surface Audit**:
+  - Confirmed the customer frontend (`react/`) exclusively calls Clean Fare endpoints (`/api/v1/catalog`, `/api/v1/quotes/options`, `/api/v1/quotes`, `/api/v1/bookings`, `/api/v1/bookings/:id/payment`, `/api/v1/bookings/:id/verify-payment`).
+  - Confirmed the operations desk (`admin/`) exclusively calls `/api/v1/ops/admin/*` and `/api/v1/admin/*`.
+  - Legacy routes (`/api/v1/fares/calculate`, `/api/v1/bookings/draft`, `/api/v1/booking-intents/*`) remain in the backend only for backward contract tests and are not invoked by active user journeys.
+- **Verification**:
+  - Monorepo `npm run verify` passed with code 0 (3x TypeScript typechecks clean, 325 backend unit tests, 72 SSG pages + 23 redirects rendered, 3 production bundles built).
+
 ### 2026-10-18 — Complete Removal of Guest Tokens & Mandatory Customer Authentication for Bookings
 
 - **Total Deprecation of `x-guest-token` Across Monorepo**:

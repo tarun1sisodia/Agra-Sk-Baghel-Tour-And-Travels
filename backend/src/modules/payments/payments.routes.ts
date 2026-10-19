@@ -131,4 +131,6 @@ export function registerPaymentsRoutes(app: FastifyInstance, paymentsService: Pa
   app.post("/api/v1/webhooks/payment", webhookOpts, handleWebhook);
   app.post("/webhooks/razorpay", webhookOpts, handleWebhook);
   app.post("/api/v1/webhooks/razorpay", webhookOpts, handleWebhook);
+  app.post("/api/v1/payments/webhooks/razorpay", webhookOpts, handleWebhook);
+  app.post("/api/v1/payments/webhooks/:provider", webhookOpts, handleWebhook);
 }

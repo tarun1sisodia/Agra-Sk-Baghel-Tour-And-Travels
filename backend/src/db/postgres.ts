@@ -2206,26 +2206,27 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
       },
       webhooks: {
         async record(event: WebhookEventRecord) {
-          const existing = await query(client, "select * from raw_webhooks where event_id=$1", [event.eventId]);
+          const existing = await query(client, "select * from payment_webhook_events where provider=$1 and event_id=$2", [event.provider, event.eventId]);
           if (existing[0]) {
             return { created: false, record: mapWebhook(existing[0]) };
           }
           await query(
             client,
-            `insert into raw_webhooks (id, provider, event_id, event_type, payload, payload_hash, processed, received_at)
-             values ($1,$2,$3,$4,$5::jsonb,$6,$7,$8)`,
+            `insert into payment_webhook_events (id, provider, event_id, event_type, payload, processed, received_at)
+             values ($1,$2,$3,$4,$5::jsonb,$6,$7)
+             on conflict (provider, event_id) do nothing`,
             [
               event.id, event.provider, event.eventId, event.eventType, JSON.stringify(event.payload),
-              event.payloadHash, event.processed, event.receivedAt,
+              event.processed, event.receivedAt,
             ],
           );
           return { created: true, record: event };
         },
         async markProcessed(eventId: string) {
-          await query(client, "update raw_webhooks set processed=true where event_id=$1", [eventId]);
+          await query(client, "update payment_webhook_events set processed=true where event_id=$1", [eventId]);
         },
         async hasEvent(eventId: string) {
-          const rows = await query(client, "select 1 from raw_webhooks where event_id=$1", [eventId]);
+          const rows = await query(client, "select 1 from payment_webhook_events where event_id=$1", [eventId]);
           return rows.length > 0;
         },
       },
@@ -2601,7 +2602,7 @@ function mapWebhook(row: Record<string, unknown>): WebhookEventRecord {
     eventId: String(row.event_id),
     eventType: String(row.event_type),
     payload: row.payload,
-    payloadHash: String(row.payload_hash),
+    payloadHash: String(row.payload_hash ?? ""),
     processed: Boolean(row.processed),
     receivedAt: new Date(String(row.received_at)).toISOString(),
   };
