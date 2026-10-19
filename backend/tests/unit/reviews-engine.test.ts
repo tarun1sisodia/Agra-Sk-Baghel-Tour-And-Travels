@@ -633,7 +633,7 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
     expect((await reviewsService.getPublicReviews()).find((r) => r.id === sub.id)).toMatchObject({ is_verified: true });
   });
 
-  it("RV-27:  it("RV-27: Admin list submissions returns ticket ID and completed verification flag", async () => {
+  it("RV-27: Admin list submissions returns ticket ID and completed verification flag", async () => {
     bookingsRepo.bookings.set("b-completed-99", {
       id: "b-completed-99",
       ticket_id: "TKT-COMPLETED-99",
@@ -672,7 +672,7 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
     expect((await reviewsService.getPublicReviews()).some((r) => r.id === sub.id && r.is_verified)).toBe(true);
   });
 
-  it("RV-29:  it("RV-29: Admin can publish a consented QR review photo to the gallery", async () => {
+  it("RV-29: Admin can publish a consented QR review photo to the gallery", async () => {
     const { token } = await reviewsService.createQrLink("Taj East Gate QR");
     const sub = await reviewsService.submitReview(token, {
       display_name: "Walk-in Tourist With Photo", review_text: "Photo test", consent_public: true,
@@ -690,7 +690,7 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
     expect((await reviewsService.getPublicGallery()).some((img) => img.submission_id === sub.id)).toBe(true);
   });
 
-  it("RV-30:  it("RV-30: A missing linked booking does not block an otherwise approved review", async () => {
+  it("RV-30: A missing linked booking does not block an otherwise approved review", async () => {
     const sub = await reviewsRepo.createSubmission({
       link_id: "link-phantom", booking_id: "b-does-not-exist", display_name: "Ghost Rider",
       review_text: "Where is my booking?", consent_public: true,
@@ -704,7 +704,7 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
     expect((await reviewsService.getPublicReviews()).some((r) => r.id === sub.id)).toBe(true);
   });
 
-  it("RV-31:  it("RV-31: A booking status change does not block gallery publication", async () => {
+  it("RV-31: A booking status change does not block gallery publication", async () => {
     bookingsRepo.bookings.set("b-active-trip", {
       id: "b-active-trip", ticket_id: "TKT-ACTIVE-01", status: "completed", category: "outstation",
     });
@@ -728,7 +728,7 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
     expect((await reviewsService.getPublicGallery()).some((img) => img.submission_id === sub.id)).toBe(true);
   });
 
-  it("RV-32:  it("RV-32: Missing customer public consent rejected from homepage and gallery publication", async () => {
+  it("RV-32: Missing customer public consent rejected from homepage and gallery publication", async () => {
     bookingsRepo.bookings.set("b-no-consent", {
       id: "b-no-consent",
       ticket_id: "TKT-NO-CONSENT",
@@ -837,7 +837,7 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
     expect(foundImg?.reviewer_name).toBe("Happy Traveler");
   });
 
-  it("RV-35: Public queries independently filter out non-completed and unlinked reviews", async () => {
+  it("RV-35: Public queries return approved, consented reviews even when no booking is linked", async () => {
     // Manually force a submission to have show_on_homepage and show_in_gallery with no booking
     const rogueSub = await reviewsRepo.createSubmission({
       link_id: "link-rogue",
@@ -851,17 +851,17 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
       show_on_homepage: true,
       show_in_gallery: true,
     });
-    await reviewsRepo.addReviewImage({
+    const rogueImage = await reviewsRepo.addReviewImage({
       submission_id: rogueSub.id,
       storage_key: "photos/rogue.webp",
-      status: "approved",
     });
+    await reviewsRepo.updateImageStatus(rogueImage.id, "approved");
 
-    // Public query must filter it out
+    // Approved + consented reviews are not filtered by ticket/booking linkage.
     const publicReviews = await reviewsService.getPublicReviews();
-    expect(publicReviews.find((r) => r.id === rogueSub.id)).toBeUndefined();
+    expect(publicReviews.find((r) => r.id === rogueSub.id)?.is_verified).toBe(true);
 
     const gallery = await reviewsService.getPublicGallery();
-    expect(gallery.find((g) => g.storage_key === "photos/rogue.webp")).toBeUndefined();
+    expect(gallery.find((g) => g.storage_key === "photos/rogue.webp")).toBeDefined();
   });
 });
