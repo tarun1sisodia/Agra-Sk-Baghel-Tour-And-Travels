@@ -195,7 +195,7 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
         if (result.showOnHomepage) {
           setActionSuccess("Review published to website homepage.");
         } else {
-          setActionError("Review could not be published to homepage (ineligible or unverified booking).");
+          setActionError("Review could not be published to homepage. Check public consent and moderation permissions.");
         }
       } else {
         setActionSuccess(
@@ -528,8 +528,8 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
                     <div>
                       <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
                         {review.customerName}
-                        {review.verifiedBooking && (
-                          <span title="Verified against a completed booking">
+                        {review.status === "approved" && (
+                          <span title="Reviewed and approved by the SK Baghel admin team">
                             <BadgeCheck className="h-4 w-4 text-teal" />
                           </span>
                         )}
@@ -582,13 +582,7 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
                   </div>
                 )}
 
-                {!review.verifiedBooking && (
-                  <p className="mt-3 rounded-sm bg-error-soft px-3 py-2 text-[12px] leading-snug text-error">
-                    ⚠ No completed booking matches this ticket ID. Ineligible for completed-ticket verified badge.
-                  </p>
-                )}
-
-                {!review.consentPublic && (
+                                {!review.consentPublic && (
                   <p className="mt-2 rounded-sm bg-error-soft px-3 py-2 text-[12px] leading-snug text-error">
                     ⚠ Customer did not consent to public use. Cannot be placed on website.
                   </p>
@@ -663,16 +657,14 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
                         <Button
                           variant="gold"
                           size="sm"
-                          disabled={!canPublish || !review.verifiedBooking || !review.consentPublic || busyId === review.id}
-                          title={
-                            !canPublish
-                              ? "Publish requires super_admin role"
-                              : !review.verifiedBooking
-                              ? "Cannot publish: requires verified completed booking"
-                              : !review.consentPublic
-                              ? "Cannot publish: customer did not grant consent for public display"
-                              : "Publish review to customer homepage"
-                          }
+                          disabled={!canPublish || !review.consentPublic || busyId === review.id}
+                           title={
+                             !canPublish
+                               ? "Publish requires super_admin role"
+                               : !review.consentPublic
+                               ? "Cannot publish: customer did not grant consent for public display"
+                               : "Publish review to customer homepage"
+                           }
                           onClick={() => act(review.id, "publish")}
                         >
                           <Globe className="h-3.5 w-3.5" /> Publish to Homepage
