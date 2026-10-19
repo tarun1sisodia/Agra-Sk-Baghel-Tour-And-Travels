@@ -1,128 +1,17 @@
-# Main branch verification — 6eacb6f16004
+# Main branch verification — c9a4e7e61ee1
 
 - **Result:** PASS
-- **Commit:** [6eacb6f16004d7ebe78e042110547bd9ea64e7b7](https://github.com/tarun1sisodia/ArenaAI/commit/6eacb6f16004d7ebe78e042110547bd9ea64e7b7)
-- **Checked at:** 2026-10-19T12:56:35Z
-- **Workflow run:** [39255732031](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39255732031)
+- **Commit:** [c9a4e7e61ee15050f4ad44708a6b01b4b80bf629](https://github.com/tarun1sisodia/ArenaAI/commit/c9a4e7e61ee15050f4ad44708a6b01b4b80bf629)
+- **Checked at:** 2026-10-19T12:59:29Z
+- **Workflow run:** [39256124153](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39256124153)
 
 ## Changed files
 
-- A	admin/public/assets/fleet/amaze.webp
-- A	admin/public/assets/fleet/amaze2.webp
-- A	admin/public/assets/fleet/amaze3.webp
-- A	admin/public/assets/fleet/audi-s5-sportback-luxury-sedan-1000x650.png
-- A	admin/public/assets/fleet/audi-s5.png
-- A	admin/public/assets/fleet/binguo-ev.png
-- A	admin/public/assets/fleet/brezza.png
-- A	admin/public/assets/fleet/camry.jpg
-- A	admin/public/assets/fleet/creta-action.jpg
-- A	admin/public/assets/fleet/creta-rear.jpg
-- A	admin/public/assets/fleet/creta-tour.jpg
-- A	admin/public/assets/fleet/creta.jpg
-- A	admin/public/assets/fleet/elevate-fort.jpg
-- A	admin/public/assets/fleet/elevate-rear.jpg
-- A	admin/public/assets/fleet/ertiga-480.webp
-- A	admin/public/assets/fleet/ertiga-768.webp
-- A	admin/public/assets/fleet/ertiga.webp
-- A	admin/public/assets/fleet/ford-everest-titanium-grey-suv-1000x650.png
-- A	admin/public/assets/fleet/ford-everest.png
-- A	admin/public/assets/fleet/fortuner.jpg
-- A	admin/public/assets/fleet/glanza-grille.png
-- A	admin/public/assets/fleet/glanza-mirror.jpg
-- A	admin/public/assets/fleet/glanza-night.jpg
-- A	admin/public/assets/fleet/glanza.png
-- A	admin/public/assets/fleet/hector-plus.webp
-- A	admin/public/assets/fleet/honda-amaze-red-sedan-1280x720.webp
-- A	admin/public/assets/fleet/honda-amaze-red-sedan-921x519.webp
-- A	admin/public/assets/fleet/honda-amaze-silver-sedan-1280x720.webp
-- A	admin/public/assets/fleet/honda-elevate-black-suv-front-930x620.jpg
-- A	admin/public/assets/fleet/honda-elevate-heritage-fort-tour-840x545.jpg
-- A	admin/public/assets/fleet/honda-elevate-rear-three-quarter-930x620.jpg
-- A	admin/public/assets/fleet/honda-elevate.jpg
-- A	admin/public/assets/fleet/honda-wrv-rs-red-crossover-1000x650.png
-- A	admin/public/assets/fleet/honda-wrv.png
-- A	admin/public/assets/fleet/hyundai-creta-facelift-action-921x519.jpg
-- A	admin/public/assets/fleet/hyundai-creta-highway-tour-360x536.jpg
-- A	admin/public/assets/fleet/hyundai-creta-rear-angle-921x519.jpg
-- A	admin/public/assets/fleet/hyundai-creta-white-suv-921x519.jpg
-- A	admin/public/assets/fleet/hyundai-santafe-bronze-luxury-suv-1000x650.png
-- A	admin/public/assets/fleet/hyundai-santafe.png
-- A	admin/public/assets/fleet/hyundai-venue-blue-compact-suv-400x154.png
-- A	admin/public/assets/fleet/innova-480.webp
-- A	admin/public/assets/fleet/innova-768.webp
-- A	admin/public/assets/fleet/innova.webp
-- A	admin/public/assets/fleet/kia-sportage-black-suv-1000x650.png
-- A	admin/public/assets/fleet/kia-sportage.png
-- A	admin/public/assets/fleet/landcruiser-prado.png
-- A	admin/public/assets/fleet/mahindra-be6e-electric-suv-coupe-1000x650.png
-- A	admin/public/assets/fleet/mahindra-be6e.png
-- A	admin/public/assets/fleet/mahindra-xuv-3xo-red-compact-suv-360x536-alt.jpg
-- A	admin/public/assets/fleet/mahindra-xuv-3xo-red-compact-suv-360x536.jpg
-- A	admin/public/assets/fleet/mahindra-xuv700-blue-suv-360x536.jpg
-- A	admin/public/assets/fleet/maruti-brezza-red-compact-suv-1260x564.png
-- A	admin/public/assets/fleet/maruti-swift-red-hatchback-angle-360x536.jpg
-- A	admin/public/assets/fleet/maruti-swift-red-hatchback-portrait-360x536.jpg
-- A	admin/public/assets/fleet/maruti-wagonr-red-hatchback-360x536.jpg
-- A	admin/public/assets/fleet/mg-hector-plus-black-suv-480x360.webp
-- A	admin/public/assets/fleet/nexon-rear.png
-- A	admin/public/assets/fleet/nexon.png
-- A	admin/public/assets/fleet/nissan-gravite-compact-suv-828x621.webp
-- A	admin/public/assets/fleet/nissan-gravite.webp
-- A	admin/public/assets/fleet/nissan-juke-blue-crossover-1000x650.png
-- A	admin/public/assets/fleet/nissan-juke.png
-- A	admin/public/assets/fleet/nissan-patrol-fullsize-luxury-suv-1000x650.png
-- A	admin/public/assets/fleet/nissan-patrol.png
-- A	admin/public/assets/fleet/punch-side.png
-- A	admin/public/assets/fleet/punch.png
-- A	admin/public/assets/fleet/sedan-480.webp
-- A	admin/public/assets/fleet/sedan-768.webp
-- A	admin/public/assets/fleet/sedan.webp
-- A	admin/public/assets/fleet/skoda-slavia-montecarlo-jodhpur-palace-921x519.jpg
-- A	admin/public/assets/fleet/skoda-slavia-sedan-front-angle-921x519.jpg
-- A	admin/public/assets/fleet/slavia-montecarlo.jpg
-- A	admin/public/assets/fleet/slavia.jpg
-- A	admin/public/assets/fleet/swift-portrait.jpg
-- A	admin/public/assets/fleet/swift.jpg
-- A	admin/public/assets/fleet/tata-aeris-blue-electric-sedan-921x519.jpg
-- A	admin/public/assets/fleet/tata-aeris.jpg
-- A	admin/public/assets/fleet/tata-nexon-fearless-green-suv-1260x564.png
-- A	admin/public/assets/fleet/tata-nexon-rear-quarter-921x519.png
-- A	admin/public/assets/fleet/tata-punch-blue-suv-1260x564.png
-- A	admin/public/assets/fleet/tata-punch-side-profile-blue-919x519.png
-- A	admin/public/assets/fleet/tempo-480.webp
-- A	admin/public/assets/fleet/tempo-768.webp
-- A	admin/public/assets/fleet/tempo.webp
-- A	admin/public/assets/fleet/toyota-belta-white-sedan-1000x650.png
-- A	admin/public/assets/fleet/toyota-belta.png
-- A	admin/public/assets/fleet/toyota-bz4x-white-electric-suv-1000x650.png
-- A	admin/public/assets/fleet/toyota-bz4x.png
-- A	admin/public/assets/fleet/toyota-camry-hybrid-executive-luxury-360x536.jpg
-- A	admin/public/assets/fleet/toyota-fortuner-black-suv-360x536.jpg
-- A	admin/public/assets/fleet/toyota-glanza-city-night-840x376.jpg
-- A	admin/public/assets/fleet/toyota-glanza-front-grille-blue-921x519.png
-- A	admin/public/assets/fleet/toyota-glanza-mirror-blue-921x519.jpg
-- A	admin/public/assets/fleet/toyota-glanza-red-hatchback-studio-1537x1023.png
-- A	admin/public/assets/fleet/toyota-landcruiser-prado-white-suv-1000x650.png
-- A	admin/public/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg
-- A	admin/public/assets/fleet/urbania-480.webp
-- A	admin/public/assets/fleet/urbania-768.webp
-- A	admin/public/assets/fleet/urbania.webp
-- A	admin/public/assets/fleet/vellfire.jpg
-- A	admin/public/assets/fleet/venue.png
-- A	admin/public/assets/fleet/volkswagen-id4-blue-electric-suv-1000x650.png
-- A	admin/public/assets/fleet/volvo-em90-luxury-electric-mpv-1000x650.png
-- A	admin/public/assets/fleet/volvo-em90.png
-- A	admin/public/assets/fleet/volvo-ex90-grey-electric-suv-1555x1011.png
-- A	admin/public/assets/fleet/volvo-ex90.png
-- A	admin/public/assets/fleet/vw-id4.png
-- A	admin/public/assets/fleet/wagonr.jpg
-- A	admin/public/assets/fleet/wuling-binguo-ev-black-hatchback-1000x650.png
-- A	admin/public/assets/fleet/xuv3xo-alt.jpg
-- A	admin/public/assets/fleet/xuv3xo.jpg
-- A	admin/public/assets/fleet/xuv700.jpg
-- M	admin/src/pages/VehiclesPage.tsx
-- M	docs/agent/02_CHANGE_LEDGER.md
-- M	scripts/organize_and_name_fleet.py
+- M	backend/src/modules/bookings/booking-pdf.service.ts
+- M	backend/src/modules/bookings/booking-pdf.template.ts
+- M	backend/src/modules/bookings/bookings.routes.ts
+- M	backend/src/modules/payments/payments.service.ts
+- M	backend/tests/unit/booking-pdf.service.test.ts
 
 ## Verification command
 
@@ -133,9 +22,9 @@ npm run install:all && npm run verify
 ## Verification result
 
 ```text
-  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.174683ms)
-  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.144324ms)
-✔ Admin Booking Unmask PII Frontend State & Security Suite (5.045516ms)
+  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.245194ms)
+  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.143219ms)
+✔ Admin Booking Unmask PII Frontend State & Security Suite (4.039207ms)
 ℹ tests 11
 ℹ suites 3
 ℹ pass 11
@@ -143,7 +32,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 145.20926
+ℹ duration_ms 122.47894
 
 > sk-baghel-tour-travels@0.1.0 customer:seo
 > npm --prefix react run test:seo
@@ -153,15 +42,15 @@ npm run install:all && npm run verify
 > node --experimental-strip-types --test scripts/site-origin.test.ts && node --experimental-strip-types scripts/test-seo-lifecycle.ts
 
 ▶ canonical site origin
-  ✔ uses the approved production origin when no local override is supplied (0.69559ms)
-  ✔ normalizes a trailing slash (0.148464ms)
-  ✔ rejects preview hosts in release mode (0.343888ms)
-  ✔ requires HTTPS for non-local origins (0.111245ms)
-  ✔ allows HTTPS preview origins (0.131351ms)
-  ✔ permits HTTP only on loopback in development (0.137862ms)
-  ✔ rejects paths and credentials (0.158322ms)
-  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.106198ms)
-✔ canonical site origin (2.927038ms)
+  ✔ uses the approved production origin when no local override is supplied (0.688411ms)
+  ✔ normalizes a trailing slash (0.127472ms)
+  ✔ rejects preview hosts in release mode (0.341879ms)
+  ✔ requires HTTPS for non-local origins (0.109514ms)
+  ✔ allows HTTPS preview origins (0.094873ms)
+  ✔ permits HTTP only on loopback in development (0.1184ms)
+  ✔ rejects paths and credentials (0.103855ms)
+  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.116144ms)
+✔ canonical site origin (2.673656ms)
 ℹ tests 8
 ℹ suites 1
 ℹ pass 8
@@ -169,7 +58,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 91.907721
+ℹ duration_ms 85.258556
 SEO lifecycle checks passed.
 
 > sk-baghel-tour-travels@0.1.0 build:all
@@ -256,10 +145,10 @@ rendering chunks...
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
-[32m✓ built in 3.92s[39m
+[32m✓ built in 3.98s[39m
 🚀 Starting Static HTML Pre-Renderer (SSG)...
 ✅ Generated sitemap.xml (1809 URLs with source-owned lastmod values where available, priorities & xhtml:link alternates) and robots.txt pointing to https://agraskbagheltourandtravels.com/sitemap.xml
-✅ SSG Pre-Rendering Complete: 1818 pages rendered + 23 redirects written (116.98 MB total) in 9.74s.
+✅ SSG Pre-Rendering Complete: 1818 pages rendered + 23 redirects written (116.98 MB total) in 9.10s.
 SEO artifact checks passed: 1841 HTML files, 1809 sitemap URLs, canonical origin https://agraskbagheltourandtravels.com.
 
 > sk-baghel-tour-travels@0.1.0 admin:build
@@ -304,7 +193,7 @@ computing gzip size...
 [2mdist/[22m[2massets/[22m[36mvendor-motion-Bj7SCSeC.js              [39m[1m[2m133.36 kB[22m[1m[22m[2m │ gzip: 44.17 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-react-Oh0PCTUB.js               [39m[1m[2m221.81 kB[22m[1m[22m[2m │ gzip: 69.00 kB[22m
 [2mdist/[22m[2massets/[22m[36mindex-DU7DCAy6.js                      [39m[1m[2m328.61 kB[22m[1m[22m[2m │ gzip: 89.87 kB[22m
-[32m✓ built in 3.38s[39m
+[32m✓ built in 3.18s[39m
 
 > sk-baghel-tour-travels@0.1.0 backend:build
 > npm --prefix backend run build
