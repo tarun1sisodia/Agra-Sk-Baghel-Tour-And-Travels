@@ -1,17 +1,17 @@
-# Main branch verification — 25630893648f
+# Main branch verification — 0be4dda763e5
 
 - **Result:** PASS
-- **Commit:** [25630893648f875472ffd62dcb9d045b08a0d613](https://github.com/tarun1sisodia/ArenaAI/commit/25630893648f875472ffd62dcb9d045b08a0d613)
-- **Checked at:** 2026-10-19T07:35:55Z
-- **Workflow run:** [39216786238](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39216786238)
+- **Commit:** [0be4dda763e58e35f3c0cb68576d4b43c9c42e67](https://github.com/tarun1sisodia/ArenaAI/commit/0be4dda763e58e35f3c0cb68576d4b43c9c42e67)
+- **Checked at:** 2026-10-19T07:59:26Z
+- **Workflow run:** [39219380206](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39219380206)
 
 ## Changed files
 
-- M	backend/scripts/seed.ts
-- M	backend/src/modules/payments/payments.routes.ts
-- A	docs/QWEN_WEBHOOK_CANONICAL_UNIFICATION_REPORT.md
+- M	backend/src/modules/payments/payments.service.ts
+- M	backend/src/modules/reviews/reviews.service.ts
+- A	docs/QWEN_RESEND_EMAIL_AUDIT_REPORT.md
 - M	docs/agent/02_CHANGE_LEDGER.md
-- A	scripts/qwen_webhook_unification.py
+- A	scripts/qwen_resend_audit.py
 
 ## Verification command
 
@@ -22,9 +22,9 @@ npm run install:all && npm run verify
 ## Verification result
 
 ```text
-  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.317968ms)
-  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.338216ms)
-✔ Admin Booking Unmask PII Frontend State & Security Suite (7.247018ms)
+  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.281004ms)
+  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.377384ms)
+✔ Admin Booking Unmask PII Frontend State & Security Suite (7.035698ms)
 ℹ tests 11
 ℹ suites 3
 ℹ pass 11
@@ -32,7 +32,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 189.707461
+ℹ duration_ms 171.897388
 
 > sk-baghel-tour-travels@0.1.0 customer:seo
 > npm --prefix react run test:seo
@@ -42,15 +42,15 @@ npm run install:all && npm run verify
 > node --experimental-strip-types --test scripts/site-origin.test.ts && node --experimental-strip-types scripts/test-seo-lifecycle.ts
 
 ▶ canonical site origin
-  ✔ uses the approved production origin when no local override is supplied (1.060635ms)
-  ✔ normalizes a trailing slash (0.231305ms)
-  ✔ rejects preview hosts in release mode (0.456138ms)
-  ✔ requires HTTPS for non-local origins (0.232938ms)
-  ✔ allows HTTPS preview origins (0.192682ms)
-  ✔ permits HTTP only on loopback in development (0.226746ms)
-  ✔ rejects paths and credentials (0.24997ms)
-  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.188234ms)
-✔ canonical site origin (4.641517ms)
+  ✔ uses the approved production origin when no local override is supplied (1.021266ms)
+  ✔ normalizes a trailing slash (0.258762ms)
+  ✔ rejects preview hosts in release mode (0.613906ms)
+  ✔ requires HTTPS for non-local origins (0.229318ms)
+  ✔ allows HTTPS preview origins (0.235469ms)
+  ✔ permits HTTP only on loopback in development (0.213368ms)
+  ✔ rejects paths and credentials (0.243605ms)
+  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.243265ms)
+✔ canonical site origin (5.000481ms)
 ℹ tests 8
 ℹ suites 1
 ℹ pass 8
@@ -58,7 +58,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 123.87919
+ℹ duration_ms 116.112641
 SEO lifecycle checks passed.
 
 > sk-baghel-tour-travels@0.1.0 build:all
@@ -145,10 +145,10 @@ rendering chunks...
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
-[32m✓ built in 5.06s[39m
+[32m✓ built in 4.59s[39m
 🚀 Starting Static HTML Pre-Renderer (SSG)...
 ✅ Generated sitemap.xml (1810 URLs with source-owned lastmod values where available, priorities & xhtml:link alternates) and robots.txt pointing to https://agraskbagheltourandtravels.com/sitemap.xml
-✅ SSG Pre-Rendering Complete: 1819 pages rendered + 23 redirects written (117.00 MB total) in 13.50s.
+✅ SSG Pre-Rendering Complete: 1819 pages rendered + 23 redirects written (117.00 MB total) in 11.70s.
 SEO artifact checks passed: 1842 HTML files, 1810 sitemap URLs, canonical origin https://agraskbagheltourandtravels.com.
 
 > sk-baghel-tour-travels@0.1.0 admin:build
@@ -193,7 +193,7 @@ computing gzip size...
 [2mdist/[22m[2massets/[22m[36mvendor-motion-Bj7SCSeC.js              [39m[1m[2m133.36 kB[22m[1m[22m[2m │ gzip: 44.17 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-react-Oh0PCTUB.js               [39m[1m[2m221.81 kB[22m[1m[22m[2m │ gzip: 69.00 kB[22m
 [2mdist/[22m[2massets/[22m[36mindex-Omh-BaeB.js                      [39m[1m[2m328.80 kB[22m[1m[22m[2m │ gzip: 89.91 kB[22m
-[32m✓ built in 4.52s[39m
+[32m✓ built in 4.13s[39m
 
 > sk-baghel-tour-travels@0.1.0 backend:build
 > npm --prefix backend run build
