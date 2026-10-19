@@ -2,6 +2,18 @@
 
 ## 2026-10-18
 
+### 2026-10-19 — Webhook Canonical Route Unification & Full raw_webhooks Replacement
+
+- **Dashboard-Parity Webhook Routing (`backend/src/modules/payments/payments.routes.ts`)**:
+  - Pruned redundant and non-standard legacy alias routes (`/webhooks/payment`, `/api/v1/webhooks/payment`, `/webhooks/razorpay`, `/api/v1/webhooks/razorpay`).
+  - Standardized strictly on canonical provider routes matching the live Razorpay Dashboard configuration:
+    - `POST /api/v1/payments/webhooks/razorpay`
+    - `POST /api/v1/payments/webhooks/:provider`
+- **Complete Replacement of Legacy `raw_webhooks` in Code (`backend/scripts/seed.ts`)**:
+  - Updated `backend/scripts/seed.ts` table 15 from `raw_webhooks` to canonical `payment_webhook_events` (`id, provider, event_id, event_type, payload, processed, received_at`) with `ON CONFLICT (provider, event_id) DO UPDATE SET processed = EXCLUDED.processed`.
+  - Confirmed via Qwen Coder scan that zero `.ts` or `.js` code files in `backend/`, `react/`, or `admin/` reference `raw_webhooks`.
+  - Stored full architectural audit and migration report in `docs/QWEN_WEBHOOK_CANONICAL_UNIFICATION_REPORT.md`.
+
 ### 2026-10-19 — Webhook Routing Unification & Resolution of raw_webhooks Relation Error
 
 - **Root Cause of `relation "raw_webhooks" does not exist` (code 42P01)**:

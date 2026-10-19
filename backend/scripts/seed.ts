@@ -520,20 +520,20 @@ export async function seedDatabase(connectionString: string): Promise<TableSeedR
     }
     report.push({ table: "device_registrations", count: devicesCount });
 
-    // 15. raw_webhooks
+    // 15. payment_webhook_events
     let webhooksCount = 0;
     for (const w of SEED_WEBHOOKS) {
       await client.query(
-        `INSERT INTO raw_webhooks (
-           id, provider, event_id, event_type, payload, payload_hash, processed, received_at
-         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         ON CONFLICT (event_id) DO UPDATE SET
+        `INSERT INTO payment_webhook_events (
+           id, provider, event_id, event_type, payload, processed, received_at
+         ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+         ON CONFLICT (provider, event_id) DO UPDATE SET
            processed = EXCLUDED.processed`,
-        [w.id, w.provider, w.eventId, w.eventType, JSON.stringify(w.payload), w.payloadHash, w.processed, w.receivedAt],
+        [w.id, w.provider, w.eventId, w.eventType, JSON.stringify(w.payload), w.processed, w.receivedAt],
       );
       webhooksCount++;
     }
-    report.push({ table: "raw_webhooks", count: webhooksCount });
+    report.push({ table: "payment_webhook_events", count: webhooksCount });
 
     // 16. location_cache
     let locationCount = 0;

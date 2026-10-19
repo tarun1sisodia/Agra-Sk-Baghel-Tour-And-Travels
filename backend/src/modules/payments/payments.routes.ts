@@ -127,10 +127,7 @@ export function registerPaymentsRoutes(app: FastifyInstance, paymentsService: Pa
   app.post("/bookings/:id/verify-payment", paymentOpts, handleVerifyPayment);
   app.post("/api/v1/bookings/:id/verify-payment", paymentOpts, handleVerifyPayment);
 
-  app.post("/webhooks/payment", webhookOpts, handleWebhook);
-  app.post("/api/v1/webhooks/payment", webhookOpts, handleWebhook);
-  app.post("/webhooks/razorpay", webhookOpts, handleWebhook);
-  app.post("/api/v1/webhooks/razorpay", webhookOpts, handleWebhook);
+  // Canonical payment provider webhook endpoints (matching Razorpay dashboard)
   app.post("/api/v1/payments/webhooks/razorpay", webhookOpts, handleWebhook);
   app.post("/api/v1/payments/webhooks/:provider", webhookOpts, handleWebhook);
 }
