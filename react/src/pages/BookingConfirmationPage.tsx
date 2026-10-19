@@ -177,12 +177,7 @@ export function BookingConfirmationPage() {
     setPdfError(null);
     try {
       const targetId = booking.booking_id || bookingId;
-      const guestToken = (booking as any).guest_access_token;
-      const blob = await downloadBookingPdf(
-        targetId,
-        accessToken || undefined,
-        guestToken
-      );
+      const blob = await downloadBookingPdf(targetId, accessToken || "");
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

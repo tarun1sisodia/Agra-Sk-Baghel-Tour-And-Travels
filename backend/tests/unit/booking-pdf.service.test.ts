@@ -226,7 +226,7 @@ describe("BookingPdfService Unit Tests", () => {
       expect(res.rawPayload.subarray(0, 4).toString("utf-8")).toBe("%PDF");
     });
 
-    it("returns 200 with PDF stream when valid guest access token is provided", async () => {
+    it("rejects unauthenticated requests even if a query token is supplied", async () => {
       const Fastify = (await import("fastify")).default;
       const { registerBookingsRoutes } = await import("../../src/modules/bookings/bookings.routes.js");
       const app = Fastify();
@@ -242,6 +242,30 @@ describe("BookingPdfService Unit Tests", () => {
       const res = await app.inject({
         method: "GET",
         url: `/api/v1/bookings/${sampleBooking.id}/pdf?token=guest-secret-token-xyz`,
+      });
+      expect(res.statusCode).toBe(401);
+      expect(res.json().error).toBe("AUTH_REQUIRED");
+    });
+
+    it("returns 200 with PDF stream when authenticated super_admin requests", async () => {
+      const Fastify = (await import("fastify")).default;
+      const { registerBookingsRoutes } = await import("../../src/modules/bookings/bookings.routes.js");
+      const app = Fastify();
+      app.addHook("preHandler", async (req) => {
+        (req as any).user = { id: "admin-uuid-1", role: "super_admin", email: "admin@agraskbagheltourandtravels.com" };
+      });
+      const mockService = {
+        getBookingById: async () => ({
+          ...sampleBooking,
+          user_id: "other-customer-id",
+        }),
+        getBookingByTicketId: async () => null,
+      } as any;
+      registerBookingsRoutes(app, mockService);
+
+      const res = await app.inject({
+        method: "GET",
+        url: `/api/v1/bookings/${sampleBooking.id}/pdf`,
       });
       expect(res.statusCode).toBe(200);
       expect(res.headers["content-type"]).toBe("application/pdf");

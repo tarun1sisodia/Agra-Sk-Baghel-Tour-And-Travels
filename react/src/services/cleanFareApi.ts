@@ -370,16 +370,16 @@ export async function fetchBookingById(
 // 6b. Download Booking PDF Voucher
 export async function downloadBookingPdf(
   id: string,
-  accessToken?: string,
-  guestToken?: string
+  accessToken: string
 ): Promise<Blob> {
-  const baseUrl = getApiBaseUrl();
-  const headers: Record<string, string> = {};
-  if (accessToken && accessToken.trim()) {
-    headers.Authorization = `Bearer ${accessToken.trim()}`;
+  if (!accessToken || !accessToken.trim()) {
+    throw new CleanFareApiError("AUTH_REQUIRED", "Please sign in to download your confirmation voucher.", 401);
   }
-  const tokenQuery = guestToken ? `?token=${encodeURIComponent(guestToken)}` : "";
-  const url = `${baseUrl}/api/v1/bookings/${encodeURIComponent(id)}/pdf${tokenQuery}`;
+  const baseUrl = getApiBaseUrl();
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${accessToken.trim()}`,
+  };
+  const url = `${baseUrl}/api/v1/bookings/${encodeURIComponent(id)}/pdf`;
 
   const res = await fetch(url, { method: "GET", headers });
   if (!res.ok) {

@@ -42,7 +42,7 @@ export class PaymentsService {
     if (!user || !user.id) {
       throw new AppError("AUTH_REQUIRED", "Authentication required to access booking", 401);
     }
-    if (["admin", "super_admin", "staff", "dispatcher"].includes(user.role)) {
+    if (user.role === "super_admin" || user.role === "admin") {
       return;
     }
     if (booking.user_id && user.id === booking.user_id) {

@@ -95,12 +95,12 @@ export function registerBookingsRoutes(app: FastifyInstance, bookingsService: Bo
       });
     }
 
-    const isAdmin = ["admin", "super_admin", "staff", "dispatcher"].includes(user.role);
+    const isSuperAdmin = user.role === "super_admin" || user.role === "admin";
     const isOwnerUser =
       (booking.user_id && user.id === booking.user_id) ||
       (booking.customer_email && user.email && user.email.toLowerCase() === booking.customer_email.toLowerCase());
 
-    if (!isAdmin && !isOwnerUser) {
+    if (!isSuperAdmin && !isOwnerUser) {
       return reply.status(403).send({
         error: "FORBIDDEN",
         message: "You do not have permission to view this booking.",
@@ -118,11 +118,10 @@ export function registerBookingsRoutes(app: FastifyInstance, bookingsService: Bo
   };
 
   const handleGetBookingPdf = async (
-    req: FastifyRequest<{ Params: { id: string }; Querystring: { token?: string } }>,
+    req: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply
   ) => {
     const { id } = req.params;
-    const guestToken = req.query?.token || (req.headers["x-guest-access-token"] as string | undefined);
 
     let booking = await bookingsService.getBookingById(id);
     if (!booking) {
@@ -136,23 +135,20 @@ export function registerBookingsRoutes(app: FastifyInstance, bookingsService: Bo
     }
 
     const user = (req as any).user;
-    const isGuestAccess = Boolean(
-      guestToken && booking.guest_access_token && guestToken === booking.guest_access_token
-    );
-    const isAdmin = Boolean(user?.role && ["admin", "super_admin", "staff", "dispatcher"].includes(user.role));
+    if (!user || !user.id) {
+      return reply.status(401).send({
+        error: "AUTH_REQUIRED",
+        message: "You must be signed in to download this booking confirmation voucher.",
+      });
+    }
+
+    const isSuperAdmin = user.role === "super_admin" || user.role === "admin";
     const isOwnerUser = Boolean(
-      user?.id &&
-        ((booking.user_id && user.id === booking.user_id) ||
-          (booking.customer_email && user.email && user.email.toLowerCase() === booking.customer_email.toLowerCase()))
+      (booking.user_id && user.id === booking.user_id) ||
+        (booking.customer_email && user.email && user.email.toLowerCase() === booking.customer_email.toLowerCase())
     );
 
-    if (!isGuestAccess && !isAdmin && !isOwnerUser) {
-      if (!user || !user.id) {
-        return reply.status(401).send({
-          error: "AUTH_REQUIRED",
-          message: "You must be signed in or provide a valid guest access token to download this voucher.",
-        });
-      }
+    if (!isSuperAdmin && !isOwnerUser) {
       return reply.status(403).send({
         error: "FORBIDDEN",
         message: "You do not have permission to download this booking confirmation voucher.",
