@@ -5,7 +5,7 @@
  * - Dual opposing smooth marquee tracks (Row 1 left, Row 2 right)
  * - Pause on hover interaction
  * - Edge gradient fade masks for seamless visual transition
- * - Verified traveler badges & 5-star gold ratings
+ * - Admin-approved review badges & 5-star gold ratings
  * - Pure Tailwind CSS & theme tokens, 100% accessible
  */
 
@@ -53,9 +53,9 @@ function ReviewCard({ review }: ReviewCardProps) {
             </div>
           </div>
           {review.is_verified && (
-            <span className="px-2 py-0.5 rounded-full bg-success-jade/10 text-success-jade font-label-caps text-label-caps uppercase font-bold flex items-center gap-0.5 shrink-0">
+            <span title="Approved by the SK Baghel admin team" aria-label="Admin-approved review" className="px-2 py-0.5 rounded-full bg-success-jade/10 text-success-jade font-label-caps text-label-caps uppercase font-bold flex items-center gap-0.5 shrink-0">
               <span className="material-symbols-outlined text-icon-11">verified</span>
-              Verified
+              Admin Verified
             </span>
           )}
         </div>
@@ -136,7 +136,7 @@ export function ReviewsMarquee() {
   return (
     <section
       className="w-full py-space-2xl sm:py-space-3xl bg-surface-container-low overflow-hidden relative"
-      aria-label="Verified Customer Reviews"
+      aria-label="Admin-approved Customer Reviews"
       id="reviews"
     >
       {/* Edge gradient fade masks */}
@@ -149,7 +149,7 @@ export function ReviewsMarquee() {
           OUR TRAVELER REVIEWS
         </div>
         <h2 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">
-          Verified Traveler Experiences
+          Customer Reviews
         </h2>
       </div>
 
@@ -175,19 +175,19 @@ export function ReviewsMarquee() {
             <span className="material-symbols-outlined text-icon-24">verified</span>
           </div>
           <h3 className="font-headline-md text-base text-ink-charcoal font-bold mb-1">
-            Verified Passenger Reviews
+            Customer Reviews
           </h3>
           <p className="font-body-md text-xs text-on-surface-variant max-w-md mx-auto mb-4 leading-relaxed">
-            We display authentic, consented feedback collected from verified travelers after journey completion. No synthetic or unapproved reviews are published.
+            We publish customer feedback only after admin moderation and explicit public consent. No unapproved reviews are displayed.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
             <span className="inline-flex items-center gap-1 text-success-jade font-semibold">
               <span className="material-symbols-outlined text-icon-14">check_circle</span>
-              100% Genuine Passenger Feedback
+              Admin-reviewed Customer Feedback
             </span>
             <span className="inline-flex items-center gap-1 text-primary font-semibold">
               <span className="material-symbols-outlined text-icon-14">shield</span>
-              Zero Synthetic Reviews Policy
+              No Unapproved Reviews Published
             </span>
           </div>
         </div>
