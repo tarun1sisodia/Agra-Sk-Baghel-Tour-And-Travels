@@ -25,6 +25,20 @@ describe("BookingPdfService Unit Tests", () => {
     total_amount: 3500,
     advance_amount: 980,
     balance_amount: 2520,
+    fare_breakdown: {
+      lines: [
+        { label: "Base fare", amount: 2800 },
+        { label: "Driver allowance", amount: 700 },
+      ],
+      messages: [],
+      details: {
+        rate_per_km: 14,
+        distance_km: 195,
+        billable_km: 200,
+        duration_minutes: 240,
+        effective_trip_type: "one_way",
+      },
+    },
     status: "confirmed",
     created_at: "2026-10-19T10:00:00.000Z",
   };
@@ -75,6 +89,53 @@ describe("BookingPdfService Unit Tests", () => {
       expect(input.fareBalVal).toBe("Rs. 2,520");
       expect(input.statusBadge).toBe("CONFIRMED & ADVANCE SECURED");
       expect(input.paymentIdText).toBe("Payment Ref: pay_Razorpay12345");
+      expect(input.brandTitle).toBe("SK BAGHEL TOUR & TRAVELS");
+      expect(input.voucherTitle).toBe("BOOKING VOUCHER");
+      expect(input.sec1Title).toBe("PASSENGER & CONTACT DETAILS");
+      expect(input.custNameLbl).toBe("LEAD PASSENGER");
+      expect(input.sec2Title).toBe("JOURNEY & VEHICLE DETAILS");
+      expect(input.pickAddrLbl).toBe("PICKUP LOCATION");
+      expect(input.sec3Title).toBe("FARE SUMMARY");
+      expect(input.fareNote).toContain("Base fare: Rs. 2,800");
+      expect(input.fareNote).toContain("Distance: 195 km");
+      expect(input.noticeBody).toContain("not a GST tax invoice");
+      expect(input.ftHelp).toContain("+91 97628 17598");
+      expect(input.ftAddr).toContain("Agra, Uttar Pradesh 282001");
+    });
+
+
+    it("derives trip type from quote details when the booking detail omits trip_type", () => {
+      const { trip_type: _tripType, ...bookingWithoutTripType } = sampleBooking;
+      const input = buildBookingPdfInput({
+        ...bookingWithoutTripType,
+        fare_breakdown: {
+          ...sampleBooking.fare_breakdown,
+          details: {
+            ...sampleBooking.fare_breakdown.details,
+            effective_trip_type: "round_trip",
+          },
+        },
+      });
+      expect(input.passengerInfo).toContain("Round Trip");
+    });
+
+    it("includes return journey, flight/train reference, and special requests", () => {
+      const detailedBooking = {
+        ...sampleBooking,
+        trip_type: "round_trip",
+        return_at: "2026-10-26T12:30:00.000Z",
+        flight_train_number: "DL 123",
+        special_notes: "Call passenger on arrival.",
+        fare_breakdown: {
+          ...sampleBooking.fare_breakdown,
+          messages: ["Toll charges included as quoted"],
+        },
+      };
+      const input = buildBookingPdfInput(detailedBooking);
+      expect(input.noticeBody).toContain("Return journey:");
+      expect(input.noticeBody).toContain("Flight / train reference: DL 123");
+      expect(input.noticeBody).toContain("Special request: Call passenger on arrival.");
+      expect(input.noticeBody).toContain("Toll charges included as quoted");
     });
 
     it("handles pending payment status properly", () => {
@@ -109,6 +170,9 @@ describe("BookingPdfService Unit Tests", () => {
       expect(input.customerEmail).toBe("Not specified");
       expect(input.passengerInfo).toContain("1 Passenger");
       expect(input.fareTotalVal).toBe("Rs. 0");
+      expect(input.brandTitle).toBe("SK BAGHEL TOUR & TRAVELS");
+      expect(input.sec1Title).toBe("PASSENGER & CONTACT DETAILS");
+      expect(input.noticeBody).toContain("not a GST tax invoice");
     });
   });
 
