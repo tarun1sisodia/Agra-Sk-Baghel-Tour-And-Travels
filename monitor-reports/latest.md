@@ -1,14 +1,13 @@
-# Main branch verification — 3c8a9a1681ec
+# Main branch verification — 2ea4d7b0a55b
 
-- **Result:** PASS
-- **Commit:** [3c8a9a1681ecca90ea0c1c0838d9068c99af334e](https://github.com/tarun1sisodia/ArenaAI/commit/3c8a9a1681ecca90ea0c1c0838d9068c99af334e)
-- **Checked at:** 2026-10-19T14:07:02Z
-- **Workflow run:** [39265715427](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39265715427)
+- **Result:** FAIL
+- **Commit:** [2ea4d7b0a55b8cff6e182ac7e2f25e6514b8c5f6](https://github.com/tarun1sisodia/ArenaAI/commit/2ea4d7b0a55b8cff6e182ac7e2f25e6514b8c5f6)
+- **Checked at:** 2026-10-19T14:11:54Z
+- **Workflow run:** [39266535518](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39266535518)
 
 ## Changed files
 
-- M	backend/src/modules/bookings/booking-pdf.template.ts
-- M	backend/tests/unit/booking-pdf.service.test.ts
+- M	backend/tests/unit/reviews-engine.test.ts
 
 ## Verification command
 
@@ -19,184 +18,184 @@ npm run install:all && npm run verify
 ## Verification result
 
 ```text
-  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.279473ms)
-  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.197633ms)
-✔ Admin Booking Unmask PII Frontend State & Security Suite (6.387037ms)
-ℹ tests 11
-ℹ suites 3
-ℹ pass 11
-ℹ fail 0
-ℹ cancelled 0
-ℹ skipped 0
-ℹ todo 0
-ℹ duration_ms 144.877242
+[90mstdout[2m | tests/unit/publication-worker.test.ts[2m > [22m[2mPublicationWorker (Section 12.17: PB-04 to PB-06)[2m > [22m[2mverifyDeployment: for archived event, returns false if page returns 200 with active title
+[22m[39m{
+  eventId: [32m'ev-archive-fail-page'[39m,
+  path: [32m'/en/packages/monsoon-heritage-special/'[39m
+} Archived item still served as active HTTP 200 page
 
-> sk-baghel-tour-travels@0.1.0 customer:seo
-> npm --prefix react run test:seo
+[90mstdout[2m | tests/unit/publication-worker.test.ts[2m > [22m[2mPublicationWorker (Section 12.17: PB-04 to PB-06)[2m > [22m[2mverifyDeployment: for archived event, returns false if sitemap returns HTTP 500
+[22m[39m{ eventId: [32m'ev-archive-500'[39m, status: [33m500[39m } Sitemap.xml did not return 200 for archive verification
 
+[90mstdout[2m | tests/unit/publication-worker.test.ts[2m > [22m[2mPublicationWorker (Section 12.17: PB-04 to PB-06)[2m > [22m[2mverifyDeployment: for archived event, returns false if sitemap fetch throws network error
+[22m[39m{ eventId: [32m'ev-archive-net-err'[39m, err: [32m'Connection refused'[39m } Sitemap.xml fetch failed for archive verification
 
-> skb-react@0.1.0 test:seo
-> node --experimental-strip-types --test scripts/site-origin.test.ts && node --experimental-strip-types scripts/test-seo-lifecycle.ts
+[90mstdout[2m | tests/unit/publication-worker.test.ts[2m > [22m[2mPublicationWorker (Section 12.17: PB-04 to PB-06)[2m > [22m[2mverifyDeployment: returns false if title does not match database record
+[22m[39m{
+  eventId: [32m'ev-title-mismatch'[39m,
+  expectedTitle: [32m'Updated Sunrise Taj Tour'[39m
+} Detail page does not yet reflect published title
 
-▶ canonical site origin
-  ✔ uses the approved production origin when no local override is supplied (0.695289ms)
-  ✔ normalizes a trailing slash (0.131144ms)
-  ✔ rejects preview hosts in release mode (0.337409ms)
-  ✔ requires HTTPS for non-local origins (0.158234ms)
-  ✔ allows HTTPS preview origins (0.115531ms)
-  ✔ permits HTTP only on loopback in development (0.151294ms)
-  ✔ rejects paths and credentials (0.185745ms)
-  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.139306ms)
-✔ canonical site origin (3.287072ms)
-ℹ tests 8
-ℹ suites 1
-ℹ pass 8
-ℹ fail 0
-ℹ cancelled 0
-ℹ skipped 0
-ℹ todo 0
-ℹ duration_ms 94.051514
-SEO lifecycle checks passed.
+[90mstdout[2m | tests/unit/publication-worker.test.ts[2m > [22m[2mPublicationWorker (Section 12.17: PB-04 to PB-06)[2m > [22m[2mverifyDeployment: returns false if cover image returns HTTP 404
+[22m[39m{
+  eventId: [32m'ev-img-fail'[39m,
+  imageUrl: [32m'https://agraskbagheltourandtravels.com/assets/packages/broken-cover.webp'[39m,
+  status: [33m404[39m
+} Cover image not reachable
 
-> sk-baghel-tour-travels@0.1.0 build:all
-> npm run customer:build && npm run admin:build && npm run backend:build
+[90mstdout[2m | tests/unit/publication-worker.test.ts[2m > [22m[2mPublicationWorker (Section 12.17: PB-04 to PB-06)[2m > [22m[2mverifyDeployment: returns false if customer site origin check fails or throws
+[22m[39m{ eventId: [32m'ev-health-fail'[39m, status: [33m503[39m } Customer site origin responded with error
 
+ [32m✓[39m tests/unit/publication-worker.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+[90mstdout[2m | tests/unit/dynamic-publishing.test.ts[2m > [22m[2mPhase D — Dynamic Catalog Publishing & SEO Integration[2m > [22m[2mdispatches exactly one deployment attempt through the authoritative PublicationWorker, not duplicate direct calls
+[22m[39m{
+  eventId: [32m'0308ab6a-0547-4622-86f4-c7b994665c49'[39m,
+  entityType: [32m'tour_package'[39m,
+  eventType: [32m'published'[39m,
+  target: [32m'https://api.cloudflare.com/client/v4/page...[redacted]'[39m
+} dispatching deploy hook
 
-> sk-baghel-tour-travels@0.1.0 customer:build
-> npm --prefix react run build
+[90mstdout[2m | tests/unit/dynamic-publishing.test.ts[2m > [22m[2mPhase D — Dynamic Catalog Publishing & SEO Integration[2m > [22m[2mdispatches exactly one deployment attempt through the authoritative PublicationWorker, not duplicate direct calls
+[22m[39m[catalog-release] {
+  correlationId: [32m'0308ab6a-0547-4622-86f4-c7b994665c49'[39m,
+  reason: [32m'tour_package-published'[39m,
+  entityType: [32m'tour_package'[39m,
+  entityId: [32m'77777777-7777-4777-8777-777777777777'[39m,
+  slug: [1mnull[22m,
+  sourceVersion: [1mnull[22m,
+  releaseState: [32m'release_queued'[39m,
+  deployHookStatus: [32m'queued'[39m,
+  httpStatus: [33m200[39m
+}
+{
+  eventId: [32m'0308ab6a-0547-4622-86f4-c7b994665c49'[39m,
+  deploymentRef: [32m'deploy-123'[39m
+} deploy hook accepted; publication status moved to triggered
 
+[90mstdout[2m | tests/unit/dynamic-publishing.test.ts[2m > [22m[2mPhase D — Dynamic Catalog Publishing & SEO Integration[2m > [22m[2mdispatches exactly one deployment attempt through the authoritative PublicationWorker, not duplicate direct calls
+[22m[39m[catalog-release] {
+  correlationId: [32m'0308ab6a-0547-4622-86f4-c7b994665c49'[39m,
+  reason: [32m'tour_package-published'[39m,
+  entityType: [32m'tour_package'[39m,
+  entityId: [32m'77777777-7777-4777-8777-777777777777'[39m,
+  slug: [1mnull[22m,
+  sourceVersion: [1mnull[22m,
+  releaseState: [32m'release_deployed'[39m,
+  deployHookStatus: [32m'queued'[39m,
+  httpStatus: [33m200[39m
+}
+{ eventId: [32m'0308ab6a-0547-4622-86f4-c7b994665c49'[39m } deployment verification succeeded; event finalized
 
-> skb-react@0.1.0 build
-> node --experimental-strip-types scripts/validate-site-config.ts && tsc --noEmit && node --experimental-strip-types scripts/build-manifest.ts && vite build && node --experimental-strip-types scripts/prerender.ts && node --experimental-strip-types scripts/validate-seo-artifacts.ts
+ [32m✓[39m tests/unit/dynamic-publishing.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 398[2mms[22m[39m
+[90mstderr[2m | tests/unit/bookings-payments.test.ts[2m > [22m[2mSection 12.12: Booking and payment (BK-01 to PM-10)[2m > [22m[2mEM-03: sendBookingConfirmationEmail returns false without crashing when Resend returns HTTP 500
+[22m[39m[payments] Resend confirmation email delivery failed for AGR-20261019-1278: Internal Resend Server Error
 
-Site origin validated: https://agraskbagheltourandtravels.com (production).
-✅ [Manifest Builder] Merged published admin route catalog from https://skb-baghel-api-staging.onrender.com/api/v1/route-catalog/manifest.
-✅ [Manifest Builder] Emitted public/routes-manifest.json (1840 routes) from backend catalog.
-✅ [Manifest Builder] Emitted src/data/generated-catalog.json with 2715 typed routes.
-✅ [Manifest Builder] Snapshotted 890 published catalog items for SSG.
-✅ [Manifest Builder] Snapshotted 4 published tour packages from https://skb-baghel-api-staging.onrender.com/api/v1/tour-packages/manifest.
-✅ [Manifest Builder] Snapshotted 5 published transfer routes from https://skb-baghel-api-staging.onrender.com/api/v1/transfer-routes/manifest.
-✅ [Manifest Builder] Snapshotted 5 published local packages from https://skb-baghel-api-staging.onrender.com/api/v1/local-packages/manifest.
-✅ [Manifest Builder] Snapshotted content manifest (5 sections) from https://skb-baghel-api-staging.onrender.com/api/v1/content/manifest.
-[36mvite v7.3.6 [32mbuilding client environment for production...[36m[39m
-transforming...
-[33mnode_modules/zod/v4/core/util.js (400:0): A comment
+ [32m✓[39m tests/unit/bookings-payments.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 205[2mms[22m[39m
+ [32m✓[39m tests/unit/fare-engine.test.ts [2m([22m[2m91 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [31m❯[39m tests/unit/reviews-engine.test.ts [2m([22m[2m32 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 32[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-01: Valid QR token -> form loads with prefill[32m 4[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-02: Expired, revoked or unknown token -> rejected; nothing leaked[32m 2[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-03: Booking link used twice -> second submit rejected[32m 1[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-04: QR link used by many customers -> separate pending submissions[32m 1[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-05: New submission -> pending; absent from /public/reviews and /public/gallery[32m 1[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-06: Approve with homepage placement -> in /public/reviews only[32m 1[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-07 & RV-08: Approve gallery placement with approved and rejected photos[32m 1[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-09: Rejected submission -> never public[32m 0[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-10: consent_public false -> cannot be placed publicly[32m 1[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-11: Instagram john_doe -> link https://www.instagram.com/john_doe/[32m 0[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-12: Username with spaces, a pasted URL or / -> VALIDATION_ERROR[32m 1[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-13: Unknown platform; platform without username or reverse -> VALIDATION_ERROR[32m 1[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-14: Review text with <script> -> stored as text, rendered escaped[32m 0[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-15: 6 photos -> rejected[32m 1[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-18: Booking review email -> has ticket id and trip summary; no phone or email in the URL[32m 1[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-19: Resend retried with the same idempotency key[32m 0[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-20: Booking without email marked completed -> no automatic email; admin can copy the link[32m 0[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-21: Resend fails -> email_last_error set[32m 0[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-22: Admin approves, rejects, edits or revokes -> audit row each with before and after[32m 0[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-23: Non-admin calls a review admin endpoint -> FORBIDDEN[32m 0[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-24: Pending or draft items in any public endpoint -> never returned[32m 0[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-25: Incomplete booking cannot generate review link[32m 0[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-26: Admin approval and publication do not require a completed-booking status match[32m 0[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-27: Admin list submissions returns ticket ID and completed verification flag[32m 1[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-28: Admin can publish a consented QR review without a linked booking[32m 0[2mms[22m[39m
+[31m   [31m×[31m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-29: Admin can publish a consented QR review photo to the gallery[39m[32m 9[2mms[22m[39m
+[31m     → expected false to be true // Object.is equality[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-30: A missing linked booking does not block an otherwise approved review[32m 0[2mms[22m[39m
+[31m   [31m×[31m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-31: A booking status change does not block gallery publication[39m[32m 1[2mms[22m[39m
+[31m     → expected false to be true // Object.is equality[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-32: Missing customer public consent rejected from homepage and gallery publication[32m 1[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-33: Publication rejected if submission is not approved[32m 0[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-34: Eligible completed-ticket review publishes successfully to homepage and gallery[32m 1[2mms[22m[39m
+   [32m✓[39m Section 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-35: Public queries return approved, consented reviews even when no booking is linked[32m 0[2mms[22m[39m
+[90mstderr[2m | tests/unit/admin-finance-status.test.ts[2m > [22m[2mAdmin Finance Visibility & Booking Status Alignment[2m > [22m[2mpayments.service: Durable Webhook Retry & Idempotency[2m > [22m[2msafeguards booking creation when user_id is not present in profiles
+[22m[39m[bookings] Profile auto-provision attempt for non-existent-user-id: violates foreign key constraint on auth.users
 
-"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+ [32m✓[39m tests/unit/admin-finance-status.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 96[2mms[22m[39m
+ [32m✓[39m tests/unit/property-matrix.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m tests/unit/quotes.service.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/admin-fare.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 1615[2mms[22m[39m
+   [33m[2m✓[22m[39m Section 12.13: Admin, audit, routes, roles (AA-01 to AA-14)[2m > [22mAA-09 & AA-10: calculate-distance returns rounded 230.5 km and 246 min, saves nothing [33m 803[2mms[22m[39m
+   [33m[2m✓[22m[39m Section 12.13: Admin, audit, routes, roles (AA-01 to AA-14)[2m > [22mAA-14: LocationIQ key is absent from every response and log line [33m 802[2mms[22m[39m
+ [32m✓[39m tests/unit/booking-pdf.service.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 406[2mms[22m[39m
+ [32m✓[39m tests/unit/rental-enquiries.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m tests/unit/legacy-schema-reconciliation.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 229[2mms[22m[39m
+ [32m✓[39m tests/unit/package-fleet-price.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m tests/unit/contracts.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+ [32m✓[39m tests/unit/admin-catalog-create.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/unit/admin-unmask.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 261[2mms[22m[39m
+ [32m✓[39m tests/unit/fare-strategy-boundary.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m tests/unit/clean-routes-alias.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 95[2mms[22m[39m
+ [32m✓[39m tests/unit/catalog-manifest.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 125[2mms[22m[39m
+ [32m✓[39m tests/unit/locationiq.service.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1608[2mms[22m[39m
+   [33m[2m✓[22m[39m LocationIQ Service Unit Tests (AA-09 to AA-11)[2m > [22mAA-10: Mocked LocationIQ returns 230,456 m and 14,730 s -> 230.5 km and 246 min [33m 803[2mms[22m[39m
+   [33m[2m✓[22m[39m LocationIQ Service Unit Tests (AA-09 to AA-11)[2m > [22mAA-11: Routing failure throws ROUTING_FAILED [33m 802[2mms[22m[39m
+ [32m✓[39m tests/unit/booking-schema.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/local-package-media.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
 
-in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
-[33mnode_modules/zod/v4/core/regexes.js (74:0): A comment
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
 
-"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
- * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
- * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+[41m[1m FAIL [22m[49m tests/unit/reviews-engine.test.ts[2m > [22mSection 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-29: Admin can publish a consented QR review photo to the gallery
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
 
-in "node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
-[32m✓[39m 2560 modules transformed.
-rendering chunks...
-[2mdist/[22m[32mindex.html                                   [39m[1m[2m    4.42 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[35mindex-C7pWO9bB.css                    [39m[1m[2m  372.03 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mrazorpay-D3zIqEa0.js                  [39m[1m[2m    0.56 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mvehicle-tiers-Bhu6VwvC.js             [39m[1m[2m    0.65 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mDynamicPackageDetailPage-jCgEWEsm.js  [39m[1m[2m    1.10 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36museLocationIQ-Be3FQGxS.js             [39m[1m[2m    2.51 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mcustomerAuthApi-CvLLuocc.js           [39m[1m[2m    3.60 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mMonumentsPage-CDtMhwkt.js             [39m[1m[2m    4.13 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mEditorialPageTemplate-ODZLTi06.js     [39m[1m[2m    4.55 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mNotFoundPage-C6Q804HS.js              [39m[1m[2m    5.29 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mAuthCallbackPage-BltZ1ttY.js          [39m[1m[2m    5.31 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mReviewPage-CCnacBat.js                [39m[1m[2m    5.74 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mLoginPage-GX5CYrpY.js                 [39m[1m[2m    6.27 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mMyBookingsPage-CiL0BTCM.js            [39m[1m[2m    7.43 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPrivacyPage-UtbdrMCN.js               [39m[1m[2m   10.20 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPaymentResumePage-Ced45HKX.js         [39m[1m[2m   10.36 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mvendor-icons-BriE8vhx.js              [39m[1m[2m   10.42 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mSeoLandingPage-96FCET-F.js            [39m[1m[2m   11.18 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mTermsPage-Di9V5tu5.js                 [39m[1m[2m   11.44 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mFaqPage-Puq0sSjd.js                   [39m[1m[2m   12.01 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mMarketingPage-CnhrL-FR.js             [39m[1m[2m   14.16 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mProductDetailPage-Gyt9hCSr.js         [39m[1m[2m   14.18 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mBookingConfirmationPage-CecKXgu7.js   [39m[1m[2m   15.85 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mServicesPage-BfdM5oQ_.js              [39m[1m[2m   16.91 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mMonumentDetailPage-DPWUtkfP.js        [39m[1m[2m   17.36 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mLocalPackageDetailPage-b67ckh1F.js    [39m[1m[2m   19.63 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mRentalPage-Ba61dxNY.js                [39m[1m[2m   20.46 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mTransferDetailPage-Dc4sr3X9.js        [39m[1m[2m   20.83 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mContactPage-OaN1EEU7.js               [39m[1m[2m   21.35 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mRouteDetailPage-mKat03SF.js           [39m[1m[2m   27.28 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mVehicleDetailPage-CCjFzfuB.js         [39m[1m[2m   28.65 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPagination-GitULId2.js                [39m[1m[2m   31.94 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPackageDetailPage-SccHiFQ7.js         [39m[1m[2m   32.12 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mAboutPage-CUbiAKac.js                 [39m[1m[2m   35.59 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mBookingPage-CUk45JnL.js               [39m[1m[2m   36.62 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mFleetPage-DnScH4Us.js                 [39m[1m[2m   40.10 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mRoutesPage-DPkd4YJz.js                [39m[1m[2m   54.57 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mPackagesPage-C_TnYnYA.js              [39m[1m[2m   71.11 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mvendor-motion-T3eR97Ln.js             [39m[1m[2m  129.66 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mvendor-react-dzjnOsT9.js              [39m[1m[2m  192.35 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mvendor-supabase-DaueY-7D.js           [39m[1m[2m  224.50 kB[22m[1m[22m
-[2mdist/[22m[2massets/[22m[36mdata-catalogue-CopxVX_i.js            [39m[1m[33m  856.94 kB[39m[22m
-[2mdist/[22m[2massets/[22m[36mindex-Ce4Pogjk.js                     [39m[1m[33m1,475.20 kB[39m[22m
-[33m
-(!) Some chunks are larger than 600 kB after minification. Consider:
-- Using dynamic import() to code-split the application
-- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
-- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
-[32m✓ built in 4.39s[39m
-🚀 Starting Static HTML Pre-Renderer (SSG)...
-✅ Generated sitemap.xml (1809 URLs with source-owned lastmod values where available, priorities & xhtml:link alternates) and robots.txt pointing to https://agraskbagheltourandtravels.com/sitemap.xml
-✅ SSG Pre-Rendering Complete: 1818 pages rendered + 23 redirects written (116.98 MB total) in 9.35s.
-SEO artifact checks passed: 1841 HTML files, 1809 sitemap URLs, canonical origin https://agraskbagheltourandtravels.com.
+[32m- Expected[39m
+[31m+ Received[39m
 
-> sk-baghel-tour-travels@0.1.0 admin:build
-> npm --prefix admin run build
+[32m- true[39m
+[31m+ false[39m
 
+[36m [2m❯[22m tests/unit/reviews-engine.test.ts:[2m690:99[22m[39m
+    [90m688| [39m    [34mexpect[39m(updated[33m.[39mstatus)[33m.[39m[34mtoBe[39m([32m"approved"[39m)[33m;[39m
+    [90m689| [39m    [34mexpect[39m(updated[33m.[39mshow_in_gallery)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m690| [39m    expect((await reviewsService.getPublicGallery()).some((img) => img…
+    [90m   | [39m                                                                                                  [31m^[39m
+    [90m691| [39m  })[33m;[39m
+    [90m692| [39m
 
-> skb-admin@0.1.0 build
-> tsc --noEmit && vite build
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
 
-[36mvite v7.3.6 [32mbuilding client environment for production...[36m[39m
-transforming...
-[32m✓[39m 2457 modules transformed.
-rendering chunks...
-computing gzip size...
-[2mdist/[22m[32mindex.html                                    [39m[1m[2m  1.63 kB[22m[1m[22m[2m │ gzip:  0.63 kB[22m
-[2mdist/[22m[2massets/[22m[35mindex-80RSRJPp.css                     [39m[1m[2m 59.52 kB[22m[1m[22m[2m │ gzip: 11.01 kB[22m
-[2mdist/[22m[2massets/[22m[36mTable-B6c-ZtP6.js                      [39m[1m[2m  0.87 kB[22m[1m[22m[2m │ gzip:  0.37 kB[22m
-[2mdist/[22m[2massets/[22m[36mStatusBadge-BXM04FO-.js                [39m[1m[2m  1.47 kB[22m[1m[22m[2m │ gzip:  0.57 kB[22m
-[2mdist/[22m[2massets/[22m[36mDialog-8vYnYnAl.js                     [39m[1m[2m  1.92 kB[22m[1m[22m[2m │ gzip:  0.94 kB[22m
-[2mdist/[22m[2massets/[22m[36mcleanAdminApi-BhWox4za.js              [39m[1m[2m  2.35 kB[22m[1m[22m[2m │ gzip:  0.60 kB[22m
-[2mdist/[22m[2massets/[22m[36mLocationAutocompleteInput-jQRQ3xie.js  [39m[1m[2m  2.65 kB[22m[1m[22m[2m │ gzip:  1.16 kB[22m
-[2mdist/[22m[2massets/[22m[36mCanonicalFleetPricingGrid-DxjtjTap.js  [39m[1m[2m  5.42 kB[22m[1m[22m[2m │ gzip:  2.00 kB[22m
-[2mdist/[22m[2massets/[22m[36mSignoffPage-DiyLyC1H.js                [39m[1m[2m  6.47 kB[22m[1m[22m[2m │ gzip:  2.43 kB[22m
-[2mdist/[22m[2massets/[22m[36mPublishingPage-Db2xLB02.js             [39m[1m[2m  6.57 kB[22m[1m[22m[2m │ gzip:  2.07 kB[22m
-[2mdist/[22m[2massets/[22m[36mAuditPage-BIRFj2hO.js                  [39m[1m[2m  7.00 kB[22m[1m[22m[2m │ gzip:  2.40 kB[22m
-[2mdist/[22m[2massets/[22m[36mInquiriesPage-TmQ6_3Fk.js              [39m[1m[2m  7.14 kB[22m[1m[22m[2m │ gzip:  2.59 kB[22m
-[2mdist/[22m[2massets/[22m[36mRoundTripRatesPage-ukIUiPDE.js         [39m[1m[2m  8.76 kB[22m[1m[22m[2m │ gzip:  3.00 kB[22m
-[2mdist/[22m[2massets/[22m[36mFareSettingsPage-C0SJOKLh.js           [39m[1m[2m  8.98 kB[22m[1m[22m[2m │ gzip:  2.99 kB[22m
-[2mdist/[22m[2massets/[22m[36mRentalRequestsPage-oHTbeq0l.js         [39m[1m[2m  9.13 kB[22m[1m[22m[2m │ gzip:  2.94 kB[22m
-[2mdist/[22m[2massets/[22m[36mFinancePage-CkvDUMGX.js                [39m[1m[2m  9.75 kB[22m[1m[22m[2m │ gzip:  3.55 kB[22m
-[2mdist/[22m[2massets/[22m[36mExtraChargesPage-CYSnhCMr.js           [39m[1m[2m 13.91 kB[22m[1m[22m[2m │ gzip:  3.70 kB[22m
-[2mdist/[22m[2massets/[22m[36mRoutesPage-DmIdo99A.js                 [39m[1m[2m 16.20 kB[22m[1m[22m[2m │ gzip:  4.81 kB[22m
-[2mdist/[22m[2massets/[22m[36mLocalTransfersPage-C6s_XSkx.js         [39m[1m[2m 18.75 kB[22m[1m[22m[2m │ gzip:  4.69 kB[22m
-[2mdist/[22m[2massets/[22m[36mPoliciesPage-DO-TskiV.js               [39m[1m[2m 19.02 kB[22m[1m[22m[2m │ gzip:  4.44 kB[22m
-[2mdist/[22m[2massets/[22m[36mBookingsPage-DilFeJCK.js               [39m[1m[2m 23.37 kB[22m[1m[22m[2m │ gzip:  6.73 kB[22m
-[2mdist/[22m[2massets/[22m[36mTourPackagesPage-5y7Y8Uq-.js           [39m[1m[2m 25.44 kB[22m[1m[22m[2m │ gzip:  7.74 kB[22m
-[2mdist/[22m[2massets/[22m[36mvendor-lucide-B6SpOP3T.js              [39m[1m[2m 27.55 kB[22m[1m[22m[2m │ gzip:  9.41 kB[22m
-[2mdist/[22m[2massets/[22m[36mCatalogPage-DGMYICOF.js                [39m[1m[2m 28.78 kB[22m[1m[22m[2m │ gzip:  8.41 kB[22m
-[2mdist/[22m[2massets/[22m[36mVehiclesPage-anl1b8Wg.js               [39m[1m[2m 36.41 kB[22m[1m[22m[2m │ gzip:  8.66 kB[22m
-[2mdist/[22m[2massets/[22m[36mvendor-router-DKbRS9TZ.js              [39m[1m[2m 38.19 kB[22m[1m[22m[2m │ gzip: 13.75 kB[22m
-[2mdist/[22m[2massets/[22m[36mReviewsPage-DPdYt0aR.js                [39m[1m[2m 42.90 kB[22m[1m[22m[2m │ gzip: 15.09 kB[22m
-[2mdist/[22m[2massets/[22m[36mvendor-motion-Bj7SCSeC.js              [39m[1m[2m133.36 kB[22m[1m[22m[2m │ gzip: 44.17 kB[22m
-[2mdist/[22m[2massets/[22m[36mvendor-react-Oh0PCTUB.js               [39m[1m[2m221.81 kB[22m[1m[22m[2m │ gzip: 69.00 kB[22m
-[2mdist/[22m[2massets/[22m[36mindex-pQLFeNRt.js                      [39m[1m[2m328.63 kB[22m[1m[22m[2m │ gzip: 89.89 kB[22m
-[32m✓ built in 3.67s[39m
+[41m[1m FAIL [22m[49m tests/unit/reviews-engine.test.ts[2m > [22mSection 12.16: Reviews engine (RV-01 to RV-24)[2m > [22mRV-31: A booking status change does not block gallery publication
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
 
-> sk-baghel-tour-travels@0.1.0 backend:build
-> npm --prefix backend run build
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m tests/unit/reviews-engine.test.ts:[2m728:99[22m[39m
+    [90m726| [39m    [34mexpect[39m(updated[33m.[39mstatus)[33m.[39m[34mtoBe[39m([32m"approved"[39m)[33m;[39m
+    [90m727| [39m    [34mexpect[39m(updated[33m.[39mshow_in_gallery)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m728| [39m    expect((await reviewsService.getPublicGallery()).some((img) => img…
+    [90m   | [39m                                                                                                  [31m^[39m
+    [90m729| [39m  })[33m;[39m
+    [90m730| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
 
 
-> @sk-baghel/backend@0.1.0 build
-> tsc -p tsconfig.build.json
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m21 passed[39m[22m[90m (22)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m342 passed[39m[22m[90m (344)[39m
+[2m   Start at [22m 14:11:21
+[2m   Duration [22m 32.62s[2m (transform 1.26s, setup 0ms, collect 23.50s, tests 5.33s, environment 3ms, prepare 1.14s)[22m
 
 ```
