@@ -1,17 +1,16 @@
-# Main branch verification — c9a4e7e61ee1
+# Main branch verification — 564bd2013b85
 
 - **Result:** PASS
-- **Commit:** [c9a4e7e61ee15050f4ad44708a6b01b4b80bf629](https://github.com/tarun1sisodia/ArenaAI/commit/c9a4e7e61ee15050f4ad44708a6b01b4b80bf629)
-- **Checked at:** 2026-10-19T12:59:29Z
-- **Workflow run:** [39256124153](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39256124153)
+- **Commit:** [564bd2013b85712cd138f80835f527978442eabb](https://github.com/tarun1sisodia/ArenaAI/commit/564bd2013b85712cd138f80835f527978442eabb)
+- **Checked at:** 2026-10-19T13:17:50Z
+- **Workflow run:** [39258685813](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39258685813)
 
 ## Changed files
 
-- M	backend/src/modules/bookings/booking-pdf.service.ts
-- M	backend/src/modules/bookings/booking-pdf.template.ts
-- M	backend/src/modules/bookings/bookings.routes.ts
-- M	backend/src/modules/payments/payments.service.ts
-- M	backend/tests/unit/booking-pdf.service.test.ts
+- M	admin/src/lib/env.ts
+- M	admin/src/pages/ReviewsPage.tsx
+- M	backend/src/modules/reviews/reviews.service.ts
+- M	docs/agent/02_CHANGE_LEDGER.md
 
 ## Verification command
 
@@ -22,9 +21,9 @@ npm run install:all && npm run verify
 ## Verification result
 
 ```text
-  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.245194ms)
-  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.143219ms)
-✔ Admin Booking Unmask PII Frontend State & Security Suite (4.039207ms)
+  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.240695ms)
+  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.152852ms)
+✔ Admin Booking Unmask PII Frontend State & Security Suite (4.494296ms)
 ℹ tests 11
 ℹ suites 3
 ℹ pass 11
@@ -32,7 +31,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 122.47894
+ℹ duration_ms 121.688558
 
 > sk-baghel-tour-travels@0.1.0 customer:seo
 > npm --prefix react run test:seo
@@ -42,15 +41,15 @@ npm run install:all && npm run verify
 > node --experimental-strip-types --test scripts/site-origin.test.ts && node --experimental-strip-types scripts/test-seo-lifecycle.ts
 
 ▶ canonical site origin
-  ✔ uses the approved production origin when no local override is supplied (0.688411ms)
-  ✔ normalizes a trailing slash (0.127472ms)
-  ✔ rejects preview hosts in release mode (0.341879ms)
-  ✔ requires HTTPS for non-local origins (0.109514ms)
-  ✔ allows HTTPS preview origins (0.094873ms)
-  ✔ permits HTTP only on loopback in development (0.1184ms)
-  ✔ rejects paths and credentials (0.103855ms)
-  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.116144ms)
-✔ canonical site origin (2.673656ms)
+  ✔ uses the approved production origin when no local override is supplied (0.587239ms)
+  ✔ normalizes a trailing slash (0.127242ms)
+  ✔ rejects preview hosts in release mode (0.275918ms)
+  ✔ requires HTTPS for non-local origins (0.116897ms)
+  ✔ allows HTTPS preview origins (0.080772ms)
+  ✔ permits HTTP only on loopback in development (0.10525ms)
+  ✔ rejects paths and credentials (0.088835ms)
+  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.078338ms)
+✔ canonical site origin (2.372412ms)
 ℹ tests 8
 ℹ suites 1
 ℹ pass 8
@@ -58,7 +57,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 85.258556
+ℹ duration_ms 81.599097
 SEO lifecycle checks passed.
 
 > sk-baghel-tour-travels@0.1.0 build:all
@@ -83,6 +82,11 @@ Site origin validated: https://agraskbagheltourandtravels.com (production).
 ✅ [Manifest Builder] Snapshotted content manifest (5 sections) from https://skb-baghel-api-staging.onrender.com/api/v1/content/manifest.
 [36mvite v7.3.6 [32mbuilding client environment for production...[36m[39m
 transforming...
+[33mnode_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
 [33mnode_modules/zod/v4/core/regexes.js (74:0): A comment
 
 "/** Anchors a pattern source. The interpolation lives here rather than at the call site because
@@ -90,11 +94,6 @@ transforming...
  * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
 
 in "node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
-[33mnode_modules/zod/v4/core/util.js (400:0): A comment
-
-"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
-
-in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
 [32m✓[39m 2560 modules transformed.
 rendering chunks...
 [2mdist/[22m[32mindex.html                                   [39m[1m[2m    4.42 kB[22m[1m[22m
@@ -145,10 +144,10 @@ rendering chunks...
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
-[32m✓ built in 3.98s[39m
+[32m✓ built in 3.85s[39m
 🚀 Starting Static HTML Pre-Renderer (SSG)...
 ✅ Generated sitemap.xml (1809 URLs with source-owned lastmod values where available, priorities & xhtml:link alternates) and robots.txt pointing to https://agraskbagheltourandtravels.com/sitemap.xml
-✅ SSG Pre-Rendering Complete: 1818 pages rendered + 23 redirects written (116.98 MB total) in 9.10s.
+✅ SSG Pre-Rendering Complete: 1818 pages rendered + 23 redirects written (116.98 MB total) in 7.62s.
 SEO artifact checks passed: 1841 HTML files, 1809 sitemap URLs, canonical origin https://agraskbagheltourandtravels.com.
 
 > sk-baghel-tour-travels@0.1.0 admin:build
@@ -165,35 +164,35 @@ rendering chunks...
 computing gzip size...
 [2mdist/[22m[32mindex.html                                    [39m[1m[2m  1.63 kB[22m[1m[22m[2m │ gzip:  0.63 kB[22m
 [2mdist/[22m[2massets/[22m[35mindex-80RSRJPp.css                     [39m[1m[2m 59.52 kB[22m[1m[22m[2m │ gzip: 11.01 kB[22m
-[2mdist/[22m[2massets/[22m[36mTable-Bk46sqS0.js                      [39m[1m[2m  0.87 kB[22m[1m[22m[2m │ gzip:  0.37 kB[22m
-[2mdist/[22m[2massets/[22m[36mStatusBadge-BgtlEyE3.js                [39m[1m[2m  1.47 kB[22m[1m[22m[2m │ gzip:  0.57 kB[22m
-[2mdist/[22m[2massets/[22m[36mDialog-DA96Uu7-.js                     [39m[1m[2m  1.92 kB[22m[1m[22m[2m │ gzip:  0.94 kB[22m
-[2mdist/[22m[2massets/[22m[36mcleanAdminApi-BCDf42Uv.js              [39m[1m[2m  2.35 kB[22m[1m[22m[2m │ gzip:  0.60 kB[22m
-[2mdist/[22m[2massets/[22m[36mLocationAutocompleteInput-JWy2UgHw.js  [39m[1m[2m  2.65 kB[22m[1m[22m[2m │ gzip:  1.16 kB[22m
-[2mdist/[22m[2massets/[22m[36mCanonicalFleetPricingGrid-DjL80rpg.js  [39m[1m[2m  5.42 kB[22m[1m[22m[2m │ gzip:  2.00 kB[22m
-[2mdist/[22m[2massets/[22m[36mSignoffPage-BLMEXqdK.js                [39m[1m[2m  6.47 kB[22m[1m[22m[2m │ gzip:  2.43 kB[22m
-[2mdist/[22m[2massets/[22m[36mPublishingPage-DNG14fZI.js             [39m[1m[2m  6.57 kB[22m[1m[22m[2m │ gzip:  2.07 kB[22m
-[2mdist/[22m[2massets/[22m[36mAuditPage-D6azKm5d.js                  [39m[1m[2m  7.00 kB[22m[1m[22m[2m │ gzip:  2.40 kB[22m
-[2mdist/[22m[2massets/[22m[36mInquiriesPage-CABQiG-p.js              [39m[1m[2m  7.14 kB[22m[1m[22m[2m │ gzip:  2.59 kB[22m
-[2mdist/[22m[2massets/[22m[36mRoundTripRatesPage-Be6DFHc7.js         [39m[1m[2m  8.76 kB[22m[1m[22m[2m │ gzip:  3.00 kB[22m
-[2mdist/[22m[2massets/[22m[36mFareSettingsPage-DpoCq3X8.js           [39m[1m[2m  8.98 kB[22m[1m[22m[2m │ gzip:  2.99 kB[22m
-[2mdist/[22m[2massets/[22m[36mRentalRequestsPage-CdlAafYB.js         [39m[1m[2m  9.13 kB[22m[1m[22m[2m │ gzip:  2.94 kB[22m
-[2mdist/[22m[2massets/[22m[36mFinancePage-dmsJo25J.js                [39m[1m[2m  9.75 kB[22m[1m[22m[2m │ gzip:  3.55 kB[22m
-[2mdist/[22m[2massets/[22m[36mExtraChargesPage-dmvv-SkG.js           [39m[1m[2m 13.91 kB[22m[1m[22m[2m │ gzip:  3.70 kB[22m
-[2mdist/[22m[2massets/[22m[36mRoutesPage-DIRHOe80.js                 [39m[1m[2m 16.20 kB[22m[1m[22m[2m │ gzip:  4.81 kB[22m
-[2mdist/[22m[2massets/[22m[36mLocalTransfersPage-BQmvHR1U.js         [39m[1m[2m 18.75 kB[22m[1m[22m[2m │ gzip:  4.69 kB[22m
-[2mdist/[22m[2massets/[22m[36mPoliciesPage-DqOeeDOO.js               [39m[1m[2m 19.02 kB[22m[1m[22m[2m │ gzip:  4.44 kB[22m
-[2mdist/[22m[2massets/[22m[36mBookingsPage-CQxvzqiY.js               [39m[1m[2m 23.37 kB[22m[1m[22m[2m │ gzip:  6.74 kB[22m
-[2mdist/[22m[2massets/[22m[36mTourPackagesPage-BRuZ3ULF.js           [39m[1m[2m 25.44 kB[22m[1m[22m[2m │ gzip:  7.74 kB[22m
+[2mdist/[22m[2massets/[22m[36mTable-B6c-ZtP6.js                      [39m[1m[2m  0.87 kB[22m[1m[22m[2m │ gzip:  0.37 kB[22m
+[2mdist/[22m[2massets/[22m[36mStatusBadge-BXM04FO-.js                [39m[1m[2m  1.47 kB[22m[1m[22m[2m │ gzip:  0.57 kB[22m
+[2mdist/[22m[2massets/[22m[36mDialog-8vYnYnAl.js                     [39m[1m[2m  1.92 kB[22m[1m[22m[2m │ gzip:  0.94 kB[22m
+[2mdist/[22m[2massets/[22m[36mcleanAdminApi-BhWox4za.js              [39m[1m[2m  2.35 kB[22m[1m[22m[2m │ gzip:  0.60 kB[22m
+[2mdist/[22m[2massets/[22m[36mLocationAutocompleteInput-jQRQ3xie.js  [39m[1m[2m  2.65 kB[22m[1m[22m[2m │ gzip:  1.16 kB[22m
+[2mdist/[22m[2massets/[22m[36mCanonicalFleetPricingGrid-DxjtjTap.js  [39m[1m[2m  5.42 kB[22m[1m[22m[2m │ gzip:  2.00 kB[22m
+[2mdist/[22m[2massets/[22m[36mSignoffPage-DiyLyC1H.js                [39m[1m[2m  6.47 kB[22m[1m[22m[2m │ gzip:  2.43 kB[22m
+[2mdist/[22m[2massets/[22m[36mPublishingPage-Db2xLB02.js             [39m[1m[2m  6.57 kB[22m[1m[22m[2m │ gzip:  2.07 kB[22m
+[2mdist/[22m[2massets/[22m[36mAuditPage-BIRFj2hO.js                  [39m[1m[2m  7.00 kB[22m[1m[22m[2m │ gzip:  2.40 kB[22m
+[2mdist/[22m[2massets/[22m[36mInquiriesPage-TmQ6_3Fk.js              [39m[1m[2m  7.14 kB[22m[1m[22m[2m │ gzip:  2.59 kB[22m
+[2mdist/[22m[2massets/[22m[36mRoundTripRatesPage-ukIUiPDE.js         [39m[1m[2m  8.76 kB[22m[1m[22m[2m │ gzip:  3.00 kB[22m
+[2mdist/[22m[2massets/[22m[36mFareSettingsPage-C0SJOKLh.js           [39m[1m[2m  8.98 kB[22m[1m[22m[2m │ gzip:  2.99 kB[22m
+[2mdist/[22m[2massets/[22m[36mRentalRequestsPage-oHTbeq0l.js         [39m[1m[2m  9.13 kB[22m[1m[22m[2m │ gzip:  2.94 kB[22m
+[2mdist/[22m[2massets/[22m[36mFinancePage-CkvDUMGX.js                [39m[1m[2m  9.75 kB[22m[1m[22m[2m │ gzip:  3.55 kB[22m
+[2mdist/[22m[2massets/[22m[36mExtraChargesPage-CYSnhCMr.js           [39m[1m[2m 13.91 kB[22m[1m[22m[2m │ gzip:  3.70 kB[22m
+[2mdist/[22m[2massets/[22m[36mRoutesPage-DmIdo99A.js                 [39m[1m[2m 16.20 kB[22m[1m[22m[2m │ gzip:  4.81 kB[22m
+[2mdist/[22m[2massets/[22m[36mLocalTransfersPage-C6s_XSkx.js         [39m[1m[2m 18.75 kB[22m[1m[22m[2m │ gzip:  4.69 kB[22m
+[2mdist/[22m[2massets/[22m[36mPoliciesPage-DO-TskiV.js               [39m[1m[2m 19.02 kB[22m[1m[22m[2m │ gzip:  4.44 kB[22m
+[2mdist/[22m[2massets/[22m[36mBookingsPage-DilFeJCK.js               [39m[1m[2m 23.37 kB[22m[1m[22m[2m │ gzip:  6.73 kB[22m
+[2mdist/[22m[2massets/[22m[36mTourPackagesPage-5y7Y8Uq-.js           [39m[1m[2m 25.44 kB[22m[1m[22m[2m │ gzip:  7.74 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-lucide-B6SpOP3T.js              [39m[1m[2m 27.55 kB[22m[1m[22m[2m │ gzip:  9.41 kB[22m
-[2mdist/[22m[2massets/[22m[36mCatalogPage-ejQAKaRz.js                [39m[1m[2m 28.78 kB[22m[1m[22m[2m │ gzip:  8.41 kB[22m
-[2mdist/[22m[2massets/[22m[36mVehiclesPage-BsHaO9qO.js               [39m[1m[2m 36.41 kB[22m[1m[22m[2m │ gzip:  8.66 kB[22m
+[2mdist/[22m[2massets/[22m[36mCatalogPage-DGMYICOF.js                [39m[1m[2m 28.78 kB[22m[1m[22m[2m │ gzip:  8.41 kB[22m
+[2mdist/[22m[2massets/[22m[36mVehiclesPage-anl1b8Wg.js               [39m[1m[2m 36.41 kB[22m[1m[22m[2m │ gzip:  8.66 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-router-DKbRS9TZ.js              [39m[1m[2m 38.19 kB[22m[1m[22m[2m │ gzip: 13.75 kB[22m
-[2mdist/[22m[2massets/[22m[36mReviewsPage-DAwYn8aC.js                [39m[1m[2m 42.91 kB[22m[1m[22m[2m │ gzip: 15.08 kB[22m
+[2mdist/[22m[2massets/[22m[36mReviewsPage-DPdYt0aR.js                [39m[1m[2m 42.90 kB[22m[1m[22m[2m │ gzip: 15.09 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-motion-Bj7SCSeC.js              [39m[1m[2m133.36 kB[22m[1m[22m[2m │ gzip: 44.17 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-react-Oh0PCTUB.js               [39m[1m[2m221.81 kB[22m[1m[22m[2m │ gzip: 69.00 kB[22m
-[2mdist/[22m[2massets/[22m[36mindex-DU7DCAy6.js                      [39m[1m[2m328.61 kB[22m[1m[22m[2m │ gzip: 89.87 kB[22m
-[32m✓ built in 3.18s[39m
+[2mdist/[22m[2massets/[22m[36mindex-pQLFeNRt.js                      [39m[1m[2m328.63 kB[22m[1m[22m[2m │ gzip: 89.89 kB[22m
+[32m✓ built in 3.21s[39m
 
 > sk-baghel-tour-travels@0.1.0 backend:build
 > npm --prefix backend run build
