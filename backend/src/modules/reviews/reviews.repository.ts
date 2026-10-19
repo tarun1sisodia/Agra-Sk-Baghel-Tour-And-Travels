@@ -334,16 +334,13 @@ export class ReviewsRepository {
 
   async getPublicReviews(): Promise<Array<ReviewSubmissionEntity & { is_verified: boolean }>> {
     const res = await this.pool.query(`
-      SELECT 
+      SELECT
         s.*,
-        (s.booking_id IS NOT NULL AND b.status = 'completed') AS is_verified
+        TRUE AS is_verified
       FROM review_submissions s
-      LEFT JOIN bookings b ON s.booking_id = b.id
       WHERE s.status = 'approved'
         AND s.consent_public = true
         AND s.show_on_homepage = true
-        AND s.booking_id IS NOT NULL
-        AND b.status = 'completed'
       ORDER BY s.created_at DESC
       LIMIT 30
     `);
@@ -355,19 +352,16 @@ export class ReviewsRepository {
 
   async getPublicGallery(): Promise<Array<ReviewImageEntity & { reviewer_name: string; review_text: string }>> {
     const res = await this.pool.query(`
-      SELECT 
+      SELECT
         img.*,
         sub.display_name AS reviewer_name,
         sub.review_text AS review_text
       FROM review_images img
       JOIN review_submissions sub ON img.submission_id = sub.id
-      JOIN bookings b ON sub.booking_id = b.id
       WHERE img.status = 'approved'
         AND sub.status = 'approved'
         AND sub.consent_public = true
         AND sub.show_in_gallery = true
-        AND sub.booking_id IS NOT NULL
-        AND b.status = 'completed'
       ORDER BY img.sort_order ASC, img.created_at DESC
     `);
     return res.rows;
