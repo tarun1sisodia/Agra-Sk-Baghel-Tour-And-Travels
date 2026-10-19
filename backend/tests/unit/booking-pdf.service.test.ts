@@ -104,6 +104,21 @@ describe("BookingPdfService Unit Tests", () => {
     });
 
 
+    it("derives trip type from quote details when the booking detail omits trip_type", () => {
+      const { trip_type: _tripType, ...bookingWithoutTripType } = sampleBooking;
+      const input = buildBookingPdfInput({
+        ...bookingWithoutTripType,
+        fare_breakdown: {
+          ...sampleBooking.fare_breakdown,
+          details: {
+            ...sampleBooking.fare_breakdown.details,
+            effective_trip_type: "round_trip",
+          },
+        },
+      });
+      expect(input.passengerInfo).toContain("Round Trip");
+    });
+
     it("includes return journey, flight/train reference, and special requests", () => {
       const detailedBooking = {
         ...sampleBooking,
