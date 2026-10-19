@@ -159,7 +159,9 @@ export function registerBookingsRoutes(app: FastifyInstance, bookingsService: Bo
     if (typeof bookingsService.getBookingDetail === "function") {
       const detail = await bookingsService.getBookingDetail(id);
       if (detail) {
-        bookingData = detail;
+        // Keep operational fields that the public booking-detail contract omits
+        // (return_at, flight_train_number, and special_notes) for the PDF voucher.
+        bookingData = { ...booking, ...detail };
       }
     }
 
