@@ -687,7 +687,7 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
     );
     expect(updated.status).toBe("approved");
     expect(updated.show_in_gallery).toBe(true);
-    expect((await reviewsService.getPublicGallery()).some((img) => img.submission_id === sub.id)).toBe(true);
+    expect((await reviewsService.getPublicGallery()).some((img) => img.storage_key === "photos/taj-1.webp")).toBe(true);
   });
 
   it("RV-30: A missing linked booking does not block an otherwise approved review", async () => {
@@ -725,7 +725,7 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
     );
     expect(updated.status).toBe("approved");
     expect(updated.show_in_gallery).toBe(true);
-    expect((await reviewsService.getPublicGallery()).some((img) => img.submission_id === sub.id)).toBe(true);
+    expect((await reviewsService.getPublicGallery()).some((img) => img.storage_key === "photos/route-scenic.webp")).toBe(true);
   });
 
   it("RV-32: Missing customer public consent rejected from homepage and gallery publication", async () => {
