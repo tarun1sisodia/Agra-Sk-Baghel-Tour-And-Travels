@@ -341,6 +341,22 @@ export class ReviewsService {
       });
     }
 
+    // Outbox: enqueue site_publish_events for automated customer site rebuilding
+    const wasPublishedOnHomepage = before.status === "approved" && before.consent_public && before.show_on_homepage;
+    const isNowPublishedOnHomepage = updated.status === "approved" && updated.consent_public && updated.show_on_homepage;
+
+    if (!wasPublishedOnHomepage && isNowPublishedOnHomepage) {
+      await this.deps.reviewsRepo.enqueuePublishEvent(id, "published").catch(() => {});
+    } else if (wasPublishedOnHomepage && !isNowPublishedOnHomepage) {
+      await this.deps.reviewsRepo.enqueuePublishEvent(id, "archived").catch(() => {});
+    } else if (wasPublishedOnHomepage && isNowPublishedOnHomepage) {
+      const textChanged = action.review_text !== undefined && action.review_text !== before.review_text;
+      const nameChanged = action.display_name !== undefined && action.display_name !== before.display_name;
+      if (textChanged || nameChanged) {
+        await this.deps.reviewsRepo.enqueuePublishEvent(id, "updated").catch(() => {});
+      }
+    }
+
     return updated;
   }
 

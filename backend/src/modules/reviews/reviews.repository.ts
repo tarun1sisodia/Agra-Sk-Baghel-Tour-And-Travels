@@ -366,4 +366,18 @@ export class ReviewsRepository {
     `);
     return res.rows;
   }
+
+  async enqueuePublishEvent(
+    entityId: string,
+    eventType: "published" | "updated" | "archived" | "review_approved"
+  ): Promise<void> {
+    await this.pool.query(
+      `
+      INSERT INTO site_publish_events (entity_type, entity_id, event_type, status)
+      VALUES ('review', $1, $2, 'pending')
+      ON CONFLICT (entity_type, entity_id, event_type) WHERE status = 'pending' DO NOTHING
+      `,
+      [entityId, eventType]
+    );
+  }
 }

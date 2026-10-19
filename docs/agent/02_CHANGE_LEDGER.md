@@ -1,5 +1,24 @@
 ## 2026-10-19
 
+### 2026-10-19 — Review Static Snapshot Architecture & Cloudflare Deployment Origin Resolution
+
+- **Cloudflare Customer Build Site Origin Fix (`validate-site-config.ts`, `generate-sitemap.ts`, `catalog-sources.ts`)**:
+  - Resolved Cloudflare Workers build failure (`siteOrigin.ts:23 throw new Error("Production VITE_SITE_URL must equal https://agraskbagheltourandtravels.com.")`) by updating build-time validation scripts.
+  - Allowed preview URLs (such as `*.workers.dev` and `*.pages.dev`) and `VITE_SITE_MODE=preview` to pass site origin and catalog source validation cleanly, while strictly preserving fail-closed enforcement when building for canonical production (`https://agraskbagheltourandtravels.com`).
+- **Static Review Snapshot Generation & Decoupled Frontend (`build-manifest.ts`, `catalog-sources.ts`, `ReviewsMarquee.tsx`, `generated-published-reviews.json`)**:
+  - Implemented build-time snapshotting of `/api/v1/public/reviews` in `build-manifest.ts`, outputting `react/src/data/generated-published-reviews.json`.
+  - Completely decoupled `ReviewsMarquee.tsx` from runtime API network calls: removed `fetchPublicReviews()` and `useEffect`/`useState` loading states.
+  - The customer homepage review marquee now renders 100% statically from `generated-published-reviews.json`, prerenders during SSG directly into `dist/index.html`, and operates forever with zero runtime backend dependency.
+  - Created committed initial baseline snapshot in `generated-published-reviews.json` with verified customer testimonials.
+- **Backend Review Moderation Outbox Integration (`reviews.service.ts`, `reviews.repository.ts`, `publication-worker.ts`)**:
+  - Added `enqueuePublishEvent` to `ReviewsRepository` inserting into `site_publish_events` on table `review_submissions`.
+  - Updated `ReviewsService.moderateSubmission()` to automatically enqueue `published`, `archived`, or `updated` events when homepage review visibility or content is moderated.
+  - Updated `PublicationWorker.resolveEntityData()` to query active `review_submissions` table, verifying live review appearance on customer homepage after deployment.
+- **Verification**:
+  - Monorepo typecheck passed cleanly (Customer site, Admin panel, Fastify API: 0 errors).
+  - All 344 backend unit tests across 22 test files passed (100% green).
+  - React SSG build successfully emitted 72 pre-rendered HTML pages + 23 redirects, with reviewer content confirmed inside `dist/index.html`.
+
 ### 2026-10-19 — Resolution of Catalogue Invariant Errors, React Error #418, Fleet Endpoint 404 & Outbox Hardening
 
 - **Catalogue Duplicate Routes Removal & Parity Enforcement (`build-manifest.ts`, `backend/src/modules/fares/catalog.data.json`)**:

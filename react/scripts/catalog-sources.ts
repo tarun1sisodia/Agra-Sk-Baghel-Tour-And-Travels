@@ -9,7 +9,8 @@ export type CatalogSourceName =
   | "tour-packages"
   | "transfer-routes"
   | "local-packages"
-  | "content-manifest";
+  | "content-manifest"
+  | "reviews";
 
 export type CatalogSource = {
   name: CatalogSourceName;
@@ -65,6 +66,12 @@ export function listCatalogSources(env: EnvMap = process.env): CatalogSource[] {
       url: trimBase(env.CONTENT_MANIFEST_URL) ?? (apiBase ? `${apiBase}/api/v1/content/manifest` : undefined),
       requiredInFailClosed: true,
     },
+    {
+      name: "reviews",
+      envVar: "REVIEWS_MANIFEST_URL",
+      url: trimBase(env.REVIEWS_MANIFEST_URL) ?? (apiBase ? `${apiBase}/api/v1/public/reviews` : undefined),
+      requiredInFailClosed: false,
+    },
   ];
 }
 
@@ -81,13 +88,21 @@ export function redactCatalogUrl(url: string): string {
   }
 }
 
+export function isProductionCatalogBuild(env: EnvMap = process.env): boolean {
+  if (env.VITE_SITE_MODE === "preview") return false;
+  const siteUrl = env.VITE_SITE_URL?.trim();
+  if (siteUrl && (siteUrl.includes(".workers.dev") || siteUrl.includes(".pages.dev"))) return false;
+  return env.VITE_SITE_MODE === "production" || env.RELEASE_BUILD === "1" || env.CF_PAGES_BRANCH === "main";
+}
+
 export function assertNoSilentStagingFallback(env: EnvMap = process.env): void {
+  const isProduction = isProductionCatalogBuild(env);
   const resolved = [
     resolveCatalogApiBase(env),
     ...listCatalogSources(env).map((source) => source.url),
   ];
   for (const url of resolved) {
-    if (url?.includes(FORBIDDEN_STAGING_HOST) && env.ALLOW_STAGING_CATALOG !== "1" && env.CF_PAGES_BRANCH === "main") {
+    if (url?.includes(FORBIDDEN_STAGING_HOST) && env.ALLOW_STAGING_CATALOG !== "1" && isProduction) {
       throw new Error(
         `Production catalog source points at ${FORBIDDEN_STAGING_HOST}. Set production VITE_API_BASE_URL (or ALLOW_STAGING_CATALOG=1 only for an explicit preview/staging experiment).`,
       );

@@ -551,6 +551,33 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
       console.log(`✅ [Manifest Builder] Snapshotted content manifest (${Object.keys(publishedContent).length} sections) from ${redactCatalogUrl(contentManifestUrl!)}.`);
   }
   writeSnapshot(join(reactRoot, "src", "data", "generated-published-content.json"), publishedContent, Boolean(contentPayload));
+
+  // 5. Customer Reviews snapshot (GET /api/v1/public/reviews)
+  const reviewsManifestUrl = catalogSources["reviews"]?.url;
+  let publishedReviews: any[] = [];
+  let reviewsFetched = false;
+  const reviewsPayload = await loadCatalogSource("reviews");
+  if (reviewsPayload) {
+    const rawItems = Array.isArray(reviewsPayload)
+      ? reviewsPayload
+      : Array.isArray((reviewsPayload as any)?.data)
+      ? (reviewsPayload as any).data
+      : [];
+    publishedReviews = rawItems
+      .slice(0, 30)
+      .map((r: any) => ({
+        name: r.display_name || r.name,
+        place: r.tour_name || r.route_text || r.place || "Agra & Outstation",
+        rating: Math.min(5, Math.max(1, Number(r.rating) || 5)),
+        quote: r.review_text || r.quote || "",
+        role: r.social_platform && r.social_url ? r.social_platform : r.role,
+        is_verified: Boolean(r.is_verified ?? true),
+      }))
+      .filter((r: any) => Boolean(r.name && r.quote));
+    reviewsFetched = true;
+    console.log(`✅ [Manifest Builder] Snapshotted ${publishedReviews.length} published reviews from ${redactCatalogUrl(reviewsManifestUrl!)}.`);
+  }
+  writeSnapshot(join(reactRoot, "src", "data", "generated-published-reviews.json"), publishedReviews, reviewsFetched);
 }
 
 await buildRouteCatalogAndManifest();

@@ -267,10 +267,16 @@ export class PublicationWorker {
       }
     } else if (event.entity_type === "review") {
       expectedPath = "/en/";
-      const revRes = await this.pool.query(
-        "SELECT display_name FROM reviews WHERE id::text = $1",
+      let revRes = await this.pool.query(
+        "SELECT display_name FROM review_submissions WHERE id::text = $1",
         [event.entity_id]
       ).catch(() => ({ rows: [] }));
+      if (revRes.rows.length === 0) {
+        revRes = await this.pool.query(
+          "SELECT display_name FROM reviews WHERE id::text = $1",
+          [event.entity_id]
+        ).catch(() => ({ rows: [] }));
+      }
       if (revRes.rows.length > 0) {
         expectedTitle = revRes.rows[0].display_name;
       }

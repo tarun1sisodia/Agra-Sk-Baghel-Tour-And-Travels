@@ -3,9 +3,11 @@ import { APPROVED_PRODUCTION_ORIGIN, resolveSiteOrigin, type SiteOriginMode } fr
 const configuredOrigin = process.env.VITE_SITE_URL?.trim();
 const isCloudflareBuild = Boolean(process.env.CF_PAGES_BRANCH);
 let mode: SiteOriginMode = "development";
-if (process.env.RELEASE_BUILD === "1" || process.env.CF_PAGES_BRANCH === "main" || process.env.VITE_SITE_MODE === "production") {
+if (process.env.VITE_SITE_MODE === "preview" || (configuredOrigin && (configuredOrigin.includes(".workers.dev") || configuredOrigin.includes(".pages.dev")))) {
+  mode = "preview";
+} else if (process.env.RELEASE_BUILD === "1" || process.env.CF_PAGES_BRANCH === "main" || process.env.VITE_SITE_MODE === "production") {
   mode = "production";
-} else if (isCloudflareBuild || process.env.VITE_SITE_MODE === "preview") {
+} else if (isCloudflareBuild) {
   mode = "preview";
 }
 if (mode !== "development" && !configuredOrigin) {

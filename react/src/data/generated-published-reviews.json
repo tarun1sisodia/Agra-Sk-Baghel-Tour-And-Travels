@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Rajesh Kumar",
+    "place": "Delhi to Agra Same Day Tour",
+    "rating": 5,
+    "quote": "Excellent cab service from Delhi to Agra. The driver arrived 10 minutes early in a spotless Dzire, drove safely on Yamuna Expressway, and knew all the best spots in Agra.",
+    "role": "Verified Traveler",
+    "is_verified": true
+  },
+  {
+    "name": "Priya Sharma",
+    "place": "Agra to Jaipur One-Way",
+    "rating": 5,
+    "quote": "Booked an Ertiga for family travel from Agra to Jaipur with Fatehpur Sikri stopover. Very polite driver, transparent fare with no hidden extras, and smooth toll management.",
+    "role": "Family Vacation",
+    "is_verified": true
+  },
+  {
+    "name": "Amitabh Sen",
+    "place": "Mathura Vrindavan Sightseeing",
+    "rating": 5,
+    "quote": "Prompt confirmation and clean Innova Crysta. Covered Banke Bihari, Prem Mandir, and Krishna Janmabhoomi comfortably with senior parents without any rushing.",
+    "role": "Pilgrimage Tour",
+    "is_verified": true
+  },
+  {
+    "name": "David Miller",
+    "place": "Taj Mahal Sunrise Tour",
+    "rating": 5,
+    "quote": "Seamless airport pickup from Delhi to Agra. The vehicle was pristine, chilled AC, and our driver guided us on the quickest entry gates for the sunrise view at Taj Mahal.",
+    "role": "International Guest",
+    "is_verified": true
+  },
+  {
+    "name": "Sunita Verma",
+    "place": "Agra Local Sightseeing (8h/80km)",
+    "rating": 5,
+    "quote": "Best local taxi service in Agra. Covered Agra Fort, Mehtab Bagh, and Baby Taj with absolute comfort. AC cooling was superb despite the afternoon heat.",
+    "role": "Day Excursion",
+    "is_verified": true
+  },
+  {
+    "name": "Vikram Malhotra",
+    "place": "Delhi Airport to Agra Drop",
+    "rating": 5,
+    "quote": "Flight was delayed by an hour at T3 Delhi, but the driver patiently waited at arrivals. Zero hassle on the expressway, truly dependable 24/7 service.",
+    "role": "Business Traveler",
+    "is_verified": true
+  }
+]

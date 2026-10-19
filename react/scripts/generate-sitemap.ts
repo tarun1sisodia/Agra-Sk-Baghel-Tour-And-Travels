@@ -26,12 +26,15 @@ const __filename = fileURLToPath(import.meta.url);
 const scriptsDir = dirname(__filename);
 const reactRoot = join(scriptsDir, "..");
 
+const configuredOrigin = process.env.VITE_SITE_URL?.trim();
 const SITE_ORIGIN_MODE: SiteOriginMode =
-  process.env.VITE_SITE_MODE === "production" ||
-  process.env.CF_PAGES_BRANCH === "main" ||
-  process.env.RELEASE_BUILD === "1"
+  process.env.VITE_SITE_MODE === "preview" || (configuredOrigin && (configuredOrigin.includes(".workers.dev") || configuredOrigin.includes(".pages.dev")))
+    ? "preview"
+    : process.env.VITE_SITE_MODE === "production" ||
+      process.env.CF_PAGES_BRANCH === "main" ||
+      process.env.RELEASE_BUILD === "1"
     ? "production"
-    : process.env.CF_PAGES_BRANCH || process.env.VITE_SITE_MODE === "preview"
+    : process.env.CF_PAGES_BRANCH
     ? "preview"
     : "development";
 

@@ -9,12 +9,26 @@
  * - Pure Tailwind CSS & theme tokens, 100% accessible
  */
 
-import React, { useEffect, useState } from "react";
-import { fetchPublicReviews } from "../../services/api";
+import React from "react";
+import rawReviews from "../../data/generated-published-reviews.json";
 import { Review, mapApiReviewToCardReview } from "./reviewsMarqueeHelpers";
 
 export type { Review };
 export { mapApiReviewToCardReview };
+
+const publishedReviewsList: readonly Review[] = Array.isArray(rawReviews)
+  ? (rawReviews as any[])
+      .slice(0, 30)
+      .map((r) => ({
+        name: String(r.name || r.display_name || "").trim(),
+        place: String(r.place || r.tour_name || r.route_text || "Agra & Outstation").trim(),
+        rating: Math.min(5, Math.max(1, Number(r.rating) || 5)),
+        quote: String(r.quote || r.review_text || "").trim(),
+        role: r.role ? String(r.role).trim() : undefined,
+        is_verified: Boolean(r.is_verified ?? true),
+      }))
+      .filter((r) => Boolean(r.name && r.quote))
+  : [];
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -91,44 +105,7 @@ function ReviewCard({ review }: ReviewCardProps) {
 
 
 export function ReviewsMarquee() {
-  const [reviewsList, setReviewsList] = useState<readonly Review[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let active = true;
-    setLoading(true);
-    fetchPublicReviews()
-      .then((live) => {
-        if (!active) return;
-        if (live && live.length > 0) {
-          const approved = live
-            .slice(0, 30)
-            .map(mapApiReviewToCardReview);
-          if (approved.length >= 1) {
-            setReviewsList(approved);
-            setError(null);
-          } else {
-            setReviewsList([]);
-          }
-        } else {
-          setReviewsList([]);
-        }
-      })
-      .catch(() => {
-        if (active) {
-          setError("Unable to load reviews.");
-          setReviewsList([]);
-        }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
-
+  const reviewsList = publishedReviewsList;
   const mid = reviewsList.length <= 1 ? 1 : Math.ceil(reviewsList.length / 2);
   const row1 = reviewsList.length <= 1 ? reviewsList : reviewsList.slice(0, mid);
   const row2 = reviewsList.length <= 1 ? reviewsList : reviewsList.slice(mid);
@@ -153,23 +130,7 @@ export function ReviewsMarquee() {
         </h2>
       </div>
 
-      {loading ? (
-        <div className="flex gap-4 overflow-hidden py-4 px-4 max-w-[1280px] mx-auto" aria-busy="true" aria-label="Loading traveler reviews">
-          {Array.from({ length: 4 }).map((_, idx) => (
-            <div
-              key={idx}
-              className="w-[310px] sm:w-[350px] shrink-0 bg-surface-container-lowest p-4 rounded-xl border border-border-warm/60 animate-pulse flex flex-col justify-between h-[150px]"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-full bg-surface-container-high" />
-                <div className="h-4 w-28 bg-surface-container-high rounded" />
-              </div>
-              <div className="h-10 bg-surface-container-low rounded mb-3" />
-              <div className="h-3 w-20 bg-surface-container-high rounded" />
-            </div>
-          ))}
-        </div>
-      ) : reviewsList.length === 0 ? (
+      {reviewsList.length === 0 ? (
         <div className="max-w-[720px] mx-auto px-4 py-8 text-center bg-surface-container-lowest rounded-2xl border border-border-warm/60 shadow-xs">
           <div className="w-12 h-12 rounded-full bg-gold-accent/15 text-gold-bronze flex items-center justify-center mx-auto mb-3">
             <span className="material-symbols-outlined text-icon-24">verified</span>
