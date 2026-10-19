@@ -297,44 +297,14 @@ export class ReviewsService {
     const requestedGallery = action.show_in_gallery !== undefined ? action.show_in_gallery : before.show_in_gallery;
     const isRejecting = action.status === "rejected";
 
-    // Enforce publication invariants for both homepage and gallery
+    // Public display requires approval and explicit customer consent.
+    // A ticket/booking match is contextual metadata, not an approval or badge requirement.
     if (!isRejecting && (requestedHomepage || requestedGallery)) {
-      // 1. Must be approved before public display
       if (effectiveStatus !== "approved") {
         throw new AppError("VALIDATION_ERROR", "Review must be approved before public display", 400);
       }
-
-      // 2. Customer public consent is strictly required
       if (!before.consent_public) {
         throw new AppError("VALIDATION_ERROR", "Review cannot be placed publicly without customer consent", 400);
-      }
-
-      // 3. Must have a non-null linked booking
-      if (!before.booking_id) {
-        throw new AppError(
-          "VALIDATION_ERROR",
-          "Cannot publish review: a linked completed booking is required for public display",
-          400
-        );
-      }
-
-      // 4. Resolve the linked booking and reject if it does not exist
-      const linkedBooking = await this.deps.bookingsRepo.getById(before.booking_id);
-      if (!linkedBooking) {
-        throw new AppError(
-          "VALIDATION_ERROR",
-          "Cannot publish review: associated booking does not exist",
-          400
-        );
-      }
-
-      // 5. Booking status must be exactly 'completed'
-      if (linkedBooking.status !== "completed") {
-        throw new AppError(
-          "VALIDATION_ERROR",
-          "Cannot publish review: associated booking is not in completed status",
-          400
-        );
       }
     }
 
