@@ -623,7 +623,15 @@ Warm regards,
 SK Baghel Tour & Travels
       `.trim();
 
-      const fromAddress = this.deps.emailFrom || "bookings@skbagheltravels.in";
+      let fromAddress = this.deps.emailFrom || "bookings@skbagheltravels.in";
+      const senderDomain = fromAddress.split("@")[1]?.toLowerCase() || "";
+      const freemailDomains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "live.com", "icloud.com"];
+      if (freemailDomains.includes(senderDomain)) {
+        console.warn(
+          `[payments] EMAIL_FROM uses freemail domain (@${senderDomain}) which Resend rejects with 403. Falling back to 'onboarding@resend.dev'.`
+        );
+        fromAddress = "onboarding@resend.dev";
+      }
 
       const res = await this.fetchImpl("https://api.resend.com/emails", {
         method: "POST",

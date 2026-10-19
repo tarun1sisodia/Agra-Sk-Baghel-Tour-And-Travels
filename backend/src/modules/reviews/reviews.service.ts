@@ -107,6 +107,16 @@ export class ReviewsService {
       const reviewUrl = `${(this.deps.customerSiteUrl || "https://agraskbagheltourandtravels.com").replace(/\/+$/, "")}/review/${encodeURIComponent(token)}`;
       const tripSummary = `${booking.category} trip (Ticket ${booking.ticket_id})`;
 
+      let fromAddress = this.deps.emailFrom || "bookings@agraskbagheltourandtravels.com";
+      const senderDomain = fromAddress.split("@")[1]?.toLowerCase() || "";
+      const freemailDomains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "live.com", "icloud.com"];
+      if (freemailDomains.includes(senderDomain)) {
+        console.warn(
+          `[reviews] EMAIL_FROM uses freemail domain (@${senderDomain}) which Resend rejects with 403. Falling back to 'onboarding@resend.dev'.`
+        );
+        fromAddress = "onboarding@resend.dev";
+      }
+
       const res = await this.fetchImpl("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -115,7 +125,7 @@ export class ReviewsService {
           "Idempotency-Key": `review-request/${linkId}`,
         },
         body: JSON.stringify({
-          from: this.deps.emailFrom || "bookings@agraskbagheltourandtravels.com",
+          from: fromAddress,
           to: [booking.customer_email],
           subject: `How was your trip with SK Baghel Travels? (Ticket ${booking.ticket_id})`,
           text: `Dear ${booking.customer_name},\n\nThank you for travelling with us for your ${tripSummary}.\nPlease share your feedback here: ${reviewUrl}\n\nWarm regards,\nSK Baghel Tour & Travels`,

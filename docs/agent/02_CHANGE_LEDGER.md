@@ -2,7 +2,19 @@
 
 ## 2026-10-18
 
-### 2026-10-19 — Webhook Canonical Route Unification & Full raw_webhooks Replacement
+### 2026-10-19 — Resend API Audit, Qwen Coder Diagnosis & Freemail Fallback Hardening
+
+- **Root Cause of Resend Error 403 (`The gmail.com domain is not verified`)**:
+  - The live Render staging environment has `EMAIL_FROM` set to an `@gmail.com` address.
+  - Resend (and all transactional email providers adhering to DMARC/SPF anti-spoofing policies) strictly blocks sending emails from public freemail domains (`@gmail.com`, `@yahoo.com`, `@outlook.com`).
+  - Architecture Resilience confirmed: the customer booking confirmation, voucher creation, and payment capture (`POST /api/v1/bookings/:id/verify-payment`) completed with HTTP 200 because email delivery is isolated within a try/catch boundary and decoupled from transaction finality.
+- **Qwen Coder Architectural Analysis (`docs/QWEN_RESEND_EMAIL_AUDIT_REPORT.md`)**:
+  - Evaluated the root cause and identified immediate staging vs. production custom domain remediation steps.
+  - Staging Fix: Set `EMAIL_FROM=onboarding@resend.dev` in Render environment variables.
+  - Production Fix: Verify `agraskbagheltourandtravels.com` in `resend.com/domains` by configuring DKIM and SPF TXT records.
+- **Backend Code Hardening (`payments.service.ts`, `reviews.service.ts`)**:
+  - Added proactive freemail domain detection in `PaymentsService.sendBookingConfirmationEmail()` and `ReviewsService.sendReviewEmail()`.
+  - If a freemail domain (`@gmail.com`, `@yahoo.com`, `@outlook.com`, etc.) is detected in `EMAIL_FROM`, the services log an explicit warning and automatically fall back to Resend's pre-verified `onboarding@resend.dev` address rather than triggering a doomed 403 failure.
 
 - **Dashboard-Parity Webhook Routing (`backend/src/modules/payments/payments.routes.ts`)**:
   - Pruned redundant and non-standard legacy alias routes (`/webhooks/payment`, `/api/v1/webhooks/payment`, `/webhooks/razorpay`, `/api/v1/webhooks/razorpay`).
