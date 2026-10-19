@@ -109,7 +109,9 @@ export function buildBookingPdfInput(
   const statusBadge = isConfirmed ? "CONFIRMED & ADVANCE SECURED" : `STATUS: ${statusRaw.toUpperCase()}`;
 
   const passengerCount = booking.passenger_count ? Number(booking.passenger_count) : 1;
-  const tripTypeRaw = booking.trip_type ? String(booking.trip_type).replace(/_/g, "-") : "";
+  // Detail responses may omit trip_type while retaining the authoritative quote details.
+  const rawTripType = booking.trip_type || booking.fare_breakdown?.details?.effective_trip_type || "";
+  const tripTypeRaw = String(rawTripType).replace(/_/g, "-");
   const tripTypeFormatted =
     tripTypeRaw === "round-trip"
       ? "Round Trip"
