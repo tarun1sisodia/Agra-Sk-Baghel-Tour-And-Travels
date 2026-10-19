@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { bookingVoucherTemplate } from "../../src/modules/bookings/booking-pdf.template.js";
 import {
   generateBookingPdf,
   formatInr,
@@ -6,6 +7,50 @@ import {
   formatBookingDate,
   buildBookingPdfInput,
 } from "../../src/modules/bookings/booking-pdf.service.js";
+
+describe("Booking PDF template rendering", () => {
+  it("keeps input-driven text fields writable so their supplied values render in the PDF", () => {
+    const textSchemas = bookingVoucherTemplate.schemas.flat().filter((schema: any) => schema.type === "text");
+    expect(textSchemas.length).toBeGreaterThan(0);
+
+    // In pdfme, readOnly text uses the schema's fixed content; this template
+    // supplies values via inputs in buildBookingPdfInput(), so text fields
+    // must remain non-readOnly or labels/branding disappear from generated PDFs.
+    const stillReadOnly = textSchemas.filter((schema: any) => schema.readOnly === true).map((schema: any) => schema.name);
+    expect(stillReadOnly).toEqual([]);
+  });
+
+  it("includes all expected branding, labels, and footer fields in the generated input", () => {
+    const input = buildBookingPdfInput({
+      ticket_id: "AGR-TEST-1234",
+      customer_name: "Test Customer",
+      customer_phone: "+91 99999 88888",
+      customer_email: "test@example.com",
+      product_name: "Agra to Delhi",
+      pickup_at: "2026-10-20T03:30:00.000Z",
+      pickup_address: "Agra",
+      drop_address: "Delhi",
+      passenger_count: 2,
+      total_amount: 1000,
+      advance_amount: 280,
+      balance_amount: 720,
+      status: "confirmed",
+      created_at: "2026-10-19T10:00:00.000Z",
+    });
+
+    expect(input.brandTitle).toBe("SK BAGHEL TOUR & TRAVELS");
+    expect(input.voucherTitle).toBe("BOOKING VOUCHER");
+    expect(input.sec1Title).toBe("PASSENGER & CONTACT DETAILS");
+    expect(input.custNameLbl).toBe("LEAD PASSENGER");
+    expect(input.sec2Title).toBe("JOURNEY & VEHICLE DETAILS");
+    expect(input.pickAddrLbl).toBe("PICKUP LOCATION");
+    expect(input.sec3Title).toBe("FARE SUMMARY");
+    expect(input.fareTotLbl).toBe("TOTAL AGREED FARE");
+    expect(input.noticeTitle).toBe("JOURNEY NOTES & SERVICE TERMS");
+    expect(input.ftHelp).toContain("+91 97628 17598");
+    expect(input.ftAddr).toContain("Agra, Uttar Pradesh 282001");
+  });
+});
 
 describe("BookingPdfService Unit Tests", () => {
   const sampleBooking = {
