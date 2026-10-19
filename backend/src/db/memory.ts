@@ -336,7 +336,13 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
       },
       async list(filter: BookingListFilter) {
         let items = [...bookings.values()];
-        if (filter.status) items = items.filter((item) => item.status === filter.status);
+        if (filter.status) {
+          if (filter.status === "paid_confirmed" || filter.status === "confirmed") {
+            items = items.filter((item) => item.status === "confirmed" || item.status === "paid_confirmed");
+          } else {
+            items = items.filter((item) => item.status === filter.status);
+          }
+        }
         if (filter.ticketId) items = items.filter((item) => item.ticketId === filter.ticketId);
         if (filter.from) items = items.filter((item) => item.pickupDatetime >= filter.from!);
         if (filter.to) items = items.filter((item) => item.pickupDatetime <= filter.to!);

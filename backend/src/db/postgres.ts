@@ -745,8 +745,12 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           const clauses: string[] = [];
           const params: unknown[] = [];
           if (filter.status) {
-            params.push(filter.status);
-            clauses.push(`status=$${params.length}`);
+            if (filter.status === "paid_confirmed" || filter.status === "confirmed") {
+              clauses.push(`status IN ('confirmed', 'paid_confirmed')`);
+            } else {
+              params.push(filter.status);
+              clauses.push(`status=$${params.length}`);
+            }
           }
           if (filter.ticketId) {
             params.push(filter.ticketId);

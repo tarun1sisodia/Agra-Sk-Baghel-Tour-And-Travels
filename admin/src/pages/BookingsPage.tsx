@@ -219,9 +219,7 @@ export function BookingsPage({ user }: { user: AdminUser }) {
   useEffect(() => {
     let isMounted = true;
     setLoadError(null);
-    fetchAdminBookings({
-      status: status as BookingStatus | "all",
-    })
+    fetchAdminBookings()
       .then((data) => {
         if (isMounted) {
           setBookings(data);
@@ -236,7 +234,7 @@ export function BookingsPage({ user }: { user: AdminUser }) {
     return () => {
       isMounted = false;
     };
-  }, [status, reloadKey]);
+  }, [reloadKey]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

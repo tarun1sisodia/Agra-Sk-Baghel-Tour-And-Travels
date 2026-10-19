@@ -2,7 +2,19 @@
 
 ## 2026-10-18
 
-### 2026-10-19 — Resend API Audit, Qwen Coder Diagnosis & Freemail Fallback Hardening
+### 2026-10-19 — Admin Bookings Visibility: Paid Confirmed Status Alignment & Tab Switching Fix
+
+- **Root Cause of Microsecond Flash & Disappearing Paid Confirmed Bookings (`admin/src/pages/BookingsPage.tsx`, `backend/src/db/postgres.ts`, `backend/src/db/memory.ts`)**:
+  - In `admin/src/pages/BookingsPage.tsx`, `useEffect` had `[status, reloadKey]` in its dependencies. Whenever the user clicked the "paid confirmed" tab, it dispatched `fetchAdminBookings({ status: "paid_confirmed" })`.
+  - In PostgreSQL, the `bookings` table stores status as `'confirmed'` (per migration `0038` check constraint `status in ('pending_payment','confirmed','driver_assigned','in_transit','completed','cancelled')`).
+  - When the backend queried `WHERE status = 'paid_confirmed'`, it matched 0 rows and returned `[]`.
+  - This empty array replaced the client `bookings` state, causing the bookings to flash for a microsecond (before the fetch returned) and then disappear, while resetting all tab badges (`All`, `paid confirmed`, etc.) to `0`.
+- **Architectural Remediation**:
+  - **Backend Status Normalization (`backend/src/db/postgres.ts`, `backend/src/db/memory.ts`)**:
+    - Updated `bookings.list(filter)` in both `postgres.ts` and `memory.ts` so that queries for `status = 'paid_confirmed'` or `status = 'confirmed'` match `status IN ('confirmed', 'paid_confirmed')`.
+  - **Admin Client Tab State Integrity (`admin/src/pages/BookingsPage.tsx`)**:
+    - Removed `status` from `useEffect` dependencies, fetching all bookings once on mount and when `reloadKey` updates.
+    - Status tab switching now filters client-side instantly via `useMemo` with zero network flicker, keeping tab badge counts (`All`, `pending payment`, `paid confirmed`, etc.) accurate and visible across all tabs.
 
 - **Root Cause of Resend Error 403 (`The gmail.com domain is not verified`)**:
   - The live Render staging environment has `EMAIL_FROM` set to an `@gmail.com` address.
