@@ -266,13 +266,22 @@ export async function createInquiry(
     body: JSON.stringify(payload),
   });
 
-  const json = await res.json().catch(() => ({}));
+  const json = await res.json().catch(() => null);
   if (!res.ok) {
     const msg = json?.error?.message || `Failed to submit inquiry (status ${res.status})`;
     throw new Error(msg);
   }
 
-  return json.data as CreateInquiryResponse;
+  // A static-site fallback or unrelated HTTP 200 must not be treated as a
+  // persisted inquiry. The backend's success envelope includes data.id.
+  const id = json?.data?.id;
+  if (typeof id !== "string" || id.trim().length === 0) {
+    throw new Error(
+      "The server returned an invalid inquiry response. Check that VITE_API_BASE_URL points to the backend API.",
+    );
+  }
+
+  return { id } as CreateInquiryResponse;
 }
 
 export interface FeaturedPromo {
