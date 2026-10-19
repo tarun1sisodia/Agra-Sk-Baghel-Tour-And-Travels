@@ -69,9 +69,15 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [copiedLink, setCopiedLink] = useState(false);
 
+  // Testing review sharing base URL (temporary override for Cloudflare Workers customer site testing)
+  const reviewSharingBaseUrl =
+    (import.meta.env.VITE_REVIEW_SHARING_URL as string | undefined)?.replace(/\/+$/, "") ||
+    env.CUSTOMER_SITE_URL ||
+    "https://skbagheltravels-customer.coccoder999.workers.dev";
+
   const activeReviewUrl = useMemo(() => {
     if (generatedToken) {
-      return `${env.CUSTOMER_SITE_URL}/review/${encodeURIComponent(generatedToken)}`;
+      return `${reviewSharingBaseUrl}/review/${encodeURIComponent(generatedToken)}`;
     }
     const params = new URLSearchParams();
     if (customerName.trim()) params.set("name", customerName.trim());
@@ -79,8 +85,8 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
     if (chauffeurName.trim()) params.set("driver", chauffeurName.trim());
     if (tourName.trim()) params.set("tour", tourName.trim());
     const qs = params.toString();
-    return `${env.CUSTOMER_SITE_URL}/review${qs ? `?${qs}` : ""}`;
-  }, [generatedToken, customerName, ticketId, chauffeurName, tourName]);
+    return `${reviewSharingBaseUrl}/review${qs ? `?${qs}` : ""}`;
+  }, [generatedToken, customerName, ticketId, chauffeurName, tourName, reviewSharingBaseUrl]);
 
   useEffect(() => {
     let active = true;

@@ -2,6 +2,15 @@
 
 ## 2026-10-18
 
+### 2026-10-19 — Review Sharing URL Temporary Routing to Cloudflare Workers Customer Preview
+
+- **Review Sharing URL Update (`admin/src/pages/ReviewsPage.tsx`, `admin/src/lib/env.ts`, `backend/src/modules/reviews/reviews.service.ts`)**:
+  - Pointed the review invitation studio sharing URL (`activeReviewUrl`, WhatsApp message, copy link, and vehicle QR code) to `https://skbagheltravels-customer.coccoder999.workers.dev/` for testing the customer review submission feature.
+  - Updated `CUSTOMER_SITE_URL` fallback in `admin/src/lib/env.ts` to `https://skbagheltravels-customer.coccoder999.workers.dev`.
+  - Updated `ReviewsService.sendReviewEmail()` in `backend/src/modules/reviews/reviews.service.ts` to default review request emails to `https://skbagheltravels-customer.coccoder999.workers.dev/review/:token`.
+- **Verification**:
+  - Full CI test suite `npm run verify` passed cleanly (3x typechecks clean, 342 backend unit tests passed, SSG pre-render 95 HTML files + 23 redirects passed, 3 production builds green).
+
 ### 2026-10-19 — Admin Panel Fleet Catalog, Preset Onboarding & Asset Library Selector
 
 - **Fleet Catalog & Preset Onboarding (`admin/src/pages/VehiclesPage.tsx`)**:

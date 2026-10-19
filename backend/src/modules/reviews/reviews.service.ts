@@ -104,7 +104,7 @@ export class ReviewsService {
 
   async sendReviewEmail(linkId: string, booking: any, token: string): Promise<boolean> {
     try {
-      const reviewUrl = `${(this.deps.customerSiteUrl || "https://agraskbagheltourandtravels.com").replace(/\/+$/, "")}/review/${encodeURIComponent(token)}`;
+      const reviewUrl = `${(this.deps.customerSiteUrl && this.deps.customerSiteUrl !== "https://agraskbagheltourandtravels.com" ? this.deps.customerSiteUrl : "https://skbagheltravels-customer.coccoder999.workers.dev").replace(/\/+$/, "")}/review/${encodeURIComponent(token)}`;
       const tripSummary = `${booking.category} trip (Ticket ${booking.ticket_id})`;
 
       let fromAddress = this.deps.emailFrom || "bookings@agraskbagheltourandtravels.com";
