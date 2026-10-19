@@ -45,13 +45,26 @@ export interface CompressedRoute {
   toll: 1 | 0;            // Toll inclusion: 1 = included, 0 = extra
 }
 
+function deduplicateItemsBySlug<T>(items: T[], getSlug: (item: T) => string | undefined, label: string): T[] {
+  const map = new Map<string, T>();
+  for (const item of items) {
+    const slug = getSlug(item);
+    if (!slug) continue;
+    if (map.has(slug)) {
+      console.warn(`⚠️ [Manifest Builder] Deduplicated duplicate ${label} with slug "${slug}".`);
+    }
+    map.set(slug, item);
+  }
+  return Array.from(map.values());
+}
+
 export async function buildRouteCatalogAndManifest(): Promise<void> {
   // Read backend single-source-of-truth catalog
   const rawCatalog = readFileSync(backendCatalogPath, "utf-8");
   const catalogRoutes: Record<string, any> = JSON.parse(rawCatalog);
 
   const manifest: Record<string, CompressedRoute> = {};
-  const allRoutesList: any[] = [];
+  const routesMap = new Map<string, any>();
   const publishedRouteItems: any[] = [];
 
   assertFailClosedCatalogEnv(process.env);
@@ -130,7 +143,7 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
       toll: item.toll === 1 ? 1 : 0,
     };
 
-    allRoutesList.push({
+    routesMap.set(slug, {
       id: slug,
       from: item.from,
       to: item.to,
@@ -191,7 +204,7 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
         c: item.sourceDetail ?? "Direct Highway Corridor",
         toll: item.tollIncluded === false ? 0 : 1,
       };
-      allRoutesList.push({
+      routesMap.set(routeSlug, {
         id: routeSlug,
         from: sourceCity,
         to: destCity,
@@ -220,6 +233,18 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   console.log(`✅ [Manifest Builder] Emitted public/routes-manifest.json (${Object.keys(manifest).length} routes) from backend catalog.`);
 
   // 2. Emit react/src/data/generated-catalog.json
+  const allRoutesList = Array.from(routesMap.values());
+  const seenRouteSlugs = new Set<string>();
+  for (const r of allRoutesList) {
+    if (!r.id || r.id.trim() === "") {
+      throw new Error("[Manifest Builder] Catalogue parity failed: route must have a non-empty slug id.");
+    }
+    if (seenRouteSlugs.has(r.id)) {
+      throw new Error(`[Manifest Builder] Catalogue parity failed: duplicate route slug "${r.id}".`);
+    }
+    seenRouteSlugs.add(r.id);
+  }
+
   const getRate = (id: string) => VEHICLE_SPECS.find((v) => v.id === id)?.perKm ?? 10;
   const isAlwaysRoundTrip = (id: string) => Boolean(VEHICLE_SPECS.find((v) => v.id === id)?.alwaysRoundTrip);
 
@@ -322,13 +347,18 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   if (apiBase) {
     try {
       const payload = await fetchCatalogJson(`${apiBase}/api/v1/catalog`) as { data?: unknown; products?: unknown };
-      publishedCatalog = Array.isArray(payload)
+      const rawCatalogItems = Array.isArray(payload)
         ? payload
         : Array.isArray(payload.data)
           ? payload.data
           : Array.isArray(payload.products)
             ? payload.products
             : [];
+      publishedCatalog = deduplicateItemsBySlug(
+        rawCatalogItems,
+        (item: any) => item.slug ?? item.id ?? item.code,
+        "catalog item"
+      );
       publishedCatalogFetched = true;
       console.log(`✅ [Manifest Builder] Snapshotted ${publishedCatalog.length} published catalog items for SSG.`);
     } catch (error) {
@@ -339,7 +369,11 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
     throw new Error("[Manifest Builder] Fail-closed build is missing API base URL for /api/v1/catalog. Set VITE_API_BASE_URL.");
   }
   writeSnapshot(publishedCatalogPath, publishedCatalog, publishedCatalogFetched);
-  writeSnapshot(join(reactRoot, "src", "data", "generated-published-routes.json"), publishedRouteItems, Boolean(routeCatalogPayload));
+  writeSnapshot(
+    join(reactRoot, "src", "data", "generated-published-routes.json"),
+    deduplicateItemsBySlug(publishedRouteItems, (r: any) => r.slug ?? r.id, "published route"),
+    Boolean(routeCatalogPayload)
+  );
 
   // Fleet prices sanitizer: canonical 5-key tier mapping (sedan, ertiga, innova, tempo, urbania). No crysta.
   const CANONICAL_FLEET_TIERS = ["sedan", "ertiga", "innova", "tempo", "urbania"] as const;
@@ -372,46 +406,50 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
       const payload = tourPackagesPayload as { data?: any[] };
       const rawItems = Array.isArray(payload.data) ? payload.data : [];
 
-      publishedTourPackages = rawItems
-        .filter((item) => item.status === "published")
-        .map((item) => {
-          const rawImg = item.coverImage?.url ?? item.coverImage ?? item.cover_image ?? item.coverImageUrl ?? item.cover_image_url ?? item.imageUrl ?? item.image_url ?? item.image ?? (item.gallery?.[0]?.url ?? item.gallery?.[0]);
-          let image = resolveMediaUrl(typeof rawImg === "string" ? rawImg : rawImg?.url);
-          if (!image) {
-            const key = `${item.slug || ""} ${item.name || ""} ${item.packageCode || ""}`.toLowerCase();
-            if (key.includes("golden") || key.includes("triangle")) {
-              image = "/assets/packages/golden-triangle.webp";
-            } else if (key.includes("mathura") || key.includes("vrindavan")) {
-              image = "/assets/packages/mathura.webp";
-            } else if (key.includes("fatehpur") || key.includes("sikri")) {
-              image = "/assets/booking/fatehpur-sikri.webp";
-            } else {
-              image = "/assets/packages/taj-dawn.webp";
+      publishedTourPackages = deduplicateItemsBySlug(
+        rawItems
+          .filter((item) => item.status === "published")
+          .map((item) => {
+            const rawImg = item.coverImage?.url ?? item.coverImage ?? item.cover_image ?? item.coverImageUrl ?? item.cover_image_url ?? item.imageUrl ?? item.image_url ?? item.image ?? (item.gallery?.[0]?.url ?? item.gallery?.[0]);
+            let image = resolveMediaUrl(typeof rawImg === "string" ? rawImg : rawImg?.url);
+            if (!image) {
+              const key = `${item.slug || ""} ${item.name || ""} ${item.packageCode || ""}`.toLowerCase();
+              if (key.includes("golden") || key.includes("triangle")) {
+                image = "/assets/packages/golden-triangle.webp";
+              } else if (key.includes("mathura") || key.includes("vrindavan")) {
+                image = "/assets/packages/mathura.webp";
+              } else if (key.includes("fatehpur") || key.includes("sikri")) {
+                image = "/assets/booking/fatehpur-sikri.webp";
+              } else {
+                image = "/assets/packages/taj-dawn.webp";
+              }
             }
-          }
-          const gallery = Array.isArray(item.gallery)
-            ? item.gallery
-                .map((g: any, idx: number) => {
-                  const url = resolveMediaUrl(typeof g === "string" ? g : g.url);
-                  const sortOrder = Number(g?.sortOrder ?? g?.sort_order ?? idx);
-                  return {
-                    url,
-                    alt: g?.altText ?? g?.alt ?? item.name,
-                    caption: g?.caption ?? item.name,
-                    sortOrder,
-                  };
-                })
-                .filter((g: any) => Boolean(g.url))
-                .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
-            : image ? [{ url: image, alt: item.name, caption: item.name, sortOrder: 0 }] : [];
-          return {
-            ...item,
-            slug: item.slug ?? item.packageCode ?? item.package_code,
-            image: image || (gallery[0]?.url ?? ""),
-            gallery,
-            fleetPrices: sanitizeFleetPrices(item.fleetPrices ?? item.fleet_prices),
-          };
-        });
+            const gallery = Array.isArray(item.gallery)
+              ? item.gallery
+                  .map((g: any, idx: number) => {
+                    const url = resolveMediaUrl(typeof g === "string" ? g : g.url);
+                    const sortOrder = Number(g?.sortOrder ?? g?.sort_order ?? idx);
+                    return {
+                      url,
+                      alt: g?.altText ?? g?.alt ?? item.name,
+                      caption: g?.caption ?? item.name,
+                      sortOrder,
+                    };
+                  })
+                  .filter((g: any) => Boolean(g.url))
+                  .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
+              : image ? [{ url: image, alt: item.name, caption: item.name, sortOrder: 0 }] : [];
+            return {
+              ...item,
+              slug: item.slug ?? item.packageCode ?? item.package_code,
+              image: image || (gallery[0]?.url ?? ""),
+              gallery,
+              fleetPrices: sanitizeFleetPrices(item.fleetPrices ?? item.fleet_prices),
+            };
+          }),
+        (item: any) => item.slug,
+        "tour package"
+      );
       tourPackagesFetched = true;
       console.log(`✅ [Manifest Builder] Snapshotted ${publishedTourPackages.length} published tour packages from ${redactCatalogUrl(tourPackagesManifestUrl!)}.`);
   }
@@ -425,13 +463,17 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   if (transferPayload) {
       const payload = transferPayload as { data?: any[] };
       const rawItems = Array.isArray(payload.data) ? payload.data : [];
-      publishedTransferRoutes = rawItems
-        .filter((item) => item.status === "published")
-        .map((item) => ({
-          ...item,
-          slug: item.slug ?? item.routeCode ?? item.route_code,
-          fleetPrices: sanitizeFleetPrices(item.fleetPrices ?? item.fleet_prices),
-        }));
+      publishedTransferRoutes = deduplicateItemsBySlug(
+        rawItems
+          .filter((item) => item.status === "published")
+          .map((item) => ({
+            ...item,
+            slug: item.slug ?? item.routeCode ?? item.route_code,
+            fleetPrices: sanitizeFleetPrices(item.fleetPrices ?? item.fleet_prices),
+          })),
+        (item: any) => item.slug,
+        "transfer route"
+      );
       console.log(`✅ [Manifest Builder] Snapshotted ${publishedTransferRoutes.length} published transfer routes from ${redactCatalogUrl(transferRoutesManifestUrl!)}.`);
   }
   writeSnapshot(join(reactRoot, "src", "data", "generated-published-transfer-routes.json"), publishedTransferRoutes, Boolean(transferPayload));
@@ -443,46 +485,50 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   if (localPayload) {
       const payload = localPayload as { data?: any[] };
       const rawItems = Array.isArray(payload.data) ? payload.data : [];
-      publishedLocalPackages = rawItems
-        .filter((item) => item.status === "published")
-        .map((item) => {
-          const rawImg = item.coverImage?.url ?? item.coverImage ?? item.cover_image ?? item.coverImageUrl ?? item.cover_image_url ?? item.imageUrl ?? item.image_url ?? item.image ?? (item.gallery?.[0]?.url ?? item.gallery?.[0]);
-          let image = resolveMediaUrl(typeof rawImg === "string" ? rawImg : rawImg?.url);
-          if (!image) {
-            const key = `${item.slug || ""} ${item.name || ""} ${item.packageCode || ""}`.toLowerCase();
-            if (key.includes("fort") || key.includes("mughal")) {
-              image = "/assets/packages/agra-fort.webp";
-            } else if (key.includes("mathura") || key.includes("vrindavan")) {
-              image = "/assets/packages/mathura.webp";
-            } else if (key.includes("fatehpur") || key.includes("sikri")) {
-              image = "/assets/booking/fatehpur-sikri.webp";
-            } else {
-              image = "/assets/booking/taj-mahal.webp";
+      publishedLocalPackages = deduplicateItemsBySlug(
+        rawItems
+          .filter((item) => item.status === "published")
+          .map((item) => {
+            const rawImg = item.coverImage?.url ?? item.coverImage ?? item.cover_image ?? item.coverImageUrl ?? item.cover_image_url ?? item.imageUrl ?? item.image_url ?? item.image ?? (item.gallery?.[0]?.url ?? item.gallery?.[0]);
+            let image = resolveMediaUrl(typeof rawImg === "string" ? rawImg : rawImg?.url);
+            if (!image) {
+              const key = `${item.slug || ""} ${item.name || ""} ${item.packageCode || ""}`.toLowerCase();
+              if (key.includes("fort") || key.includes("mughal")) {
+                image = "/assets/packages/agra-fort.webp";
+              } else if (key.includes("mathura") || key.includes("vrindavan")) {
+                image = "/assets/packages/mathura.webp";
+              } else if (key.includes("fatehpur") || key.includes("sikri")) {
+                image = "/assets/booking/fatehpur-sikri.webp";
+              } else {
+                image = "/assets/booking/taj-mahal.webp";
+              }
             }
-          }
-          const gallery = Array.isArray(item.gallery)
-            ? item.gallery
-                .map((g: any, idx: number) => {
-                  const url = resolveMediaUrl(typeof g === "string" ? g : g.url);
-                  const sortOrder = Number(g?.sortOrder ?? g?.sort_order ?? idx);
-                  return {
-                    url,
-                    alt: g?.altText ?? g?.alt ?? item.name,
-                    caption: g?.caption ?? item.name,
-                    sortOrder,
-                  };
-                })
-                .filter((g: any) => Boolean(g.url))
-                .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
-            : image ? [{ url: image, alt: item.name, caption: item.name, sortOrder: 0 }] : [];
-          return {
-            ...item,
-            slug: item.slug ?? item.packageCode ?? item.package_code,
-            image: image || (gallery[0]?.url ?? ""),
-            gallery,
-            fleetPrices: sanitizeFleetPrices(item.fleetPrices ?? item.fleet_prices),
-          };
-        });
+            const gallery = Array.isArray(item.gallery)
+              ? item.gallery
+                  .map((g: any, idx: number) => {
+                    const url = resolveMediaUrl(typeof g === "string" ? g : g.url);
+                    const sortOrder = Number(g?.sortOrder ?? g?.sort_order ?? idx);
+                    return {
+                      url,
+                      alt: g?.altText ?? g?.alt ?? item.name,
+                      caption: g?.caption ?? item.name,
+                      sortOrder,
+                    };
+                  })
+                  .filter((g: any) => Boolean(g.url))
+                  .sort((a: any, b: any) => a.sortOrder - b.sortOrder)
+              : image ? [{ url: image, alt: item.name, caption: item.name, sortOrder: 0 }] : [];
+            return {
+              ...item,
+              slug: item.slug ?? item.packageCode ?? item.package_code,
+              image: image || (gallery[0]?.url ?? ""),
+              gallery,
+              fleetPrices: sanitizeFleetPrices(item.fleetPrices ?? item.fleet_prices),
+            };
+          }),
+        (item: any) => item.slug,
+        "local package"
+      );
       console.log(`✅ [Manifest Builder] Snapshotted ${publishedLocalPackages.length} published local packages from ${redactCatalogUrl(localPackagesManifestUrl!)}.`);
   }
   writeSnapshot(join(reactRoot, "src", "data", "generated-published-local-packages.json"), publishedLocalPackages, Boolean(localPayload));

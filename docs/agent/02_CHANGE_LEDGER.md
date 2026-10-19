@@ -1,6 +1,28 @@
-# ArenaAI Agent Change Ledger
+## 2026-10-19
 
-## 2026-10-18
+### 2026-10-19 — Resolution of Catalogue Invariant Errors, React Error #418, Fleet Endpoint 404 & Outbox Hardening
+
+- **Catalogue Duplicate Routes Removal & Parity Enforcement (`build-manifest.ts`, `backend/src/modules/fares/catalog.data.json`)**:
+  - Removed raw duplicate keys `agra-to-nagari-tempo-traveller-2` and `get-delhi-to-agra-car-hire` from backend catalog data.
+  - Converted `allRoutesList` in `build-manifest.ts` into a `Map<string, any>` keyed on slug so static and published routes upsert in-place instead of appending duplicate routes.
+  - Added build-time duplicate slug assertion throwing immediately if any duplicate route exists.
+  - Applied `deduplicateItemsBySlug` across all published snapshots (`publishedTourPackages`, `publishedTransferRoutes`, `publishedLocalPackages`, `publishedCatalog`, `publishedRouteItems`).
+- **Elimination of React Hydration Error #418 (`ServerApp.tsx`, `App.tsx`, `main.tsx`, `SiteLayout.tsx`, `Header.tsx`, `ThemeToggle.tsx`)**:
+  - Moved `<OAuthErrorBanner>` inside `<SiteLayout>` and ensured exact root DOM tree symmetry between SSG (`prerender.ts`/`ServerApp.tsx`) and client hydration (`main.tsx`/`App.tsx`) by wrapping both consistently with `<CustomerAuthProvider>`.
+  - Added `mounted` state in `Header.tsx` so the initial client render renders the same stable sign-in button as SSG pre-rendering, cleanly swapping to the user profile avatar menu only after mount.
+  - Initialized `isDark` to `false` in `ThemeToggle.tsx` and synchronized theme preference from `localStorage` inside `useEffect` after mount, adding `suppressHydrationWarning` on the button.
+- **Fleet Endpoint 404 Fix (`FleetSection.tsx`)**:
+  - Replaced hardcoded relative `fetch("/api/v1/fleet")` with `${getApiBaseUrl()}/api/v1/fleet`.
+  - Added `resolveFleetImageUrl` to ensure vehicle images uploaded to API media routes resolve to the active backend origin.
+- **CSP Image Policy (`react/public/_headers`)**:
+  - Added `https://skb-baghel-api-staging.onrender.com` and `https://api.agraskbagheltourandtravels.com` to `img-src` in `react/public/_headers` so backend-hosted fleet images load without security violations.
+- **Publishing Outbox Hardening & Cloudflare Integration (`publication-worker.ts`, `generate-release.ts`, `react/package.json`)**:
+  - Created `react/scripts/generate-release.ts` emitting `release.json` with commit SHA, release ID, and build timestamp on every production build.
+  - Updated `PublicationWorker` to support Cloudflare Pages API directly using `CLOUDFLARE_API_TOKEN` & `CLOUDFLARE_ACCOUNT_ID`.
+  - Added live Cloudflare deployment status checking and customer site `release.json` verification.
+  - Added price verification for `price_changed` events, validating that the updated fare is present in `routes-manifest.json` or page HTML before finalizing events.
+- **Verification**:
+  - `npm run verify` passed cleanly across all 3 applications (3x typechecks clean, 344 backend unit tests passed, SSG pre-rendering 72 pages + 23 redirects green, 3 production builds green).
 
 ### 2026-10-19 — Review Sharing URL Temporary Routing to Cloudflare Workers Customer Preview
 

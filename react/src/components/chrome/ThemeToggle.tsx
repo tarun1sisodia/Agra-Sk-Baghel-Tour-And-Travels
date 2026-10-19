@@ -5,15 +5,21 @@ export interface ThemeToggleProps {
 }
 
 export function ThemeToggle({ className = "" }: ThemeToggleProps) {
-  const [isDark, setIsDark] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    const stored = localStorage.getItem("theme");
-    if (stored) return stored === "dark";
-    return document.documentElement.getAttribute("data-theme") === "dark" ||
-      document.documentElement.classList.contains("dark");
-  });
+  const [isDark, setIsDark] = useState<boolean>(false);
+  const [mounted, setMounted] = useState<boolean>(false);
 
   useEffect(() => {
+    setMounted(true);
+    const stored = localStorage.getItem("theme");
+    const activeIsDark = stored
+      ? stored === "dark"
+      : document.documentElement.getAttribute("data-theme") === "dark" ||
+        document.documentElement.classList.contains("dark");
+    setIsDark(activeIsDark);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     const root = document.documentElement;
     if (isDark) {
       root.setAttribute("data-theme", "dark");
@@ -24,7 +30,7 @@ export function ThemeToggle({ className = "" }: ThemeToggleProps) {
       root.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
-  }, [isDark]);
+  }, [isDark, mounted]);
 
   const toggleTheme = useCallback(() => {
     setIsDark((prev) => !prev);
@@ -32,6 +38,7 @@ export function ThemeToggle({ className = "" }: ThemeToggleProps) {
 
   return (
     <button
+      suppressHydrationWarning
       className={`cinematic-theme-toggle ${className}`.trim()}
       type="button"
       role="switch"

@@ -11,13 +11,13 @@ Older trackers (`docs/project/PROGRESS.md`, `docs/project/AUDIT_PROGRESS.md`) ar
 ## Current State
 
 - **Current Phase:** Live Customer Site & Monorepo Defect Remediation (VERIFIED IN LIVE BROWSER).
-- **Current Step:** Automated Resend Booking Confirmation Emails & Customer Google Auth Auto-Fill:
-  * Resend Automated Confirmation Emails: Implemented `sendBookingConfirmationEmail()` in `PaymentsService` and wired post-transaction in `processCaptured()` with native `Idempotency-Key: booking-confirmed/${booking.id}`. Delivers branded, luxury HTML & text chauffeur booking vouchers with ticket ID, schedule, vehicle, and 28%/72% tariff breakdown.
-  * Financial Isolation & Non-Blocking Design: Confirmation email dispatch runs in an isolated try-catch error boundary; network drops or Resend errors never rollback PostgreSQL payment capture or fail confirmed bookings.
-  * Customer Google Auth Binding: CleanBookingPage pre-fills customer name and verified email from authenticated Google sessions, attaching `Authorization: Bearer ${accessToken}` to link `user_id` in PostgreSQL.
-  * Zero-Fallback Booking Policy Enforced: Removed all dummy/fabricated fallback vehicle objects and IDs across `cleanFareApi.ts`; strict server-authoritative validation verified.
-  * Monorepo Verification: Full `npm run verify` passed cleanly (4 typechecks, 357 passing tests, 72 SSG pages, 23 redirects, and 3 production builds).
-- **Last updated:** 2026-10-18
+- **Current Step:** Monorepo Defect Remediation & Publishing Pipeline Hardening:
+  * Catalogue Parity & Deduplication: Eliminated duplicate route slugs by removing raw duplicate keys in `catalog.data.json`, converting route generation in `build-manifest.ts` to a slug-keyed `Map`, adding strict build-time duplicate slug invariants, and applying `deduplicateItemsBySlug` across all published snapshots.
+  * React Hydration Error #418 Fix: Synchronized SSG and client rendering by wrapping `ServerApp.tsx` with `<CustomerAuthProvider>`, adding a `mounted` guard in `Header.tsx` to match static SSG button state before hydrating user avatar, and defaulting `isDark` to `false` in `ThemeToggle.tsx` with post-mount sync.
+  * Fleet Endpoint 404 Fix: Replaced hardcoded relative `/api/v1/fleet` in `FleetSection.tsx` with `${getApiBaseUrl()}/api/v1/fleet` and added API media path resolution for uploaded car photos.
+  * Publishing Outbox Hardening & Cloudflare Integration: Created `generate-release.ts` emitting `release.json` upon build, updated `PublicationWorker` to support Cloudflare Pages API deployments directly (`CLOUDFLARE_API_TOKEN` & `CLOUDFLARE_ACCOUNT_ID`), added live Cloudflare build status polling, and added price matching for `price_changed` events.
+  * Monorepo Verification: Full `npm run verify` passed cleanly (3x typechecks clean, 344 passing tests, 72 SSG pages, 23 redirects, and 3 production builds).
+- **Last updated:** 2026-10-19
 - **Summary:** All HTML designs from `react/new_design/` are completely converted into the React application with ultra-luxury aesthetic styling, design tokens (`theme.css`), and the strict English-only mandate:
   * Multi-Agent Orchestration Engine (`agents/`): Automated agent pipeline with `code_extractor.py`, dynamic language templates (`task_template.py`), `tenacity` exponential retry logic, and specialized agents (`schema_agent.py`, `service_agent.py`, `frontend_agent.py`, `test_agent.py`, `seo_content_agent.py`, `orchestrator.py`).
   * Commercial Exception Rules & Strategy Pattern (`backend/src/modules/fares/fare.strategy.ts`): Implemented strict commercial booking rules for group vehicles ("Urbania", "Force Tempo", and any "Force" variants): forced round-trip billing (`km * 2`), 300 km/day minimum distance floor (`Math.max(km * 2, 300 * days)`), ₹500/day driver allowance, and locked fixed-rate pricing structure (zero promo discounts).

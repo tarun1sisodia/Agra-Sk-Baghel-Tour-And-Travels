@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useId } from "react";
 import type { SupportedLanguage } from "../../config";
+import { getApiBaseUrl } from "../../services/api";
 
 export interface CanonicalFleetVehicle {
   id: string;
@@ -328,10 +329,18 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
     if (groups.length === 0) setLoading(true);
     setError(false);
     try {
-      const res = await fetch("/api/v1/fleet", { headers: { Accept: "application/json" } });
+      const apiBase = getApiBaseUrl();
+      const res = await fetch(`${apiBase}/api/v1/fleet`, { headers: { Accept: "application/json" } });
       if (!res.ok) throw new Error("Failed to fetch fleet");
       const json = await res.json();
       const payload = json?.data ?? json;
+
+      const resolveFleetImageUrl = (url?: string | null) => {
+        if (!url || !url.trim()) return null;
+        const trimmed = url.trim();
+        if (trimmed.startsWith("/api/")) return `${apiBase}${trimmed}`;
+        return trimmed;
+      };
 
       if (Array.isArray(payload?.groups) && payload.groups.length > 0) {
         const mappedGroups: CanonicalFleetGroup[] = payload.groups.map((g: any) => ({
@@ -351,7 +360,7 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
               seats: Number(v.seats || v.passenger_capacity || 4),
               bags: Number(v.bags || v.luggage_capacity || 2),
               perKm: v.perKm != null && Number(v.perKm) > 0 ? Number(v.perKm) : null,
-              imageUrl: v.imageUrl || v.image_url || null,
+              imageUrl: resolveFleetImageUrl(v.imageUrl || v.image_url),
               active: true,
             })),
         }));

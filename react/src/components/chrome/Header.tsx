@@ -22,7 +22,12 @@ export function Header({
   const [accountError, setAccountError] = useState<string | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
   const { user, loading: authLoading, configured, signInWithGoogle, signOut } = useCustomerAuth();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isMobileNavOpen = controlledMobileNav !== undefined ? controlledMobileNav : internalMobileNav;
 
@@ -178,7 +183,18 @@ export function Header({
 
           {/* Actions: Phone, WhatsApp, and Mobile Menu */}
           <div className="flex items-center gap-2 shrink-0">
-            {!authLoading && (user ? (
+            {!mounted ? (
+              configured ? (
+                <button
+                  type="button"
+                  onClick={() => void signInWithGoogle().catch((error) => setAccountError(error instanceof Error ? error.message : "Sign-in could not start."))}
+                  className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-primary/25 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-sandstone-wash transition-colors shadow-xs cursor-pointer"
+                >
+                  <span aria-hidden="true" className="grid h-4 w-4 place-items-center rounded-full bg-white text-[10px] font-bold text-primary shadow-2xs">G</span>
+                  <span>Sign in</span>
+                </button>
+              ) : null
+            ) : (!authLoading && (user ? (
               <div className="relative hidden sm:block" ref={userMenuRef}>
                 <button
                   type="button"
@@ -261,7 +277,7 @@ export function Header({
                 <span aria-hidden="true" className="grid h-4 w-4 place-items-center rounded-full bg-white text-[10px] font-bold text-primary shadow-2xs">G</span>
                 <span>Sign in</span>
               </button>
-            ) : null)}
+            ) : null))}
             {/* Phone Call CTA */}
             <a
               href={`tel:${contact.phone}`}

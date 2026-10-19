@@ -1275,28 +1275,6 @@
       "urbania": 7500
     }
   },
-  "agra-to-nagari-tempo-traveller-2": {
-    "id": "agra-to-nagari-tempo-traveller-2",
-    "from": "agra",
-    "to": "nagari",
-    "origin": "Agra",
-    "destination": "Nagari",
-    "corridor": "Agra -> Pan-India Long Distance (Tempo Traveller)",
-    "km": 165,
-    "duration": "3h",
-    "durationMins": 180,
-    "kind": "one-way",
-    "pricingModel": "tempo",
-    "toll": 0,
-    "hatchbackFare": 1800,
-    "fares": {
-      "sedan": 2200,
-      "ertiga": 2800,
-      "innova": 3800,
-      "tempo": 5500,
-      "urbania": 7500
-    }
-  },
   "agra-to-nagari-tempo-traveller": {
     "id": "agra-to-nagari-tempo-traveller",
     "from": "agra",
@@ -10447,28 +10425,6 @@
       "innova": 3600,
       "tempo": 6500,
       "urbania": 8500
-    }
-  },
-  "get-delhi-to-agra-car-hire": {
-    "id": "get-delhi-to-agra-car-hire",
-    "from": "delhi",
-    "to": "agra",
-    "origin": "Delhi",
-    "destination": "Agra",
-    "corridor": "Delhi / Gurgaon (NCR) -> Agra",
-    "km": 165,
-    "duration": "3h",
-    "durationMins": 180,
-    "kind": "one-way",
-    "pricingModel": "custom",
-    "toll": 0,
-    "hatchbackFare": 1800,
-    "fares": {
-      "sedan": 2200,
-      "ertiga": 2800,
-      "innova": 3800,
-      "tempo": 5500,
-      "urbania": 7500
     }
   },
   "gg-industries-to-haridwar-taxi-services": {

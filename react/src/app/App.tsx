@@ -2,6 +2,7 @@ import { lazy, Suspense, useState, useEffect, useMemo } from "react";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { SiteLayout } from "../layouts/SiteLayout";
 import { HomePage } from "../pages/HomePage";
+import { CustomerAuthProvider } from "../auth/customerAuth";
 
 const RentalPage = lazy(() => import("../pages/RentalPage").then((m) => ({ default: m.RentalPage })));
 const ServicesPage = lazy(() => import("../pages/ServicesPage").then((m) => ({ default: m.ServicesPage })));
@@ -565,84 +566,86 @@ export function App({ pathname: propPathname }: AppProps = {}) {
 
   return (
     <ErrorBoundary>
-      <SeoHead
-        language={language}
-        pathname={pathname}
-        title={pageTitle}
-        description={pageDescription}
-        ogImage={pageOgImage}
-        keywords={pageKeywords}
-        noindex={isBooking || isPrivateCustomerPage || is404}
-      />
-      <SiteLayout currentPath={pathname}>
-        <Suspense fallback={null}>
-          {is404 ? (
-            <NotFoundPage language={language} />
-          ) : isAuthCallback ? (
-            <AuthCallbackPage />
-          ) : isMyBookings ? (
-            <MyBookingsPage />
-          ) : isPaymentResume ? (
-            <PaymentResumePage />
-          ) : isLogin ? (
-            <LoginPage />
-          ) : isBookingConfirmation ? (
-            <BookingConfirmationPage />
-          ) : isReview ? (
-            <ReviewPage />
-          ) : isBooking ? (
-            <BookingPage />
-          ) : isHome ? (
-            <HomePage language={language} />
-          ) : activeRoute ? (
-            <RouteDetailPage language={language} route={activeRoute} />
-          ) : dossierTourPackage ? (
-            <PackageDetailPage language={language} pkg={toDossierTourPackage(dossierTourPackage)} />
-          ) : matchedPackage ? (
-            <PackageDetailPage language={language} pkg={matchedPackage} />
-          ) : livePackageSlug ? (
-            <DynamicPackageDetailPage language={language} slug={livePackageSlug} />
-          ) : dossierTransferRoute ? (
-            <TransferDetailPage language={language} item={dossierTransferRoute} />
-          ) : dossierLocalPackage ? (
-            <LocalPackageDetailPage language={language} item={dossierLocalPackage} />
-          ) : dossierMonument ? (
-            <MonumentDetailPage language={language} item={dossierMonument} />
-          ) : isRental ? (
-            <RentalPage language={language} />
-          ) : cleanProductMatch ? (
-            <ProductDetailPage category={cleanProductMatch.category} code={cleanProductMatch.code} />
-          ) : matchedVehicle ? (
-            <VehicleDetailPage language={language} vehicle={matchedVehicle} />
-          ) : isSeoLanding ? (
-            <SeoLandingPage slug={section as SeoLandingSlug} />
-          ) : section === "services" ? (
-            <ServicesPage language={language} />
-          ) : section === "routes" ? (
-            <RoutesPage language={language} />
-          ) : section === "packages" ? (
-            <PackagesPage language={language} />
-          ) : section === "monuments" || cleanPath === "/monuments" || cleanPath === "/en/monuments" ? (
-            <MonumentsPage language={language} />
-          ) : section === "fleet" ? (
-            <FleetPage language={language} />
-          ) : section === "about" ? (
-            <AboutPage language={language} />
-          ) : section === "contact" ? (
-            <ContactPage language={language} />
-          ) : section === "faq" ? (
-            <FaqPage language={language} />
-          ) : section === "terms" ? (
-            <TermsPage language={language} />
-          ) : section === "privacy" ? (
-            <PrivacyPage language={language} />
-          ) : isMarketingHub || pathname.startsWith("/en/") ? (
-            <MarketingPage language={language} section={section} />
-          ) : (
-            <NotFoundPage language={language} />
-          )}
-        </Suspense>
-      </SiteLayout>
+      <CustomerAuthProvider>
+        <SeoHead
+          language={language}
+          pathname={pathname}
+          title={pageTitle}
+          description={pageDescription}
+          ogImage={pageOgImage}
+          keywords={pageKeywords}
+          noindex={isBooking || isPrivateCustomerPage || is404}
+        />
+        <SiteLayout currentPath={pathname}>
+          <Suspense fallback={null}>
+            {is404 ? (
+              <NotFoundPage language={language} />
+            ) : isAuthCallback ? (
+              <AuthCallbackPage />
+            ) : isMyBookings ? (
+              <MyBookingsPage />
+            ) : isPaymentResume ? (
+              <PaymentResumePage />
+            ) : isLogin ? (
+              <LoginPage />
+            ) : isBookingConfirmation ? (
+              <BookingConfirmationPage />
+            ) : isReview ? (
+              <ReviewPage />
+            ) : isBooking ? (
+              <BookingPage />
+            ) : isHome ? (
+              <HomePage language={language} />
+            ) : activeRoute ? (
+              <RouteDetailPage language={language} route={activeRoute} />
+            ) : dossierTourPackage ? (
+              <PackageDetailPage language={language} pkg={toDossierTourPackage(dossierTourPackage)} />
+            ) : matchedPackage ? (
+              <PackageDetailPage language={language} pkg={matchedPackage} />
+            ) : livePackageSlug ? (
+              <DynamicPackageDetailPage language={language} slug={livePackageSlug} />
+            ) : dossierTransferRoute ? (
+              <TransferDetailPage language={language} item={dossierTransferRoute} />
+            ) : dossierLocalPackage ? (
+              <LocalPackageDetailPage language={language} item={dossierLocalPackage} />
+            ) : dossierMonument ? (
+              <MonumentDetailPage language={language} item={dossierMonument} />
+            ) : isRental ? (
+              <RentalPage language={language} />
+            ) : cleanProductMatch ? (
+              <ProductDetailPage category={cleanProductMatch.category} code={cleanProductMatch.code} />
+            ) : matchedVehicle ? (
+              <VehicleDetailPage language={language} vehicle={matchedVehicle} />
+            ) : isSeoLanding ? (
+              <SeoLandingPage slug={section as SeoLandingSlug} />
+            ) : section === "services" ? (
+              <ServicesPage language={language} />
+            ) : section === "routes" ? (
+              <RoutesPage language={language} />
+            ) : section === "packages" ? (
+              <PackagesPage language={language} />
+            ) : section === "monuments" || cleanPath === "/monuments" || cleanPath === "/en/monuments" ? (
+              <MonumentsPage language={language} />
+            ) : section === "fleet" ? (
+              <FleetPage language={language} />
+            ) : section === "about" ? (
+              <AboutPage language={language} />
+            ) : section === "contact" ? (
+              <ContactPage language={language} />
+            ) : section === "faq" ? (
+              <FaqPage language={language} />
+            ) : section === "terms" ? (
+              <TermsPage language={language} />
+            ) : section === "privacy" ? (
+              <PrivacyPage language={language} />
+            ) : isMarketingHub || pathname.startsWith("/en/") ? (
+              <MarketingPage language={language} section={section} />
+            ) : (
+              <NotFoundPage language={language} />
+            )}
+          </Suspense>
+        </SiteLayout>
+      </CustomerAuthProvider>
     </ErrorBoundary>
   );
 }

@@ -20,6 +20,9 @@ export interface PublicationWorkerOptions {
   pool: pg.Pool;
   deployHookUrl?: string;
   customerSiteUrl?: string;
+  cfAccountId?: string;
+  cfApiToken?: string;
+  cfProjectName?: string;
   logger?: Logger | { info: (...args: any[]) => void; warn: (...args: any[]) => void; error: (...args: any[]) => void; debug?: (...args: any[]) => void };
   fetchFn?: typeof fetch;
   verifyFn?: (event: PublishEventRecord) => Promise<boolean>;
@@ -40,6 +43,9 @@ export class PublicationWorker {
   private pool: pg.Pool;
   private deployHookUrl?: string;
   private customerSiteUrl?: string;
+  private cfAccountId?: string;
+  private cfApiToken?: string;
+  private cfProjectName?: string;
   private logger: { info: (...args: any[]) => void; warn: (...args: any[]) => void; error: (...args: any[]) => void; debug?: (...args: any[]) => void };
   private fetchFn: typeof fetch;
   private verifyFn?: (event: PublishEventRecord) => Promise<boolean>;
@@ -49,6 +55,9 @@ export class PublicationWorker {
     this.pool = opts.pool;
     this.deployHookUrl = opts.deployHookUrl;
     this.customerSiteUrl = opts.customerSiteUrl;
+    this.cfAccountId = opts.cfAccountId ?? process.env.CLOUDFLARE_ACCOUNT_ID;
+    this.cfApiToken = opts.cfApiToken ?? process.env.CLOUDFLARE_API_TOKEN;
+    this.cfProjectName = opts.cfProjectName ?? process.env.CLOUDFLARE_PAGES_PROJECT_CUSTOMER ?? "skbagheltravels-customer";
     this.logger = opts.logger ?? console;
     this.fetchFn = opts.fetchFn ?? fetch;
     this.verifyFn = opts.verifyFn;
@@ -87,26 +96,28 @@ export class PublicationWorker {
     expectedPath: string | null;
     expectedTitle: string | null;
     expectedImage: string | null;
+    expectedFare: number | null;
     slug: string | null;
   }> {
     let expectedPath: string | null = null;
     let expectedTitle: string | null = null;
     let expectedImage: string | null = null;
+    let expectedFare: number | null = null;
     let slug: string | null = null;
 
     if (!this.pool) {
-      return { expectedPath, expectedTitle, expectedImage, slug };
+      return { expectedPath, expectedTitle, expectedImage, expectedFare, slug };
     }
 
     if (event.entity_type === "tour_package") {
       let tpRes = await this.pool.query(
-        "SELECT code, name, image_url, gallery FROM tour_packages WHERE id::text = $1 OR code = $1",
+        "SELECT code, name, image_url, gallery, base_price_inr, fleet_prices FROM tour_packages WHERE id::text = $1 OR code = $1",
         [event.entity_id]
       ).catch(() => ({ rows: [] }));
 
       if (tpRes.rows.length === 0 || !tpRes.rows[0]?.code) {
         const fallback = await this.pool.query(
-          "SELECT package_code, name, image_url, gallery FROM tour_packages WHERE id::text = $1 OR package_code = $1",
+          "SELECT package_code, name, image_url, gallery, base_price_inr, fleet_prices FROM tour_packages WHERE id::text = $1 OR package_code = $1",
           [event.entity_id]
         ).catch(() => ({ rows: [] }));
         if (fallback.rows.length > 0) {
@@ -120,9 +131,10 @@ export class PublicationWorker {
         expectedPath = `/en/packages/${slug}/`;
         expectedTitle = row.name;
         expectedImage = row.image_url || (Array.isArray(row.gallery) ? row.gallery[0]?.url : null) || null;
+        expectedFare = Number(row.base_price_inr ?? row.fleet_prices?.sedan ?? null) || null;
       } else {
         const catRes = await this.pool.query(
-          "SELECT slug, title, type FROM catalog_items WHERE id = $1 OR slug = $1",
+          "SELECT slug, title, type, price_inr FROM catalog_items WHERE id = $1 OR slug = $1",
           [event.entity_id]
         ).catch(() => ({ rows: [] }));
 
@@ -132,6 +144,7 @@ export class PublicationWorker {
           const prefix = row.type === "tour" ? "local-packages" : "packages";
           expectedPath = `/en/${prefix}/${row.slug}/`;
           expectedTitle = row.title;
+          expectedFare = Number(row.price_inr ?? null) || null;
 
           const mediaRes = await this.pool.query(
             "SELECT storage_path FROM catalog_item_media WHERE catalog_item_id = $1 AND sort_order = 0 AND status != 'archived' LIMIT 1",
@@ -144,13 +157,13 @@ export class PublicationWorker {
       }
     } else if (event.entity_type === "local_package") {
       let lpRes = await this.pool.query(
-        "SELECT code, name, image_url, gallery FROM local_packages WHERE id::text = $1 OR code = $1",
+        "SELECT code, name, image_url, gallery, base_price_inr, fleet_prices FROM local_packages WHERE id::text = $1 OR code = $1",
         [event.entity_id]
       ).catch(() => ({ rows: [] }));
 
       if (lpRes.rows.length === 0 || !lpRes.rows[0]?.code) {
         const fallback = await this.pool.query(
-          "SELECT package_code, name, image_url, gallery FROM local_sightseeing_packages WHERE id::text = $1 OR package_code = $1",
+          "SELECT package_code, name, image_url, gallery, base_price_inr, fleet_prices FROM local_sightseeing_packages WHERE id::text = $1 OR package_code = $1",
           [event.entity_id]
         ).catch(() => ({ rows: [] }));
         if (fallback.rows.length > 0) {
@@ -164,9 +177,10 @@ export class PublicationWorker {
         expectedPath = `/en/local-packages/${slug}/`;
         expectedTitle = row.name;
         expectedImage = row.image_url || (Array.isArray(row.gallery) ? row.gallery[0]?.url : null) || null;
+        expectedFare = Number(row.base_price_inr ?? row.fleet_prices?.sedan ?? null) || null;
       } else {
         const catRes = await this.pool.query(
-          "SELECT slug, title FROM catalog_items WHERE id = $1 OR slug = $1",
+          "SELECT slug, title, price_inr FROM catalog_items WHERE id = $1 OR slug = $1",
           [event.entity_id]
         ).catch(() => ({ rows: [] }));
 
@@ -174,6 +188,7 @@ export class PublicationWorker {
           slug = catRes.rows[0].slug;
           expectedPath = `/en/local-packages/${catRes.rows[0].slug}/`;
           expectedTitle = catRes.rows[0].title;
+          expectedFare = Number(catRes.rows[0].price_inr ?? null) || null;
 
           const mediaRes = await this.pool.query(
             "SELECT storage_path FROM catalog_item_media WHERE catalog_item_id = $1 AND sort_order = 0 AND status != 'archived' LIMIT 1",
@@ -186,13 +201,13 @@ export class PublicationWorker {
       }
     } else if (event.entity_type === "transfer") {
       let trRes = await this.pool.query(
-        "SELECT code, name FROM transfers WHERE id::text = $1 OR code = $1",
+        "SELECT code, name, fleet_prices FROM transfers WHERE id::text = $1 OR code = $1",
         [event.entity_id]
       ).catch(() => ({ rows: [] }));
 
       if (trRes.rows.length === 0 || !trRes.rows[0]?.code) {
         const fallback = await this.pool.query(
-          "SELECT route_code, name FROM transfer_routes WHERE id::text = $1 OR route_code = $1",
+          "SELECT route_code, name, fleet_prices FROM transfer_routes WHERE id::text = $1 OR route_code = $1",
           [event.entity_id]
         ).catch(() => ({ rows: [] }));
         if (fallback.rows.length > 0) {
@@ -205,9 +220,10 @@ export class PublicationWorker {
         slug = row.code || row.route_code;
         expectedPath = `/en/transfers/${slug}/`;
         expectedTitle = row.name;
+        expectedFare = Number(row.fleet_prices?.sedan ?? null) || null;
       } else {
         const catRes = await this.pool.query(
-          "SELECT slug, title FROM catalog_items WHERE id = $1 OR slug = $1",
+          "SELECT slug, title, price_inr FROM catalog_items WHERE id = $1 OR slug = $1",
           [event.entity_id]
         ).catch(() => ({ rows: [] }));
 
@@ -215,13 +231,14 @@ export class PublicationWorker {
           slug = catRes.rows[0].slug;
           expectedPath = `/en/transfers/${catRes.rows[0].slug}/`;
           expectedTitle = catRes.rows[0].title;
+          expectedFare = Number(catRes.rows[0].price_inr ?? null) || null;
         }
       }
     } else if (event.entity_type === "outstation_route") {
       // The legacy routes table and slug/source_city columns were removed.
       // Resolve against the active canonical fare-system schema.
       const routeRes = await this.pool.query(
-        `SELECT code, origin_name, destination_name, image_url, gallery
+        `SELECT code, origin_name, destination_name, image_url, gallery, fares_inr
          FROM outstation_routes
          WHERE id::text = $1 OR code = $1
          LIMIT 1`,
@@ -234,9 +251,10 @@ export class PublicationWorker {
         expectedPath = `/en/${row.code}/`;
         expectedTitle = `${row.origin_name} to ${row.destination_name}`;
         expectedImage = row.image_url || (Array.isArray(row.gallery) ? row.gallery[0]?.url : null) || null;
+        expectedFare = Number(row.fares_inr?.sedan ?? null) || null;
       } else {
         const catRes = await this.pool.query(
-          "SELECT slug, title FROM catalog_items WHERE id = $1 OR slug = $1",
+          "SELECT slug, title, price_inr FROM catalog_items WHERE id = $1 OR slug = $1",
           [event.entity_id]
         ).catch(() => ({ rows: [] }));
 
@@ -244,6 +262,7 @@ export class PublicationWorker {
           slug = catRes.rows[0].slug;
           expectedPath = `/en/${catRes.rows[0].slug}/`;
           expectedTitle = catRes.rows[0].title;
+          expectedFare = Number(catRes.rows[0].price_inr ?? null) || null;
         }
       }
     } else if (event.entity_type === "review") {
@@ -257,12 +276,14 @@ export class PublicationWorker {
       }
     }
 
-    return { expectedPath, expectedTitle, expectedImage, slug };
+    return { expectedPath, expectedTitle, expectedImage, expectedFare, slug };
   }
 
   async processEvent(event: PublishEventRecord): Promise<void> {
     const deployHook = this.deployHookUrl?.trim();
-    if (!deployHook) {
+    const hasCfApi = Boolean(this.cfApiToken && this.cfAccountId);
+
+    if (!deployHook && !hasCfApi) {
       await this.pool.query(
         `
         UPDATE site_publish_events
@@ -291,39 +312,73 @@ export class PublicationWorker {
     }
 
     try {
-      this.logger.info(
-        { eventId: event.id, entityType: event.entity_type, eventType: event.event_type, target: maskUrl(deployHook) },
-        "dispatching deploy hook"
-      );
-
-      const response = await this.fetchFn(deployHook, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-correlation-id": event.id,
-        },
-        body: JSON.stringify({
-          eventId: event.id,
-          entityType: event.entity_type,
-          entityId: event.entity_id,
-          eventType: event.event_type,
-        }),
-        signal: AbortSignal.timeout(15_000),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Deploy hook returned HTTP ${response.status}`);
-      }
-
       let deploymentRef: string | null = null;
-      try {
-        const json = (await response.json()) as any;
-        deploymentRef = json?.result?.id || json?.id || null;
-      } catch {
-        // response might not be JSON
-      }
-      if (!deploymentRef) {
-        deploymentRef = response.headers.get("cf-ray") || `cf-hook-${Date.now()}`;
+      let responseStatus = 200;
+
+      if (deployHook) {
+        this.logger.info(
+          { eventId: event.id, entityType: event.entity_type, eventType: event.event_type, target: maskUrl(deployHook) },
+          "dispatching deploy hook"
+        );
+
+        const response = await this.fetchFn(deployHook, {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-correlation-id": event.id,
+          },
+          body: JSON.stringify({
+            eventId: event.id,
+            entityType: event.entity_type,
+            entityId: event.entity_id,
+            eventType: event.event_type,
+          }),
+          signal: AbortSignal.timeout(15_000),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Deploy hook returned HTTP ${response.status}`);
+        }
+
+        responseStatus = response.status;
+        try {
+          const json = (await response.json()) as any;
+          deploymentRef = json?.result?.id || json?.id || null;
+        } catch {
+          // response might not be JSON
+        }
+        if (!deploymentRef) {
+          deploymentRef = response.headers.get("cf-ray") || `cf-hook-${Date.now()}`;
+        }
+      } else {
+        const cfDeployUrl = `https://api.cloudflare.com/client/v4/accounts/${this.cfAccountId}/pages/projects/${this.cfProjectName}/deployments`;
+        this.logger.info(
+          { eventId: event.id, entityType: event.entity_type, project: this.cfProjectName },
+          "dispatching deployment via Cloudflare API"
+        );
+
+        const response = await this.fetchFn(cfDeployUrl, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.cfApiToken}`,
+            "content-type": "application/json",
+            "x-correlation-id": event.id,
+          },
+          signal: AbortSignal.timeout(15_000),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Cloudflare deployments API returned HTTP ${response.status}`);
+        }
+
+        responseStatus = response.status;
+        try {
+          const json = (await response.json()) as any;
+          deploymentRef = json?.result?.id || json?.id || null;
+        } catch {}
+        if (!deploymentRef) {
+          deploymentRef = response.headers.get("cf-ray") || `cf-api-${Date.now()}`;
+        }
       }
 
       // Move status to triggered
@@ -348,7 +403,7 @@ export class PublicationWorker {
         entityId: event.entity_id,
         slug: null,
         sourceVersion: null,
-        httpStatus: response.status,
+        httpStatus: responseStatus,
         message: "Deploy hook accepted the rebuild request. Deployment completion is not yet verified.",
         attemptedAt: new Date().toISOString(),
       });
@@ -447,6 +502,59 @@ export class PublicationWorker {
       return false;
     }
 
+    // If Cloudflare API credentials are configured, verify the deployment has finished
+    if (this.cfApiToken && this.cfAccountId && this.cfProjectName) {
+      try {
+        const cfStatusUrl = `https://api.cloudflare.com/client/v4/accounts/${this.cfAccountId}/pages/projects/${this.cfProjectName}/deployments?per_page=5`;
+        const cfRes = await this.fetchFn(cfStatusUrl, {
+          headers: {
+            Authorization: `Bearer ${this.cfApiToken}`,
+            Accept: "application/json",
+          },
+          signal: AbortSignal.timeout(10_000),
+        });
+        if (cfRes.ok) {
+          const cfData = (await cfRes.json()) as any;
+          const deployments = cfData?.result;
+          if (Array.isArray(deployments) && deployments.length > 0) {
+            const latest = deployments[0];
+            const stageStatus = latest?.latest_stage?.status || latest?.status;
+            if (stageStatus && stageStatus !== "success" && stageStatus !== "active") {
+              this.logger.debug?.({ eventId: event.id, stageStatus }, "Cloudflare Pages deployment is not yet finished");
+              return false;
+            }
+          }
+        }
+      } catch (err: any) {
+        this.logger.debug?.({ eventId: event.id, err: err?.message }, "Cloudflare API status check encountered network error");
+      }
+    }
+
+    // Check release.json if available
+    try {
+      const releaseRes = await this.fetchFn(`${siteBase.origin}/release.json`, {
+        method: "GET",
+        headers: { accept: "application/json" },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (releaseRes.ok) {
+        const releaseData = (await releaseRes.json()) as { builtAt?: string };
+        if (releaseData?.builtAt) {
+          const builtTime = new Date(releaseData.builtAt).getTime();
+          const eventTime = new Date(event.created_at).getTime();
+          if (builtTime < eventTime - 15_000) {
+            this.logger.debug?.(
+              { eventId: event.id, builtAt: releaseData.builtAt, createdAt: event.created_at },
+              "Customer site release.json is older than publish event"
+            );
+            return false;
+          }
+        }
+      }
+    } catch {
+      // non-blocking if release.json not present
+    }
+
     // The customer site is static/SSG and intentionally has no API-style /health endpoint.
     try {
       const originRes = await this.fetchFn(`${siteBase.origin}/`, {
@@ -465,7 +573,7 @@ export class PublicationWorker {
 
     // 2. Canonical route, media, and sitemap verification
     try {
-      const { expectedPath, expectedTitle, expectedImage } = await this.resolveEntityData(event);
+      const { expectedPath, expectedTitle, expectedImage, expectedFare, slug } = await this.resolveEntityData(event);
 
       // Fail-closed requirement: if an entity or canonical URL cannot be resolved,
       // never return true.
@@ -615,6 +723,49 @@ export class PublicationWorker {
           const cleanPath = expectedPath.replace(/\/$/, "");
           if (!sitemapXml.includes(expectedPath) && !sitemapXml.includes(cleanPath)) {
             this.logger.debug?.({ eventId: event.id, expectedPath }, "Sitemap does not include canonical detail page");
+            return false;
+          }
+        }
+
+        // Verify price accuracy for price_changed events
+        if (event.event_type === "price_changed" && expectedFare) {
+          let priceMatched = false;
+          // 1. Check routes-manifest.json if slug is present
+          if (slug) {
+            try {
+              const manifestRes = await this.fetchFn(`${siteBase.origin}/routes-manifest.json`, {
+                method: "GET",
+                signal: AbortSignal.timeout(5000),
+              });
+              if (manifestRes.ok) {
+                const manifestData = (await manifestRes.json()) as Record<string, { fs?: number }>;
+                if (manifestData[slug] && manifestData[slug].fs === expectedFare) {
+                  priceMatched = true;
+                }
+              }
+            } catch {
+              // manifest fetch is optional fallback
+            }
+          }
+
+          // 2. Check detail page HTML for the expected fare or formatted Indian currency
+          if (!priceMatched) {
+            try {
+              const html = await pageRes.text();
+              const fareFormatted = new Intl.NumberFormat("en-IN").format(expectedFare);
+              if (html.includes(String(expectedFare)) || html.includes(fareFormatted)) {
+                priceMatched = true;
+              }
+            } catch {
+              // page text read error
+            }
+          }
+
+          if (!priceMatched) {
+            this.logger.debug?.(
+              { eventId: event.id, expectedFare, path: expectedPath },
+              "Detail page or manifest does not yet reflect updated price"
+            );
             return false;
           }
         }
