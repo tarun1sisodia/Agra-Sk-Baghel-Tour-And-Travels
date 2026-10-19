@@ -2,6 +2,17 @@
 
 ## 2026-10-18
 
+### 2026-10-19 — PDF Booking Confirmation Phase 1: Dependency Installation & Runtime Validation
+
+- **`@pdfme/generator` & Schemas Installation (`backend/package.json`, `backend/package-lock.json`)**:
+  - Installed `@pdfme/generator`, `@pdfme/schemas`, and `@pdfme/common` at `^6.2.6` in the backend workspace.
+  - Verified Node.js 22+ native ESM compatibility (`import('@pdfme/generator')`).
+  - Executed runtime proof-of-concept generating a valid in-memory A4 PDF buffer (`%PDF`, 4,026 bytes) with `@pdfme/generator` and `@pdfme/schemas`.
+- **TypeScript `noUncheckedIndexedAccess` Fix (`payments.service.ts`, `reviews.service.ts`)**:
+  - Resolved `TS2532: Object is possibly 'undefined'` in regex match indexing for `EMAIL_FROM` parsing (`emailMatch?.[1] || fromAddress`).
+  - Verified monorepo `typecheck` across `react/`, `admin/`, and `backend/` passes with 0 errors.
+  - Ran backend test suite: all 325 unit tests passed.
+
 ### 2026-10-19 — EMAIL_FROM Display-Name Support & Qwen Coder PDF Confirmation Blueprint
 
 - **Display-Name Support for Resend (`payments.service.ts`, `reviews.service.ts`)**:
