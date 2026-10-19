@@ -69,6 +69,36 @@ const FLEET_PRESENTATION: Record<string, { label: string; sub: string; note: str
     note: "Luxury van with individual recline and USB charging",
     img: "/assets/fleet/urbania.webp",
   },
+  luxury: {
+    label: "Luxury Fleet",
+    sub: "Camry / Vellfire",
+    note: "Presidential-class travel with ottoman seating and quiet cabin",
+    img: "/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg",
+  },
+  camry: {
+    label: "Toyota Camry",
+    sub: "Hybrid Luxury Sedan",
+    note: "Executive hybrid travel with VIP rear lounge comfort",
+    img: "/assets/fleet/toyota-camry-hybrid-executive-luxury-360x536.jpg",
+  },
+  vellfire: {
+    label: "Toyota Vellfire",
+    sub: "Ultra-Luxury Lounge MPV",
+    note: "Executive VIP lounge with acoustic quiet cabin",
+    img: "/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg",
+  },
+  fortuner: {
+    label: "Toyota Fortuner",
+    sub: "Full-Size 4x4 SUV",
+    note: "Commanding road presence and heavy expressway touring",
+    img: "/assets/fleet/toyota-fortuner-black-suv-360x536.jpg",
+  },
+  amaze: {
+    label: "Honda Amaze",
+    sub: "Compact Sedan",
+    note: "Smooth automatic ride for city drops and airport transits",
+    img: "/assets/fleet/honda-amaze-red-sedan-921x519.webp",
+  },
 };
 
 export interface HomePageProps {

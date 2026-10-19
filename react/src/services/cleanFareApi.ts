@@ -185,14 +185,15 @@ export function getFallbackPublishedCatalog(): PublishedCatalogResponse {
       { group_code: "tempo_traveller", name: "Tempo Traveller", driver_allowance_per_day: 800, one_way_night_charge: 600, round_trip_halt_per_night: 800, sort_order: 4 },
     ],
     vehicles: [
-      { id: "a0000000-0000-4000-a000-000000000001", group_code: "sedan", make: "Maruti", model_name: "Dzire", display_name: "Maruti Dzire", passenger_capacity: 4, luggage_capacity: 2, image_url: "/assets/fleet/dzire.webp" },
-      { id: "a0000000-0000-4000-a000-000000000002", group_code: "sedan", make: "Toyota", model_name: "Etios", display_name: "Toyota Etios", passenger_capacity: 4, luggage_capacity: 3, image_url: "/assets/fleet/etios.webp" },
+      { id: "a0000000-0000-4000-a000-000000000001", group_code: "sedan", make: "Maruti", model_name: "Dzire", display_name: "Maruti Dzire", passenger_capacity: 4, luggage_capacity: 2, image_url: "/assets/fleet/sedan.webp" },
+      { id: "a0000000-0000-4000-a000-000000000002", group_code: "sedan", make: "Honda", model_name: "Amaze", display_name: "Honda Amaze Sedan", passenger_capacity: 4, luggage_capacity: 2, image_url: "/assets/fleet/honda-amaze-red-sedan-921x519.webp" },
       { id: "a0000000-0000-4000-a000-000000000003", group_code: "suv", make: "Maruti", model_name: "Ertiga", display_name: "Maruti Ertiga", passenger_capacity: 6, luggage_capacity: 3, image_url: "/assets/fleet/ertiga.webp" },
       { id: "a0000000-0000-4000-a000-000000000004", group_code: "suv", make: "Toyota", model_name: "Innova Crysta", display_name: "Innova Crysta", passenger_capacity: 6, luggage_capacity: 4, image_url: "/assets/fleet/innova.webp" },
-      { id: "a0000000-0000-4000-a000-000000000005", group_code: "luxury", make: "Mercedes-Benz", model_name: "E-Class", display_name: "Mercedes E-Class", passenger_capacity: 4, luggage_capacity: 3, image_url: "/assets/fleet/mercedes.webp" },
-      { id: "a0000000-0000-4000-a000-000000000006", group_code: "luxury", make: "BMW", model_name: "5-Series", display_name: "BMW 5-Series", passenger_capacity: 4, luggage_capacity: 3, image_url: "/assets/fleet/bmw.webp" },
-      { id: "a0000000-0000-4000-a000-000000000007", group_code: "tempo_traveller", make: "Force", model_name: "Tempo Traveller 12", display_name: "Tempo Traveller (12S)", passenger_capacity: 12, luggage_capacity: 8, image_url: "/assets/fleet/tempo-traveller.webp" },
-      { id: "a0000000-0000-4000-a000-000000000008", group_code: "tempo_traveller", make: "Force", model_name: "Urbania", display_name: "Force Urbania Luxury", passenger_capacity: 10, luggage_capacity: 8, image_url: "/assets/fleet/urbania.webp" },
+      { id: "a0000000-0000-4000-a000-000000000005", group_code: "suv", make: "Toyota", model_name: "Fortuner", display_name: "Toyota Fortuner 4x4", passenger_capacity: 7, luggage_capacity: 4, image_url: "/assets/fleet/toyota-fortuner-black-suv-360x536.jpg" },
+      { id: "a0000000-0000-4000-a000-000000000006", group_code: "luxury", make: "Toyota", model_name: "Camry", display_name: "Toyota Camry Hybrid", passenger_capacity: 4, luggage_capacity: 3, image_url: "/assets/fleet/toyota-camry-hybrid-executive-luxury-360x536.jpg" },
+      { id: "a0000000-0000-4000-a000-000000000007", group_code: "luxury", make: "Toyota", model_name: "Vellfire", display_name: "Toyota Vellfire VIP Lounge", passenger_capacity: 6, luggage_capacity: 4, image_url: "/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg" },
+      { id: "a0000000-0000-4000-a000-000000000008", group_code: "tempo_traveller", make: "Force", model_name: "Tempo Traveller 12", display_name: "Tempo Traveller (12S)", passenger_capacity: 12, luggage_capacity: 8, image_url: "/assets/fleet/tempo.webp" },
+      { id: "a0000000-0000-4000-a000-000000000009", group_code: "tempo_traveller", make: "Force", model_name: "Urbania", display_name: "Force Urbania Luxury", passenger_capacity: 10, luggage_capacity: 8, image_url: "/assets/fleet/urbania.webp" },
     ],
   };
 }

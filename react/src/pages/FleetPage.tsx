@@ -36,7 +36,7 @@ interface FleetVehicle {
 const FLEET_DATA: FleetVehicle[] = [
   {
     id: "sedan",
-    name: "Maruti Dzire / Toyota Etios",
+    name: "Maruti Dzire / Honda Amaze / Toyota Etios",
     classTag: "CLASS 01",
     category: "sedan",
     highlightBadge: "MOST POPULAR • CITY & EXPRESSWAY DROPS",
@@ -126,7 +126,7 @@ const FLEET_DATA: FleetVehicle[] = [
     highlightBadge: "PRESIDENTIAL LUXURY • CHAUFFEUR DRIVEN",
     description:
       "Presidential-class luxury travel with whisper-quiet cabin acoustics, ottoman reclining seating, and elite executive presentation.",
-    image: "/assets/fleet/innova.webp",
+    image: "/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg",
     rates: {
       outstationPerKm: 40,
       local8h80km: 9500,
@@ -203,6 +203,101 @@ const FLEET_DATA: FleetVehicle[] = [
       "Large dedicated rear luggage hold",
     ],
     bestSuitedFor: "Luxury inbound travel groups, VIP wedding entourage, and luxury Golden Triangle tours.",
+  },
+];
+
+interface ShowcaseVehicle {
+  name: string;
+  tier: string;
+  capacity: string;
+  image: string;
+  features: string[];
+}
+
+const EXTENDED_FLEET_SHOWCASE: ShowcaseVehicle[] = [
+  {
+    name: "Toyota Fortuner 4x4",
+    tier: "Full-Size SUV",
+    capacity: "7 Pax · 4 Bags",
+    image: "/assets/fleet/toyota-fortuner-black-suv-360x536.jpg",
+    features: ["Commanding road presence", "Heavy expressway stability", "Dual AC blowers"],
+  },
+  {
+    name: "Toyota Camry Hybrid",
+    tier: "Executive Luxury",
+    capacity: "4 Pax · 3 Bags",
+    image: "/assets/fleet/toyota-camry-hybrid-executive-luxury-360x536.jpg",
+    features: ["Whisper-quiet hybrid drive", "Executive reclining rear", "Nanoe™ air purification"],
+  },
+  {
+    name: "Toyota Vellfire VIP Lounge",
+    tier: "Presidential MPV",
+    capacity: "6 Pax · 4 Bags",
+    image: "/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg",
+    features: ["Ottoman captain seats", "Private acoustic cabin", "Ambient mood lounge"],
+  },
+  {
+    name: "Honda Amaze Sedan",
+    tier: "Compact Executive",
+    capacity: "4 Pax · 2 Bags",
+    image: "/assets/fleet/honda-amaze-red-sedan-921x519.webp",
+    features: ["Smooth CVT automatic", "Deep 420L boot hold", "Chilled dual AC"],
+  },
+  {
+    name: "Hyundai Creta Facelift",
+    tier: "Premium Compact SUV",
+    capacity: "5 Pax · 3 Bags",
+    image: "/assets/fleet/hyundai-creta-white-suv-921x519.jpg",
+    features: ["Panoramic glass sunroof", "Ventilated seating", "Plush highway suspension"],
+  },
+  {
+    name: "Maruti Suzuki Brezza",
+    tier: "City & Highway SUV",
+    capacity: "5 Pax · 3 Bags",
+    image: "/assets/fleet/maruti-brezza-red-compact-suv-1260x564.png",
+    features: ["Smart hybrid economy", "High ground clearance", "Rear AC vents"],
+  },
+  {
+    name: "Skoda Slavia Monte Carlo",
+    tier: "European Touring Sedan",
+    capacity: "4 Pax · 3 Bags",
+    image: "/assets/fleet/skoda-slavia-montecarlo-jodhpur-palace-921x519.jpg",
+    features: ["521L cavernous boot", "TSI high-speed touring", "German-engineered safety"],
+  },
+  {
+    name: "Tata Nexon Fearless",
+    tier: "5-Star Safety Compact SUV",
+    capacity: "5 Pax · 3 Bags",
+    image: "/assets/fleet/tata-nexon-fearless-green-suv-1260x564.png",
+    features: ["5-Star Global NCAP", "Reinforced crash shell", "All-weather hill agility"],
+  },
+  {
+    name: "Mahindra XUV700",
+    tier: "Luxury Highway Tourer",
+    capacity: "6 Pax · 3 Bags",
+    image: "/assets/fleet/mahindra-xuv700-blue-suv-360x536.jpg",
+    features: ["Skyroof panoramic glass", "mStallion turbo power", "Sony 3D immersive sound"],
+  },
+  {
+    name: "Honda Elevate",
+    tier: "Mid-Size Highway SUV",
+    capacity: "5 Pax · 3 Bags",
+    image: "/assets/fleet/honda-elevate-black-suv-front-930x620.jpg",
+    features: ["220mm ground clearance", "Airy glasshouse cabin", "Honda Sensing security"],
+  },
+  {
+    name: "Toyota Glanza Executive",
+    tier: "Premium Hatchback",
+    capacity: "4 Pax · 2 Bags",
+    image: "/assets/fleet/toyota-glanza-red-hatchback-studio-1537x1023.png",
+    features: ["Agile city sightseeing", "Fuel-efficient K-series", "Automatic climate control"],
+  },
+  {
+    name: "MG Hector Plus 6-Seater",
+    tier: "Executive Captain MPV",
+    capacity: "6 Pax · 3 Bags",
+    image: "/assets/fleet/mg-hector-plus-black-suv-480x360.webp",
+    features: ["Middle row captain chairs", "Panoramic moonroof", "Full connectivity docks"],
   },
 ];
 
@@ -656,6 +751,86 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
         )}
       </div>
     </section>
+
+      {/* 3B. EXTENDED FLEET GALLERY & BESPOKE MODELS */}
+      <section className="w-full bg-sandstone-wash/20 py-10 sm:py-space-xl border-t border-border-warm/70">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+            <div>
+              <span className="font-label-caps text-body-sm text-terracotta-sandstone uppercase tracking-widest font-bold block mb-1">
+                COMPREHENSIVE MODEL LINEUP
+              </span>
+              <h2 className="font-headline-lg text-headline-sm sm:text-headline-lg text-ink-charcoal font-semibold">
+                Available Makes &amp; Custom Models
+              </h2>
+              <p className="font-body-md text-body-md text-on-surface-variant mt-1 max-w-2xl">
+                Explore our full spectrum of specialized cars available on advance reservation. From luxury sedans to full-size 4x4 SUVs, every car is chauffeur-driven and immaculately maintained.
+              </p>
+            </div>
+            <a
+              className="inline-flex items-center gap-2 bg-black hover:bg-neutral-900 border border-white/10 text-white font-label-lg text-xs px-4 py-2.5 rounded-lg shadow-xs transition-all shrink-0 font-semibold active:scale-[0.98]"
+              style={{ color: "#ffffff" }}
+              href="https://wa.me/919762817598?text=Hello%2C%20I%20am%20inquiring%20about%20a%20specific%20vehicle%20model%20for%20my%20Agra%20tour."
+              target="_blank"
+              rel="noreferrer"
+            >
+              <WhatsAppIcon className="w-4 h-4 shrink-0 text-white" />
+              <span className="text-white font-semibold" style={{ color: "#ffffff" }}>Request Custom Model</span>
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+            {EXTENDED_FLEET_SHOWCASE.map((item) => (
+              <div
+                key={item.name}
+                className="bg-surface-container-lowest rounded-xl border border-border-warm/70 shadow-xs overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+              >
+                <div>
+                  <div className="relative h-44 bg-surface-container-low overflow-hidden">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute top-2.5 left-2.5 bg-black/75 backdrop-blur-sm text-white px-2 py-0.5 rounded text-[11px] font-bold font-label-caps uppercase tracking-wide">
+                      {item.tier}
+                    </div>
+                  </div>
+                  <div className="p-3.5">
+                    <h3 className="font-headline-md text-base font-semibold text-ink-charcoal mb-1">
+                      {item.name}
+                    </h3>
+                    <p className="text-xs text-on-surface-variant font-medium mb-3 flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">group</span>
+                      <span>{item.capacity}</span>
+                    </p>
+                    <ul className="space-y-1 mb-2">
+                      {item.features.map((feat, i) => (
+                        <li key={i} className="text-xs text-on-surface-variant flex items-center gap-1.5">
+                          <span className="material-symbols-outlined text-icon-12 text-success-jade shrink-0">check</span>
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <div className="p-3 pt-0">
+                  <a
+                    href={`https://wa.me/919762817598?text=Hello%20Desk%2C%20I%20would%20like%20to%20reserve%20a%20${encodeURIComponent(item.name)}.`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full py-1.5 px-3 rounded-lg bg-surface-container hover:bg-surface-container-high text-ink-charcoal text-xs font-semibold font-label-caps transition-colors flex items-center justify-center gap-1.5 border border-border-warm/60"
+                  >
+                    <span>Reserve via Desk</span>
+                    <span className="material-symbols-outlined text-icon-14">arrow_forward</span>
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* 4. COMPREHENSIVE COMPARISON TABLE (Compact -20%) */}
       <section id="spec-comparison" className="w-full bg-sandstone-wash/30 py-8 sm:py-space-xl border-y border-border-warm/70">

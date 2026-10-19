@@ -2,6 +2,23 @@
 
 ## 2026-10-18
 
+### 2026-10-19 — Fleet Asset Organization, Dimensional Naming & Frontend Integration
+
+- **Fleet Image Inventory & Dimensional Naming (`assets/fleet/`, `react/public/assets/fleet/`)**:
+  - Analyzed and classified all 46 raw vehicle images in `assets/fleet/new-images/` plus converted Honda Amaze WebP assets.
+  - Renamed every asset with its make, model, variant, and exact pixel dimensions (e.g. `toyota-camry-hybrid-executive-luxury-360x536.jpg`, `toyota-vellfire-ultra-luxury-mpv-360x536.jpg`, `toyota-fortuner-black-suv-360x536.jpg`, `honda-amaze-red-sedan-921x519.webp`, `hyundai-creta-white-suv-921x519.jpg`, `maruti-brezza-red-compact-suv-1260x564.png`, `skoda-slavia-montecarlo-jodhpur-palace-921x519.jpg`, `tata-nexon-fearless-green-suv-1260x564.png`, `mahindra-xuv700-blue-suv-360x536.jpg`, `mg-hector-plus-black-suv-480x360.webp`).
+  - Deployed all 49 organized images and clean canonical aliases to both root `assets/fleet/` and Vite public assets `react/public/assets/fleet/`.
+- **Frontend Integration (`FleetSection.tsx`, `FleetPage.tsx`, `RentalPage.tsx`, `HomePage.tsx`, `cleanFareApi.ts`)**:
+  - **`FleetSection.tsx`**: Updated `FALLBACK_GROUPS` and `LOCAL_ASSET_MAP` to map all models (Dzire, Amaze, City, Slavia, Ertiga, Crysta, Fortuner, Creta, Brezza, XUV700, Camry, Vellfire) to their high-resolution images, eliminating legacy fallbacks to `sedan.webp` and `innova.webp`.
+  - **`FleetPage.tsx`**: Replaced inaccurate placeholder on Class 04 Luxury (`innova.webp`) with `/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg`. Added an "Available Makes & Custom Models" extended fleet showroom featuring 12 models with badges, seating/luggage specs, and WhatsApp reservation actions.
+  - **`RentalPage.tsx`**: Expanded `getVehicleFallbackImage` to recognize and resolve 18 distinct car models instead of falling back to null.
+  - **`cleanFareApi.ts`**: Updated mock vehicle catalog `image_url` targets to point to valid, high-res fleet assets.
+  - **`HomePage.tsx`**: Added `luxury`, `camry`, `vellfire`, `fortuner`, and `amaze` to `FLEET_PRESENTATION`.
+- **Testing & Verification**:
+  - Full monorepo verification (`npm run verify`): 340 backend tests passed, React SSG pre-render 95 HTML files passed, admin build passed, backend build passed.
+  - Browser subagent ran end-to-end testing across `/`, `/fleet.html`, and `/rentals.html`, capturing visual proof of clean image rendering with zero broken image links.
+
+
 ### 2026-10-19 — PDF Booking Confirmation Phases 2–6: Branded Voucher, Resend Attachment & Customer Download
 
 - **Branded Voucher Template (`backend/src/modules/bookings/booking-pdf.template.ts`)**:

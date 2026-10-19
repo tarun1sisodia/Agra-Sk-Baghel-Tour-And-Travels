@@ -56,6 +56,23 @@ export function getVehicleFallbackImage(groupCode: string, modelName?: string): 
   if (name.includes("urbania")) return "/assets/fleet/urbania.webp";
   if (name.includes("ertiga")) return "/assets/fleet/ertiga.webp";
   if (name.includes("innova") || name.includes("crysta")) return "/assets/fleet/innova.webp";
+  if (name.includes("fortuner")) return "/assets/fleet/toyota-fortuner-black-suv-360x536.jpg";
+  if (name.includes("camry")) return "/assets/fleet/toyota-camry-hybrid-executive-luxury-360x536.jpg";
+  if (name.includes("vellfire")) return "/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg";
+  if (name.includes("amaze")) return "/assets/fleet/honda-amaze-red-sedan-921x519.webp";
+  if (name.includes("creta")) return "/assets/fleet/hyundai-creta-white-suv-921x519.jpg";
+  if (name.includes("brezza")) return "/assets/fleet/maruti-brezza-red-compact-suv-1260x564.png";
+  if (name.includes("slavia")) return "/assets/fleet/skoda-slavia-montecarlo-jodhpur-palace-921x519.jpg";
+  if (name.includes("nexon")) return "/assets/fleet/tata-nexon-fearless-green-suv-1260x564.png";
+  if (name.includes("punch")) return "/assets/fleet/tata-punch-blue-suv-1260x564.png";
+  if (name.includes("glanza")) return "/assets/fleet/toyota-glanza-red-hatchback-studio-1537x1023.png";
+  if (name.includes("elevate")) return "/assets/fleet/honda-elevate-black-suv-front-930x620.jpg";
+  if (name.includes("swift")) return "/assets/fleet/maruti-swift-red-hatchback-angle-360x536.jpg";
+  if (name.includes("wagonr")) return "/assets/fleet/maruti-wagonr-red-hatchback-360x536.jpg";
+  if (name.includes("xuv700")) return "/assets/fleet/mahindra-xuv700-blue-suv-360x536.jpg";
+  if (name.includes("3xo")) return "/assets/fleet/mahindra-xuv-3xo-red-compact-suv-360x536.jpg";
+  if (name.includes("hector")) return "/assets/fleet/mg-hector-plus-black-suv-480x360.webp";
+  if (name.includes("belta") || name.includes("ciaz")) return "/assets/fleet/toyota-belta-white-sedan-1000x650.png";
   if (name.includes("dzire") || name.includes("city") || name.includes("etios") || name.includes("aura")) {
     return "/assets/fleet/sedan.webp";
   }
