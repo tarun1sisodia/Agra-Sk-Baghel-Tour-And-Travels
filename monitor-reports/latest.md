@@ -1,17 +1,17 @@
-# Main branch verification — 8315d210ea22
+# Main branch verification — 25630893648f
 
 - **Result:** PASS
-- **Commit:** [8315d210ea22521cd33038f21d204da3ce631d9b](https://github.com/tarun1sisodia/ArenaAI/commit/8315d210ea22521cd33038f21d204da3ce631d9b)
-- **Checked at:** 2026-10-19T06:28:44Z
-- **Workflow run:** [39209956592](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39209956592)
+- **Commit:** [25630893648f875472ffd62dcb9d045b08a0d613](https://github.com/tarun1sisodia/ArenaAI/commit/25630893648f875472ffd62dcb9d045b08a0d613)
+- **Checked at:** 2026-10-19T07:35:55Z
+- **Workflow run:** [39216786238](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39216786238)
 
 ## Changed files
 
-- A	backend/migrations/0046_create_raw_webhooks_view.sql
-- M	backend/src/db/postgres.ts
-- M	backend/src/modules/payments/payment.routes.ts
+- M	backend/scripts/seed.ts
 - M	backend/src/modules/payments/payments.routes.ts
+- A	docs/QWEN_WEBHOOK_CANONICAL_UNIFICATION_REPORT.md
 - M	docs/agent/02_CHANGE_LEDGER.md
+- A	scripts/qwen_webhook_unification.py
 
 ## Verification command
 
@@ -22,9 +22,9 @@ npm run install:all && npm run verify
 ## Verification result
 
 ```text
-  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.336738ms)
-  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.237683ms)
-✔ Admin Booking Unmask PII Frontend State & Security Suite (8.838561ms)
+  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.317968ms)
+  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.338216ms)
+✔ Admin Booking Unmask PII Frontend State & Security Suite (7.247018ms)
 ℹ tests 11
 ℹ suites 3
 ℹ pass 11
@@ -32,7 +32,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 165.446825
+ℹ duration_ms 189.707461
 
 > sk-baghel-tour-travels@0.1.0 customer:seo
 > npm --prefix react run test:seo
@@ -42,15 +42,15 @@ npm run install:all && npm run verify
 > node --experimental-strip-types --test scripts/site-origin.test.ts && node --experimental-strip-types scripts/test-seo-lifecycle.ts
 
 ▶ canonical site origin
-  ✔ uses the approved production origin when no local override is supplied (1.011079ms)
-  ✔ normalizes a trailing slash (0.229688ms)
-  ✔ rejects preview hosts in release mode (0.394427ms)
-  ✔ requires HTTPS for non-local origins (0.134922ms)
-  ✔ allows HTTPS preview origins (0.134844ms)
-  ✔ permits HTTP only on loopback in development (0.149328ms)
-  ✔ rejects paths and credentials (0.149373ms)
-  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.147569ms)
-✔ canonical site origin (3.878956ms)
+  ✔ uses the approved production origin when no local override is supplied (1.060635ms)
+  ✔ normalizes a trailing slash (0.231305ms)
+  ✔ rejects preview hosts in release mode (0.456138ms)
+  ✔ requires HTTPS for non-local origins (0.232938ms)
+  ✔ allows HTTPS preview origins (0.192682ms)
+  ✔ permits HTTP only on loopback in development (0.226746ms)
+  ✔ rejects paths and credentials (0.24997ms)
+  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.188234ms)
+✔ canonical site origin (4.641517ms)
 ℹ tests 8
 ℹ suites 1
 ℹ pass 8
@@ -58,7 +58,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 113.313707
+ℹ duration_ms 123.87919
 SEO lifecycle checks passed.
 
 > sk-baghel-tour-travels@0.1.0 build:all
@@ -83,6 +83,11 @@ Site origin validated: https://agraskbagheltourandtravels.com (production).
 ✅ [Manifest Builder] Snapshotted content manifest (5 sections) from https://skb-baghel-api-staging.onrender.com/api/v1/content/manifest.
 [36mvite v7.3.6 [32mbuilding client environment for production...[36m[39m
 transforming...
+[33mnode_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
 [33mnode_modules/zod/v4/core/regexes.js (74:0): A comment
 
 "/** Anchors a pattern source. The interpolation lives here rather than at the call site because
@@ -90,11 +95,6 @@ transforming...
  * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
 
 in "node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
-[33mnode_modules/zod/v4/core/util.js (400:0): A comment
-
-"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
-
-in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
 [32m✓[39m 2560 modules transformed.
 rendering chunks...
 [2mdist/[22m[32mindex.html                                   [39m[1m[2m    4.42 kB[22m[1m[22m
@@ -145,10 +145,10 @@ rendering chunks...
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
-[32m✓ built in 4.35s[39m
+[32m✓ built in 5.06s[39m
 🚀 Starting Static HTML Pre-Renderer (SSG)...
 ✅ Generated sitemap.xml (1810 URLs with source-owned lastmod values where available, priorities & xhtml:link alternates) and robots.txt pointing to https://agraskbagheltourandtravels.com/sitemap.xml
-✅ SSG Pre-Rendering Complete: 1819 pages rendered + 23 redirects written (117.00 MB total) in 11.00s.
+✅ SSG Pre-Rendering Complete: 1819 pages rendered + 23 redirects written (117.00 MB total) in 13.50s.
 SEO artifact checks passed: 1842 HTML files, 1810 sitemap URLs, canonical origin https://agraskbagheltourandtravels.com.
 
 > sk-baghel-tour-travels@0.1.0 admin:build
@@ -193,7 +193,7 @@ computing gzip size...
 [2mdist/[22m[2massets/[22m[36mvendor-motion-Bj7SCSeC.js              [39m[1m[2m133.36 kB[22m[1m[22m[2m │ gzip: 44.17 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-react-Oh0PCTUB.js               [39m[1m[2m221.81 kB[22m[1m[22m[2m │ gzip: 69.00 kB[22m
 [2mdist/[22m[2massets/[22m[36mindex-Omh-BaeB.js                      [39m[1m[2m328.80 kB[22m[1m[22m[2m │ gzip: 89.91 kB[22m
-[32m✓ built in 3.67s[39m
+[32m✓ built in 4.52s[39m
 
 > sk-baghel-tour-travels@0.1.0 backend:build
 > npm --prefix backend run build
