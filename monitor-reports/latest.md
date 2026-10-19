@@ -1,16 +1,14 @@
-# Main branch verification — 564bd2013b85
+# Main branch verification — 3c8a9a1681ec
 
 - **Result:** PASS
-- **Commit:** [564bd2013b85712cd138f80835f527978442eabb](https://github.com/tarun1sisodia/ArenaAI/commit/564bd2013b85712cd138f80835f527978442eabb)
-- **Checked at:** 2026-10-19T13:17:50Z
-- **Workflow run:** [39258685813](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39258685813)
+- **Commit:** [3c8a9a1681ecca90ea0c1c0838d9068c99af334e](https://github.com/tarun1sisodia/ArenaAI/commit/3c8a9a1681ecca90ea0c1c0838d9068c99af334e)
+- **Checked at:** 2026-10-19T14:07:02Z
+- **Workflow run:** [39265715427](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39265715427)
 
 ## Changed files
 
-- M	admin/src/lib/env.ts
-- M	admin/src/pages/ReviewsPage.tsx
-- M	backend/src/modules/reviews/reviews.service.ts
-- M	docs/agent/02_CHANGE_LEDGER.md
+- M	backend/src/modules/bookings/booking-pdf.template.ts
+- M	backend/tests/unit/booking-pdf.service.test.ts
 
 ## Verification command
 
@@ -21,9 +19,9 @@ npm run install:all && npm run verify
 ## Verification result
 
 ```text
-  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.240695ms)
-  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.152852ms)
-✔ Admin Booking Unmask PII Frontend State & Security Suite (4.494296ms)
+  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.279473ms)
+  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.197633ms)
+✔ Admin Booking Unmask PII Frontend State & Security Suite (6.387037ms)
 ℹ tests 11
 ℹ suites 3
 ℹ pass 11
@@ -31,7 +29,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 121.688558
+ℹ duration_ms 144.877242
 
 > sk-baghel-tour-travels@0.1.0 customer:seo
 > npm --prefix react run test:seo
@@ -41,15 +39,15 @@ npm run install:all && npm run verify
 > node --experimental-strip-types --test scripts/site-origin.test.ts && node --experimental-strip-types scripts/test-seo-lifecycle.ts
 
 ▶ canonical site origin
-  ✔ uses the approved production origin when no local override is supplied (0.587239ms)
-  ✔ normalizes a trailing slash (0.127242ms)
-  ✔ rejects preview hosts in release mode (0.275918ms)
-  ✔ requires HTTPS for non-local origins (0.116897ms)
-  ✔ allows HTTPS preview origins (0.080772ms)
-  ✔ permits HTTP only on loopback in development (0.10525ms)
-  ✔ rejects paths and credentials (0.088835ms)
-  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.078338ms)
-✔ canonical site origin (2.372412ms)
+  ✔ uses the approved production origin when no local override is supplied (0.695289ms)
+  ✔ normalizes a trailing slash (0.131144ms)
+  ✔ rejects preview hosts in release mode (0.337409ms)
+  ✔ requires HTTPS for non-local origins (0.158234ms)
+  ✔ allows HTTPS preview origins (0.115531ms)
+  ✔ permits HTTP only on loopback in development (0.151294ms)
+  ✔ rejects paths and credentials (0.185745ms)
+  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.139306ms)
+✔ canonical site origin (3.287072ms)
 ℹ tests 8
 ℹ suites 1
 ℹ pass 8
@@ -57,7 +55,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 81.599097
+ℹ duration_ms 94.051514
 SEO lifecycle checks passed.
 
 > sk-baghel-tour-travels@0.1.0 build:all
@@ -144,10 +142,10 @@ rendering chunks...
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
-[32m✓ built in 3.85s[39m
+[32m✓ built in 4.39s[39m
 🚀 Starting Static HTML Pre-Renderer (SSG)...
 ✅ Generated sitemap.xml (1809 URLs with source-owned lastmod values where available, priorities & xhtml:link alternates) and robots.txt pointing to https://agraskbagheltourandtravels.com/sitemap.xml
-✅ SSG Pre-Rendering Complete: 1818 pages rendered + 23 redirects written (116.98 MB total) in 7.62s.
+✅ SSG Pre-Rendering Complete: 1818 pages rendered + 23 redirects written (116.98 MB total) in 9.35s.
 SEO artifact checks passed: 1841 HTML files, 1809 sitemap URLs, canonical origin https://agraskbagheltourandtravels.com.
 
 > sk-baghel-tour-travels@0.1.0 admin:build
@@ -192,7 +190,7 @@ computing gzip size...
 [2mdist/[22m[2massets/[22m[36mvendor-motion-Bj7SCSeC.js              [39m[1m[2m133.36 kB[22m[1m[22m[2m │ gzip: 44.17 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-react-Oh0PCTUB.js               [39m[1m[2m221.81 kB[22m[1m[22m[2m │ gzip: 69.00 kB[22m
 [2mdist/[22m[2massets/[22m[36mindex-pQLFeNRt.js                      [39m[1m[2m328.63 kB[22m[1m[22m[2m │ gzip: 89.89 kB[22m
-[32m✓ built in 3.21s[39m
+[32m✓ built in 3.67s[39m
 
 > sk-baghel-tour-travels@0.1.0 backend:build
 > npm --prefix backend run build
