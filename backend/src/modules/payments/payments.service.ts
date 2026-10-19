@@ -389,19 +389,29 @@ export class PaymentsService {
         return false;
       }
 
-      let booking: any = null;
+      // Merge the raw booking row with display-ready details. The detail contract
+      // may omit operational fields (trip_type, flight/train reference, special notes)
+      // that belong on the PDF attachment.
+      let rawBooking: any = null;
       try {
-        if (typeof this.deps.bookingsRepo.getBookingDetail === "function") {
-          booking = await this.deps.bookingsRepo.getBookingDetail(bookingId);
+        if (typeof this.deps.bookingsRepo.getById === "function") {
+          rawBooking = await this.deps.bookingsRepo.getById(bookingId);
         }
       } catch {
-        // Fallback to getById if getBookingDetail throws (e.g. mock repositories without pool)
-      }
-      if (!booking) {
-        booking = await this.deps.bookingsRepo.getById(bookingId);
+        // Fall back to the display-ready detail record if the raw lookup fails.
       }
 
-      if (!booking) return false;
+      let bookingDetail: any = null;
+      try {
+        if (typeof this.deps.bookingsRepo.getBookingDetail === "function") {
+          bookingDetail = await this.deps.bookingsRepo.getBookingDetail(bookingId);
+        }
+      } catch {
+        // Some mock repositories do not implement display-ready detail loading.
+      }
+
+      const booking: any = { ...(rawBooking || {}), ...(bookingDetail || {}) };
+      if (!booking.ticket_id) return false;
 
       const customerEmail = booking.customer_email?.trim();
       if (!customerEmail) {
