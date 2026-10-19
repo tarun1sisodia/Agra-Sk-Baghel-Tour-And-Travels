@@ -86,7 +86,6 @@ export const bookingVoucherTemplate: Template = {
         fontColor: "#68401F",
         alignment: "left",
         dynamicFontSize: { min: 10, max: 13, fit: "vertical" },
-        readOnly: true,
       },
       {
         name: "voucherTitle",
@@ -96,7 +95,6 @@ export const bookingVoucherTemplate: Template = {
         height: 13,
         fontSize: 21,
         fontColor: "#292522",
-        readOnly: true,
       },
       {
         name: "brandSubtitle",
@@ -106,7 +104,6 @@ export const bookingVoucherTemplate: Template = {
         height: 6,
         fontSize: 8,
         fontColor: "#956019",
-        readOnly: true,
       },
 
       // Ticket, date and status — always visible at the top of the data area
@@ -168,7 +165,6 @@ export const bookingVoucherTemplate: Template = {
         fontSize: 6,
         fontColor: "#956019",
         alignment: "right",
-        readOnly: true,
       },
 
       // Passenger and contact information
@@ -180,7 +176,6 @@ export const bookingVoucherTemplate: Template = {
         height: 6,
         fontSize: 9,
         fontColor: "#68401F",
-        readOnly: true,
       },
       {
         name: "sec1Bg",
@@ -200,7 +195,6 @@ export const bookingVoucherTemplate: Template = {
         height: 4,
         fontSize: 6.5,
         fontColor: "#8A7B6C",
-        readOnly: true,
       },
       {
         name: "customerName",
@@ -220,7 +214,6 @@ export const bookingVoucherTemplate: Template = {
         height: 4,
         fontSize: 6.5,
         fontColor: "#8A7B6C",
-        readOnly: true,
       },
       {
         name: "customerPhone",
@@ -240,7 +233,6 @@ export const bookingVoucherTemplate: Template = {
         height: 4,
         fontSize: 6.5,
         fontColor: "#8A7B6C",
-        readOnly: true,
       },
       {
         name: "customerEmail",
@@ -260,7 +252,6 @@ export const bookingVoucherTemplate: Template = {
         height: 4,
         fontSize: 6.5,
         fontColor: "#8A7B6C",
-        readOnly: true,
       },
       {
         name: "passengerInfo",
@@ -282,7 +273,6 @@ export const bookingVoucherTemplate: Template = {
         height: 6,
         fontSize: 9,
         fontColor: "#68401F",
-        readOnly: true,
       },
       {
         name: "sec2Bg",
@@ -302,7 +292,6 @@ export const bookingVoucherTemplate: Template = {
         height: 4,
         fontSize: 6.5,
         fontColor: "#8A7B6C",
-        readOnly: true,
       },
       {
         name: "serviceName",
@@ -322,7 +311,6 @@ export const bookingVoucherTemplate: Template = {
         height: 4,
         fontSize: 6.5,
         fontColor: "#8A7B6C",
-        readOnly: true,
       },
       {
         name: "vehicleName",
@@ -342,7 +330,6 @@ export const bookingVoucherTemplate: Template = {
         height: 4,
         fontSize: 6.5,
         fontColor: "#8A7B6C",
-        readOnly: true,
       },
       {
         name: "pickupTime",
@@ -362,7 +349,6 @@ export const bookingVoucherTemplate: Template = {
         height: 4,
         fontSize: 6.5,
         fontColor: "#8A7B6C",
-        readOnly: true,
       },
       {
         name: "pickupAddress",
@@ -382,7 +368,6 @@ export const bookingVoucherTemplate: Template = {
         height: 4,
         fontSize: 6.5,
         fontColor: "#8A7B6C",
-        readOnly: true,
       },
       {
         name: "dropAddress",
@@ -404,7 +389,6 @@ export const bookingVoucherTemplate: Template = {
         height: 6,
         fontSize: 9,
         fontColor: "#68401F",
-        readOnly: true,
       },
       {
         name: "sec3Bg",
@@ -424,7 +408,6 @@ export const bookingVoucherTemplate: Template = {
         height: 4,
         fontSize: 6.5,
         fontColor: "#8A7B6C",
-        readOnly: true,
       },
       {
         name: "fareTotalVal",
@@ -444,7 +427,6 @@ export const bookingVoucherTemplate: Template = {
         height: 4,
         fontSize: 6.5,
         fontColor: "#8A7B6C",
-        readOnly: true,
       },
       {
         name: "fareAdvVal",
@@ -464,7 +446,6 @@ export const bookingVoucherTemplate: Template = {
         height: 4,
         fontSize: 6.5,
         fontColor: "#8A7B6C",
-        readOnly: true,
       },
       {
         name: "fareBalVal",
@@ -485,7 +466,6 @@ export const bookingVoucherTemplate: Template = {
         fontSize: 6.3,
         fontColor: "#6B5A48",
         dynamicFontSize: { min: 5.2, max: 6.3, fit: "vertical" },
-        readOnly: true,
       },
 
       // Side-panel contact information and important booking notes
@@ -498,7 +478,6 @@ export const bookingVoucherTemplate: Template = {
         fontSize: 8,
         fontColor: "#68401F",
         dynamicFontSize: { min: 6.5, max: 8, fit: "vertical" },
-        readOnly: true,
       },
       {
         name: "ftAddr",
@@ -509,7 +488,6 @@ export const bookingVoucherTemplate: Template = {
         fontSize: 7,
         fontColor: "#68401F",
         dynamicFontSize: { min: 5.8, max: 7, fit: "vertical" },
-        readOnly: true,
       },
       {
         name: "noticeBg",
@@ -530,7 +508,6 @@ export const bookingVoucherTemplate: Template = {
         fontSize: 7.7,
         fontColor: "#68401F",
         dynamicFontSize: { min: 6.2, max: 7.7, fit: "shrink" },
-        readOnly: true,
       },
       {
         name: "noticeBody",
@@ -541,7 +518,6 @@ export const bookingVoucherTemplate: Template = {
         fontSize: 6.7,
         fontColor: "#68401F",
         dynamicFontSize: { min: 5.5, max: 6.7, fit: "vertical" },
-        readOnly: true,
       },
       {
         name: "divLine",
@@ -561,7 +537,6 @@ export const bookingVoucherTemplate: Template = {
         fontSize: 5.8,
         fontColor: "#8A6C45",
         dynamicFontSize: { min: 5, max: 5.8, fit: "vertical" },
-        readOnly: true,
       },
     ],
   ],
