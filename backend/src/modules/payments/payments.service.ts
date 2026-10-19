@@ -624,7 +624,9 @@ SK Baghel Tour & Travels
       `.trim();
 
       let fromAddress = this.deps.emailFrom || "bookings@skbagheltravels.in";
-      const senderDomain = fromAddress.split("@")[1]?.toLowerCase() || "";
+      const emailMatch = fromAddress.match(/<([^>]+)>/);
+      const cleanEmail = (emailMatch ? emailMatch[1] : fromAddress).trim();
+      const senderDomain = cleanEmail.split("@")[1]?.toLowerCase() || "";
       const freemailDomains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "live.com", "icloud.com"];
       if (freemailDomains.includes(senderDomain)) {
         console.warn(

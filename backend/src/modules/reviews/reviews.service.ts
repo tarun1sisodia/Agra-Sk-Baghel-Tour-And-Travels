@@ -108,7 +108,9 @@ export class ReviewsService {
       const tripSummary = `${booking.category} trip (Ticket ${booking.ticket_id})`;
 
       let fromAddress = this.deps.emailFrom || "bookings@agraskbagheltourandtravels.com";
-      const senderDomain = fromAddress.split("@")[1]?.toLowerCase() || "";
+      const emailMatch = fromAddress.match(/<([^>]+)>/);
+      const cleanEmail = (emailMatch ? emailMatch[1] : fromAddress).trim();
+      const senderDomain = cleanEmail.split("@")[1]?.toLowerCase() || "";
       const freemailDomains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "live.com", "icloud.com"];
       if (freemailDomains.includes(senderDomain)) {
         console.warn(

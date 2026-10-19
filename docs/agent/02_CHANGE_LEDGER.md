@@ -2,7 +2,14 @@
 
 ## 2026-10-18
 
-### 2026-10-19 — Admin Bookings Visibility: Paid Confirmed Status Alignment & Tab Switching Fix
+### 2026-10-19 — EMAIL_FROM Display-Name Support & Qwen Coder PDF Confirmation Blueprint
+
+- **Display-Name Support for Resend (`payments.service.ts`, `reviews.service.ts`)**:
+  - Enhanced email from parsing to accept standard RFC 5322 display-name formats (e.g. `Agra SK Baghel Tour and Travels <bookings@notifications.agraskbagheltourandtravels.com>`).
+  - Added regex extraction `/<([^>]+)>/` to isolate the clean email domain for freemail validation while preserving the friendly sender display name for Resend API calls.
+- **Qwen Coder PDF Confirmation Implementation Blueprint (`docs/QWEN_PDF_CONFIRMATION_IMPLEMENTATION_PLAN.md`)**:
+  - Synthesized a 7-phase architecture plan using `@pdfme/generator` in Fastify Node.js 22+ ESM.
+  - Defined A4 ticket template schema, base64 Resend attachment integration, and authenticated customer download endpoint (`GET /api/v1/bookings/:id/pdf`).
 
 - **Root Cause of Microsecond Flash & Disappearing Paid Confirmed Bookings (`admin/src/pages/BookingsPage.tsx`, `backend/src/db/postgres.ts`, `backend/src/db/memory.ts`)**:
   - In `admin/src/pages/BookingsPage.tsx`, `useEffect` had `[status, reloadKey]` in its dependencies. Whenever the user clicked the "paid confirmed" tab, it dispatched `fetchAdminBookings({ status: "paid_confirmed" })`.
