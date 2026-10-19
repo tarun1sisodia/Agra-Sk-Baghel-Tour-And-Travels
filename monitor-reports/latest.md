@@ -1,25 +1,17 @@
-# Main branch verification — c0b8cd7c372e
+# Main branch verification — 8315d210ea22
 
 - **Result:** PASS
-- **Commit:** [c0b8cd7c372edd65927831d6fff83e50b5e7c044](https://github.com/tarun1sisodia/ArenaAI/commit/c0b8cd7c372edd65927831d6fff83e50b5e7c044)
-- **Checked at:** 2026-10-18T18:12:21Z
-- **Workflow run:** [39152983051](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39152983051)
+- **Commit:** [8315d210ea22521cd33038f21d204da3ce631d9b](https://github.com/tarun1sisodia/ArenaAI/commit/8315d210ea22521cd33038f21d204da3ce631d9b)
+- **Checked at:** 2026-10-19T06:28:44Z
+- **Workflow run:** [39209956592](https://github.com/tarun1sisodia/ArenaAI/actions/runs/39209956592)
 
 ## Changed files
 
-- M	.gitignore
-- M	backend/src/modules/bookings/bookings.repository.ts
-- M	backend/src/modules/bookings/bookings.routes.ts
+- A	backend/migrations/0046_create_raw_webhooks_view.sql
+- M	backend/src/db/postgres.ts
+- M	backend/src/modules/payments/payment.routes.ts
 - M	backend/src/modules/payments/payments.routes.ts
-- M	backend/src/modules/payments/payments.service.ts
-- M	backend/tests/unit/admin-finance-status.test.ts
-- M	backend/tests/unit/clean-routes-alias.test.ts
-- A	docs/QWEN_MANDATORY_AUTH_REFACTOR_PLAN.md
 - M	docs/agent/02_CHANGE_LEDGER.md
-- M	react/src/features/booking/clean/CleanBookingPage.tsx
-- M	react/src/pages/BookingConfirmationPage.tsx
-- M	react/src/services/cleanFareApi.ts
-- A	scripts/qwen_mandatory_auth_refactor.py
 
 ## Verification command
 
@@ -30,9 +22,9 @@ npm run install:all && npm run verify
 ## Verification result
 
 ```text
-  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.130367ms)
-  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.078939ms)
-✔ Admin Booking Unmask PII Frontend State & Security Suite (3.125527ms)
+  ✔ 5. Failure handling retains masked state, leaves unmaskedData null, and records error (0.336738ms)
+  ✔ 6. Reset behavior clears unmasked data and returns to masked state (0.237683ms)
+✔ Admin Booking Unmask PII Frontend State & Security Suite (8.838561ms)
 ℹ tests 11
 ℹ suites 3
 ℹ pass 11
@@ -40,7 +32,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 116.109369
+ℹ duration_ms 165.446825
 
 > sk-baghel-tour-travels@0.1.0 customer:seo
 > npm --prefix react run test:seo
@@ -50,15 +42,15 @@ npm run install:all && npm run verify
 > node --experimental-strip-types --test scripts/site-origin.test.ts && node --experimental-strip-types scripts/test-seo-lifecycle.ts
 
 ▶ canonical site origin
-  ✔ uses the approved production origin when no local override is supplied (0.614285ms)
-  ✔ normalizes a trailing slash (0.116255ms)
-  ✔ rejects preview hosts in release mode (0.259211ms)
-  ✔ requires HTTPS for non-local origins (0.09976ms)
-  ✔ allows HTTPS preview origins (0.105509ms)
-  ✔ permits HTTP only on loopback in development (0.10629ms)
-  ✔ rejects paths and credentials (0.09931ms)
-  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.090817ms)
-✔ canonical site origin (2.419944ms)
+  ✔ uses the approved production origin when no local override is supplied (1.011079ms)
+  ✔ normalizes a trailing slash (0.229688ms)
+  ✔ rejects preview hosts in release mode (0.394427ms)
+  ✔ requires HTTPS for non-local origins (0.134922ms)
+  ✔ allows HTTPS preview origins (0.134844ms)
+  ✔ permits HTTP only on loopback in development (0.149328ms)
+  ✔ rejects paths and credentials (0.149373ms)
+  ✔ keeps Hindi indexing disabled unless explicitly enabled (0.147569ms)
+✔ canonical site origin (3.878956ms)
 ℹ tests 8
 ℹ suites 1
 ℹ pass 8
@@ -66,7 +58,7 @@ npm run install:all && npm run verify
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 75.158645
+ℹ duration_ms 113.313707
 SEO lifecycle checks passed.
 
 > sk-baghel-tour-travels@0.1.0 build:all
@@ -153,10 +145,10 @@ rendering chunks...
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
-[32m✓ built in 3.37s[39m
+[32m✓ built in 4.35s[39m
 🚀 Starting Static HTML Pre-Renderer (SSG)...
 ✅ Generated sitemap.xml (1810 URLs with source-owned lastmod values where available, priorities & xhtml:link alternates) and robots.txt pointing to https://agraskbagheltourandtravels.com/sitemap.xml
-✅ SSG Pre-Rendering Complete: 1819 pages rendered + 23 redirects written (117.00 MB total) in 6.85s.
+✅ SSG Pre-Rendering Complete: 1819 pages rendered + 23 redirects written (117.00 MB total) in 11.00s.
 SEO artifact checks passed: 1842 HTML files, 1810 sitemap URLs, canonical origin https://agraskbagheltourandtravels.com.
 
 > sk-baghel-tour-travels@0.1.0 admin:build
@@ -201,7 +193,7 @@ computing gzip size...
 [2mdist/[22m[2massets/[22m[36mvendor-motion-Bj7SCSeC.js              [39m[1m[2m133.36 kB[22m[1m[22m[2m │ gzip: 44.17 kB[22m
 [2mdist/[22m[2massets/[22m[36mvendor-react-Oh0PCTUB.js               [39m[1m[2m221.81 kB[22m[1m[22m[2m │ gzip: 69.00 kB[22m
 [2mdist/[22m[2massets/[22m[36mindex-Omh-BaeB.js                      [39m[1m[2m328.80 kB[22m[1m[22m[2m │ gzip: 89.91 kB[22m
-[32m✓ built in 2.78s[39m
+[32m✓ built in 3.67s[39m
 
 > sk-baghel-tour-travels@0.1.0 backend:build
 > npm --prefix backend run build
