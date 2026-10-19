@@ -367,6 +367,32 @@ export async function fetchBookingById(
   return BookingDetailResponse.parse(b);
 }
 
+// 6b. Download Booking PDF Voucher
+export async function downloadBookingPdf(
+  id: string,
+  accessToken?: string,
+  guestToken?: string
+): Promise<Blob> {
+  const baseUrl = getApiBaseUrl();
+  const headers: Record<string, string> = {};
+  if (accessToken && accessToken.trim()) {
+    headers.Authorization = `Bearer ${accessToken.trim()}`;
+  }
+  const tokenQuery = guestToken ? `?token=${encodeURIComponent(guestToken)}` : "";
+  const url = `${baseUrl}/api/v1/bookings/${encodeURIComponent(id)}/pdf${tokenQuery}`;
+
+  const res = await fetch(url, { method: "GET", headers });
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    throw new CleanFareApiError(
+      "PDF_DOWNLOAD_FAILED",
+      `Failed to download PDF (${res.status}): ${errText.slice(0, 200)}`,
+      res.status
+    );
+  }
+  return res.blob();
+}
+
 // 7. Payment Order (Razorpay)
 export async function createBookingPayment(
   bookingId: string,

@@ -877,6 +877,11 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
     expect(body.html).toContain("Aarav Sharma");
     expect(body.html).toContain("pay_test_captured_123");
     expect(body.text).toContain(booking.ticket_id);
+    expect(body.attachments).toBeDefined();
+    expect(body.attachments).toHaveLength(1);
+    expect(body.attachments[0].filename).toBe(`${booking.ticket_id}-confirmation-voucher.pdf`);
+    const pdfBytes = Buffer.from(body.attachments[0].content, "base64");
+    expect(pdfBytes.subarray(0, 4).toString("utf-8")).toBe("%PDF");
   });
 
   it("EM-02: sendBookingConfirmationEmail gracefully returns false when customer email is not provided", async () => {

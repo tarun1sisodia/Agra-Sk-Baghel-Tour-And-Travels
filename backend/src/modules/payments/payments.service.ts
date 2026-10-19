@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { AppError } from "../../shared/errors.js";
 import type { PaymentsRepository, PaymentEntity } from "./payments.repository.js";
 import type { BookingsRepository, BookingEntity } from "../bookings/bookings.repository.js";
+import { generateBookingPdf } from "../bookings/booking-pdf.service.js";
 import type { PaymentOrderResponse } from "../../contracts/fare-system.js";
 
 export interface PaymentsServiceDeps {
@@ -635,6 +636,22 @@ SK Baghel Tour & Travels
         fromAddress = "onboarding@resend.dev";
       }
 
+      let attachments: Array<{ filename: string; content: string }> | undefined = undefined;
+      try {
+        const pdfBuffer = await generateBookingPdf(booking, providerPaymentId);
+        attachments = [
+          {
+            filename: `${ticketId}-confirmation-voucher.pdf`,
+            content: pdfBuffer.toString("base64"),
+          },
+        ];
+      } catch (pdfErr: any) {
+        console.warn(
+          `[payments] Failed to generate booking PDF for ${ticketId}, dispatching email without PDF attachment:`,
+          pdfErr?.message || pdfErr
+        );
+      }
+
       const res = await this.fetchImpl("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -648,6 +665,7 @@ SK Baghel Tour & Travels
           subject: `Confirmed: Your Chauffeur Booking Voucher [${ticketId}] — SK Baghel Tour & Travels`,
           html: voucherHtml,
           text: voucherText,
+          ...(attachments ? { attachments } : {}),
         }),
       });
 

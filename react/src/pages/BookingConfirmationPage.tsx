@@ -15,7 +15,7 @@ import {
   ArrowRight,
   RefreshCw,
 } from "lucide-react";
-import { fetchBookingById, createBookingPayment } from "../services/cleanFareApi";
+import { fetchBookingById, createBookingPayment, downloadBookingPdf } from "../services/cleanFareApi";
 import { loadRazorpayScript } from "../features/booking/razorpay";
 import { contact } from "../data/contact";
 import type { BookingDetailResponse } from "../contracts/fare-system";
@@ -47,6 +47,8 @@ export function BookingConfirmationPage() {
   const [polling, setPolling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [payBusy, setPayBusy] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
   const pollCountRef = useRef(0);
 
   // Read ID from URL params or sessionStorage
@@ -166,6 +168,33 @@ export function BookingConfirmationPage() {
       alert(err.message || "Could not launch checkout. Please contact the desk.");
     } finally {
       setPayBusy(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!booking) return;
+    setDownloadingPdf(true);
+    setPdfError(null);
+    try {
+      const targetId = booking.booking_id || bookingId;
+      const guestToken = (booking as any).guest_access_token;
+      const blob = await downloadBookingPdf(
+        targetId,
+        accessToken || undefined,
+        guestToken
+      );
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${booking.ticket_id || "booking"}-voucher.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setPdfError(err?.message || "Could not generate PDF voucher. Please try Print Voucher.");
+    } finally {
+      setDownloadingPdf(false);
     }
   };
 
@@ -328,13 +357,43 @@ export function BookingConfirmationPage() {
             )}
             <button
               type="button"
+              id="btn-download-pdf-voucher"
+              disabled={downloadingPdf}
+              onClick={handleDownloadPdf}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-surface-container-lowest px-3.5 py-2 text-xs font-semibold text-primary hover:bg-sandstone-wash transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {downloadingPdf ? (
+                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Download className="h-3.5 w-3.5" />
+              )}
+              {downloadingPdf ? "Generating PDF…" : "Download PDF Voucher"}
+            </button>
+            <button
+              type="button"
               onClick={() => window.print()}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border-warm bg-surface-container-lowest px-3.5 py-2 text-xs font-semibold text-ink-midnight hover:bg-sandstone-wash transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border-warm bg-surface-container-lowest px-3.5 py-2 text-xs font-semibold text-ink-midnight hover:bg-sandstone-wash transition-colors cursor-pointer"
             >
               <Printer className="h-3.5 w-3.5" /> Print Voucher
             </button>
           </div>
         </div>
+
+        {pdfError && (
+          <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-700 shrink-0" />
+              <span>{pdfError}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPdfError(null)}
+              className="font-semibold text-amber-950 underline hover:no-underline shrink-0 cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
 
         {/* Voucher Container */}
         <div className="mt-8 rounded-2xl border border-border-warm bg-surface-container-lowest p-6 sm:p-8 shadow-md">

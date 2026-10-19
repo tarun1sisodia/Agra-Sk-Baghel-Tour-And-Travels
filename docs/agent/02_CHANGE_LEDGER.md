@@ -2,6 +2,31 @@
 
 ## 2026-10-18
 
+### 2026-10-19 — PDF Booking Confirmation Phases 2–6: Branded Voucher, Resend Attachment & Customer Download
+
+- **Branded Voucher Template (`backend/src/modules/bookings/booking-pdf.template.ts`)**:
+  - Implemented A4 layout using `@pdfme/generator` and `@pdfme/schemas` matching SK Baghel luxury branding (`#8B2E0B`).
+  - Formatted sections: Brand Header with Ticket ID, Booking Metadata Bar, Passenger & Contact details, Journey Itinerary & Vehicle Specifications with dynamic font size for long addresses, Tariff Breakdown (Guaranteed Fare, Advance Received, Balance Due), Chauffeur Dispatch Protocol notice (2-hour dispatch rule), and 24/7 Operations Desk footer.
+- **PDF Generation Service (`backend/src/modules/bookings/booking-pdf.service.ts`)**:
+  - Built `generateBookingPdf(booking, paymentId)` supporting canonical `BookingEntity` and `BookingDetailResponse`.
+  - Added robust formatting for Indian currency (`formatInr`) and IST datetime (`formatPickupDateTime`).
+  - Generates binary PDF buffers with verified `%PDF` headers in-memory with zero disk I/O.
+- **Resend Email Attachment Integration (`backend/src/modules/payments/payments.service.ts`)**:
+  - Wired `generateBookingPdf` into `sendBookingConfirmationEmail()` to automatically attach the base64-encoded PDF voucher (`${ticketId}-confirmation-voucher.pdf`).
+  - Isolated within try/catch: if PDF generation encounters any error, the email delivery proceeds with HTML/text bodies without rolling back payments or corrupting transaction finality.
+- **Secure Customer PDF Download Route (`backend/src/modules/bookings/bookings.routes.ts`)**:
+  - Exposed `GET /api/v1/bookings/:id/pdf` and `GET /bookings/:id/pdf` with triple-guard security:
+    - User Authentication: Owner check (`user.id === booking.user_id` or matching email) and Admin role check.
+    - Guest Checkout: Validates `guest_access_token` query parameter or header for unauthenticated instant checkouts.
+    - Headers: Serves with `application/pdf`, `Content-Disposition: attachment; filename=...`, and `Cache-Control: no-store`.
+- **Customer UI Download Integration (`react/src/services/cleanFareApi.ts`, `react/src/pages/BookingConfirmationPage.tsx`)**:
+  - Added `downloadBookingPdf()` API client method.
+  - Added "Download PDF Voucher" button with loading spinner state and error fallback directly on `BookingConfirmationPage.tsx`.
+- **Testing & Verification (`backend/tests/unit/booking-pdf.service.test.ts`, `backend/tests/unit/bookings-payments.test.ts`)**:
+  - 14 dedicated unit and HTTP route tests for PDF generation, currency formatting, IST timestamps, long address wrapping, and 401/403/404/200 route authorization.
+  - Extended EM-01 in `bookings-payments.test.ts` verifying Resend payload receives base64 PDF attachment.
+  - All 339 backend unit tests pass, and monorepo `npm run verify` passed completely.
+
 ### 2026-10-19 — PDF Booking Confirmation Phase 1: Dependency Installation & Runtime Validation
 
 - **`@pdfme/generator` & Schemas Installation (`backend/package.json`, `backend/package-lock.json`)**:
