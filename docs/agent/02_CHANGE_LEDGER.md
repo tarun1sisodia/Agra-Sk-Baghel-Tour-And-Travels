@@ -2,6 +2,26 @@
 
 ## 2026-10-18
 
+### 2026-10-19 — Admin Panel Fleet Catalog, Preset Onboarding & Asset Library Selector
+
+- **Fleet Catalog & Preset Onboarding (`admin/src/pages/VehiclesPage.tsx`)**:
+  - Implemented `FLEET_PRESETS` covering 25+ curated vehicle models across all 4 canonical groups (`sedan`, `suv`, `luxury`, `tempo_traveller`) with pre-set passenger capacities, luggage allowances, descriptions, and high-resolution photo links.
+  - Added "Fleet Asset Catalog & Quick Onboarding" section displaying cards with status pills ("Missing in Fleet", "In Fleet", "All Catalog"), search filter, and "+ Onboard to Fleet" button.
+  - Clicking "+ Onboard to Fleet" pre-populates the Add Vehicle Model modal with all specifications ready for immediate activation.
+- **Add/Edit Vehicle Model Modal Enhancements (`VehiclesPage.tsx`)**:
+  - Added "Quick Template Auto-Fill" dropdown to instantly populate form fields from any catalog preset.
+  - Added "Fleet Asset Library" selector (`FLEET_IMAGE_OPTIONS`) featuring 35+ local high-resolution vehicle images with dimensions and descriptions, eliminating manual URL typing.
+  - Built Live Image Preview with responsive 16:9 frame, active status badge ("✓ Image linked"), and error fallback.
+- **Active Vehicle Models Table Polish (`VehiclesPage.tsx`)**:
+  - Enhanced table to display vehicle photo thumbnails in the Model column with clean fallback to `<Car />` icon.
+  - Added search input to filter active models by name, make, model, or group.
+- **Asset Synchronization & Script Update (`scripts/organize_and_name_fleet.py`, `admin/public/assets/fleet/`)**:
+  - Updated `organize_and_name_fleet.py` to copy all vehicle image assets and base webp assets (`sedan.webp`, `ertiga.webp`, `innova.webp`, `tempo.webp`, `urbania.webp` and responsive sizes) to `admin/public/assets/fleet/`.
+  - Ran asset pipeline synchronizing 113+ fleet image files directly into the admin public assets folder.
+- **Verification**:
+  - `npm --prefix admin run build` passed cleanly with 0 errors.
+  - Full CI verification `npm run verify` passed cleanly (3x typechecks clean, 340 backend unit tests passed, SSG pre-render 95 HTML files passed, 3 production builds passed).
+
 ### 2026-10-19 — Fleet Asset Organization, Dimensional Naming & Frontend Integration
 
 - **Fleet Image Inventory & Dimensional Naming (`assets/fleet/`, `react/public/assets/fleet/`)**:

@@ -54,7 +54,7 @@ MAPPING = {
 
 # Root source dir
 src_dir = "assets/fleet/new-images"
-dest_dirs = ["assets/fleet", "react/public/assets/fleet"]
+dest_dirs = ["assets/fleet", "react/public/assets/fleet", "admin/public/assets/fleet"]
 
 for d in dest_dirs:
     os.makedirs(d, exist_ok=True)
@@ -91,5 +91,21 @@ for src_name, (canonical_name, alias_name) in amaze_mapping.items():
             if os.path.abspath(src_path) != os.path.abspath(alias_dest):
                 shutil.copy2(src_path, alias_dest)
         copied_count += 1
+
+# Also ensure base fleet webps (sedan, ertiga, innova, tempo, urbania) are copied to dest_dirs
+base_webps = [
+    "sedan.webp", "sedan-480.webp", "sedan-768.webp",
+    "ertiga.webp", "ertiga-480.webp", "ertiga-768.webp",
+    "innova.webp", "innova-480.webp", "innova-768.webp",
+    "tempo.webp", "tempo-480.webp", "tempo-768.webp",
+    "urbania.webp", "urbania-480.webp", "urbania-768.webp"
+]
+for bw in base_webps:
+    src_bw = os.path.join("assets/fleet", bw)
+    if os.path.exists(src_bw):
+        for d in dest_dirs:
+            target_bw = os.path.join(d, bw)
+            if os.path.abspath(src_bw) != os.path.abspath(target_bw):
+                shutil.copy2(src_bw, target_bw)
 
 print(f"Successfully organized and deployed {copied_count} fleet images to {dest_dirs}!")
