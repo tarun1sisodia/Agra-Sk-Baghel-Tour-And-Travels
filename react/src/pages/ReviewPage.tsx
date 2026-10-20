@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Star } from "lucide-react";
-import { fetchReviewLink, submitReview } from "../services/cleanFareApi";
+import { fetchReviewLink, submitReview, uploadReviewPhoto } from "../services/cleanFareApi";
 
 interface ReviewLinkResponse {
   link?: {
@@ -53,6 +53,8 @@ export function ReviewPage() {
       : null
   );
   const [submitted, setSubmitted] = useState(false);
+  const [photos, setPhotos] = useState<Array<{ storage_key: string; mime_type: string }>>([]);
+  const [photoError, setPhotoError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token || isPreview) return;
@@ -105,6 +107,7 @@ export function ReviewPage() {
         review_text: reviewText.trim(),
         tour_name: tourName.trim() || undefined,
         consent_public: consentPublic,
+        photos: photos.map((photo) => ({ storage_key: photo.storage_key })),
       });
       setSubmitted(true);
     } catch (err: unknown) {
@@ -170,6 +173,26 @@ export function ReviewPage() {
                   ))}
                 </div>
               </fieldset>
+              {!isPreview && (
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-ink-charcoal" htmlFor="review-photos">Add photos (up to 5)</label>
+                  <input id="review-photos" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple className="block w-full rounded-lg border border-border-warm bg-surface px-3 py-2 text-sm" onChange={async (event) => {
+                    setPhotoError(null);
+                    const files = Array.from(event.target.files ?? []).slice(0, 5 - photos.length);
+                    try {
+                      for (const file of files) {
+                        if (file.size > 5 * 1024 * 1024) throw new Error("Each photo must be 5 MB or smaller.");
+                        const uploaded = await uploadReviewPhoto(token, file);
+                        setPhotos((current) => [...current, uploaded].slice(0, 5));
+                      }
+                    } catch (error) { setPhotoError(error instanceof Error ? error.message : "Could not upload photo."); }
+                    event.currentTarget.value = "";
+                  }} />
+                  <p className="mt-1 text-xs text-on-surface-variant">Photos are stored privately and only appear after moderation and your public-consent choice.</p>
+                  {photoError ? <p className="mt-1 text-sm text-red-700" role="alert">{photoError}</p> : null}
+                </div>
+              )}
+
               <div>
                 <label className="mb-2 block text-sm font-semibold text-ink-charcoal" htmlFor="review-text">Tell us about your experience</label>
                 <textarea id="review-text" required minLength={1} maxLength={5000} rows={6} value={reviewText} onChange={(event) => setReviewText(event.target.value)} className="w-full rounded-lg border border-border-warm bg-surface px-3 py-2.5 text-ink-charcoal outline-none focus:border-terracotta-sandstone" />

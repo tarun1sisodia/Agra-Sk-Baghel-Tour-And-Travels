@@ -460,6 +460,20 @@ export async function fetchReviewLink(token: string): Promise<any> {
   return apiRequest<any>(`/api/v1/reviews/links/${encodeURIComponent(token)}`, { method: "GET" });
 }
 
+export async function uploadReviewPhoto(token: string, file: File): Promise<{ storage_key: string; mime_type: string }> {
+  const dataBase64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",", 2)[1] ?? "");
+    reader.onerror = () => reject(reader.error ?? new Error("Could not read image"));
+    reader.readAsDataURL(file);
+  });
+  const data = await apiRequest<any>(`/api/v1/reviews/links/${encodeURIComponent(token)}/photos`, {
+    method: "POST",
+    body: JSON.stringify({ dataBase64, mimeType: file.type }),
+  });
+  return data.photo ?? data;
+}
+
 export async function submitReview(token: string, payload: any): Promise<any> {
   return apiRequest<any>(`/api/v1/reviews/links/${encodeURIComponent(token)}/submissions`, {
     method: "POST",
