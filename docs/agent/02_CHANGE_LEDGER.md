@@ -1,6 +1,31 @@
 ## 2026-10-20
 
-### 2026-10-20 — CI Pipeline Streamlining & Bot Commit Elimination
+### 2026-10-20 — Customer & Admin PRD Comprehensive Alignment for TestSprite E2E Automation
+
+- **Customer Site PRD v2.0 Update (`docs/CUSTOMER_SITE_PRD.md`)**:
+  - Brought customer PRD to authoritative production specification v2.0 matching all current frontend features.
+  - Documented 3-second bank-grade pre-checkout encryption countdown overlay (`BookingPaymentCountdownModal.tsx`) and 7-second post-payment dispatch verification countdown modal.
+  - Documented branded A4 PDF booking confirmation voucher download (`#btn-download-pdf-voucher`), loading spinner state, error handling, Resend email attachment, and backend endpoint (`GET /api/v1/bookings/:id/pdf`).
+  - Documented static review snapshot architecture (`react/src/data/generated-published-reviews.json`), decoupled homepage reviews marquee with zero runtime network call, and verified review submission portal (`/review/:token`).
+  - Documented extended fleet showroom with 25+ models across 4 canonical groups (`sedan`, `suv`, `luxury`, `tempo_traveller`), dimensional photo asset resolution, and WhatsApp reservation action.
+  - Documented 30-minute auto-expiry worker for unconfirmed pending bookings.
+  - Created complete TestSprite UI assertion and selector matrix for automated customer test execution.
+- **Admin Operations Desk PRD v2.1 Update (`docs/admin/ADMIN_PRD.md`)**:
+  - Brought admin PRD to authoritative v2.1 specification.
+  - Documented Fleet Catalog Onboarding section with 25+ curated presets (`FLEET_PRESETS`), filter tabs ("Missing in Fleet", "All Catalog", "Active"), real-time search, and "+ Onboard to Fleet" 1-click action.
+  - Documented Add/Edit Vehicle Model modal with "Quick Template Auto-Fill" dropdown, "Fleet Asset Library" selector (`FLEET_IMAGE_OPTIONS`) featuring 35+ high-res vehicle photos with dimensional descriptions, and live 16:9 photo preview with "✓ Image linked" status badge and error fallback.
+  - Documented active vehicle models table photo thumbnails and instant text search filter.
+  - Documented Review Invitation & WhatsApp QR Studio on `/reviews`: Dispatcher form inputs, tokenized link generation, 1-click WhatsApp share with bilingual message, live HTML5 canvas QR rendering (`qrcode`), and 1-click printable PNG download (`review-qr-[ticketId].png`).
+  - Documented default PII masking with audited unmasking (`UNMASK_CUSTOMER_PII`), optimistic concurrency control (`expectedVersion`), and 30-minute auto-expiry visibility.
+  - Documented finance desk 28% advance vs 72% chauffeur cash ledger, and idempotent refund subsystem with mandatory audit reason.
+  - Created complete TestSprite UI assertion matrix for admin desk operations and RBAC.
+- **TestSprite Standardization Artifacts Synchronization (`testsprite/standard_prd.json`, `testsprite/code_summary.json`, `testsprite/customer/frontend_test_plan.json`, `testsprite/admin_frontend_test_plan.json`)**:
+  - Updated `standard_prd.json` to v2.0 reflecting all countdown overlays, PDF downloads, fleet onboarding presets, review QR studios, and auto-expiry.
+  - Updated `code_summary.json` with all active component paths, routes, and testing priorities.
+  - Added test cases `CUS017` through `CUS021` to customer test plan covering countdown modals, PDF voucher downloads, review marquee/submission, and fleet showroom.
+  - Added test cases `ADM015` through `ADM019` to admin test plan covering fleet onboarding, asset library picker, 16:9 preview, review QR studio, PII unmasking audit logs, and auto-expiry.
+  - Validated all 6 TestSprite artifacts cleanly with `npm run testsprite:validate`.
+
 
 - **Consolidation into Unified Modern CI Workflow (`.github/workflows/ci.yml`)**:
   - Replaced fragmented and redundant workflows (`main-monitor.yml`, `quality.yml`, `ci-customer.yml`, `ci-admin.yml`, `ci-backend.yml`, `bot-package-updates.yml`) with a single, high-performance `.github/workflows/ci.yml`.

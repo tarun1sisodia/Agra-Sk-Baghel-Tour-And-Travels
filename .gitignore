@@ -16,6 +16,7 @@ dist/
 testsprite_tests/
 TestSprite_MCP_Test_Report.*
 testsprite-results/
+.testsprite/
 
 # FreeLLMAPI Gateway & local secrets
 freellmapi/

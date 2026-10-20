@@ -1,55 +1,78 @@
-# Product Requirements Document (PRD) — Admin Panel
+# Product Requirements Document (PRD) — Admin Operations Desk
+**Agra SK Baghel Tour & Travels — Internal Operations & Administration Platform**
 
-**Product:** Internal Operations Desk & Administration Platform for **Agra SK Baghel Tour & Travels**  
-**Document Version:** 2.0 — Authoritative Complete System Specification  
-**Status:** Implemented & Verified in Production Monorepo  
-**Project:** `tarun1sisodia/ArenaAI` (`admin/`)  
-**Deployment Target:** Cloudflare Pages (`skbagheltravels-admin`)  
-**Related Documents:** [ADMIN_SCOPE_BOUNDARY.md](ADMIN_SCOPE_BOUNDARY.md), [ADMIN_TRD.md](ADMIN_TRD.md), [ADMIN_API_CONTRACT.md](ADMIN_API_CONTRACT.md), [ADMIN_MODELS.md](ADMIN_MODELS.md), [ADMIN_CONTROLLERS.md](ADMIN_CONTROLLERS.md), [BACKEND_RULES.md](../../BACKEND_RULES.md), [contracts/fare-system.ts](../../contracts/fare-system.ts), [contracts/catalog.ts](../../contracts/catalog.ts)
+- **Document Version:** 2.1 (Authoritative Complete Production Specification)
+- **Status:** Implemented & Verified in Monorepo
+- **Project Root:** `admin/` (`tarun1sisodia/ArenaAI`)
+- **Canonical Deployment Origin:** `https://admin.agraskbagheltourandtravels.com`
+- **Active Staging Origin:** `https://skbagheltravels-admin.coccoder999.workers.dev`
+- **Local Development URL:** `http://localhost:5174`
+- **Backend API Origin:** `https://skb-baghel-api-staging.onrender.com` / `http://localhost:4000`
+- **Connected Customer Portal:** `https://skbagheltravels-customer.coccoder999.workers.dev` (Staging) / `https://agraskbagheltourandtravels.com` (Prod)
+- **Target Test Automation Engine:** TestSprite (Admin UI & Role Permission Test Generation)
 
 ---
 
 ## 1. Executive Summary & Vision
 
-**Agra SK Baghel Tour & Travels** is a premier tour, outstation taxi, and sightseeing service operating across Agra, Mathura, Vrindavan, Delhi NCR, and the Golden Triangle corridors.
+**Agra SK Baghel Tour & Travels** operates a private luxury travel and chauffeur service across Agra, Mathura, Vrindavan, Delhi NCR, and the Golden Triangle corridors.
 
-The **Admin Panel** (`admin/`) serves as the internal operations desk for travel dispatchers, tour coordinators, finance operators, review moderators, and desk managers. It is designed to run day-to-day operations with zero developer dependency and zero runtime ambiguity.
+The **Admin Operations Desk** (`admin/`) serves as the central command portal for dispatchers, tour coordinators, finance operators, review moderators, and desk managers. It enables complete day-to-day operations with zero developer dependency and zero runtime ambiguity.
 
 ### Key Capabilities Delivered:
-1. **Booking Operations & Fulfillment**: Complete lifecycle tracking (`pending_payment` ➔ `paid_confirmed` ➔ `in_transit` ➔ `completed` / `cancelled`), optimistic concurrency control, unmasked customer PII inspection, and manual payment confirmations.
-2. **4 Canonical Fleet Groups & Model Specifications**: Real-time management of canonical vehicle groups (`sedan`, `suv`, `luxury`, `tempo_traveller`) and 24 vehicle models with seats, luggage capacity, and base per-km rates.
-3. **Fare Engine, Rates & Commercial Exceptions**: Centralized configuration of commercial fare rules (versioned e.g. `2026-09-13`), night travel allowances, driver allowances, 250km/300km daily distance floors, and strict commercial rules for Force Urbania and Tempo Traveller (forced round-trip billing and 300km/day floor).
-4. **Curated Product Catalog CMS**: Multi-category publishing covering:
-   - **Outstation Corridors**: 980+ point-to-point and intercity routes with toll inclusion toggles.
-   - **Local Sightseeing Packages**: 4h/40km, 8h/80km, and 12h/120km charters.
-   - **Station & Airport Transfers**: Fixed-rate transfers for Agra Cantt (AGC), Agra Fort, Delhi IGI, and Jewar Airport.
-   - **Tour Packages**: Multi-day excursions with day-by-day itineraries, inclusions, exclusions, and image galleries.
-5. **Review Invitation & WhatsApp QR Studio**: Customer review moderation queue coupled with an interactive tool for dispatchers to generate review links, send 1-click WhatsApp invitations, and render/download high-resolution scannable QR codes for driver clipboards.
-6. **Lead Management**: Call-first taxi rental enquiries from `/en/taxis/rent/` and general contact form leads with operator follow-up workflows.
-7. **Finance Reconciliation & Idempotent Refunds**: Captured advance deposit ledger (28% lock-in token), chauffeur cash balance collection tracking (72%), and idempotent refund execution with mandatory audit reasons.
-8. **Operational Sign-Off & Trip Readiness**: Pre-trip vehicle sanitation, permit verification, and driver readiness checklists.
-9. **One-Click Live Publishing**: Manifest synchronization triggering real-time catalog emission to customer site and Cloudflare edge caches.
-10. **Enterprise Security & Immutable Audit**: Supabase authentication, session auto-refresh, role-based access control (RBAC), and append-only audit logging for all mutations and PII access.
-
-> [!IMPORTANT]
-> **Boutique Travel Desk Operational Model**: Per client mandate, the platform functions as an authentic private tour and travel desk, **NOT** an on-demand ride-hailing marketplace (like Uber or Ola). The software manages pricing, bookings, catalog offerings, payments, and reviews. Physical vehicle registration tracking, driver employment rosters, and live GPS telemetry dispatching are intentionally out of scope.
+1. **Fleet Catalog Onboarding & Asset Library Selector (`/vehicles`)**:
+   - 25+ curated vehicle model presets (`FLEET_PRESETS`) spanning all 4 canonical fleet groups (`sedan`, `suv`, `luxury`, `tempo_traveller`).
+   - "Fleet Asset Catalog & Quick Onboarding" gallery with filter tabs ("Missing in Fleet", "All Catalog", "Active"), real-time search, and 1-click "+ Onboard to Fleet" button.
+   - Add/Edit Vehicle Model modal with "Quick Template Auto-Fill" dropdown and "Fleet Asset Library" selector (`FLEET_IMAGE_OPTIONS`) featuring 35+ local high-resolution vehicle images with dimensional specs and live 16:9 photo preview.
+   - Active vehicle models table with photo thumbnails and instant text search.
+2. **Review Invitation & WhatsApp QR Studio (`/reviews`)**:
+   - Dedicated studio for dispatchers to generate verified review invitation links.
+   - 1-Click WhatsApp share with personalized bilingual invitation message.
+   - Real-time HTML5 canvas QR code rendering via `qrcode`.
+   - 1-Click PNG QR code download (`review-qr-[ticketId].png`) for vehicle glove compartments and chauffeur clipboards.
+   - Review moderation queue enqueuing publish events to `site_publish_events` for static customer snapshot emission.
+3. **Booking Operations Desk (`/bookings`)**:
+   - Complete lifecycle tracking (`pending_payment` ➔ `paid_confirmed` ➔ `in_transit` ➔ `completed` / `cancelled` / `refunded`).
+   - Optimistic concurrency control via `expectedVersion` to prevent concurrent overwrite collisions.
+   - Unmask Customer PII toggle with mandatory immutable audit logging (`UNMASK_CUSTOMER_PII`).
+   - 30-minute auto-expiry detection for unpaid bookings.
+   - Manual payment recording for bank NEFT/IMPS and Taj Ganj desk cash advances.
+4. **Finance Reconciliation & Idempotent Refunds (`/finance`)**:
+   - Dual-ledger tracking: Captured 28% online advance deposits vs pending 72% chauffeur cash balance collections.
+   - Idempotent refund subsystem requiring unique `idempotencyKey` and mandatory audit reason to eliminate double payouts.
+5. **Fare Engine, Rates & Commercial Exceptions (`/fares`)**:
+   - Versioned commercial fare rules (e.g., `2026-09-13`).
+   - Strict commercial rules for Force Urbania and Tempo Traveller (forced round-trip distance doubling `km * 2` and 300km/day minimum floor).
+6. **Curated Product Catalog CMS (`/routes`, `/tour-packages`, `/local-transfers`)**:
+   - Outstation routes (980+ corridors).
+   - Local sightseeing hourly charters (4h/40km, 8h/80km, 12h/120km).
+   - Station and airport transfers (Agra Cantt, Agra Fort, Delhi IGI, Jewar).
+   - Multi-day tour packages with day-by-day itineraries and vehicle pricing grids.
+7. **Lead Management (`/rental-requests`, `/inquiries`)**:
+   - Call-first taxi rental quote management with status workflow (`new` ➔ `contacted` ➔ `quoted` ➔ `confirmed` ➔ `closed`).
+   - General inquiry inbox with operator assignment.
+8. **Operational Sign-Off & Trip Readiness (`/sign-off`)**:
+   - Pre-departure vehicle sanitation, AC cooling, FASTag balance, driver badge, and emergency kit checklists.
+9. **Enterprise Security & Immutable Audit (`/audit`)**:
+   - Role-Based Access Control (RBAC) with 5 granular roles.
+   - Tamper-proof security audit trail logging every administrative mutation.
 
 ---
 
 ## 2. System Architecture & Monorepo Integration
 
-The Admin Panel is a single-page application (SPA) built with React 19, TypeScript, Vite, Tailwind CSS, Motion, and Lucide icons. It communicates with the Fastify backend via a strongly typed API client (`admin/src/lib/cleanAdminApi.ts`) governed by canonical monorepo contracts.
-
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                        ADMIN DESK SPA (admin/)                         │
-│  React 19 • Vite • Tailwind • Motion • Lucide • Supabase Auth Client   │
+│  React 19 • Vite • React Router 7 • Tailwind CSS • Motion • Lucide     │
+│  Auth: Supabase Auth in Production / Role Selector in Test Mode        │
 └────────────────────────────────────┬───────────────────────────────────┘
-                                     │ Authoritative REST & Bearer JWT
+                                     │ Bearer JWT / Admin API Client
                                      ▼
 ┌────────────────────────────────────────────────────────────────────────┐
 │                      FASTIFY BACKEND (backend/)                        │
-│   Auth Guard • RBAC Middleware • Fare Engine • Idempotent Refunds      │
+│   Auth Guards • Role Guards • Fare Engine • Idempotent Refund Service  │
+│   Auto-Expiry Worker (60s) • Review Outbox Publisher                   │
 └───────────────────┬────────────────────────────────┬───────────────────┘
                     │                                │
                     ▼                                ▼
@@ -64,236 +87,207 @@ The Admin Panel is a single-page application (SPA) built with React 19, TypeScri
 
 ## 3. User Roles & Permission Matrix (RBAC)
 
-The system enforces granular Role-Based Access Control via database profiles and JWT claims:
+The admin platform enforces strict Role-Based Access Control across 5 distinct roles:
 
-| Module / Action | `dispatcher` | `content_editor` | `review_moderator` | `finance_operator` | `super_admin` |
+| Administrative Capability | `dispatcher` | `content_editor` | `review_moderator` | `finance_operator` | `super_admin` |
 |---|:---:|:---:|:---:|:---:|:---:|
 | **Dashboard Metrics & Analytics** | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **Search & Filter Bookings** | ✅ | ❌ | ❌ | ✅ | ✅ |
 | **Inspect Booking Details** | ✅ | ❌ | ❌ | ✅ | ✅ |
 | **Unmask Customer PII (Phone/Email)** | ✅ | ❌ | ❌ | ❌ | ✅ |
 | **Advance Booking Status (`in_transit`, `completed`)** | ✅ | ❌ | ❌ | ❌ | ✅ |
-| **Manual Payment Marking (Offline Advance)** | ✅ | ❌ | ❌ | ✅ | ✅ |
-| **Trigger Payment Refund** | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Manage Fleet Models & Canonical Groups** | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Record Manual Offline Payment** | ✅ | ❌ | ❌ | ✅ | ✅ |
+| **Trigger Idempotent Refund** | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Manage Fleet Models & Presets** | ❌ | ❌ | ❌ | ❌ | ✅ |
 | **Edit Fare Settings & Commercial Rates** | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Edit Routes & Corridor Fares** | ❌ | ✅ | ❌ | ❌ | ✅ |
+| **Manage Routes & Corridors** | ❌ | ✅ | ❌ | ❌ | ✅ |
 | **Manage Tour Packages & Itineraries** | ❌ | ✅ | ❌ | ❌ | ✅ |
 | **Manage Local Sightseeing & Transfers** | ❌ | ✅ | ❌ | ❌ | ✅ |
-| **Moderate Reviews (Approve/Reject)** | ❌ | ❌ | ✅ | ❌ | ✅ |
+| **Moderate Customer Reviews** | ❌ | ❌ | ✅ | ❌ | ✅ |
 | **Review Invitation & WhatsApp QR Studio** | ✅ | ❌ | ✅ | ❌ | ✅ |
 | **Manage Rental Requests & Leads** | ✅ | ❌ | ❌ | ❌ | ✅ |
-| **Publish Catalog to Customer Site** | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Publish Catalog Outbox** | ❌ | ❌ | ❌ | ❌ | ✅ |
 | **Execute Operational Sign-Off** | ✅ | ❌ | ❌ | ❌ | ✅ |
-| **Manage Policies & Terms** | ❌ | ✅ | ❌ | ❌ | ✅ |
 | **Inspect System Audit Logs** | ❌ | ❌ | ❌ | ❌ | ✅ |
 
 ---
 
-## 4. Comprehensive Functional Specifications (All 18 Modules)
+## 4. Comprehensive Functional Specifications by Module
 
 ### 4.1. Authentication & Session Security (`/login`, `/auth/callback`)
-- **Authentication Methods**: Secure email and password authentication with Supabase Auth, with support for Magic Links and OAuth redirects.
-- **Session Lifecycle**: Access tokens stored in encrypted browser session storage with automatic proactive refresh before expiry.
-- **Auto-Logout & Security Guard**: Emits `AUTH_EXPIRED_EVENT` on 401 Unauthorized or invalid session, clearing sensitive in-memory state and redirecting to login.
-- **Strict Role Verification**: Route guards verify user role before mounting lazy-loaded administrative modules.
+- **Dual Authentication Modes**:
+  - **Production Mode**: Supabase email/password authentication with JWT bearer tokens and automatic background refresh.
+  - **Staging / Test Mode (`ALLOW_TEST_AUTH=true`)**: Demo Role Switcher enabling instantaneous test switching between `dispatcher`, `content_editor`, `review_moderator`, `finance_operator`, and `super_admin`.
+- **Session Lifecycle**: Bearer access tokens stored in browser session storage. Automatic session termination on 401 Unauthorized via `AUTH_EXPIRED_EVENT`.
+- **Route Guards**: Evaluates active role before mounting protected administrative routes, gracefully redirecting unauthorized attempts.
 
 ### 4.2. Operations Dashboard (`/`)
-- **Real-Time KPIs**:
-  - Total active bookings count.
-  - Today's confirmed departures.
-  - Financial overview (captured 28% online advances vs pending chauffeur 72% collections).
-  - Pending customer reviews awaiting moderation.
-  - Uncontacted rental requests and custom tour inquiries.
-- **Operational Shortcuts**: Quick navigation to create bookings, review drafts, add tour packages, and inspect live audit trails.
-- **Activity Feed**: Real-time chronological audit snapshot of recent status updates, payments, and staff logins.
+- **Key Real-Time Operational Metrics**:
+  - `Total Active Bookings`: Current in-flight and upcoming trips.
+  - `Today's Confirmed Departures`: Vehicles scheduled for dispatch today.
+  - `Financial Reconciliation`: Captured 28% advance deposits vs pending 72% chauffeur cash collections.
+  - `Review Moderation Queue`: Pending customer reviews awaiting publication.
+  - `New Rental Enquiries`: Uncontacted taxi rental quote requests.
+- **Quick Operations Bar**: Instant buttons to Create Booking, Onboard Vehicle, Add Tour Package, or Open QR Studio.
+- **Live Activity Feed**: Chronological stream of status changes, payments, unmasked PII events, and admin logins.
 
 ### 4.3. Bookings Operations Desk (`/bookings`)
-- **Fast Search & Lookup**: Instant search by Ticket ID (`AGR-YYYYMMDD-XXXX`), customer phone number, customer email, or booking UUID.
-- **Filter Facets**:
-  - **Status**: `pending_payment`, `paid_confirmed`, `in_transit`, `completed`, `cancelled`, `refunded`.
-  - **Category**: `outstation`, `local_package`, `transfer`, `tour_package`.
-  - **Fleet Group**: `sedan`, `suv`, `luxury`, `tempo_traveller`.
-  - **Date Ranges**: Pickup date, travel completion date, and booking creation date.
+- **Instant Search & Query Filters**:
+  - Search by Ticket ID (`AGR-YYYYMMDD-XXXX`), Customer Phone, Email, or UUID.
+  - Filter by Status (`pending_payment`, `paid_confirmed`, `in_transit`, `completed`, `cancelled`, `refunded`).
+  - Filter by Category (`outstation`, `local_package`, `transfer`, `tour_package`).
+  - Filter by Fleet Group (`sedan`, `suv`, `luxury`, `tempo_traveller`).
+  - Date pickers for pickup date range.
 - **Inspection Drawer**:
-  - Route summary (origin, destination, pickup address, drop address, scheduled date/time, estimated distance in km, travel duration).
-  - Server-calculated immutable fare snapshot (base fare, night allowance, driver allowance, tolls/taxes included, promo discounts, total fare, advance paid, balance payable to driver).
-  - Selected vehicle model specifications and passenger count.
-- **Privacy & PII Protection**:
-  - Customer phone and email are masked by default (`+91 98*** **598`).
-  - Authorized dispatchers can click **Unmask PII**, which logs an immutable audit event (`UNMASK_CUSTOMER_PII`) with user ID and timestamp.
+  - Route Summary: Origin, destination, pickup address, drop address, scheduled date/time, estimated distance (km).
+  - Selected Vehicle Model, passenger capacity, and luggage count.
+  - Immutable Fare Breakdown: Base fare, km charge, driver allowance, night surcharge, tolls/GST included, total fare, advance paid, balance due to chauffeur.
+- **PII Privacy & Unmasking**:
+  - Customer contact details are masked by default (`+91 98*** **598`).
+  - Authorized dispatchers click **"Unmask PII"**, which reveals phone/email and asynchronously records an immutable security audit entry (`UNMASK_CUSTOMER_PII`) with user ID, IP address, and timestamp.
 - **Optimistic Concurrency Control**:
-  - Status updates require sending the current `version` integer (`expectedVersion`).
-  - Prevents race conditions and overwrites when multiple dispatchers view the same booking simultaneously.
-- **Manual Payment Confirmation**:
-  - Ability for authorized staff to record offline advance payments (bank NEFT/IMPS or cash received at Taj Ganj desk), with reference number logging.
+  - Status updates submit the current `version` integer (`expectedVersion`).
+  - If another operator updated the booking in parallel, the update is rejected with a conflict alert, prompting a reload to prevent stale overwrites.
+- **30-Minute Auto-Expiry Awareness**:
+  - Unpaid bookings abandoned past 30 minutes display `cancelled` with an `Auto-Expired` badge.
+- **Manual Payment Recording**:
+  - For customers paying deposits via direct bank NEFT/IMPS or at the Taj Ganj desk, staff can record payment with transaction reference and payment method.
 
 ### 4.4. Canonical Vehicles & Fleet Showroom (`/vehicles`)
-- **4 Canonical Fleet Groups Only**:
-  - `sedan`: 4 passengers, 2 bags (Maruti Dzire AC, Honda City, Maruti Ciaz).
-  - `suv`: 6–7 passengers, 3–4 bags (Maruti Ertiga, Toyota Innova Crysta, Toyota Fortuner).
-  - `luxury`: 4–6 passengers, 3–4 bags (Toyota Camry, Toyota Vellfire, Mercedes E-Class, BMW 5-Series).
-  - `tempo_traveller`: 10–17 passengers, 8–12 bags (Force Traveller 12-seater, Force Traveller 17-seater, Force Urbania 13-seater).
-- **Vehicle Model Configuration**:
-  - Create and edit vehicle models with make, model name, display name, passenger capacity, luggage capacity, default per-km benchmark, and asset image URL.
-  - Active/inactive availability toggling for customer showroom display.
+- **4 Canonical Fleet Groups**:
+  - `sedan`: 4 passengers, 2 bags (Maruti Dzire, Honda Amaze, Skoda Slavia).
+  - `suv`: 6-7 passengers, 3-4 bags (Maruti Ertiga, Toyota Innova Crysta, Toyota Fortuner).
+  - `luxury`: 4-6 passengers, 3-4 bags (Toyota Camry Hybrid, Toyota Vellfire Lounge, Mercedes E-Class).
+  - `tempo_traveller`: 10-17 passengers, 8-12 bags (Force Traveller 12/17-seater, Force Urbania VIP).
+  - Group Rule Configuration: Driver allowance per day (round trips), one-way night surcharge, round-trip halt charge per night.
+- **Fleet Asset Catalog & Quick Onboarding Gallery**:
+  - `FLEET_PRESETS`: 25+ curated models with pre-filled makes, models, passenger capacities, luggage allowances, descriptions, and high-resolution photos.
+  - Status Filter Tabs:
+    - `Missing in Fleet (count)`: Shows vehicles from the catalog not yet activated in the active database.
+    - `All Catalog (count)`: Complete preset repository.
+    - `Active (count)`: Catalog vehicles already onboarded.
+  - Catalog Search: Real-time search by make, model, group code, or description.
+  - Vehicle Cards: Aspect-video image with fallback to `sedan.webp`, canonical group badge (`SEDAN`, `SUV`, `LUXURY`, `TEMPO_TRAVELLER`), seat/luggage pills, and active status pill.
+  - Action Button: **"+ Onboard to Fleet"** (pre-populates the Add Vehicle Model modal with all specifications ready for 1-click activation).
+- **Add / Edit Vehicle Model Modal (`isModelModalOpen`)**:
+  - **Quick Template Auto-Fill Dropdown**: Allows instant selection of any preset from `FLEET_PRESETS`, immediately populating make, model name, display name, seat capacity, luggage count, and photo URL.
+  - Vehicle Group selector: Binds model to canonical group (`sedan`, `suv`, `luxury`, `tempo_traveller`).
+  - Form Fields: Make, Model Name, Customer Display Name, Passenger Capacity, Luggage Capacity, Sort Order.
+  - **Fleet Asset Library Selector (`FLEET_IMAGE_OPTIONS`)**:
+    - Dropdown featuring 35+ local high-resolution vehicle images with dimensions and descriptions (e.g. `toyota-camry-hybrid-executive-luxury-360x536.jpg`, `honda-amaze-red-sedan-921x519.webp`, `toyota-vellfire-ultra-luxury-mpv-360x536.jpg`, `skoda-slavia-montecarlo-jodhpur-palace-921x519.jpg`, `tempo.webp`, `urbania.webp`).
+    - Eliminates manual URL typing.
+    - Custom URL input field for external photo links.
+  - **Live Photo Preview**:
+    - Responsive 16:9 container displaying the selected vehicle image.
+    - Status badge: Displays `✓ Image linked` when valid image is loaded.
+    - Error fallback: Displays `<Car />` icon with "Could not load image at this path" if URL is invalid.
+  - Active model checkbox: Toggles visibility in customer booking showroom.
+- **Active Vehicle Models Table**:
+  - Model Column: Renders vehicle photo thumbnail with clean fallback to `<Car />` icon.
+  - Instant Search Input: Filters table by display name, make, model, or group.
+  - Action Buttons: Edit Model, Deactivate/Activate toggle.
 
-### 4.5. Fare Settings & Commercial Rules (`/fares/settings`)
-- **Rules Versioning**: Authoritative fare versioning (e.g. `2026-09-13`), ensuring all active bookings freeze their calculation version.
-- **Base Pricing Parameters**:
-  - Minimum daily distance floor (250 km/day for standard outstation; 300 km/day for commercial exceptions).
-  - Night travel surcharge rate and active hours (10:00 PM – 06:00 AM).
-  - Standard driver daily allowance (₹400/day for Sedan, ₹500/day for SUV, ₹700/day for Luxury, ₹800/day for Tempo).
-  - Round-trip night halt allowance.
+### 4.5. Fare Settings & Commercial Rules (`/fares/settings`, `/fares/rates`, `/fares/extra-charges`)
+- **Versioned Commercial Rules**: Active version e.g. `2026-09-13`.
+- **Distance Floors & Surcharges**:
+  - Standard Outstation floor: 250 km/day.
+  - Night travel surcharge window: 10:00 PM to 06:00 AM.
+  - Driver daily allowance by group (Sedan ₹400, SUV ₹500, Luxury ₹700, Tempo ₹800).
 - **Commercial Exception Rules (Force Urbania & Tempo Traveller)**:
-  - Enforced round-trip distance doubling (`km * 2`).
-  - Strict 300 km/day minimum floor (`Math.max(km * 2, 300 * days)`).
-  - Mandatory ₹500/day driver allowance and locked rate structure (immune to promotional coupon discounts).
+  - Forced round-trip distance doubling (`km * 2`).
+  - Strict 300 km/day floor (`Math.max(km * 2, 300 * days)`).
+  - Mandatory ₹500/day driver allowance and locked rate structure immune to coupon discounts.
+- **Interstate Toll & State Tax Policies**:
+  - Configurable inclusion rules for Yamuna Expressway, Eastern Peripheral, and Agra-Lucknow Expressway.
 
-### 4.6. Round-Trip Pricing Matrix (`/fares/rates`)
-- Multi-day outstation rate-per-kilometer configuration across all canonical groups.
-- Halt per night charges and multi-city itinerary calculation rules.
+### 4.6. Routes Directory CMS (`/routes`)
+- **980+ Point-to-Point Corridors**: Complete CRUD for intercity travel.
+- Parameters: Origin, Destination, Distance (km), Duration (hours), Corridor tag, Tolls included toggle, Per-group tariffs.
+- Search & Filter: Filter by city pair, highway corridor, and publication state.
 
-### 4.7. Extra Charges & Surcharges (`/fares/extra-charges`)
-- **Interstate Border Taxes**: State passenger transport permit costs for Uttar Pradesh, Delhi NCR, Haryana, and Rajasthan.
-- **Expressway Toll Policies**: Inclusion rules for Yamuna Expressway, Eastern Peripheral Expressway, Agra-Lucknow Expressway, and Delhi-Mumbai Expressway.
-- **Peak Season / Festival Surcharges**: Configurable date-bounded multipliers for Diwali, New Year, and peak tourist season.
+### 4.7. Tour Packages CMS (`/tour-packages`)
+- **Curated Multi-Day & Day Tour Management**: Taj Sunrise Tour, Same Day Agra, Golden Triangle, Mathura-Vrindavan.
+- **Itinerary Timeline Builder**: Day-by-day monument stops, duration, and descriptions.
+- **Vehicle Pricing Grid**: Fixed tariffs per vehicle group (Sedan, Ertiga, Innova, Tempo, Urbania).
+- **Inclusions & Exclusions**: Contractual bullet points.
 
-### 4.8. Routes Directory CMS (`/routes`)
-- **980+ Corridors**: High-throughput outstation route management.
-- **Parameters**: Origin, destination, distance in km, estimated travel duration, corridor tag (e.g. *Direct Highway Corridor*, *Yamuna Expressway Corridor*), toll inclusion flag.
-- **Tiered Pricing**: Per-route fixed rates across vehicle groups.
-- **Search & Filter**: Instant search by city pair, highway corridor, and publication state.
+### 4.8. Local Sightseeing & Transfers CMS (`/local-transfers`)
+- Hourly Sightseeing Charters: 4h/40km, 8h/80km, 12h/120km packages.
+- Station Transfers: Agra Cantt (AGC) and Agra Fort railway station drops.
+- Airport Charters: Delhi IGI Airport, Jewar Airport, and Kheria Airport transfers.
 
-### 4.9. Unified Catalog Explorer (`/catalog`)
-- Unified single-pane inventory of all customer-facing offerings across Outstation, Local Packages, Transfers, and Tour Packages.
-- Status badges (`draft`, `published`, `archived`), starting prices, and quick edit links.
+### 4.9. Customer Review Moderation & WhatsApp QR Studio (`/reviews`)
+- **Review Invitation & WhatsApp QR Studio (Top Section)**:
+  - Form Fields: Customer Name, Booking Ticket ID, Chauffeur Name, Tour Name.
+  - Submission URL Generation: Generates pre-filled review URL pointing to active customer site (`/review/:token` or `/review?...`).
+  - **Action: "Generate Token Link"**: Calls `createAdminReviewLink` to generate an official verified token.
+  - **Action: "Copy Link"**: Copies full URL to clipboard with visual confirmation.
+  - **Action: "Share on WhatsApp"**: Formats personalized message (`Namaste [Name]! Thank you for traveling with SK Baghel Tour & Travels... Please share your feedback: [URL]`) and opens WhatsApp Web/API.
+  - **Live Dynamic QR Code Canvas**: Real-time rendering via `QRCode.toDataURL` with dark ink `#1a1a1a` on white background.
+  - **Action: "Download Printable QR Code (PNG)"**: Downloads `review-qr-[ticketId].png` for driver clipboards and vehicle glove compartments.
+- **Customer Review Moderation Queue**:
+  - Reviews Table: Rating (1-5 stars), review text, photo attachments, customer name, ticket reference, submission date.
+  - Moderation Actions: Approve, Reject, Archive.
+  - Outbox Publishing: Approving a review enqueues an event in `site_publish_events`, triggering static customer review snapshot generation.
 
-### 4.10. Tour Packages CMS (`/tour-packages`)
-- **Multi-Day & Day Tour Management**: Creation, editing, and scheduling of curated tour packages (e.g., Same Day Agra Taj Mahal Tour, Sunrise Taj Mahal Tour, Golden Triangle Tour, Mathura-Vrindavan Pilgrimage).
-- **Rich Itinerary Builder**: Day-by-day timeline, monument highlights, stops covered, and curated descriptions.
-- **Starting Price & Vehicle Pricing Grid**: Configurable fixed starting fare and vehicle-specific package tariffs (Sedan, Ertiga, Innova, Tempo, Urbania).
-- **Inclusions & Exclusions**: Clear contractual bullet points (tolls included, chauffeur allowance included, monument entry tickets excluded).
-- **Gallery Manager**: Drag-and-drop cover photo assignment, gallery order, captions, and alt text.
+### 4.10. Call-First Taxi Rental Requests (`/rental-requests`)
+- Dedicated desk for inquiries submitted through `/en/taxis/rent/`.
+- Fields: Customer Name, Phone, Email, Selected Vehicle Class, Specific Model, Pickup Date, Return Date, Passenger Count, Chauffeur Included toggle.
+- Workflow State Machine: `new` ➔ `contacted` ➔ `quoted` ➔ `confirmed` ➔ `closed`.
+- Chauffeur assignment and negotiated rate notes log.
 
-### 4.11. Local Sightseeing & Transfers CMS (`/local-transfers`)
-- **Local Hourly Sightseeing**: Fixed packages (4 Hours / 40 KM, 8 Hours / 80 KM, 12 Hours / 120 KM) with monument coverage lists.
-- **Fixed-Rate Station Drops**: Agra Cantt (AGC) and Agra Fort railway station transfers with platform greeting notes.
-- **Airport Charters**: Delhi IGI Airport (T1/T3), Jewar International Airport, and Kheria Airport transfers.
-- **Fixed Fleet Rates**: Group-specific tariffs guaranteeing transparent fixed billing without meter tampering.
+### 4.11. Customer Inquiries & Leads Desk (`/inquiries`)
+- Inbox for contact form inquiries with operator assignment and status tracking.
 
-### 4.12. Customer Review Moderation & WhatsApp QR Studio (`/reviews`)
-- **Moderation Queue**: Incoming customer reviews with 1–5 star ratings, customer feedback, and photo attachments.
-- **Trip Verification**: Cross-reference submitted review with customer Ticket ID, assigning authentic `Verified Customer` badges.
-- **Moderation Actions**: Approve, reject, publish to live website, or archive.
-- **Review Invitation & WhatsApp QR Studio**:
-  - Dedicated tool atop the Reviews Desk for dispatchers to collect authentic verified reviews.
-  - Form fields: Customer Name, Booking Ticket ID, Chauffeur Name, Tour Name.
-  - Live review submission URL generated with pre-filled verification tokens.
-  - **1-Click WhatsApp Share**: Formats personalized message (`"Hello [Name], thank you for traveling with Agra SK Baghel Tour & Travels! Please share your experience here: [URL]"`).
-  - **Live Dynamic QR Code**: Real-time canvas rendering of a crisp, high-resolution QR code using `qrcode`.
-  - **1-Click PNG Download**: Exports printable QR image for vehicle glove compartments and driver trip clipboards.
-
-### 4.13. Call-First Taxi Rental Requests (`/rental-requests`)
-- **Dedicated Rental Funnel**: Captures call-first rental inquiries submitted from `/en/taxis/rent/`.
-- **Inquiry Details**: Customer name, phone number, email, selected vehicle group, specific preferred model, pickup date, return date, pickup location in Agra, itinerary destination, passenger count, and verified chauffeur toggle.
-- **Workflow State Machine**: `new` ➔ `contacted` ➔ `quoted` ➔ `confirmed` ➔ `closed`.
-- **Operational Notes**: Chauffeur assignment notes and negotiated custom rates recorded in real-time.
-
-### 4.14. Customer Inquiries & Leads Desk (`/inquiries`)
-- Inbox for inquiries originating from contact forms and marketing landing pages.
-- Status tracking, operator assignment, notes log, and conversion tracking.
-
-### 4.15. Finance & Payment Reconciliation (`/finance`)
-- **Payment Gateway Ledger**: Audits captured online advance payments from Razorpay, PayPal, and international card processors.
-- **Transaction Snapshot**: Payment Gateway Reference ID, Order ID, payment method (UPI, Netbanking, Credit/Debit Card), net amount captured, and capture timestamp.
-- **Chauffeur Cash Collection Audit**: Tracks the remaining 72% trip balance due upon completion directly to the chauffeur.
+### 4.12. Finance & Payment Reconciliation (`/finance`)
+- **Advance Deposit Ledger**: Audits 28% online advances captured via Razorpay, Cards, or UPI.
+- **Chauffeur Cash Collection Ledger**: Tracks remaining 72% cash balance due to drivers upon arrival.
 - **Idempotent Refund Subsystem**:
   - Super Admin and Finance Operators can initiate partial or full refunds against eligible bookings.
-  - Requires mandatory refund reason documentation and a unique client-generated idempotency key (`idempotencyKey`).
-  - Prevents double-refund execution during network retries.
-  - Triggers payment gateway refund API and synchronously transitions payment and booking states to `refunded`.
+  - Modal requires mandatory Refund Reason and generates a unique client `idempotencyKey`.
+  - Submits to backend refund route, updating payment and booking states to `refunded` while preventing accidental duplicate transactions under network retries.
 
-### 4.16. Operational Sign-Off Desk (`/sign-off`)
-- Digital pre-departure inspection checklist for dispatchers:
-  - Vehicle deep sanitation and AC cooling check.
-  - Driver commercial license, badge, and police verification verification.
-  - FASTag highway wallet balance check.
-  - Mineral water bottles, umbrellas, and passenger emergency kit verification.
-- Digital sign-off records permanently bound to booking tickets.
+### 4.13. Operational Sign-Off Desk (`/sign-off`)
+- Pre-departure vehicle checklist: Sanitation, AC cooling, FASTag balance, driver badge, emergency kit.
+- Permanent sign-off record attached to booking ticket.
 
-### 4.17. Customer Policies CMS (`/policies`)
-- Single source of truth for terms and conditions displayed across the customer portal:
-  - 28% advance deposit policy and 72% chauffeur balance policy.
-  - 24-hour free cancellation policy and refund timelines.
-  - Luggage allowances per vehicle group.
-  - Interstate border passenger tax and night travel guidelines.
-
-### 4.18. Immutable Audit Trail (`/audit`)
-- Append-only security ledger logging all administrative operations:
-  - Event types: `BOOKING_STATUS_CHANGE`, `UNMASK_CUSTOMER_PII`, `PAYMENT_REFUND_EXECUTED`, `FARE_RULE_MUTATION`, `CATALOG_PUBLISHED`, `USER_LOGIN`.
-  - Log metadata: UTC Timestamp, Actor UUID, User Role, Resource Type, Resource UUID, Client IP Address, User-Agent, and detailed JSON diff payload.
-  - Guaranteed tamper-proof (no deletion or modification allowed via API or UI).
+### 4.14. Immutable Security Audit Trail (`/audit`)
+- Append-only security ledger logging:
+  - `UNMASK_CUSTOMER_PII`
+  - `BOOKING_STATUS_CHANGE`
+  - `PAYMENT_REFUND_EXECUTED`
+  - `FARE_RULE_MUTATION`
+  - `CATALOG_PUBLISHED`
+  - `USER_LOGIN`
+- Metadata: Timestamp (UTC), Actor UUID, User Role, Resource Type, Resource UUID, Client IP, User-Agent, and detailed JSON diff.
 
 ---
 
-## 5. Canonical Data Contracts & State Machines
+## 5. TestSprite Acceptance & Admin UI Assertion Matrix
 
-### 5.1. Booking Lifecycle State Machine
-```mermaid
-stateDiagram-v2
-    [*] --> pending_payment: Customer creates booking draft
-    pending_payment --> paid_confirmed: 28% advance captured (Webhook/Desk)
-    pending_payment --> cancelled: Expired after 30 mins
-    paid_confirmed --> in_transit: Chauffeur dispatched on trip day
-    in_transit --> completed: Trip concluded, 72% balance collected
-    paid_confirmed --> cancelled: Customer cancels prior to trip
-    paid_confirmed --> refunded: Super admin authorizes refund
-    cancelled --> [*]
-    completed --> [*]
-    refunded --> [*]
-```
-
-### 5.2. Catalog Item State Machine
-```mermaid
-stateDiagram-v2
-    [*] --> draft: Content editor creates offering
-    draft --> published: Admin clicks Publish (manifest emitted)
-    published --> archived: Offering delisted from website
-    archived --> published: Offering reinstated
-    archived --> [*]
-```
-
-### 5.3. Rental Enquiry State Machine
-```mermaid
-stateDiagram-v2
-    [*] --> new: Customer submits rental quote form
-    new --> contacted: Dispatcher calls customer within 15 mins
-    contacted --> quoted: Vehicle availability & rate confirmed
-    quoted --> confirmed: Advance token received / Booking created
-    quoted --> closed: Customer declined / dates unavailable
-    confirmed --> [*]
-    closed --> [*]
-```
+| ID | Test Scenario | Expected UI Selector / Action | Pass Criteria |
+|---|---|---|---|
+| **TS-ADM-01** | Demo Role Login | Select role `dispatcher` on `/login` and submit | Authenticated session created; dashboard displays dispatcher navigation. |
+| **TS-ADM-02** | Role-Based Access Enforcement | Log in as `content_editor` and navigate to `/finance` | Navigation is blocked or route redirects safely without exposing financial ledger. |
+| **TS-ADM-03** | Bookings Search & Filter | Enter Ticket ID `AGR-` in `/bookings` search input | Table filters rows in real-time matching the entered ticket ID. |
+| **TS-ADM-04** | Unmask Customer PII | Click "Unmask PII" on a booking drawer | Masked phone/email becomes readable text; audit event `UNMASK_CUSTOMER_PII` is recorded. |
+| **TS-ADM-05** | Fleet Catalog Tab Filtering | Click "Missing in Fleet" on `/vehicles` | Displays only vehicle presets not currently active in the database. |
+| **TS-ADM-06** | Fleet Preset Onboard Action | Click "+ Onboard to Fleet" on preset card | Add Vehicle Model dialog opens pre-filled with preset make, model, seats, and photo URL. |
+| **TS-ADM-07** | Template Auto-Fill Dropdown | Select "Toyota Innova Crysta" in Auto-Fill dropdown | Dialog fields update immediately with Innova specifications and luggage capacity. |
+| **TS-ADM-08** | Fleet Asset Library Picker | Choose image from Fleet Asset Library dropdown | Form updates `image_url`; Live Photo Preview renders 16:9 photo with "✓ Image linked". |
+| **TS-ADM-09** | Vehicle Model Thumbnail Preview | Inspect Model column in Active Models table | Vehicle photo thumbnail renders cleanly with `<Car />` fallback for missing assets. |
+| **TS-ADM-10** | Review Studio Link Generation | Enter Customer & Ticket ID, click "Generate Token Link" | Generates tokenized review submission URL without errors. |
+| **TS-ADM-11** | Review Studio WhatsApp Share | Click "Share on WhatsApp" | Generates valid `https://wa.me/?text=...` URI containing customer name and review link. |
+| **TS-ADM-12** | Review Studio QR Canvas & Download | Inspect QR canvas on `/reviews` and click Download | HTML5 canvas renders QR code; browser downloads `review-qr-[ticketId].png`. |
+| **TS-ADM-13** | Review Moderation Queue | Click "Approve" on a pending review | Status changes to Approved; publish event is enqueued for customer static snapshot. |
+| **TS-ADM-14** | Idempotent Refund Confirmation | Initiate refund on `/finance` with reason | Requires confirmation modal; executes refund with unique idempotency key. |
+| **TS-ADM-15** | Logout & Session Clearing | Click "Logout" in sidebar | Session storage is wiped; user returns to login screen; back navigation blocked. |
 
 ---
 
-## 6. Technical Stack & Implementation Details
+## 6. Non-Functional & Security Requirements
 
-- **Frontend Core**: React 19, TypeScript 5.8, Vite 7.3.
-- **Routing**: `react-router-dom` v7 with code-split lazy routes (`React.lazy`, `Suspense`).
-- **Styling**: Tailwind CSS with custom editorial design tokens matching the luxury customer theme (`font-serif`, `terracotta`, `ink-charcoal`, `sandstone-wash`).
-- **Icons & Motion**: `lucide-react`, `motion/react` (with accessibility-conscious `useReducedMotion`).
-- **QR Engine**: `qrcode` canvas rendering for dynamic high-density scannable review codes.
-- **Contract Synchronization**: Canonical types imported from `contracts/fare-system.ts` and `contracts/catalog.ts`, synchronized across monorepo apps with `npm run contracts:sync` and validated by `contracts:check`.
-
----
-
-## 7. Operational Safety & Non-Functional Requirements
-
-1. **Performance**: All administrative search queries, filters, and dashboard metrics resolve in `< 500ms` against PostgreSQL indexes.
-2. **Optimistic Locking**: Every mutation against bookings, fleet, and pricing verifies `expectedVersion` to prevent concurrent overwrite collisions.
-3. **Data Protection & PII**: Customer contact details are masked by default. Unmasking events are logged with actor identity, IP, and timestamp.
-4. **Zero Live Developer Dependencies**: The operations desk can modify fares, add vehicle models, create tour packages, and publish catalog offerings completely autonomously without requiring code changes, pull requests, or redeployments.
-5. **Idempotent Financial Safety**: Refund executions require unique idempotency keys, preventing double payouts under transient network failures.
-6. **Strict Monorepo Build Hygiene**: All changes must pass `npm run verify` (typechecks across all 3 applications, 300+ backend automated tests, 40 customer tests, and clean production builds).
+1. **Zero Frontend Secret Leakage**: Admin build artifacts must never contain private backend keys (`DATABASE_URL`, `RAZORPAY_KEY_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`).
+2. **Optimistic Locking**: Every mutation against bookings, fleet models, and pricing includes `expectedVersion` to prevent concurrent overwrite collisions.
+3. **Responsive Operations**: Admin layout supports desktop screens (1280px+), tablets (768px), and mobile dispatch phones (375px) with collapsible sidebar and responsive data tables.
+4. **Audit Immutability**: No administrative user (including `super_admin`) can delete or alter audit log entries via the UI or REST endpoints.

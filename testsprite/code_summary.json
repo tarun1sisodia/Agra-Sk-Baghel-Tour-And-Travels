@@ -1,8 +1,20 @@
 {
   "project": "ArenaAI",
   "repository": "tarun1sisodia/ArenaAI",
-  "branch": "design/homepage",
-  "tech_stack": ["React 19", "TypeScript", "Vite", "React Router", "Fastify 5", "Zod", "Vitest", "PostgreSQL/Supabase", "Cloudflare Pages", "Render Docker"],
+  "branch": "main",
+  "tech_stack": [
+    "React 19",
+    "TypeScript",
+    "Vite",
+    "React Router 7",
+    "Fastify 5",
+    "Zod",
+    "Vitest",
+    "@pdfme/generator",
+    "PostgreSQL/Supabase",
+    "Cloudflare Pages / Workers",
+    "Render Docker"
+  ],
   "applications": [
     {
       "name": "customer",
@@ -10,8 +22,34 @@
       "root": "react",
       "entry": "react/src/main.tsx",
       "port": 5173,
-      "features": ["marketing pages", "English/Hindi routing", "SEO metadata", "location autocomplete", "fare discovery", "five-step mock booking", "contact/inquiry UI", "responsive/accessibility"],
-      "key_files": ["react/src/app/routes.tsx", "react/src/features/booking/BookingPage.tsx", "react/src/features/booking/fareEngine.ts", "react/src/fares.ts", "react/src/config.ts", "react/src/components/search/LocationCombobox.tsx"]
+      "features": [
+        "luxury marketing pages",
+        "English/Hindi routing",
+        "SSG pre-rendering (72 pages + 23 redirects)",
+        "location autocomplete",
+        "server-authoritative fare discovery",
+        "five-step booking funnel",
+        "3s bank-grade pre-checkout countdown overlay",
+        "7s post-payment dispatch countdown overlay",
+        "booking confirmation pass with branded PDF voucher download",
+        "static reviews marquee from build-time snapshot",
+        "verified customer review submission at /review/:token",
+        "extended fleet showroom with 25+ models",
+        "call-first taxi rental inquiry funnel",
+        "responsive/accessibility WCAG 2.1 AA",
+        "dual-origin staging/production support"
+      ],
+      "key_files": [
+        "react/src/features/booking/clean/CleanBookingPage.tsx",
+        "react/src/features/booking/clean/BookingPaymentCountdownModal.tsx",
+        "react/src/pages/BookingConfirmationPage.tsx",
+        "react/src/components/home/ReviewsMarquee.tsx",
+        "react/src/pages/ReviewPage.tsx",
+        "react/src/pages/FleetPage.tsx",
+        "react/src/pages/RentalPage.tsx",
+        "react/src/services/cleanFareApi.ts",
+        "react/src/config/siteOrigin.ts"
+      ]
     },
     {
       "name": "admin",
@@ -19,8 +57,35 @@
       "root": "admin",
       "entry": "admin/src/main.tsx",
       "port": 5174,
-      "features": ["role selection/demo login", "session persistence", "dashboard", "bookings", "finance", "catalog", "reviews", "inquiries", "fares", "audit", "theme and responsive layout"],
-      "key_files": ["admin/src/App.tsx", "admin/src/components/admin/AdminLayout.tsx", "admin/src/components/admin/Sidebar.tsx", "admin/src/lib/types.ts"]
+      "features": [
+        "role selection / demo login in test mode",
+        "Supabase Auth in production",
+        "operations dashboard metrics",
+        "bookings desk with optimistic locking and unmask PII audit logs",
+        "30-minute pending booking auto-expiry tracking",
+        "fleet catalog with 25+ presets and status filtering",
+        "fleet asset library picker with 35+ high-res vehicle photos",
+        "live 16:9 photo preview and active model thumbnails",
+        "review invitation studio with 1-click WhatsApp and canvas QR generator",
+        "printable PNG QR code download",
+        "review moderation queue and site publish outbox",
+        "finance ledger (28% online advance vs 72% chauffeur cash)",
+        "idempotent refund execution with mandatory reason",
+        "routes, tour packages, and local transfers CMS",
+        "immutable security audit trail"
+      ],
+      "key_files": [
+        "admin/src/App.tsx",
+        "admin/src/pages/BookingsPage.tsx",
+        "admin/src/pages/VehiclesPage.tsx",
+        "admin/src/pages/ReviewsPage.tsx",
+        "admin/src/pages/FinancePage.tsx",
+        "admin/src/pages/TourPackagesPage.tsx",
+        "admin/src/pages/RoutesPage.tsx",
+        "admin/src/pages/AuditPage.tsx",
+        "admin/src/lib/cleanAdminApi.ts",
+        "admin/src/lib/types.ts"
+      ]
     },
     {
       "name": "backend",
@@ -28,13 +93,47 @@
       "root": "backend",
       "entry": "backend/src/server.ts",
       "port": 4000,
-      "features": ["health/readiness", "fares", "locations", "bookings", "payments/webhooks", "catalog", "reviews", "inquiries", "admin operations", "CORS", "Helmet", "rate limits", "auth and role guards", "request IDs", "schema validation"],
-      "key_files": ["backend/src/app.ts", "backend/src/modules/fares", "backend/src/modules/bookings", "backend/src/modules/payments", "backend/src/modules/admin", "backend/src/middlewares/authGuard.ts", "backend/src/middlewares/roleGuard.ts", "backend/src/config/env.ts"]
+      "features": [
+        "health/readiness probes",
+        "server-authoritative fare calculations & commercial exceptions",
+        "booking lifecycle & state machine",
+        "30-minute pending booking auto-expiry worker",
+        "branded A4 PDF booking confirmation generation via @pdfme",
+        "secure customer PDF download route (/api/v1/bookings/:id/pdf)",
+        "Resend email dispatch with base64 PDF attachment",
+        "Razorpay checkout, signature verification & signed raw webhook handling",
+        "idempotent refund service",
+        "fleet, catalog, routes, packages, and local transfers APIs",
+        "review invitation links & customer submission endpoints",
+        "review publication outbox (site_publish_events)",
+        "RBAC middleware, auth guards, PII unmasking audit logging",
+        "rate limiting, Helmet, CORS, and request ID tracking"
+      ],
+      "key_files": [
+        "backend/src/app.ts",
+        "backend/src/server.ts",
+        "backend/src/modules/bookings/bookings.routes.ts",
+        "backend/src/modules/bookings/booking-pdf.service.ts",
+        "backend/src/modules/bookings/booking-pdf.template.ts",
+        "backend/src/modules/fares/fares.service.ts",
+        "backend/src/modules/payments/payments.service.ts",
+        "backend/src/modules/reviews/reviews.service.ts",
+        "backend/src/modules/admin/admin.routes.ts",
+        "backend/src/config/env.ts"
+      ]
     }
   ],
   "test_strategy": {
-    "frontend": "Run separate Playwright-driven TestSprite plans for customer and admin against their own live ports/URLs.",
-    "backend": "Run a Python/API-driven TestSprite plan against port 4000 using api_context.md and disposable fixture data.",
-    "priority_order": ["health and navigation", "booking/fare core flows", "admin auth and operations", "validation and edge cases", "security/privacy", "responsive/accessibility", "concurrency and performance boundaries"]
+    "frontend": "Run separate Playwright-driven TestSprite plans for customer and admin against their respective live ports or staging URLs.",
+    "backend": "Run a Python/API-driven TestSprite plan against port 4000 or staging API using api_context.md and disposable fixture data.",
+    "priority_order": [
+      "health and navigation",
+      "booking countdown modals and PDF voucher downloads",
+      "admin fleet catalog onboarding and asset library picker",
+      "admin review studio WhatsApp sharing and QR code export",
+      "finance reconciliation and idempotent refunds",
+      "PII protection and audit logging",
+      "responsive/accessibility and cross-device testing"
+    ]
   }
 }

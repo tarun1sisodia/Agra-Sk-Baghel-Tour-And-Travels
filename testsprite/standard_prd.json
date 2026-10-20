@@ -1,103 +1,136 @@
 {
   "meta": {
     "project": "ArenaAI / SK Baghel Tour & Travels",
-    "version": "1.0",
+    "version": "2.0",
     "prepared_by": "ArenaAI engineering",
     "canonical_customer_domain": "https://agraskbagheltourandtravels.com",
+    "staging_customer_domain": "https://skbagheltravels-customer.coccoder999.workers.dev",
     "admin_domain": "https://admin.agraskbagheltourandtravels.com",
-    "api_domain": "https://api.agraskbagheltourandtravels.com"
+    "staging_admin_domain": "https://skbagheltravels-admin.coccoder999.workers.dev",
+    "api_domain": "https://api.agraskbagheltourandtravels.com",
+    "staging_api_domain": "https://skb-baghel-api-staging.onrender.com"
   },
-  "product_overview": "A bilingual Agra taxi and tour platform consisting of a React customer website, an operations admin panel, and a Fastify API. The customer experience presents routes, vehicles, packages, fares, contact channels, and a five-step booking flow. The API is authoritative for fare calculations, bookings, payments, catalog, inquiries, reviews, and admin operations.",
+  "product_overview": "A bilingual Agra luxury taxi and tour platform comprising a React customer portal, an administrative operations desk, and a Fastify API. The customer experience features outstation corridors (980+ routes), curated tour packages, local sightseeing charters, an extended fleet showroom, a five-step booking funnel with 3s pre-checkout and 7s post-payment countdown overlays, and instant branded PDF voucher downloads. The operations desk provides fleet catalog onboarding with 25+ presets and an asset library picker, a review invitation studio with live WhatsApp and scannable QR code generation, booking management with PII unmasking audit logs, 30-minute pending booking auto-expiry, and idempotent refund execution.",
   "core_goals": [
-    "Help customers discover Agra taxi, intercity, vehicle, and package services in English and Hindi.",
-    "Make transparent server-authoritative fares and booking information available before commitment.",
-    "Allow customers to contact the travel desk through call, WhatsApp, inquiries, and booking workflows.",
-    "Provide operations staff with role-aware dashboards for bookings, finance, catalog, reviews, inquiries, fares, and audit history.",
-    "Protect booking, payment, admin, webhook, and personally identifiable data from unauthorized access or mutation.",
-    "Keep the customer and admin clients maintainable as static deployments while the API remains the source of truth."
+    "Help customers discover Agra taxi, intercity, vehicle, and package services in English and Hindi with SSG-optimized sub-second performance.",
+    "Make transparent server-authoritative fares available before commitment, dividing fares into a 28% advance deposit and 72% chauffeur cash balance.",
+    "Deliver seamless booking confidence through 3-second bank-grade pre-checkout encryption overlays and 7-second dispatch verification countdown overlays.",
+    "Issue branded A4 booking confirmation PDF vouchers instantly via customer downloads and Resend email attachments.",
+    "Provide operations staff with role-based dashboards for bookings, fleet catalog onboarding with presets, live image previews, review moderation with WhatsApp QR studio, finance, and immutable audit history.",
+    "Protect booking, payment, admin, webhook, and personally identifiable data with default PII masking and logged unmasking events.",
+    "Maintain high uptime and zero hydration mismatches through static review snapshot architecture and dual-origin staging support."
   ],
   "key_features": [
     {
-      "name": "Customer marketing site",
-      "description": "Responsive React pages for home, routes, services, fleet, packages, about, contact, FAQ, privacy, terms, and not-found handling.",
+      "name": "Customer marketing site & bilingual routing",
+      "description": "Responsive React pages for home, routes, services, fleet, packages, about, contact, FAQ, privacy, and terms with English/Hindi parity.",
       "apps": [
         "customer"
       ]
     },
     {
-      "name": "Bilingual navigation",
-      "description": "English and Hindi routes with language-aware content, metadata, canonical links, and hreflang parity.",
-      "apps": [
-        "customer"
-      ]
-    },
-    {
-      "name": "Fare discovery",
-      "description": "Route and vehicle selection with one-way/round-trip, passenger capacity, night allowance, package, and promo behavior.",
+      "name": "Fare discovery & server-authoritative tariff",
+      "description": "Route and vehicle selection with one-way/round-trip calculations, night allowance, tolls, taxes, driver allowance, and commercial exception rules.",
       "apps": [
         "customer",
         "backend"
       ]
     },
     {
-      "name": "Five-step booking",
-      "description": "Search, vehicle selection, customer details, mock payment method, and confirmation ticket flow.",
+      "name": "Five-step booking funnel with countdown overlays",
+      "description": "Journey search, vehicle selection, customer intake with guest token continuity, 3s bank-grade pre-checkout encryption overlay, payment gateway, and 7s dispatch verification overlay.",
       "apps": [
         "customer",
         "backend"
       ]
     },
     {
-      "name": "Location autocomplete",
-      "description": "Location search backed by static curated places locally and LocationIQ when configured.",
+      "name": "Branded PDF confirmation voucher & secure download",
+      "description": "A4 PDF generation with @pdfme, containing ticket ID, route itinerary, fare breakdown, chauffeur dispatch rules, and customer download action (#btn-download-pdf-voucher).",
       "apps": [
         "customer",
         "backend"
       ]
     },
     {
-      "name": "Admin operations",
-      "description": "Dashboard and role-oriented screens for bookings, finance, catalog, reviews, inquiries, fares, and audit.",
+      "name": "Pending booking 30-minute auto-expiry worker",
+      "description": "Background interval worker expiring unconfirmed pending bookings older than 30 minutes to cancelled.",
+      "apps": [
+        "backend",
+        "admin"
+      ]
+    },
+    {
+      "name": "Static review snapshot & customer submission flow",
+      "description": "Homepage reviews marquee rendered statically from build-time snapshot with zero runtime API dependency, and verified review intake at /review/:token.",
+      "apps": [
+        "customer",
+        "backend"
+      ]
+    },
+    {
+      "name": "Admin fleet catalog onboarding & asset library picker",
+      "description": "Fleet catalog with 25+ model presets across 4 canonical groups, status filters (Missing in Fleet, All Catalog, Active), template auto-fill dropdown, 35+ high-res image library picker, and live 16:9 photo preview.",
       "apps": [
         "admin",
         "backend"
       ]
     },
     {
-      "name": "API security",
-      "description": "CORS, helmet, rate limits, request IDs, schema validation, auth guards, role guards, raw webhook handling, and masked booking data.",
+      "name": "Admin review invitation & WhatsApp QR studio",
+      "description": "Dispatcher studio for generating verified review invitation URLs, 1-click WhatsApp sharing, live canvas QR code rendering, and printable PNG QR download.",
       "apps": [
+        "admin"
+      ]
+    },
+    {
+      "name": "Bookings operations desk & PII privacy",
+      "description": "Fast lookup, status transitions, optimistic concurrency control via expectedVersion, default PII masking with audited unmasking, and manual offline payment recording.",
+      "apps": [
+        "admin",
         "backend"
       ]
     },
     {
-      "name": "Payments and webhooks",
-      "description": "Checkout creation, idempotency, signed webhook reconciliation, refunds, and provider adapters.",
+      "name": "Finance reconciliation & idempotent refunds",
+      "description": "28% advance deposit ledger, 72% chauffeur cash collection ledger, and idempotent refund execution requiring mandatory audit reason and idempotencyKey.",
       "apps": [
+        "admin",
+        "backend"
+      ]
+    },
+    {
+      "name": "Security, RBAC & immutable audit trail",
+      "description": "Dual auth modes (Supabase production / demo role switcher in test), 5 granular roles, request IDs, and append-only audit logging for all mutations.",
+      "apps": [
+        "admin",
         "backend"
       ]
     }
   ],
   "user_flow_summary": [
-    "Customer opens the site, switches English/Hindi, browses a route or package, and reaches a fare or contact CTA.",
-    "Customer completes the booking flow with a valid future date, route, vehicle, passenger count, contact details, and mock payment choice.",
-    "Customer receives a ticket identifier and can only retrieve a masked voucher after the required verification.",
-    "Customer sends an inquiry with valid name, phone, message, and optional email or trip interest.",
-    "Admin signs in with an isolated test role, navigates protected screens, and sees only permitted operations.",
-    "Admin reviews bookings, catalog, inquiries, reviews, fare information, finance, and audit records through API-backed flows.",
-    "API clients call health/readiness, fares, locations, bookings, payments, catalog, reviews, inquiries, and admin endpoints with valid and invalid inputs."
+    "Customer navigates English/Hindi routes, configures a journey, and views transparent fare calculations.",
+    "Customer completes the booking flow and clicks 'Proceed to Secure Payment', triggering the 3-second bank-grade encryption countdown modal.",
+    "Customer completes payment, triggering the 7-second dispatch verification modal before routing to the confirmation pass.",
+    "Customer views the confirmed reservation pass and clicks 'Download PDF Voucher' to retrieve the branded A4 PDF.",
+    "Unconfirmed pending bookings automatically transition to cancelled after 30 minutes of inactivity.",
+    "Verified customers open /review/:token, fill out ratings and feedback with pre-filled ticket details, and submit for moderation.",
+    "Admin logs in with role credentials, manages active bookings, and unmasks customer PII with logged audit entries.",
+    "Admin opens Fleet Management (/vehicles), browses missing catalog presets, auto-fills vehicle specs from presets or the 35+ image library picker, and verifies live 16:9 photo previews.",
+    "Admin generates review invitations in the Review Studio (/reviews), shares via WhatsApp, or downloads printable QR codes for chauffeur clipboards.",
+    "Finance operators review captured advance deposits and execute idempotent refunds with audit justifications."
   ],
   "validation_criteria": [
-    "All happy paths work at desktop and mobile viewport sizes without console errors or failed critical requests.",
-    "Deep links and browser refreshes resolve correctly for customer and admin routes.",
-    "English/Hindi content and fare values remain equivalent where the product contract requires parity.",
-    "Required fields, type boundaries, malformed values, unknown fields, XSS-like input, past dates, over-capacity vehicles, and invalid promo codes are rejected safely.",
-    "Unauthorized and wrong-role requests receive the expected 401/403 behavior and do not leak protected data.",
-    "Booking reads require full verification and return masked personal data.",
-    "Payment and refund operations are idempotent and never mark a booking paid from an unverified browser redirect.",
-    "API responses use the documented success/error envelope and include request IDs for failures.",
-    "Rate limiting, CORS, security headers, payload-size handling, webhook signatures, and secret redaction behave as designed.",
-    "Accessibility covers keyboard navigation, labels, focus states, semantic headings, contrast, reduced motion, and meaningful error announcements."
+    "All customer and admin pages load with zero uncaught console errors and clean network requests.",
+    "Pre-checkout 3s countdown modal and post-payment 7s countdown modal render with progress circles, badges, and dismiss/proceed actions.",
+    "Booking confirmation page exposes #btn-download-pdf-voucher and delivers a valid %PDF file without leaking credentials.",
+    "Fleet catalog on /vehicles supports filtering by missing/active status, template auto-fill, asset library image selection, and live 16:9 preview.",
+    "Review Studio on /reviews generates active URLs, formats WhatsApp links, renders HTML5 QR canvas, and exports PNG files.",
+    "PII unmasking on /bookings requires explicit dispatcher action and records UNMASK_CUSTOMER_PII audit logs.",
+    "Refunds on /finance require confirmation, a mandatory reason, and an idempotency key to prevent double payouts.",
+    "SSR pre-rendering matches client hydration tree with zero React Error #418.",
+    "Accessibility complies with WCAG 2.1 AA (contrast, keyboard navigation, aria-modal, reduced motion).",
+    "Security scanners verify zero backend secret leakage across all client bundles."
   ],
   "code_summary": {
     "tech_stack": [
@@ -109,7 +142,6 @@
       "Zod",
       "Vitest",
       "PostgreSQL/Supabase",
-      "MongoDB optional",
       "Cloudflare Pages",
       "Render Docker"
     ],
