@@ -406,8 +406,9 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
       resendApiKey: env.RESEND_API_KEY,
       emailFrom: env.EMAIL_FROM,
       customerSiteUrl: env.CUSTOMER_SITE_URL,
+      mediaStorage,
     });
-    await registerReviewsRoutes(app, reviewsService);
+    await registerReviewsRoutes(app, reviewsService, mediaStorage);
   } else {
     options.logger.warn("Fare database pool not available. Skipping fare system routes registration.");
   }

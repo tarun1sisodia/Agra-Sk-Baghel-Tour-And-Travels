@@ -4,6 +4,8 @@ import type { ReviewsRepository, ReviewLinkEntity, ReviewSubmissionEntity } from
 import type { BookingsRepository } from "../bookings/bookings.repository.js";
 import type { FareAdminRepository } from "../admin/fare-admin.repository.js";
 import type { UserRole } from "../../types/domain.js";
+import type { MediaStorage } from "../catalog/media.storage.js";
+import { reviewObjectPath } from "../catalog/media.storage.js";
 
 export function formatSocialUrl(platform?: string | null, username?: string | null): string | null {
   if (!platform || !username) return null;
@@ -41,6 +43,7 @@ export interface ReviewsServiceDeps {
   emailFrom?: string;
   customerSiteUrl?: string;
   fetchImpl?: typeof fetch;
+  mediaStorage?: MediaStorage | null;
 }
 
 export class ReviewsService {
@@ -52,6 +55,21 @@ export class ReviewsService {
 
   hashToken(token: string): string {
     return crypto.createHash("sha256").update(token).digest("hex");
+  }
+
+  async uploadPhoto(token: string, input: { dataBase64: string; mimeType: string }): Promise<{ storage_key: string; mime_type: string }> {
+    const { link } = await this.getLinkByToken(token);
+    if (!this.deps.mediaStorage) {
+      throw new AppError("UNAVAILABLE", "Photo storage is not configured.", 503);
+    }
+    const allowed = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+    if (!allowed.has(input.mimeType)) throw new AppError("VALIDATION_ERROR", "Unsupported image type.", 400);
+    const buffer = Buffer.from(input.dataBase64.replace(/^data:[^;]+;base64,/, ""), "base64");
+    if (!buffer.length || buffer.length > 5 * 1024 * 1024) throw new AppError("VALIDATION_ERROR", "Image must be between 1 byte and 5 MB.", 400);
+    const imageId = crypto.randomUUID();
+    const key = reviewObjectPath(link.token_hash, imageId, input.mimeType);
+    await this.deps.mediaStorage.upload({ path: key, buffer, mimeType: input.mimeType });
+    return { storage_key: key, mime_type: input.mimeType };
   }
 
   // ===== Link Generation =====
@@ -247,7 +265,11 @@ export class ReviewsService {
     });
 
     if (data.photos && data.photos.length > 0) {
+      const tokenHashPrefix = `reviews/${link.token_hash}/`;
       for (const [i, photo] of data.photos.entries()) {
+        if (this.deps.mediaStorage && (!photo.storage_key.startsWith(tokenHashPrefix) || photo.storage_key.includes(".."))) {
+          throw new AppError("VALIDATION_ERROR", "Review photos must be uploaded through the review photo endpoint.", 400);
+        }
         await this.deps.reviewsRepo.addReviewImage({
           submission_id: submission.id,
           storage_key: photo.storage_key,
@@ -395,6 +417,7 @@ export class ReviewsService {
       images: (r.images || []).map((img) => ({
         id: img.id,
         storage_key: img.storage_key,
+        url: `/api/v1/public/review-media/${encodeURIComponent(img.id)}`,
         status: img.status,
         alt_text: img.alt_text,
       })),
@@ -419,12 +442,17 @@ export class ReviewsService {
     }));
   }
 
+  async getReviewImageById(id: string) {
+    return this.deps.reviewsRepo.getReviewImageById(id);
+  }
+
   async getPublicGallery(): Promise<any[]> {
     // RV-07, RV-08, RV-24: Approved photos with approved, consented submissions only
     const rows = await this.deps.reviewsRepo.getPublicGallery();
     return rows.map((img) => ({
       id: img.id,
       storage_key: img.storage_key,
+      url: `/api/v1/public/review-media/${encodeURIComponent(img.id)}`,
       width: img.width,
       height: img.height,
       alt_text: img.alt_text,

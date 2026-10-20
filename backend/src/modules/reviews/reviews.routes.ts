@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyRequest } from "fastify";
 import { ReviewsService } from "./reviews.service.js";
 import { AppError } from "../../shared/errors.js";
 import { z } from "zod";
+import type { MediaStorage } from "../catalog/media.storage.js";
 
 function getActor(req: FastifyRequest) {
   const user = (req as any).user;
@@ -33,7 +34,7 @@ const SubmissionInputSchema = z.object({
     .optional(),
 });
 
-export function registerReviewsRoutes(app: FastifyInstance, reviewsService: ReviewsService) {
+export function registerReviewsRoutes(app: FastifyInstance, reviewsService: ReviewsService, mediaStorage?: MediaStorage | null) {
   // Public reviews
   const getPublicReviewsHandler = async (_req: any, reply: any) => {
     const reviews = await reviewsService.getPublicReviews();
@@ -50,6 +51,20 @@ export function registerReviewsRoutes(app: FastifyInstance, reviewsService: Revi
   app.get("/public/gallery", getPublicGalleryHandler);
   app.get("/api/v1/public/gallery", getPublicGalleryHandler);
 
+  const reviewMediaHandler = async (req: FastifyRequest<{ Params: { id: string } }>, reply: any) => {
+    if (!mediaStorage) return reply.status(404).send({ error: "MEDIA_NOT_FOUND" });
+    const image = await reviewsService.getReviewImageById(req.params.id);
+    if (!image || image.status !== "approved") return reply.status(404).send({ error: "MEDIA_NOT_FOUND" });
+    if (!image.storage_key.startsWith("reviews/") || image.storage_key.includes("..")) return reply.status(404).send({ error: "MEDIA_NOT_FOUND" });
+    try {
+      const buffer = await mediaStorage.download(image.storage_key);
+      reply.header("content-type", "image/*").header("cache-control", "public, max-age=31536000, immutable").header("x-content-type-options", "nosniff");
+      return reply.send(buffer);
+    } catch { return reply.status(404).send({ error: "MEDIA_NOT_FOUND" }); }
+  };
+  app.get("/public/review-media/:id", reviewMediaHandler);
+  app.get("/api/v1/public/review-media/:id", reviewMediaHandler);
+
   // Review link lookup
   const getLinkHandler = async (req: FastifyRequest<{ Params: { token: string } }>, reply: any) => {
     try {
@@ -64,6 +79,21 @@ export function registerReviewsRoutes(app: FastifyInstance, reviewsService: Revi
   };
   app.get("/reviews/links/:token", getLinkHandler);
   app.get("/api/v1/reviews/links/:token", getLinkHandler);
+
+  // Upload review photo. The review token is only used to authorize the
+  // namespace; the client never chooses an arbitrary storage location.
+  const uploadPhotoHandler = async (req: FastifyRequest<{ Params: { token: string } }>, reply: any) => {
+    try {
+      const body = z.object({ dataBase64: z.string().min(16).max(7_000_000), mimeType: z.string().min(1).max(64) }).parse(req.body);
+      const result = await reviewsService.uploadPhoto(req.params.token, body);
+      return reply.status(201).send({ success: true, photo: result });
+    } catch (err: any) {
+      if (err instanceof AppError) return reply.status(err.statusCode).send({ error: err.code, message: err.message });
+      throw err;
+    }
+  };
+  app.post("/reviews/links/:token/photos", uploadPhotoHandler);
+  app.post("/api/v1/reviews/links/:token/photos", uploadPhotoHandler);
 
   // Submit review
   const submitReviewHandler = async (req: FastifyRequest<{ Params: { token: string } }>, reply: any) => {

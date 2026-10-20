@@ -69,6 +69,12 @@ export function mediaObjectPath(catalogItemId: string, mediaId: string, mimeType
   return `catalog/${catalogItemId}/${mediaId}.${mediaExtensionFor(mimeType)}`;
 }
 
+/** Review uploads are deliberately kept in their own namespace. The database
+ * stores this key, while the public gallery exposes only an API media URL. */
+export function reviewObjectPath(reviewTokenHash: string, imageId: string, mimeType: string | null): string {
+  return `reviews/${reviewTokenHash}/${imageId}.${mediaExtensionFor(mimeType)}`;
+}
+
 async function streamToBuffer(stream: unknown): Promise<Buffer> {
   // AWS SDK v3 Node responses expose a Node.js Readable on `Body`.
   if (stream && typeof (stream as { transformToByteArray?: unknown }).transformToByteArray === "function") {

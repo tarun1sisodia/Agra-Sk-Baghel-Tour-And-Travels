@@ -99,6 +99,11 @@ export class ReviewsRepository {
     };
   }
 
+  async getReviewImageById(id: string): Promise<ReviewImageEntity | null> {
+    const res = await this.pool.query("SELECT * FROM review_images WHERE id = $1", [id]);
+    return res.rows[0] ?? null;
+  }
+
   async getReviewLinkById(id: string): Promise<ReviewLinkEntity | null> {
     const res = await this.pool.query(
       "SELECT * FROM review_links WHERE id = $1",
