@@ -646,6 +646,7 @@ export function CleanBookingPage() {
             amount: paymentRes.amount_paise,
             currency: "INR",
             name: "Agra SK Baghel Tour & Travels",
+            image: `${window.location.origin}/assets/brand/agra-sk-baghel-mark.svg`,
             description: `Advance Deposit for ${bookingRes.ticket_id}`,
             prefill: {
               name: customer.name,

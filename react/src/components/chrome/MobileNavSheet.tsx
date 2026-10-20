@@ -208,7 +208,7 @@ export function MobileNavSheet({
               <span>Call Desk</span>
             </a>
             <a
-              href={`https://wa.me/${contact.whatsapp}?text=Hello%20SK%20Baghel%20Travels`}
+              href={`https://wa.me/${contact.whatsapp}?text=Hello%20Agra%20SK%20Baghel%20Tour%20and%20Travels`}
               target="_blank"
               rel="noopener noreferrer"
               style={{ color: "#ffffff" }}

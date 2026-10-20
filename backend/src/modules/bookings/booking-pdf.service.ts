@@ -198,7 +198,7 @@ export function buildBookingPdfInput(
   journeyNotes.push("This is a booking voucher and payment summary, not a GST tax invoice.");
 
   return {
-    brandTitle: "SK BAGHEL TOUR & TRAVELS",
+    brandTitle: "AGRA SK BAGHEL TOUR & TRAVELS",
     brandSubtitle: "AGRA | CHAUFFEUR-DRIVEN TRAVEL",
     voucherTitle: "BOOKING VOUCHER",
     ticketId,

@@ -491,7 +491,7 @@ export const SEED_CANCELLATION_POLICIES: CancellationPolicyRecord[] = [
 
 export const SEED_COMPANY_PROFILE: CompanyProfileRecord = {
   id: "80000000-0000-4000-a000-000000000001",
-  brandName: "SK Baghel Tour & Travels",
+  brandName: "Agra SK Baghel Tour & Travels",
   officeAddress: "Taj Ganj, Agra, Uttar Pradesh 282001",
   primaryPhone: "+91 97628 17598",
   whatsappNumber: "+91 97628 17598",

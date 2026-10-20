@@ -129,8 +129,8 @@ export class ReviewsService {
         body: JSON.stringify({
           from: fromAddress,
           to: [booking.customer_email],
-          subject: `How was your trip with SK Baghel Travels? (Ticket ${booking.ticket_id})`,
-          text: `Dear ${booking.customer_name},\n\nThank you for travelling with us for your ${tripSummary}.\nPlease share your feedback here: ${reviewUrl}\n\nWarm regards,\nSK Baghel Tour & Travels`,
+          subject: `How was your trip with Agra SK Baghel Tour & Travels? (Ticket ${booking.ticket_id})`,
+          text: `Dear ${booking.customer_name},\n\nThank you for travelling with us for your ${tripSummary}.\nPlease share your feedback here: ${reviewUrl}\n\nWarm regards,\nAgra SK Baghel Tour & Travels`,
         }),
       });
 

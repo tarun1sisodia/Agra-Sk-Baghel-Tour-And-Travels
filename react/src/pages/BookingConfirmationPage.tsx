@@ -204,7 +204,8 @@ export function BookingConfirmationPage() {
         order_id: paymentRes.order_id,
         amount: paymentRes.amount_paise,
         currency: "INR",
-        name: "SK Baghel Tour & Travels",
+        name: "Agra SK Baghel Tour & Travels",
+        image: `${window.location.origin}/assets/brand/agra-sk-baghel-mark.svg`,
         description: `Advance Deposit for ${booking.ticket_id}`,
         prefill: {
           name: booking.customer_name,
@@ -295,9 +296,9 @@ export function BookingConfirmationPage() {
 
   const whatsappMsg = booking
     ? encodeURIComponent(
-        `Hi SK Baghel Tour & Travels, I am inquiring about my booking ${booking.ticket_id} (${booking.product_name}).`
+        `Hi Agra SK Baghel Tour & Travels, I am inquiring about my booking ${booking.ticket_id} (${booking.product_name}).`
       )
-    : encodeURIComponent("Hi SK Baghel Tour & Travels, I have a query about my booking.");
+    : encodeURIComponent("Hi Agra SK Baghel Tour & Travels, I have a query about my booking.");
 
   if (loading) {
     return (
@@ -613,7 +614,7 @@ export function BookingConfirmationPage() {
           {/* Concierge & Support Footer */}
           <div className="mt-8 border-t border-border-warm/60 pt-6 flex flex-wrap items-center justify-between gap-4">
             <div className="text-xs text-on-surface-variant">
-              <p className="font-semibold text-ink-midnight">SK Baghel Tour & Travels 24/7 Concierge</p>
+              <p className="font-semibold text-ink-midnight">Agra SK Baghel Tour & Travels 24/7 Concierge</p>
               <p>Chauffeur and car number details are dispatched via SMS/WhatsApp prior to departure.</p>
             </div>
             <div className="flex items-center gap-2">

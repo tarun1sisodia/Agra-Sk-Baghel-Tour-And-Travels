@@ -477,7 +477,7 @@ export class PaymentsService {
           <!-- Header -->
           <tr>
             <td style="background-color: #7c2d12; padding: 28px 32px; text-align: left;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: -0.02em;">SK BAGHEL TOUR &amp; TRAVELS</h1>
+              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: -0.02em;">AGRA SK BAGHEL TOUR &amp; TRAVELS</h1>
               <p style="margin: 4px 0 0 0; color: #fed7aa; font-size: 13px; font-weight: 400;">Agra's Trusted Chauffeur &amp; Tour Service &bull; Est. 2013</p>
             </td>
           </tr>
@@ -590,7 +590,7 @@ export class PaymentsService {
             <td style="padding: 28px 32px; background-color: #ffffff; text-align: center; color: #94a3b8; font-size: 12px; line-height: 1.6;">
               <p style="margin: 0 0 6px 0; color: #475569; font-weight: 600;">Need assistance or itinerary modifications?</p>
               <p style="margin: 0 0 12px 0;">24/7 Operations Desk: <a href="tel:+919762817598" style="color: #9f3c16; text-decoration: none; font-weight: 600;">+91 97628 17598</a> &bull; WhatsApp: <a href="https://wa.me/919762817598" style="color: #9f3c16; text-decoration: none; font-weight: 600;">+91 97628 17598</a></p>
-              <p style="margin: 0; color: #94a3b8; font-size: 11px;">SK Baghel Tour &amp; Travels &bull; Agra Cantt, Uttar Pradesh 282001, India &bull; https://agraskbagheltourandtravels.com</p>
+              <p style="margin: 0; color: #94a3b8; font-size: 11px;">Agra SK Baghel Tour &amp; Travels &bull; Agra Cantt, Uttar Pradesh 282001, India &bull; https://agraskbagheltourandtravels.com</p>
             </td>
           </tr>
 
@@ -604,7 +604,7 @@ export class PaymentsService {
 
       const voucherText = `
 CONFIRMED: CHAUFFEUR BOOKING VOUCHER [${ticketId}]
-SK Baghel Tour & Travels — Agra's Trusted Chauffeur & Tour Service (Est. 2013)
+Agra SK Baghel Tour & Travels — Agra's Trusted Chauffeur & Tour Service (Est. 2013)
 
 Dear ${customerName},
 
@@ -631,7 +631,7 @@ Driver name, mobile number, and license plate number will be sent to your phone 
 24/7 Helpline: +91 97628 17598
 WhatsApp: https://wa.me/919762817598
 Warm regards,
-SK Baghel Tour & Travels
+Agra SK Baghel Tour & Travels
       `.trim();
 
       let fromAddress = this.deps.emailFrom || "bookings@skbagheltravels.in";
@@ -672,7 +672,7 @@ SK Baghel Tour & Travels
         body: JSON.stringify({
           from: fromAddress,
           to: [customerEmail],
-          subject: `Confirmed: Your Chauffeur Booking Voucher [${ticketId}] — SK Baghel Tour & Travels`,
+          subject: `Confirmed: Your Chauffeur Booking Voucher [${ticketId}] — Agra SK Baghel Tour & Travels`,
           html: voucherHtml,
           text: voucherText,
           ...(attachments ? { attachments } : {}),

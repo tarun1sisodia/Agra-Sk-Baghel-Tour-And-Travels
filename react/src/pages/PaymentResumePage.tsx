@@ -57,7 +57,7 @@ export function PaymentResumePage() {
       currency: checkout.currency || "INR",
       name: "Agra SK Baghel Tour and Travels",
       description: `Trip booking ${current.ticketId}`,
-      image: `${window.location.origin}/assets/brand/favicon.svg`,
+      image: `${window.location.origin}/assets/brand/agra-sk-baghel-mark.svg`,
       prefill: { name: getCustomerDisplayName(user), email: user?.email ?? undefined },
       theme: { color: "#8B1E1E" },
       modal: { ondismiss: () => { setBusy(false); setStatus("Checkout was closed. Your booking is still saved; you can reopen the same payment safely."); } },

@@ -67,7 +67,7 @@ function ReviewCard({ review }: ReviewCardProps) {
             </div>
           </div>
           {review.is_verified && (
-            <span title="Approved by the SK Baghel admin team" aria-label="Admin-approved review" className="px-2 py-0.5 rounded-full bg-success-jade/10 text-success-jade font-label-caps text-label-caps uppercase font-bold flex items-center gap-0.5 shrink-0">
+            <span title="Approved by the Agra SK Baghel admin team" aria-label="Admin-approved review" className="px-2 py-0.5 rounded-full bg-success-jade/10 text-success-jade font-label-caps text-label-caps uppercase font-bold flex items-center gap-0.5 shrink-0">
               <span className="material-symbols-outlined text-icon-11">verified</span>
               Admin Verified
             </span>

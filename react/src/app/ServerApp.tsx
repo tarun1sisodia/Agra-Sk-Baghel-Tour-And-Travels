@@ -205,7 +205,7 @@ function getSeoBase(
 
   if (resolvedDossierTour) {
     const fare = Number(resolvedDossierTour.startingPriceInr || resolvedDossierTour.fleetPrices?.sedan || 0);
-    const priceSuffix = fare > 0 ? ` @ ₹${fare.toLocaleString("en-IN")} | SK Baghel` : " | SK Baghel";
+    const priceSuffix = fare > 0 ? ` @ ₹${fare.toLocaleString("en-IN")} | Agra SK Baghel Tour and Travels` : " | Agra SK Baghel Tour and Travels";
     const maxName = Math.max(10, 60 - priceSuffix.length);
     const titleName = resolvedDossierTour.name.length > maxName ? `${resolvedDossierTour.name.slice(0, maxName - 1).trimEnd()}…` : resolvedDossierTour.name;
     const descPrefix = fare > 0 ? `${resolvedDossierTour.name} from ₹${fare.toLocaleString("en-IN")}. ` : `${resolvedDossierTour.name}. `;
@@ -213,13 +213,13 @@ function getSeoBase(
       title: `${titleName}${priceSuffix}`,
       description: `${descPrefix}${resolvedDossierTour.inclusionsHighlight || "Private sanitized AC cab, dedicated verified chauffeur & monument sightseeing."}`.slice(0, 155),
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: [resolvedDossierTour.name, "Agra tour package", "private guided tour Agra", "SK Baghel Tour & Travels"],
+      keywords: [resolvedDossierTour.name, "Agra tour package", "private guided tour Agra", "Agra SK Baghel Tour & Travels"],
     };
   }
 
   if (resolvedDossierTransfer) {
     const fare = Number(resolvedDossierTransfer.fleetPrices?.sedan ?? 0);
-    const priceSuffix = fare > 0 ? ` Taxi @ ₹${fare.toLocaleString("en-IN")} | SK Baghel` : " Taxi | SK Baghel";
+    const priceSuffix = fare > 0 ? ` Taxi @ ₹${fare.toLocaleString("en-IN")} | Agra SK Baghel Tour and Travels` : " Taxi | Agra SK Baghel Tour and Travels";
     const maxName = Math.max(10, 60 - priceSuffix.length);
     const titleName = resolvedDossierTransfer.name.length > maxName ? `${resolvedDossierTransfer.name.slice(0, maxName - 1).trimEnd()}…` : resolvedDossierTransfer.name;
     const descPrefix = fare > 0 ? `${resolvedDossierTransfer.name} from ₹${fare.toLocaleString("en-IN")}. ` : `${resolvedDossierTransfer.name}. `;
@@ -227,13 +227,13 @@ function getSeoBase(
       title: `${titleName}${priceSuffix}`,
       description: `${descPrefix}${resolvedDossierTransfer.directionNote || "Doorstep pickup, zero surge pricing, verified commercial chauffeur & delay tracking."}`.slice(0, 155),
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: [resolvedDossierTransfer.name, "Agra airport transfer", "Agra station taxi", "SK Baghel Tour & Travels"],
+      keywords: [resolvedDossierTransfer.name, "Agra airport transfer", "Agra station taxi", "Agra SK Baghel Tour & Travels"],
     };
   }
 
   if (resolvedDossierLocal) {
     const fare = Number(resolvedDossierLocal.fleetPrices?.sedan ?? 0);
-    const priceSuffix = fare > 0 ? ` @ ₹${fare.toLocaleString("en-IN")} | SK Baghel` : " | SK Baghel";
+    const priceSuffix = fare > 0 ? ` @ ₹${fare.toLocaleString("en-IN")} | Agra SK Baghel Tour and Travels` : " | Agra SK Baghel Tour and Travels";
     const maxName = Math.max(10, 60 - priceSuffix.length);
     const titleName = resolvedDossierLocal.name.length > maxName ? `${resolvedDossierLocal.name.slice(0, maxName - 1).trimEnd()}…` : resolvedDossierLocal.name;
     const descPrefix = fare > 0 ? `${resolvedDossierLocal.name} from ₹${fare.toLocaleString("en-IN")} ` : `${resolvedDossierLocal.name} `;
@@ -241,20 +241,20 @@ function getSeoBase(
       title: `${titleName}${priceSuffix}`,
       description: `${descPrefix}(${resolvedDossierLocal.durationHours} hrs / ${resolvedDossierLocal.includedKm} km). Covering ${resolvedDossierLocal.covers}. AC cab with driver.`.slice(0, 155),
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: [resolvedDossierLocal.name, "Agra local sightseeing cab", "Agra full day taxi", "SK Baghel Tour & Travels"],
+      keywords: [resolvedDossierLocal.name, "Agra local sightseeing cab", "Agra full day taxi", "Agra SK Baghel Tour & Travels"],
     };
   }
 
   if (resolvedDossierMonument) {
     const fare = 800;
-    const priceSuffix = ` Cab Tour @ ₹${fare} | SK Baghel`;
+    const priceSuffix = ` Cab Tour @ ₹${fare} | Agra SK Baghel Tour and Travels`;
     const maxName = Math.max(10, 60 - priceSuffix.length);
     const titleName = resolvedDossierMonument.name.length > maxName ? `${resolvedDossierMonument.name.slice(0, maxName - 1).trimEnd()}…` : resolvedDossierMonument.name;
     return {
       title: `${titleName}${priceSuffix}`,
       description: `Visit ${resolvedDossierMonument.name} in Agra (${resolvedDossierMonument.visitingHours}). ${resolvedDossierMonument.closedNote}. Book private AC cab from ₹${fare} with verified driver.`.slice(0, 155),
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: [resolvedDossierMonument.name, `${resolvedDossierMonument.name} timings`, "Agra monument taxi", "SK Baghel Tour & Travels"],
+      keywords: [resolvedDossierMonument.name, `${resolvedDossierMonument.name} timings`, "Agra monument taxi", "Agra SK Baghel Tour & Travels"],
     };
   }
 

@@ -3,7 +3,6 @@ import { AlertTriangle, Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import { Input, Label } from "@/components/ui/Input";
-import { BrandMark } from "@/components/admin/BrandMark";
 import { loginWithCredentials, signInWithGoogle } from "@/lib/auth";
 import type { AdminUser } from "@/lib/types";
 
@@ -112,17 +111,18 @@ export function LoginPage({ onLogin }: { onLogin: (user: AdminUser) => void }) {
           initial={reduce ? { opacity: 1 } : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: easeExpo }}
-          className="relative flex items-center gap-3"
+          className="relative flex flex-col items-start gap-2"
         >
-          <BrandMark size={42} className="[&_circle]:!stroke-[#E5A044]" />
-          <div>
-            <p className="font-display text-xl font-medium tracking-tight text-white">
-              SK Baghel Tour &amp; Travels
-            </p>
-            <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#8c857e]">
-              Agra · Operations Desk
-            </p>
-          </div>
+          <img
+            src="/assets/brand/agra-sk-baghel-logo-inverse.svg"
+            alt="Agra SK Baghel Tour & Travels"
+            width={845}
+            height={230}
+            className="h-14 w-auto max-w-full object-contain"
+          />
+          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#8c857e]">
+            Agra · Operations Desk
+          </p>
         </motion.div>
 
         <motion.div
@@ -135,7 +135,7 @@ export function LoginPage({ onLogin }: { onLogin: (user: AdminUser) => void }) {
             Run the day&rsquo;s bookings, dispatch and payments from one desk.
           </p>
           <p className="mt-3 text-[15px] leading-relaxed text-[#b5afa9]">
-            The internal panel for the SK Baghel fleet — booking lifecycle,
+            The internal panel for the Agra SK Baghel fleet — booking lifecycle,
             payment reconciliation, tour catalog, review moderation and a complete
             audit trail of every action.
           </p>
@@ -152,19 +152,22 @@ export function LoginPage({ onLogin }: { onLogin: (user: AdminUser) => void }) {
         </motion.div>
 
         <p className="relative font-mono text-[11px] uppercase tracking-[0.18em] text-[#8c857e]">
-          © {new Date().getFullYear()} SK Baghel Tour &amp; Travels
+          © {new Date().getFullYear()} Agra SK Baghel Tour &amp; Travels
         </p>
       </div>
 
       {/* Form panel */}
       <div className="relative flex flex-col items-center justify-center px-5 py-10 sm:px-10">
         {/* Mobile brand */}
-        <div className="mb-8 flex items-center gap-3 lg:hidden">
-          <BrandMark size={36} />
-          <div>
-            <p className="font-display text-lg font-semibold text-ink">SK Baghel</p>
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-faint">Operations Desk</p>
-          </div>
+        <div className="mb-8 flex flex-col items-start gap-2 lg:hidden">
+          <img
+            src="/assets/brand/agra-sk-baghel-logo.svg"
+            alt="Agra SK Baghel Tour & Travels"
+            width={845}
+            height={230}
+            className="h-12 w-auto max-w-[min(72vw,250px)] object-contain"
+          />
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-faint">Operations Desk</p>
         </div>
 
         <motion.div

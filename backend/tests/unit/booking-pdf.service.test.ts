@@ -38,7 +38,7 @@ describe("Booking PDF template rendering", () => {
       created_at: "2026-10-19T10:00:00.000Z",
     });
 
-    expect(input.brandTitle).toBe("SK BAGHEL TOUR & TRAVELS");
+    expect(input.brandTitle).toBe("AGRA SK BAGHEL TOUR & TRAVELS");
     expect(input.voucherTitle).toBe("BOOKING VOUCHER");
     expect(input.sec1Title).toBe("PASSENGER & CONTACT DETAILS");
     expect(input.custNameLbl).toBe("LEAD PASSENGER");
@@ -134,7 +134,7 @@ describe("BookingPdfService Unit Tests", () => {
       expect(input.fareBalVal).toBe("Rs. 2,520");
       expect(input.statusBadge).toBe("CONFIRMED & ADVANCE SECURED");
       expect(input.paymentIdText).toBe("Payment Ref: pay_Razorpay12345");
-      expect(input.brandTitle).toBe("SK BAGHEL TOUR & TRAVELS");
+      expect(input.brandTitle).toBe("AGRA SK BAGHEL TOUR & TRAVELS");
       expect(input.voucherTitle).toBe("BOOKING VOUCHER");
       expect(input.sec1Title).toBe("PASSENGER & CONTACT DETAILS");
       expect(input.custNameLbl).toBe("LEAD PASSENGER");
@@ -215,7 +215,7 @@ describe("BookingPdfService Unit Tests", () => {
       expect(input.customerEmail).toBe("Not specified");
       expect(input.passengerInfo).toContain("1 Passenger");
       expect(input.fareTotalVal).toBe("Rs. 0");
-      expect(input.brandTitle).toBe("SK BAGHEL TOUR & TRAVELS");
+      expect(input.brandTitle).toBe("AGRA SK BAGHEL TOUR & TRAVELS");
       expect(input.sec1Title).toBe("PASSENGER & CONTACT DETAILS");
       expect(input.noticeBody).toContain("not a GST tax invoice");
     });

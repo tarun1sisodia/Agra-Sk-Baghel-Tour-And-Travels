@@ -145,7 +145,7 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
     a.click();
   }
 
-  const whatsappMessage = `Namaste ${customerName.trim() || "Guest"}! Thank you for traveling with SK Baghel Tour & Travels${chauffeurName.trim() ? ` (Chauffeur: ${chauffeurName.trim()})` : ""}${ticketId.trim() ? ` [Ticket #${ticketId.trim()}]` : ""}. We would appreciate a moment of your time to share your feedback:\n\n${activeReviewUrl}`;
+  const whatsappMessage = `Namaste ${customerName.trim() || "Guest"}! Thank you for traveling with Agra SK Baghel Tour & Travels${chauffeurName.trim() ? ` (Chauffeur: ${chauffeurName.trim()})` : ""}${ticketId.trim() ? ` [Ticket #${ticketId.trim()}]` : ""}. We would appreciate a moment of your time to share your feedback:\n\n${activeReviewUrl}`;
   const whatsappHref = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
 
   const canModerate = can(user.role, "reviews:moderate");
@@ -529,7 +529,7 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
                       <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
                         {review.customerName}
                         {review.status === "approved" && (
-                          <span title="Reviewed and approved by the SK Baghel admin team">
+                          <span title="Reviewed and approved by the Agra SK Baghel admin team">
                             <BadgeCheck className="h-4 w-4 text-teal" />
                           </span>
                         )}

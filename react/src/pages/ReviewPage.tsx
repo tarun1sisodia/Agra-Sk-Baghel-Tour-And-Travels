@@ -118,7 +118,7 @@ export function ReviewPage() {
     <main className="min-h-[70vh] bg-surface px-4 py-10 sm:px-6 md:py-16">
       <div className="mx-auto max-w-2xl">
         <div className="mb-8 text-center">
-          <p className="font-label-caps text-xs font-bold uppercase tracking-[0.2em] text-terracotta-sandstone">SK Baghel Tour &amp; Travels</p>
+          <p className="font-label-caps text-xs font-bold uppercase tracking-[0.2em] text-terracotta-sandstone">Agra SK Baghel Tour &amp; Travels</p>
           <h1 className="mt-3 font-headline-hero text-4xl leading-tight text-ink-charcoal sm:text-5xl">How was {tripLabel}?</h1>
           <p className="mx-auto mt-4 max-w-xl text-on-surface-variant">Your feedback helps our dispatch team keep every Agra journey thoughtful, punctual, and comfortable.</p>
         </div>
@@ -130,7 +130,7 @@ export function ReviewPage() {
             <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-center text-red-800">
               <h2 className="font-headline-sm text-lg font-semibold">Review link unavailable</h2>
               <p className="mt-2 text-sm">{fatalError}</p>
-              <a className="mt-5 inline-flex rounded-lg bg-terracotta-deep px-4 py-2 text-sm font-semibold text-white" href="/">Return to SK Baghel</a>
+              <a className="mt-5 inline-flex rounded-lg bg-terracotta-deep px-4 py-2 text-sm font-semibold text-white" href="/">Return to Agra SK Baghel</a>
             </div>
           ) : null}
 
@@ -176,7 +176,7 @@ export function ReviewPage() {
               </div>
               <label className="flex items-start gap-3 text-sm text-on-surface-variant">
                 <input type="checkbox" checked={consentPublic} onChange={(event) => setConsentPublic(event.target.checked)} className="mt-1" />
-                <span>I consent to SK Baghel displaying this review publicly after moderation.</span>
+                <span>I consent to Agra SK Baghel Tour &amp; Travels displaying this review publicly after moderation.</span>
               </label>
               {formError ? <p className="text-sm text-red-700" role="alert">{formError}</p> : null}
               <button type="submit" disabled={submitting} className="w-full rounded-lg bg-terracotta-deep px-4 py-3 font-semibold text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-60">

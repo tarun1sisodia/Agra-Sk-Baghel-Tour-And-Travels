@@ -87,7 +87,7 @@ function SidebarContent({
         {!collapsed && (
           <div className="min-w-0 flex-1">
             <p className="font-display text-[17px] font-semibold leading-tight tracking-tight text-ink">
-              SK Baghel
+              Agra SK Baghel
             </p>
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-faint">
               Admin Desk

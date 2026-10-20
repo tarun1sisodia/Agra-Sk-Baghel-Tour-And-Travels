@@ -290,7 +290,7 @@ export function Header({
 
             {/* WhatsApp - Luxury black button with real WhatsApp icon */}
             <a
-              href={`https://wa.me/${contact.whatsapp}?text=Hello%20SK%20Baghel%20Travels,%20I%20would%20like%20to%20inquire%20about%20a%20booking.`}
+              href={`https://wa.me/${contact.whatsapp}?text=Hello%20Agra%20SK%20Baghel%20Tour%20and%20Travels,%20I%20would%20like%20to%20inquire%20about%20a%20booking.`}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Chat on WhatsApp for booking inquiry (opens in new window)"
