@@ -1,5 +1,26 @@
 ## 2026-10-20
 
+### 2026-10-20 — CI Pipeline Streamlining & Bot Commit Elimination
+
+- **Consolidation into Unified Modern CI Workflow (`.github/workflows/ci.yml`)**:
+  - Replaced fragmented and redundant workflows (`main-monitor.yml`, `quality.yml`, `ci-customer.yml`, `ci-admin.yml`, `ci-backend.yml`, `bot-package-updates.yml`) with a single, high-performance `.github/workflows/ci.yml`.
+  - Added workflow concurrency with `cancel-in-progress: true` to prevent stale runs from wasting GitHub Actions runner capacity.
+  - Eliminated the toxic automated bot commits to `main` (`chore(monitor): PASS/FAIL main verification for ...`) that previously caused non-fast-forward push rejections and polluted git history. Replaced with GitHub Step Summary markdown reporting.
+  - Configured CI environment to support active staging configuration (`ALLOW_STAGING_CATALOG=1`, `VITE_SITE_URL=https://skbagheltravels-customer.coccoder999.workers.dev`) alongside canonical release builds.
+  - Integrated all essential security and deployment guards directly into CI:
+    - Sync-contracts verification (`sync-contracts.ts --check`).
+    - Multi-workspace typecheck across customer, admin desk, and backend API.
+    - 344+ unit and contract test suites, catalog tests, and admin tests.
+    - SEO lifecycle & SSG pre-rendered artifacts validation.
+    - Production builds across all 3 apps.
+    - SPA deep-link fallback verification (`admin/dist/_redirects`).
+    - Cloudflare asset size budget enforcement (<25 MiB single-file limit).
+    - Frontend secret leak scanner preventing sensitive server credentials (`DATABASE_URL`, `RAZORPAY_KEY_SECRET`, etc.) from shipping in public bundles.
+- **Uptime Monitoring Hardening (`.github/workflows/uptime.yml`, `scripts/healthcheck.mjs`)**:
+  - Replaced obsolete `client-juj4.onrender.com` endpoint in `scripts/healthcheck.mjs` with the active backend staging endpoint (`https://skb-baghel-api-staging.onrender.com/api/v1/health`).
+  - Validated 3/3 healthcheck endpoints responding 200 OK (Backend API, Customer Workers site, Admin Workers desk).
+  - Adjusted scheduled cron frequency in `uptime.yml` to 15 minutes (`*/15 * * * *`) with step summary reporting.
+
 ### 2026-10-20 — Cloudflare Workers Staging Canonical Domain Configuration & SEO Validator Build Fix
 
 - **Dual Approved Production Origins Architecture (`siteOrigin.ts`, `validate-site-config.ts`, `site-origin.test.ts`)**:

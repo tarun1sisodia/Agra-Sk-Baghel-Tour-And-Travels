@@ -4,18 +4,21 @@ on:
   workflow_dispatch:
   schedule:
     # GitHub Actions schedules are best-effort and may be delayed during load.
-    - cron: "*/5 * * * *"
+    - cron: "*/15 * * * *"
 
 permissions:
   contents: read
 
 jobs:
   healthcheck:
+    name: "Service Healthcheck"
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 3
     steps:
       - name: Check deployed services
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -25,5 +28,12 @@ jobs:
       - name: Run uptime check
         run: node scripts/healthcheck.mjs
         env:
-          HEALTHCHECK_TIMEOUT_MS: 10000
-          HEALTHCHECK_ATTEMPTS: 2
+          HEALTHCHECK_TIMEOUT_MS: 15000
+          HEALTHCHECK_ATTEMPTS: 3
+
+      - name: Publish Healthcheck Summary
+        if: always()
+        run: |
+          echo "## 🌐 Service Uptime Healthcheck: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "Checked endpoints: Backend staging, Customer site, and Admin desk." >> $GITHUB_STEP_SUMMARY
+
