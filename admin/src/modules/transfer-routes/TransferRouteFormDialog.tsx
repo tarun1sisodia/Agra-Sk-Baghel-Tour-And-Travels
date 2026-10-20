@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
-import { Input, Label, NumberInput } from "@/components/ui/Input";
+import { Input, Label, NumberInput, Select } from "@/components/ui/Input";
 import { LocationAutocompleteInput } from "@/components/admin/LocationAutocompleteInput";
 import { CanonicalFleetPricingGrid } from "@/modules/fleets";
 import type { TransferRouteFormState, TransferRouteItem } from "./transfer-routes.types";
@@ -83,19 +83,28 @@ export function TransferRouteFormDialog({
           <div>
             <div className="flex items-center justify-between mb-1">
               <Label className="mb-0">Slug / Route Code</Label>
-              <button
-                type="button"
-                onClick={syncSlugFromName}
-                className="text-[11px] text-gold hover:underline font-medium"
-              >
-                ⚡ Auto-generate
-              </button>
+              {!editing && (
+                <button
+                  type="button"
+                  onClick={syncSlugFromName}
+                  className="text-[11px] text-gold hover:underline font-medium"
+                >
+                  ⚡ Auto-generate
+                </button>
+              )}
             </div>
             <Input
               value={form.routeCode}
+              disabled={Boolean(editing)}
               onChange={(e) => setForm((p) => ({ ...p, routeCode: e.target.value }))}
               placeholder="e.g. agra-cantt-to-taj-east-gate"
+              className={editing ? "opacity-70 bg-surface-2 cursor-not-allowed" : ""}
             />
+            {editing && (
+              <p className="mt-1 text-[11px] text-ink-faint">
+                Route code is locked and cannot be changed after creation.
+              </p>
+            )}
           </div>
         </div>
 
@@ -125,6 +134,18 @@ export function TransferRouteFormDialog({
             onChange={(val) => setForm((p) => ({ ...p, directionNote: val }))}
             placeholder="e.g. Agra Cantt Railway Station, Agra Airport Kheria"
           />
+        </div>
+
+        <div>
+          <Label>Catalog Publication Status</Label>
+          <Select
+            value={form.status}
+            onChange={(e) => setForm((p) => ({ ...p, status: e.target.value as any }))}
+          >
+            <option value="published">Published (Customer Active)</option>
+            <option value="draft">Draft (Admin Only)</option>
+            <option value="archived">Archived</option>
+          </Select>
         </div>
 
         {/* Canonical fleet pricing */}

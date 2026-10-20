@@ -23,7 +23,7 @@ function toRecord(input: CreateLocalPackageInput, now: string, id = newId()): Lo
     usePerKm: input.use_per_km,
     extraRates: input.extra_rates ?? null,
     nightChargeInr: input.night_charge_inr,
-    status: input.status ?? "draft",
+    status: input.status ?? "published",
     isActive: input.is_active,
     createdAt: now,
     updatedAt: now,
@@ -67,12 +67,7 @@ export function createLocalPackagesService(deps: { db: Repositories; clock: Cloc
     },
     async update(id: string, input: UpdateLocalPackageInput) {
       const current = await this.get(id);
-      if (input.package_code && input.package_code !== current.packageCode) {
-        throw Errors.unprocessable(
-          "PACKAGE_CODE_IMMUTABLE",
-          "Package code cannot change after creation — it forms the public URL."
-        );
-      }
+      // package_code is immutable — ignore any input rather than failing validation
       const now = toIso(deps.clock.now());
       const priceEdited =
         (input.fleet_prices !== undefined && JSON.stringify(input.fleet_prices) !== JSON.stringify(current.fleetPrices)) ||

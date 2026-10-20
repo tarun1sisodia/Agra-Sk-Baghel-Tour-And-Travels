@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
-import { Input, Label, NumberInput } from "@/components/ui/Input";
+import { Input, Label, NumberInput, Select } from "@/components/ui/Input";
 import { LocationAutocompleteInput } from "@/components/admin/LocationAutocompleteInput";
 import { CanonicalFleetPricingGrid, FLEET_KEYS, CANONICAL_FLEET_SPECS } from "@/modules/fleets";
 import type { LocalPackageFormState, LocalPackageItem } from "./local-packages.types";
@@ -96,19 +96,28 @@ export function LocalPackageFormDialog({
           <div>
             <div className="flex items-center justify-between mb-1">
               <Label className="mb-0">Slug / Package Code</Label>
-              <button
-                type="button"
-                onClick={syncSlugFromName}
-                className="text-[11px] text-gold hover:underline font-medium"
-              >
-                ⚡ Auto-generate
-              </button>
+              {!editing && (
+                <button
+                  type="button"
+                  onClick={syncSlugFromName}
+                  className="text-[11px] text-gold hover:underline font-medium"
+                >
+                  ⚡ Auto-generate
+                </button>
+              )}
             </div>
             <Input
               value={form.packageCode}
+              disabled={Boolean(editing)}
               onChange={(e) => setForm((p) => ({ ...p, packageCode: e.target.value }))}
               placeholder="e.g. 8hr-80km-agra-tour"
+              className={editing ? "opacity-70 bg-surface-2 cursor-not-allowed" : ""}
             />
+            {editing && (
+              <p className="mt-1 text-[11px] text-ink-faint">
+                Package code is locked and cannot be changed after creation.
+              </p>
+            )}
           </div>
         </div>
 
@@ -189,13 +198,26 @@ export function LocalPackageFormDialog({
           </div>
         </div>
 
-        <div>
-          <Label>Night Charge per Night (₹, Default 0)</Label>
-          <NumberInput
-            value={form.nightChargeInr}
-            onChange={(v) => setForm((p) => ({ ...p, nightChargeInr: v }))}
-            placeholder="0"
-          />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <Label>Night Charge per Night (₹, Default 0)</Label>
+            <NumberInput
+              value={form.nightChargeInr}
+              onChange={(v) => setForm((p) => ({ ...p, nightChargeInr: v }))}
+              placeholder="0"
+            />
+          </div>
+          <div>
+            <Label>Catalog Publication Status</Label>
+            <Select
+              value={form.status}
+              onChange={(e) => setForm((p) => ({ ...p, status: e.target.value as any }))}
+            >
+              <option value="published">Published (Customer Active)</option>
+              <option value="draft">Draft (Admin Only)</option>
+              <option value="archived">Archived</option>
+            </Select>
+          </div>
         </div>
 
         <div className="flex justify-end gap-2 pt-2 border-t border-hairline">

@@ -125,6 +125,8 @@ export function LocalTransfersPage({ user }: { user: AdminUser }) {
         fleet_prices: localForm.fleetPrices,
         extra_rates: localForm.extraRates,
         night_charge_inr: localForm.nightChargeInr ?? 0,
+        status: localForm.status || "published",
+        is_active: localForm.isActive,
       };
 
       if (editingLocal) {
@@ -225,6 +227,8 @@ export function LocalTransfersPage({ user }: { user: AdminUser }) {
         direction_note: transferForm.directionNote.trim(),
         fleet_prices: transferForm.fleetPrices,
         night_charge_inr: transferForm.nightChargeInr ?? 0,
+        status: transferForm.status || "published",
+        is_active: transferForm.isActive,
       };
 
       if (editingTransfer) {

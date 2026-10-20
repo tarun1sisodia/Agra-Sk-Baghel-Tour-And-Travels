@@ -20,7 +20,7 @@ function toRecord(input: CreateTransferRouteInput, now: string, id = newId()): T
     fleetPrices: input.fleet_prices,
     usePerKm: input.use_per_km,
     nightChargeInr: input.night_charge_inr,
-    status: input.status ?? "draft",
+    status: input.status ?? "published",
     isActive: input.is_active,
     createdAt: now,
     updatedAt: now,
@@ -64,12 +64,7 @@ export function createTransferRoutesService(deps: { db: Repositories; clock: Clo
     },
     async update(id: string, input: UpdateTransferRouteInput) {
       const current = await this.get(id);
-      if (input.route_code && input.route_code !== current.routeCode) {
-        throw Errors.unprocessable(
-          "ROUTE_CODE_IMMUTABLE",
-          "Route code cannot change after creation — it forms the public URL."
-        );
-      }
+      // route_code is immutable — ignore any input rather than failing validation
       const now = toIso(deps.clock.now());
       const priceEdited =
         input.fleet_prices !== undefined &&

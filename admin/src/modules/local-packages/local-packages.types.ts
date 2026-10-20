@@ -33,6 +33,6 @@ export const EMPTY_LOCAL_PACKAGE: LocalPackageFormState = {
   usePerKm: false,
   extraRates: {},
   nightChargeInr: 0,
-  status: "draft" as CatalogStatus,
+  status: "published" as CatalogStatus,
   isActive: true,
 };

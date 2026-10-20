@@ -22,6 +22,6 @@ export const EMPTY_TRANSFER_ROUTE: TransferRouteFormState = {
   fleetPrices: {},
   usePerKm: false,
   nightChargeInr: 0,
-  status: "draft" as CatalogStatus,
+  status: "published" as CatalogStatus,
   isActive: true,
 };
