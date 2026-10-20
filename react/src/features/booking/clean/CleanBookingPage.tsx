@@ -36,6 +36,10 @@ import {
 } from "../../../services/cleanFareApi";
 import { loadRazorpayScript } from "../razorpay";
 import {
+  BookingPaymentCountdownModal,
+  type CountdownStage,
+} from "./BookingPaymentCountdownModal";
+import {
   toIstISOString,
   getDefaultPickupDate,
   getDefaultReturnDate,
@@ -269,6 +273,19 @@ export function CleanBookingPage() {
     advance_amount: number;
     total_amount: number;
   } | null>(null);
+
+  const [countdownModal, setCountdownModal] = useState<{
+    isOpen: boolean;
+    stage: CountdownStage;
+    ticketId?: string;
+    advanceAmount?: number;
+    totalAmount?: number;
+    bookingId?: string;
+    onCountdownComplete?: () => void;
+  }>({
+    isOpen: false,
+    stage: "preparing_checkout",
+  });
 
   // 7. LocationIQ Address Autocomplete
   const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
@@ -570,6 +587,43 @@ export function CleanBookingPage() {
       return;
     }
 
+    // 3-Second Gateway Preparation Countdown
+    let rzpInstance: any = null;
+    let countdownFinished = false;
+    let setupFinished = false;
+    let setupFailure: string | null = null;
+
+    setCountdownModal({
+      isOpen: true,
+      stage: "preparing_checkout",
+      advanceAmount: quoteToUse.advance,
+      totalAmount: quoteToUse.total,
+      onCountdownComplete: () => {
+        countdownFinished = true;
+        if (setupFinished) {
+          if (rzpInstance) {
+            setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+            setBookingSubmitting(false);
+            rzpInstance.open();
+          } else if (setupFailure) {
+            setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+            setBookingSubmitting(false);
+            setBookingError(setupFailure);
+          }
+        }
+      },
+    });
+
+    const onRazorpaySetupReady = (rzp: any) => {
+      rzpInstance = rzp;
+      setupFinished = true;
+      if (countdownFinished) {
+        setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+        setBookingSubmitting(false);
+        rzp.open();
+      }
+    };
+
     try {
       const bookingRes = await createBooking(bookingPayload, accessToken);
       sessionStorage.setItem("arenaai:last_booking_id", bookingRes.booking_id);
@@ -601,37 +655,61 @@ export function CleanBookingPage() {
             theme: { color: "#9F3C16" },
             modal: {
               ondismiss: () => {
+                setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+                setBookingSubmitting(false);
                 window.location.href = `/booking/confirmation?id=${bookingRes.booking_id}`;
               },
             },
-            handler: async (response: any) => {
+            handler: (response: any) => {
+              // Immediately launch 7-second post-payment confirmation countdown
+              setCountdownModal({
+                isOpen: true,
+                stage: "verifying_payment",
+                ticketId: bookingRes.ticket_id,
+                bookingId: bookingRes.booking_id,
+                advanceAmount: bookingRes.advance_amount,
+                totalAmount: bookingRes.total_amount,
+                onCountdownComplete: () => {
+                  window.location.href = `/booking/confirmation?id=${bookingRes.booking_id}`;
+                },
+              });
+
               if (response?.razorpay_payment_id && response?.razorpay_order_id && response?.razorpay_signature) {
-                try {
-                  await verifyBookingPayment(
-                    bookingRes.booking_id,
-                    {
-                      razorpay_payment_id: response.razorpay_payment_id,
-                      razorpay_order_id: response.razorpay_order_id,
-                      razorpay_signature: response.razorpay_signature,
-                    },
-                    accessToken
-                  );
-                } catch (verifyErr) {
+                verifyBookingPayment(
+                  bookingRes.booking_id,
+                  {
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature,
+                  },
+                  accessToken
+                ).catch((verifyErr) => {
                   console.warn("Payment verification notification deferred to webhook:", verifyErr);
-                }
+                });
               }
-              window.location.href = `/booking/confirmation?id=${bookingRes.booking_id}`;
             },
           });
-          rzp.open();
+
+          onRazorpaySetupReady(rzp);
         } else {
+          setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+          setBookingSubmitting(false);
           window.location.href = `/booking/confirmation?id=${bookingRes.booking_id}`;
         }
       } catch (payErr: any) {
         console.error("Payment initiation failed:", payErr);
-        setBookingError(`Booking created (${bookingRes.ticket_id}), but payment gateway could not be launched: ${payErr?.message || "Payment initialization failed"}. You can complete payment on your confirmation page.`);
+        const msg = `Booking created (${bookingRes.ticket_id}), but payment gateway could not be launched: ${payErr?.message || "Payment initialization failed"}. You can complete payment on your confirmation page.`;
+        setupFailure = msg;
+        setupFinished = true;
+        if (countdownFinished) {
+          setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+          setBookingSubmitting(false);
+          setBookingError(msg);
+        }
       }
     } catch (err: any) {
+      setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+      setBookingSubmitting(false);
       if (err instanceof CleanFareApiError && err.code === "PRICE_CHANGED") {
         // Handle 409 PRICE_CHANGED reconfirmation gate
         const freshQuote = err.details?.fresh_quote;
@@ -653,8 +731,6 @@ export function CleanBookingPage() {
               : "Unable to create booking reservation. Please check your details and try again.";
         setBookingError(errorMsg);
       }
-    } finally {
-      setBookingSubmitting(false);
     }
   };
 
@@ -1420,6 +1496,23 @@ export function CleanBookingPage() {
           </div>
         )}
       </AnimatePresence>
+
+      <BookingPaymentCountdownModal
+        isOpen={countdownModal.isOpen}
+        stage={countdownModal.stage}
+        ticketId={countdownModal.ticketId}
+        advanceAmount={countdownModal.advanceAmount}
+        totalAmount={countdownModal.totalAmount}
+        onCountdownComplete={() => {
+          if (countdownModal.onCountdownComplete) {
+            countdownModal.onCountdownComplete();
+          }
+        }}
+        onDismiss={() => {
+          setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+          setBookingSubmitting(false);
+        }}
+      />
     </div>
   );
 }

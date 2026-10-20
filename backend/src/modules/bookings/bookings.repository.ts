@@ -316,4 +316,39 @@ export class BookingsRepository {
       created_at: r.created_at,
     };
   }
+
+  async cancelExpiredPendingBookings(expiryMinutes: number = 30): Promise<BookingEntity[]> {
+    const res = await this.pool.query(
+      `
+      UPDATE bookings
+      SET status = 'cancelled',
+          special_notes = CASE
+            WHEN special_notes IS NULL OR special_notes = '' THEN 'Auto-cancelled: Payment not completed within ' || $1 || ' minutes.'
+            ELSE special_notes || ' | Auto-cancelled: Payment not completed within ' || $1 || ' minutes.'
+          END,
+          updated_at = NOW()
+      WHERE status = 'pending_payment'
+        AND created_at < NOW() - ($1 || ' minutes')::interval
+      RETURNING *
+      `,
+      [expiryMinutes]
+    );
+
+    const cancelledBookings = res.rows as BookingEntity[];
+    if (cancelledBookings.length > 0) {
+      const bookingIds = cancelledBookings.map((b) => b.id);
+      await this.pool.query(
+        `
+        UPDATE payments
+        SET status = 'failed',
+            updated_at = NOW()
+        WHERE booking_id = ANY($1::uuid[])
+          AND status = 'pending'
+        `,
+        [bookingIds]
+      ).catch(() => {});
+    }
+
+    return cancelledBookings;
+  }
 }

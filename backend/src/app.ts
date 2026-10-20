@@ -125,6 +125,7 @@ export type BuiltApp = {
   db: Repositories;
   notifications: ReturnType<typeof createNotificationService>;
   publicationWorker?: PublicationWorker;
+  bookingsService?: BookingsService;
 };
 
 export async function buildApp(options: AppOptions): Promise<BuiltApp> {
@@ -343,6 +344,7 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
 
   // --- Clean Fare System (fare-system-final-spec.md) Mounts ---
   let publicationWorker: PublicationWorker | undefined;
+  let cleanBookingsService: BookingsService | undefined;
 
   if (farePool && fareCatalogRepo) {
     publicationWorker = new PublicationWorker({
@@ -357,6 +359,7 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
 
     const bookingsRepo = new BookingsRepository(farePool);
     const bookingsService = new BookingsService(bookingsRepo, quotesService);
+    cleanBookingsService = bookingsService;
     await registerBookingsRoutes(app, bookingsService);
 
     const paymentsRepo = new PaymentsRepository(farePool);
@@ -455,7 +458,7 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
     },
   });
 
-  return { app, db, notifications, publicationWorker };
+  return { app, db, notifications, publicationWorker, bookingsService: cleanBookingsService };
 }
 
 function createPaymentProviders(env: Env): PaymentProviderRegistry {

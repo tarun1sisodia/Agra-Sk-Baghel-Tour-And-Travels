@@ -7,7 +7,7 @@ async function main(): Promise<void> {
   const env = loadEnv();
   const logger = createLogger(env);
   const { repos, mode } = await createRepositories(env);
-  const { app, notifications, publicationWorker } = await buildApp({ env, logger, db: repos });
+  const { app, notifications, publicationWorker, bookingsService } = await buildApp({ env, logger, db: repos });
 
   // FIND-006: Lightweight background worker for queued notification retries
   const workerInterval = setInterval(async () => {
@@ -32,10 +32,30 @@ async function main(): Promise<void> {
     publishInterval.unref();
   }
 
+  // Background worker for auto-cancelling expired pending bookings (default 30 min)
+  let expiryInterval: NodeJS.Timeout | undefined;
+  if (bookingsService) {
+    expiryInterval = setInterval(async () => {
+      try {
+        const cancelled = await bookingsService.expirePendingBookings(env.PAYMENT_PENDING_EXPIRY_MINUTES);
+        if (cancelled.length > 0) {
+          logger.info(
+            { count: cancelled.length, bookingIds: cancelled.map((b) => b.id) },
+            "auto-cancelled expired pending bookings"
+          );
+        }
+      } catch (err) {
+        logger.error({ err }, "booking expiry worker error");
+      }
+    }, 60_000);
+    expiryInterval.unref();
+  }
+
   const shutdown = async (signal: string) => {
     logger.info({ signal }, "shutting down");
     clearInterval(workerInterval);
     if (publishInterval) clearInterval(publishInterval);
+    if (expiryInterval) clearInterval(expiryInterval);
     await app.close();
     process.exit(0);
   };

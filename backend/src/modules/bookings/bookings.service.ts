@@ -87,6 +87,10 @@ export class BookingsService {
     return this.bookingsRepo.getBookingDetail(idOrTicketId);
   }
 
+  async expirePendingBookings(expiryMinutes: number = 30): Promise<BookingEntity[]> {
+    return this.bookingsRepo.cancelExpiredPendingBookings(expiryMinutes);
+  }
+
   private generateTicketId(): string {
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10).replace(/-/g, "");

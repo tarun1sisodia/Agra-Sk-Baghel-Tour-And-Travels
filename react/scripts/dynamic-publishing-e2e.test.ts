@@ -56,7 +56,7 @@ describe("Phase D.2 — Dynamic Catalog Publishing, SEO & SSG Pipeline (Build & 
     const sources = listCatalogSources({
       VITE_API_BASE_URL: "https://api.agraskbagheltourandtravels.com",
     });
-    assert.equal(sources.length, 5);
+    assert.equal(sources.length, 6);
     for (const source of sources) {
       assert.ok(source.url?.startsWith("https://api.agraskbagheltourandtravels.com/api/v1/"));
     }

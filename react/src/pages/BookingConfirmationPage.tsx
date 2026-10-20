@@ -15,8 +15,17 @@ import {
   ArrowRight,
   RefreshCw,
 } from "lucide-react";
-import { fetchBookingById, createBookingPayment, downloadBookingPdf } from "../services/cleanFareApi";
+import {
+  fetchBookingById,
+  createBookingPayment,
+  verifyBookingPayment,
+  downloadBookingPdf,
+} from "../services/cleanFareApi";
 import { loadRazorpayScript } from "../features/booking/razorpay";
+import {
+  BookingPaymentCountdownModal,
+  type CountdownStage,
+} from "../features/booking/clean/BookingPaymentCountdownModal";
 import { contact } from "../data/contact";
 import type { BookingDetailResponse } from "../contracts/fare-system";
 import { useCustomerAuth } from "../auth/customerAuth";
@@ -50,6 +59,18 @@ export function BookingConfirmationPage() {
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const pollCountRef = useRef(0);
+
+  const [countdownModal, setCountdownModal] = useState<{
+    isOpen: boolean;
+    stage: CountdownStage;
+    ticketId?: string;
+    advanceAmount?: number;
+    totalAmount?: number;
+    onCountdownComplete?: () => void;
+  }>({
+    isOpen: false,
+    stage: "preparing_checkout",
+  });
 
   // Read ID from URL params or sessionStorage
   useEffect(() => {
@@ -133,6 +154,44 @@ export function BookingConfirmationPage() {
       return;
     }
     setPayBusy(true);
+
+    let rzpInstance: any = null;
+    let countdownFinished = false;
+    let setupFinished = false;
+    let setupFailure: string | null = null;
+
+    setCountdownModal({
+      isOpen: true,
+      stage: "preparing_checkout",
+      advanceAmount: booking.advance_amount,
+      totalAmount: booking.total_amount,
+      ticketId: booking.ticket_id,
+      onCountdownComplete: () => {
+        countdownFinished = true;
+        if (setupFinished) {
+          if (rzpInstance) {
+            setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+            setPayBusy(false);
+            rzpInstance.open();
+          } else if (setupFailure) {
+            setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+            setPayBusy(false);
+            alert(setupFailure);
+          }
+        }
+      },
+    });
+
+    const onRazorpaySetupReady = (rzp: any) => {
+      rzpInstance = rzp;
+      setupFinished = true;
+      if (countdownFinished) {
+        setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+        setPayBusy(false);
+        rzp.open();
+      }
+    };
+
     try {
       const paymentRes = await createBookingPayment(booking.booking_id, accessToken);
       const ready = await loadRazorpayScript();
@@ -153,21 +212,52 @@ export function BookingConfirmationPage() {
           email: booking.customer_email || undefined,
         },
         theme: { color: "#9F3C16" },
-        handler: () => {
-          pollCountRef.current = 0;
-          void loadBooking(true);
+        handler: (response: any) => {
+          setCountdownModal({
+            isOpen: true,
+            stage: "verifying_payment",
+            ticketId: booking.ticket_id,
+            advanceAmount: booking.advance_amount,
+            totalAmount: booking.total_amount,
+            onCountdownComplete: () => {
+              setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+              pollCountRef.current = 0;
+              void loadBooking(true);
+            },
+          });
+
+          if (response?.razorpay_payment_id && response?.razorpay_order_id && response?.razorpay_signature) {
+            verifyBookingPayment(
+              booking.booking_id,
+              {
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+              accessToken
+            ).catch((verifyErr) => {
+              console.warn("Payment verification notification deferred to webhook:", verifyErr);
+            });
+          }
         },
         modal: {
           ondismiss: () => {
+            setCountdownModal((prev) => ({ ...prev, isOpen: false }));
             setPayBusy(false);
           },
         },
       });
-      rzp.open();
+
+      onRazorpaySetupReady(rzp);
     } catch (err: any) {
-      alert(err.message || "Could not launch checkout. Please contact the desk.");
-    } finally {
-      setPayBusy(false);
+      const msg = err.message || "Could not launch checkout. Please contact the desk.";
+      setupFailure = msg;
+      setupFinished = true;
+      if (countdownFinished) {
+        setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+        setPayBusy(false);
+        alert(msg);
+      }
     }
   };
 
@@ -545,6 +635,23 @@ export function BookingConfirmationPage() {
           </div>
         </div>
       </div>
+
+      <BookingPaymentCountdownModal
+        isOpen={countdownModal.isOpen}
+        stage={countdownModal.stage}
+        ticketId={countdownModal.ticketId}
+        advanceAmount={countdownModal.advanceAmount}
+        totalAmount={countdownModal.totalAmount}
+        onCountdownComplete={() => {
+          if (countdownModal.onCountdownComplete) {
+            countdownModal.onCountdownComplete();
+          }
+        }}
+        onDismiss={() => {
+          setCountdownModal((prev) => ({ ...prev, isOpen: false }));
+          setPayBusy(false);
+        }}
+      />
     </main>
   );
 }
