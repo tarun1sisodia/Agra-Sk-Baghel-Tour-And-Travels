@@ -7,9 +7,10 @@ describe("canonical site origin", () => {
     assert.equal(resolveSiteOrigin(undefined, "development"), APPROVED_PRODUCTION_ORIGIN);
   });
   it("normalizes a trailing slash", () => {
-    assert.equal(resolveSiteOrigin("https://agraskbagheltourandtravels.com/", "production"), APPROVED_PRODUCTION_ORIGIN);
+    assert.equal(resolveSiteOrigin("https://agraskbagheltourandtravels.com/", "production"), "https://agraskbagheltourandtravels.com");
+    assert.equal(resolveSiteOrigin("https://skbagheltravels-customer.coccoder999.workers.dev/", "production"), "https://skbagheltravels-customer.coccoder999.workers.dev");
   });
-  it("rejects preview hosts in release mode", () => {
+  it("rejects non-approved hosts in release mode", () => {
     assert.throws(() => resolveSiteOrigin("https://preview.workers.dev", "production"), /must equal/);
   });
   it("requires HTTPS for non-local origins", () => {

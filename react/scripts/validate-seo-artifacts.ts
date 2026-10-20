@@ -34,7 +34,9 @@ function assertPublicHttpsUrl(value: string, description: string): URL {
   assert.equal(url.origin, CANONICAL_DOMAIN, description + " must use the canonical origin.");
   assert.equal(url.search, "", description + " must not contain a query string.");
   assert.equal(url.hash, "", description + " must not contain a fragment.");
-  assert.equal(/workers\.dev|localhost|127\.0\.0\.1/i.test(url.hostname), false, description + " must not use a preview or loopback hostname.");
+  const isApprovedWorkersDev = CANONICAL_DOMAIN.includes(".workers.dev");
+  const disallowedPattern = isApprovedWorkersDev ? /localhost|127\.0\.0\.1/i : /workers\.dev|localhost|127\.0\.0\.1/i;
+  assert.equal(disallowedPattern.test(url.hostname), false, description + " must not use a preview or loopback hostname.");
   return url;
 }
 
@@ -60,7 +62,9 @@ async function main(): Promise<void> {
 
   assert.ok(robots.split(/\r?\n/).some((line) => line.trim() === "Sitemap: " + CANONICAL_DOMAIN + "/sitemap.xml"),
     "robots.txt must reference the canonical sitemap URL.");
-  assert.equal(/workers\.dev|localhost|127\.0\.0\.1/i.test(robots), false, "robots.txt must not reference a preview or loopback host.");
+  const isApprovedWorkersDev = CANONICAL_DOMAIN.includes(".workers.dev");
+  const disallowedRobotsPattern = isApprovedWorkersDev ? /localhost|127\.0\.0\.1/i : /workers\.dev|localhost|127\.0\.0\.1/i;
+  assert.equal(disallowedRobotsPattern.test(robots), false, "robots.txt must not reference a preview or loopback host.");
 
   const locValues = Array.from(sitemap.matchAll(/<loc>\s*([^<]+)\s*<\/loc>/gi), (match) => match[1]!.trim());
   assert.ok(locValues.length > 0, "The sitemap must contain at least one URL.");
@@ -107,7 +111,7 @@ async function main(): Promise<void> {
     const canonicalValue = attribute(canonicalTags[0]!, "href");
     assert.ok(canonicalValue, "Canonical tag must have an href: " + relPath);
     assertPublicHttpsUrl(canonicalValue, "Canonical URL in " + relPath);
-    assert.equal(/workers\.dev|localhost|127\.0\.0\.1/i.test(canonicalValue), false, "Canonical URL must not contain a preview host: " + relPath);
+    assert.equal(disallowedRobotsPattern.test(canonicalValue), false, "Canonical URL must not contain a preview host: " + relPath);
     const pageRobots = tags(html, /<meta\b[^>]*\bname=["\']robots["\'][^>]*>/gi).map((tag) => attribute(tag, "content") ?? "").join(" ");
     const indexable = !/noindex/i.test(pageRobots);
     const ogUrlTags = tags(html, /<meta\b[^>]*\bproperty=["\']og:url["\'][^>]*>/gi);

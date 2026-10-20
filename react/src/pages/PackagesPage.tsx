@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import type { SupportedLanguage } from "../config";
+import { siteConfig, type SupportedLanguage } from "../config";
 import { contact } from "../data/contact";
 import { packages as staticPackages, type TourPackage } from "../data";
 import generatedPublishedTourPackages from "../data/generated-published-tour-packages.json";
@@ -546,7 +546,7 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
     "@graph": [
       {
         "@type": "TaxiService",
-        "@id": "https://agraskbagheltourandtravels.com/#service",
+        "@id": `${siteConfig.domain}/#service`,
         name: "Agra SK Baghel Tour and Travels Private Sightseeing Packages",
         serviceType: "Private Heritage & Outstation Tour Packages",
         provider: {
@@ -570,13 +570,13 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://agraskbagheltourandtravels.com/en/",
+            item: `${siteConfig.domain}/en/`,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Packages",
-            item: "https://agraskbagheltourandtravels.com/en/packages/",
+            item: `${siteConfig.domain}/en/packages/`,
           },
         ],
       },

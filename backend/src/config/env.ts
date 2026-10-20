@@ -4,7 +4,7 @@ const EnvSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "staging", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(4000),
   API_BASE_URL: z.string().default("http://localhost:4000"),
-  CUSTOMER_SITE_URL: z.string().url().default("https://agraskbagheltourandtravels.com"),
+  CUSTOMER_SITE_URL: z.string().url().default("https://skbagheltravels-customer.coccoder999.workers.dev"),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
   FARE_RULES_VERSION: z.string().min(1).default("2026-09-13"),
   CORS_ORIGINS: z

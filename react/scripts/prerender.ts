@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
 import { renderToString } from "react-dom/server";
 import { createElement } from "react";
-import { generateSitemapAndRobots, isSitemapSafeSlug, HINDI_INDEXING_ENABLED } from "./generate-sitemap.ts";
+import { generateSitemapAndRobots, isSitemapSafeSlug, HINDI_INDEXING_ENABLED, CANONICAL_DOMAIN } from "./generate-sitemap.ts";
 import { assertBuildSafeSeo, inspectSeoHtml } from "./seo-content-guardrails.ts";
 import { SEO_LANDING_SLUGS } from "../src/data/seoLandingSlugs.ts";
 import { FLEETS } from "../src/data/fleets.ts";
@@ -311,7 +311,7 @@ export async function prerender(): Promise<void> {
   await mkdir(join(dist, "review"), { recursive: true });
   const reviewShell = baseTemplate.replace(
     "</head>",
-    '<meta name="robots" content="noindex, nofollow" /><link rel="canonical" href="https://agraskbagheltourandtravels.com/review" /></head>',
+    `<meta name="robots" content="noindex, nofollow" /><link rel="canonical" href="${CANONICAL_DOMAIN}/review" /></head>`,
   );
   await writeFile(join(dist, "review", "index.html"), reviewShell, "utf8");
 

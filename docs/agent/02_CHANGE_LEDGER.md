@@ -1,3 +1,26 @@
+## 2026-10-20
+
+### 2026-10-20 — Cloudflare Workers Staging Canonical Domain Configuration & SEO Validator Build Fix
+
+- **Dual Approved Production Origins Architecture (`siteOrigin.ts`, `validate-site-config.ts`, `site-origin.test.ts`)**:
+  - Configured `APPROVED_PRODUCTION_ORIGINS = ["https://agraskbagheltourandtravels.com", "https://skbagheltravels-customer.coccoder999.workers.dev"]`.
+  - Defaulted `APPROVED_PRODUCTION_ORIGIN` to `https://skbagheltravels-customer.coccoder999.workers.dev` during active testing and staging, allowing seamless toggle back to the client production domain when ready.
+  - Updated `validate-site-config.ts` to accept approved staging origins in production release mode while strictly rejecting unauthorized hosts.
+  - Updated unit test suite `site-origin.test.ts` to verify both approved origins and ensure fail-closed security.
+- **SEO Artifacts Validator Build Fix (`validate-seo-artifacts.ts`)**:
+  - Resolved build failure where SSG pre-rendering succeeded with 72 pages + 23 redirects, but `validate-seo-artifacts.ts` rejected `robots.txt` and HTML canonical tags because `workers.dev` was unconditionally flagged as a disallowed preview host.
+  - Made preview host assertions environment-aware: if `CANONICAL_DOMAIN` contains `.workers.dev`, the staging workers hostname is allowed in `robots.txt` and canonical tags, while `localhost` and `127.0.0.1` remain strictly forbidden. When configured for client production domain, `workers.dev` remains blocked.
+- **Dynamic Origin Schema References (`prerender.ts`, `PackagesPage.tsx`, `backend/src/config/env.ts`)**:
+  - Replaced hardcoded client domain in `prerender.ts` `/review` canonical tag with dynamic `${CANONICAL_DOMAIN}/review`.
+  - Replaced hardcoded JSON-LD schema URLs in `PackagesPage.tsx` with `${siteConfig.domain}`.
+  - Defaulted `CUSTOMER_SITE_URL` in `backend/src/config/env.ts` to `https://skbagheltravels-customer.coccoder999.workers.dev`.
+- **Pre-Checkout & Post-Payment Booking Overlays & Pending Auto-Expiry (`BookingPaymentCountdownModal.tsx`, `CleanBookingPage.tsx`, `BookingConfirmationPage.tsx`, `backend/src/server.ts`)**:
+  - Implemented 3-second bank-grade encryption countdown modal prior to Razorpay gateway presentation.
+  - Implemented 7-second dispatch verification countdown modal after successful payment callback prior to routing to confirmation.
+  - Implemented background interval worker in backend running every 60s to expire `pending` bookings older than 30 minutes.
+- **Verification**:
+  - Full verification suite `npm run verify` passed with 0 errors: contracts check green, 3x TypeScript typechecks green, all backend test suites passed, SEO lifecycle tests passed, and all 3 production builds green.
+
 ## 2026-10-19
 
 ### 2026-10-19 — Review Static Snapshot Architecture & Cloudflare Deployment Origin Resolution

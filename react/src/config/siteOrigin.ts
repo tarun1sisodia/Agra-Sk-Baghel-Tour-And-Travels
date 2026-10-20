@@ -1,4 +1,17 @@
-export const APPROVED_PRODUCTION_ORIGIN = "https://agraskbagheltourandtravels.com";
+export const CLIENT_PRODUCTION_ORIGIN = "https://agraskbagheltourandtravels.com";
+export const STAGING_WORKERS_ORIGIN = "https://skbagheltravels-customer.coccoder999.workers.dev";
+
+export const APPROVED_PRODUCTION_ORIGINS = [
+  CLIENT_PRODUCTION_ORIGIN,
+  STAGING_WORKERS_ORIGIN,
+] as const;
+
+export const DEFAULT_PRODUCTION_ORIGIN =
+  (typeof process !== "undefined" && process.env?.VITE_SITE_URL?.trim()) ||
+  (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_SITE_URL?.trim()) ||
+  STAGING_WORKERS_ORIGIN;
+
+export const APPROVED_PRODUCTION_ORIGIN = DEFAULT_PRODUCTION_ORIGIN;
 
 export type SiteOriginMode = "development" | "preview" | "production";
 
@@ -19,8 +32,13 @@ export function resolveSiteOrigin(raw: string | undefined, mode: SiteOriginMode 
   if (url.protocol !== "https:" && !localHttpAllowed) {
     throw new Error("VITE_SITE_URL must use HTTPS except for an explicit local loopback origin in development.");
   }
-  if (mode === "production" && url.origin !== APPROVED_PRODUCTION_ORIGIN) {
-    throw new Error("Production VITE_SITE_URL must equal " + APPROVED_PRODUCTION_ORIGIN + ".");
+  if (mode === "production") {
+    const isApproved = APPROVED_PRODUCTION_ORIGINS.some((allowed) => url.origin === allowed);
+    if (!isApproved) {
+      throw new Error(
+        "Production VITE_SITE_URL must equal one of: " + APPROVED_PRODUCTION_ORIGINS.join(", ") + "."
+      );
+    }
   }
   return url.origin;
 }
