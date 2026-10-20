@@ -23,3 +23,8 @@ export const ADMIN_ROLES = [
   "dispatcher",
   "finance_operator",
 ] as const satisfies readonly UserRole[];
+
+/** Roles allowed to access operations-desk resources and previews. */
+export function isOperationsRole(role: UserRole | undefined): boolean {
+  return role !== undefined && ADMIN_ROLES.includes(role as (typeof ADMIN_ROLES)[number]);
+}
