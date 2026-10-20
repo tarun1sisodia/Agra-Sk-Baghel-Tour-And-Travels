@@ -18,10 +18,15 @@ export class LocationIqService {
   ) {}
 
   private async fetchWithRetry(url: string, retries = 2): Promise<Response> {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:" || parsed.hostname !== "us1.locationiq.com" || parsed.username || parsed.password) {
+      throw new Error("UPSTREAM_URL_NOT_ALLOWED");
+    }
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const res = await this.fetchImpl(url, {
           headers: { Accept: "application/json" },
+          redirect: "error",
         });
         if (res.status === 429 && attempt < retries) {
           // LocationIQ free tier limits to 2 req/sec. Exponential backoff on 429.

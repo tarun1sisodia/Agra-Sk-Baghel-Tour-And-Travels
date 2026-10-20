@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { requireUser } from "../../middlewares/authGuard.js";
 import { sendSuccess } from "../../middlewares/errorHandler.js";
-import { CONTENT_ROLES, requireRole, SUPER_ADMIN_ROLES } from "../../middlewares/roleGuard.js";
+import { CONTENT_ROLES, isOperationsRole, requireRole, SUPER_ADMIN_ROLES } from "../../middlewares/roleGuard.js";
 import {
   AdminCatalogQuerySchema,
   AttachMediaSchema,
@@ -141,8 +141,10 @@ export function createCatalogController(service: ReturnType<typeof createCatalog
      */
     async serveMedia(request: FastifyRequest, reply: FastifyReply) {
       const params = MediaIdParamSchema.parse(request.params);
-      const isStaffOrAdmin = Boolean(request.user);
-      const content = await service.getMediaContent(params.id, { allowUnpublished: isStaffOrAdmin });
+      // An authenticated customer is not an operations user. Draft media is
+      // sensitive preview content and must never be disclosed to customers.
+      const allowUnpublished = isOperationsRole(request.user?.role);
+      const content = await service.getMediaContent(params.id, { allowUnpublished });
       if (!content) {
         reply.code(404);
         return reply.send({ error: { code: "MEDIA_NOT_FOUND", message: "Media not found." } });

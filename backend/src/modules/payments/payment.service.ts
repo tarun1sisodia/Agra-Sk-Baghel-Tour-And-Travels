@@ -16,18 +16,20 @@ import type { createNotificationService } from "../notifications/notification.se
 import type { CreatePaymentCheckoutRequest } from "./payment.schema.js";
 
 // Allowed return/cancel URL origins - must be from our CORS list or relative
-function isAllowedReturnUrl(url: string, allowedOrigins: string[]): boolean {
+export function isAllowedReturnUrl(url: string, allowedOrigins: string[]): boolean {
   try {
     const parsed = new URL(url);
     // Must be HTTPS in production
     if (parsed.protocol !== "https:" && !parsed.hostname.includes("localhost")) {
       return false;
     }
-    // Check against allowed origins or same domain
+    // Match the exact configured origin. Do not allow arbitrary subdomains,
+    // credentials, ports, or attacker-controlled suffixes.
+    if (parsed.username || parsed.password) return false;
     return allowedOrigins.some((origin) => {
       try {
         const originUrl = new URL(origin);
-        return parsed.hostname === originUrl.hostname || parsed.hostname.endsWith(`.${originUrl.hostname}`);
+        return parsed.origin === originUrl.origin;
       } catch {
         return false;
       }

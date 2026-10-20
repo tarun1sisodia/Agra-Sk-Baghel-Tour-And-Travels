@@ -11,6 +11,7 @@ import { newId } from "./shared/ids.js";
 import type { Repositories } from "./db/types.js";
 import { createMemoryRepositories } from "./db/memory.js";
 import { authenticateRequest } from "./middlewares/authGuard.js";
+import { isOperationsRole } from "./middlewares/roleGuard.js";
 import { AppError, Errors } from "./shared/errors.js";
 import { registerErrorHandler, sendSuccess } from "./middlewares/errorHandler.js";
 import { registerNetworkHeaders } from "./middlewares/networkHeaders.js";
@@ -219,6 +220,23 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
         throw Errors.unauthorized("Invalid access token.");
       }
       request.user = undefined;
+    }
+  });
+
+  // Defense in depth for legacy and compatibility admin routes. Individual
+  // controllers still enforce their narrower role permissions, but no admin
+  // handler should ever be reachable anonymously if a new route is added
+  // without an explicit controller guard.
+  app.addHook("onRequest", async (request) => {
+    const path = request.url.split("?", 1)[0] ?? request.url;
+    const isAdminPath =
+      path === "/admin" ||
+      path.startsWith("/admin/") ||
+      path.startsWith("/api/v1/admin/") ||
+      path.startsWith("/api/v1/ops/admin/");
+    if (isAdminPath && !isOperationsRole(request.user?.role)) {
+      if (!request.user) throw Errors.unauthorized();
+      throw Errors.forbidden("Operations-desk access required.");
     }
   });
 
