@@ -8,25 +8,15 @@ Deployment topology, provider settings and the command contract live in
 ## Read before writing code, every session
 
 1. [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — hosts, build commands, env vars, release order. **Read this before touching any deployment config.**
-2. [`react/docs/01_AI_OPERATING_INSTRUCTIONS.md`](react/docs/01_AI_OPERATING_INSTRUCTIONS.md) — how to operate on this codebase
-3. [`react/docs/02_PROJECT_CONTEXT.md`](react/docs/02_PROJECT_CONTEXT.md) — architecture and conventions
-4. [`react/docs/04_PROGRESS_TRACKER.md`](react/docs/04_PROGRESS_TRACKER.md) — frontend tracker; read the **Current State** block first
-5. [`react/docs/03_PHASE_PLAN.md`](react/docs/03_PHASE_PLAN.md) — **current phase only**
-6. [`react/docs/DESIGN.md`](react/docs/DESIGN.md) and [`docs/project/DESIGN_LOCKS.md`](docs/project/DESIGN_LOCKS.md) — any UI step; verify a component is not LOCKED before editing it
-7. [`docs/project/ANIMATION_RULES.md`](docs/project/ANIMATION_RULES.md) — before adding or modifying any animation
-8. [`docs/PAYMENT_SYSTEM.md`](docs/PAYMENT_SYSTEM.md) + [`.agents/rules/PAYMENT_AGENT_RULES.md`](.agents/rules/PAYMENT_AGENT_RULES.md) — before any Razorpay, webhook, refund or "mark paid" work
-9. [`BACKEND_RULES.md`](BACKEND_RULES.md) — before any backend, API, database, controller or integration work
-10. [`FRONTEND_RULES.md`](FRONTEND_RULES.md) — master frontend architectural standard, typography scale, design tokens, SSG, and component rules
+2. [`react/docs/DESIGN.md`](react/docs/DESIGN.md) and [`docs/project/DESIGN_LOCKS.md`](docs/project/DESIGN_LOCKS.md) — any UI step; verify a component is not LOCKED before editing it
+3. [`docs/project/ANIMATION_RULES.md`](docs/project/ANIMATION_RULES.md) — before adding or modifying any animation
+4. [`docs/PAYMENT_SYSTEM.md`](docs/PAYMENT_SYSTEM.md) + [`.agents/rules/PAYMENT_AGENT_RULES.md`](.agents/rules/PAYMENT_AGENT_RULES.md) — before any Razorpay, webhook, refund or "mark paid" work
+5. [`BACKEND_RULES.md`](BACKEND_RULES.md) — before any backend, API, database, controller or integration work
+6. [`FRONTEND_RULES.md`](FRONTEND_RULES.md) — master frontend architectural standard, typography scale, design tokens, SSG, and component rules
+7. [`docs/CUSTOMER_SITE_PRD.md`](docs/CUSTOMER_SITE_PRD.md) — customer site product requirements
+8. [`docs/admin/ADMIN_PRD.md`](docs/admin/ADMIN_PRD.md) — admin operations desk PRD
 
-Implement **exactly one step** from the tracker (`react/docs/04_PROGRESS_TRACKER.md`
-for frontend/React, [`docs/project/PROGRESS.md`](docs/project/PROGRESS.md) for backend). Update the tracker
-when that step is done. Never skip ahead.
-
-`react/docs/` holds the frontend-specific pack (`00_START_HERE.md` is its overview:
-design, animation, launch checklist, fix plan). Platform-wide project history and
-planning documents live in `docs/project/`; the root retains operational rules,
-`README.md`, and the latest `ADMIN_CUSTOMER_BACKEND_AUDIT_AND_OPERATING_SPEC.md`.
-The agent handoff and repeatable runbook are in `docs/agent/`.
+Platform-wide operational docs live in `docs/`; design system and lock rules live in `docs/project/`; payment and deployment docs are at the `docs/` root. The agent runbook is in `docs/agent/`.
 
 ## Build hygiene (enforced by CI)
 
