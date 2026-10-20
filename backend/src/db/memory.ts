@@ -441,7 +441,7 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
         let totalRefundedPaise = 0;
         for (const p of list) {
           if (p.status === "captured") totalCapturedPaise += p.inrAmountPaise;
-          if (p.status === "refunded") totalRefundedPaise += p.inrAmountPaise;
+          if (p.status === "refunded" || p.status === "partially_refunded") totalRefundedPaise += p.inrAmountPaise;
         }
 
         const total = list.length;

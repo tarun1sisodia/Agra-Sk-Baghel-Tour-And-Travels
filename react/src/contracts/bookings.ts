@@ -19,7 +19,7 @@ export type BookingStatus =
 
 export type PaymentMethod = "upi" | "card" | "netbanking" | "paypal";
 export type PaymentProvider = "razorpay" | "paypal" | "card";
-export type PaymentStatus = "captured" | "refunded" | "pending" | "failed" | "needs_review";
+export type PaymentStatus = "captured" | "refunded" | "partially_refunded" | "pending" | "failed" | "needs_review";
 
 export type CanonicalBookingSelection =
   | { kind: "outstation"; id: string; tripType: "one-way" | "round-trip"; originName: string; destinationName: string; name?: string }

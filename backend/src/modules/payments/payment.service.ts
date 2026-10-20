@@ -460,8 +460,8 @@ export function createPaymentService(deps: {
         if (insideExisting) return insideExisting;
 
         const booking =
-          (await trx.bookings.getById(input.bookingId)) ??
-          (await trx.bookings.getByTicketId(input.bookingId));
+          (await trx.bookings.getById(input.bookingId).catch(() => null)) ??
+          (await trx.bookings.getByTicketId(input.bookingId).catch(() => null));
         if (!booking) throw Errors.notFound("BOOKING_NOT_FOUND", "Booking not found.");
         if (booking.status !== "paid_confirmed" && (booking.status as string) !== "confirmed") {
           throw Errors.conflict("REFUND_NOT_ELIGIBLE", "Booking is not eligible for refund.");

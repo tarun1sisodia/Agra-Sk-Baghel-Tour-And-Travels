@@ -183,6 +183,9 @@ export class BookingsRepository {
   }
 
   async getById(id: string): Promise<BookingEntity | null> {
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+      return null;
+    }
     const res = await this.pool.query("SELECT * FROM bookings WHERE id = $1", [id]);
     if (res.rows.length === 0) return null;
     const r = res.rows[0];

@@ -35,6 +35,17 @@ export function createCancellationPoliciesService(deps: { db: Repositories; cloc
         updatedAt: now,
       });
 
+      // Enqueue to Publishing Events Outbox for durable tracking and customer site delivery
+      try {
+        await deps.db.publishEvents.enqueue({
+          entityType: "cancellation_policy",
+          entityId: id,
+          eventType: "updated",
+        });
+      } catch {
+        // Graceful fallback if enqueue encounters issues
+      }
+
       await triggerFrontendRebuild();
       return updated;
     },

@@ -727,6 +727,9 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           return mapBooking(rows[0]);
         },
         async getById(id: string) {
+          if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+            return null;
+          }
           // Use FOR UPDATE when inside transaction to lock row
           const isTx = "release" in client && typeof (client as { release?: unknown }).release === "function";
           const sql = isTx ? "select * from bookings where id=$1 for update" : "select * from bookings where id=$1";
@@ -918,7 +921,10 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
             `select
                count(*)::int as total,
                coalesce(sum(case when status='captured' then amount_paise else 0 end), 0)::bigint as total_captured,
-               coalesce(sum(case when status='refunded' then amount_paise else 0 end), 0)::bigint as total_refunded
+               greatest(
+                 coalesce(sum(case when status in ('refunded', 'partially_refunded') then amount_paise else 0 end), 0),
+                 coalesce((select sum(amount_minor) from refunds where status = 'processed'), 0)
+               )::bigint as total_refunded
              from payments ${where}`,
             params,
           );

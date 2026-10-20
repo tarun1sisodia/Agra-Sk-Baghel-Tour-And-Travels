@@ -298,14 +298,14 @@ export type Repositories = {
 };
 
 export type PublishEventInput = {
-  entityType: "outstation_route" | "local_package" | "transfer" | "tour_package" | "review";
+  entityType: "outstation_route" | "local_package" | "transfer" | "tour_package" | "review" | "cancellation_policy";
   entityId: string;
   eventType: "published" | "updated" | "archived" | "slug_changed" | "price_changed" | "review_approved";
 };
 
 export type PublishEventRecord = {
   id: string;
-  entity_type: "outstation_route" | "local_package" | "transfer" | "tour_package" | "review";
+  entity_type: "outstation_route" | "local_package" | "transfer" | "tour_package" | "review" | "cancellation_policy";
   entity_id: string;
   event_type: "published" | "updated" | "archived" | "slug_changed" | "price_changed" | "review_approved";
   status: "pending" | "processing" | "triggered" | "succeeded" | "failed" | "superseded";

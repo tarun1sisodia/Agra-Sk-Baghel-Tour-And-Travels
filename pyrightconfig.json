@@ -1,0 +1,10 @@
+{
+  "include": [
+    "scripts"
+  ],
+  "extraPaths": [
+    "scripts",
+    "F:/AI/Strix/Source",
+    "F:/AI/Strix/Source/.venv/Lib/site-packages"
+  ]
+}

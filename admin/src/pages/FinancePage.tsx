@@ -126,10 +126,10 @@ export function FinancePage({ user }: { user: AdminUser }) {
 
   async function executeRefund() {
     if (!refundTarget) return;
-    setRefundError(null);
     setStage("processing");
     try {
-      await refundAdminBooking(refundTarget.bookingTicketId, reason || "Staff requested refund", idemKey);
+      const targetBookingId = refundTarget.bookingId || refundTarget.bookingTicketId;
+      await refundAdminBooking(targetBookingId, reason || "Staff requested refund", idemKey);
       setTimeout(() => setStage("done"), 600);
     } catch (err) {
       setStage("form");

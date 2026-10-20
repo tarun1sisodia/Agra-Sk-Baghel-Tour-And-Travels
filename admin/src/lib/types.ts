@@ -86,6 +86,7 @@ export type PaymentStatus = "captured" | "refunded" | "pending" | "failed" | "ne
 
 export interface Payment {
   id: string;
+  bookingId?: string;
   bookingTicketId: string;
   provider: PaymentProvider;
   method: PaymentMethod | null;

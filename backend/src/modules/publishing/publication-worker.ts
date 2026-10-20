@@ -4,7 +4,7 @@ import { recordAttempt } from "../../shared/deploy-hook.js";
 
 export interface PublishEventRecord {
   id: string;
-  entity_type: "outstation_route" | "local_package" | "transfer" | "tour_package" | "review";
+  entity_type: "outstation_route" | "local_package" | "transfer" | "tour_package" | "review" | "cancellation_policy";
   entity_id: string;
   event_type: "published" | "updated" | "archived" | "slug_changed" | "price_changed" | "review_approved";
   status: "pending" | "processing" | "triggered" | "succeeded" | "failed" | "superseded";
@@ -238,12 +238,16 @@ export class PublicationWorker {
       // The legacy routes table and slug/source_city columns were removed.
       // Resolve against the active canonical fare-system schema.
       const routeRes = await this.pool.query(
-        `SELECT code, origin_name, destination_name, image_url, gallery, fares_inr
-         FROM outstation_routes
-         WHERE id::text = $1 OR code = $1
+        `SELECT r.code, r.origin_name, r.destination_name, r.image_url, r.gallery,
+                (SELECT MIN(orv.one_way_amount) FROM outstation_route_vehicles orv WHERE orv.route_id = r.id AND orv.is_active = true) as min_fare
+         FROM outstation_routes r
+         WHERE r.id::text = $1 OR r.code = $1
          LIMIT 1`,
         [event.entity_id]
-      ).catch(() => ({ rows: [] }));
+      ).catch((err) => {
+        this.logger.error("Failed to query outstation_routes in resolveEntityData", err);
+        return { rows: [] };
+      });
 
       if (routeRes.rows.length > 0) {
         const row = routeRes.rows[0];
@@ -251,7 +255,7 @@ export class PublicationWorker {
         expectedPath = `/en/${row.code}/`;
         expectedTitle = `${row.origin_name} to ${row.destination_name}`;
         expectedImage = row.image_url || (Array.isArray(row.gallery) ? row.gallery[0]?.url : null) || null;
-        expectedFare = Number(row.fares_inr?.sedan ?? null) || null;
+        expectedFare = Number(row.min_fare ?? null) || null;
       } else {
         const catRes = await this.pool.query(
           "SELECT slug, title, price_inr FROM catalog_items WHERE id = $1 OR slug = $1",
@@ -280,6 +284,9 @@ export class PublicationWorker {
       if (revRes.rows.length > 0) {
         expectedTitle = revRes.rows[0].display_name;
       }
+    } else if (event.entity_type === "cancellation_policy") {
+      expectedPath = "/en/terms/";
+      expectedTitle = "Cancellation";
     }
 
     return { expectedPath, expectedTitle, expectedImage, expectedFare, slug };
@@ -709,7 +716,7 @@ export class PublicationWorker {
         }
 
         // Verify sitemap.xml presence (for route/package/transfer pages)
-        if (event.entity_type !== "review") {
+        if (event.entity_type !== "review" && event.entity_type !== "cancellation_policy") {
           let sitemapRes: Response;
           try {
             sitemapRes = await this.fetchFn(`${siteBase.origin}/sitemap.xml`, {

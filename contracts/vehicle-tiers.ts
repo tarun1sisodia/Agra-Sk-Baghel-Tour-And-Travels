@@ -1,7 +1,7 @@
 /**
  * CONTRACT C-ENUM-001 — Canonical vehicle tiers. LOCKED.
  *
- * The 5 fleets of SK Baghel Tour & Travels. `VehicleTier` (long form) is the ONLY
+ * The 5 fleets of Agra SK Baghel Tour & Travels. `VehicleTier` (long form) is the ONLY
  * valid tier key at API boundaries, in zod schemas, and in all newly written
  * database rows. Decided by Tarun 2026-10-07 (D1): long form wins.
  *

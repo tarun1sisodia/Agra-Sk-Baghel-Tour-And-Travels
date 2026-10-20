@@ -1,9 +1,22 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import type { SupportedLanguage } from "../config";
 import { contact } from "../data/contact";
+import generatedPublishedContent from "../data/generated-published-content.json";
+import { getApiBaseUrl } from "../services/api";
 
 export interface TermsPageProps {
   language?: SupportedLanguage;
+}
+
+export interface CancellationPolicyItem {
+  id: string;
+  policyType: string;
+  noticePeriodText: string;
+  sortOrder: number;
+  feeRetainedPercent: number | string;
+  refundPercent: number | string;
+  ruleText: string;
+  refundTimelineNote?: string;
 }
 
 const TOC_ITEMS = [
@@ -17,6 +30,33 @@ const TOC_ITEMS = [
 ];
 
 export function TermsPage({ language = "en" }: TermsPageProps) {
+  const [policies, setPolicies] = useState<CancellationPolicyItem[]>(
+    () => ((generatedPublishedContent as any)?.cancellationPolicies as CancellationPolicyItem[]) || []
+  );
+
+  useEffect(() => {
+    let active = true;
+    const fetchLivePolicies = async () => {
+      try {
+        const res = await fetch(`${getApiBaseUrl()}/api/v1/cancellation-policies`);
+        if (!res.ok) return;
+        const json = (await res.json()) as { success?: boolean; data?: CancellationPolicyItem[] };
+        if (active && json.data && Array.isArray(json.data) && json.data.length > 0) {
+          setPolicies(json.data);
+        }
+      } catch {
+        // Keep baseline snapshot if offline or unreached
+      }
+    };
+    void fetchLivePolicies();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const cabPolicies = policies.filter((p) => p.policyType === "cab").sort((a, b) => Number(a.sortOrder) - Number(b.sortOrder));
+  const tourPolicies = policies.filter((p) => p.policyType === "tour_package").sort((a, b) => Number(a.sortOrder) - Number(b.sortOrder));
+
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     const elem = document.getElementById(id);
@@ -169,19 +209,75 @@ export function TermsPage({ language = "en" }: TermsPageProps) {
             net banking. The 72% balance is paid directly at drop-off.
           </p>
           <div className="p-3.5 rounded-xl bg-surface-container-lowest border border-border-warm space-y-1.5 text-body-md">
-            <div className="flex justify-between py-1 border-b border-border-warm/40">
-              <span className="font-semibold text-ink-charcoal">&gt; 24 Hours before Pickup:</span>
-              <span className="text-success-jade font-bold">100% Full Refund of Token</span>
-            </div>
-            <div className="flex justify-between py-1 border-b border-border-warm/40">
-              <span className="font-semibold text-ink-charcoal">6 to 24 Hours before Pickup:</span>
-              <span className="text-primary font-bold">50% Token Refund / 100% Trip Credit</span>
-            </div>
-            <div className="flex justify-between py-1">
-              <span className="font-semibold text-ink-charcoal">&lt; 6 Hours / Chauffeur En Route:</span>
-              <span className="text-secondary font-bold">Token retained to cover dispatch fuel</span>
-            </div>
+            {cabPolicies.length > 0 ? (
+              cabPolicies.map((slab, idx) => (
+                <div
+                  key={slab.id || idx}
+                  className={`flex justify-between py-1 ${idx < cabPolicies.length - 1 ? "border-b border-border-warm/40" : ""}`}
+                >
+                  <span className="font-semibold text-ink-charcoal">{slab.noticePeriodText}:</span>
+                  <span
+                    className={
+                      Number(slab.refundPercent) >= 100
+                        ? "text-success-jade font-bold"
+                        : Number(slab.refundPercent) > 0
+                        ? "text-primary font-bold"
+                        : "text-secondary font-bold"
+                    }
+                  >
+                    {Number(slab.refundPercent) === 100
+                      ? "100% Full Refund of Token"
+                      : Number(slab.refundPercent) === 0
+                      ? (slab.ruleText || "Token retained to cover dispatch fuel")
+                      : `${slab.refundPercent}% Token Refund (${slab.ruleText})`}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="flex justify-between py-1 border-b border-border-warm/40">
+                  <span className="font-semibold text-ink-charcoal">&gt; 24 Hours before Pickup:</span>
+                  <span className="text-success-jade font-bold">100% Full Refund of Token</span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-border-warm/40">
+                  <span className="font-semibold text-ink-charcoal">6 to 24 Hours before Pickup:</span>
+                  <span className="text-primary font-bold">50% Token Refund / 100% Trip Credit</span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="font-semibold text-ink-charcoal">&lt; 6 Hours / Chauffeur En Route:</span>
+                  <span className="text-secondary font-bold">Token retained to cover dispatch fuel</span>
+                </div>
+              </>
+            )}
           </div>
+          {tourPolicies.length > 0 && (
+            <div className="mt-3 p-3.5 rounded-xl bg-surface-container-lowest border border-border-warm space-y-1.5 text-body-md">
+              <h3 className="font-headline-sm text-xs font-bold text-ink-charcoal mb-2">Tour Package Cancellation Slabs</h3>
+              {tourPolicies.map((slab, idx) => (
+                <div
+                  key={slab.id || idx}
+                  className={`flex justify-between py-1 ${idx < tourPolicies.length - 1 ? "border-b border-border-warm/40" : ""}`}
+                >
+                  <span className="font-semibold text-ink-charcoal">{slab.noticePeriodText}:</span>
+                  <span
+                    className={
+                      Number(slab.refundPercent) >= 100
+                        ? "text-success-jade font-bold"
+                        : Number(slab.refundPercent) > 0
+                        ? "text-primary font-bold"
+                        : "text-secondary font-bold"
+                    }
+                  >
+                    {Number(slab.refundPercent) === 100
+                      ? "100% Refund"
+                      : Number(slab.refundPercent) === 0
+                      ? (slab.ruleText || "Advance forfeited")
+                      : `${slab.refundPercent}% Refund (${slab.ruleText})`}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Section 6: Luggage & Etiquette */}
