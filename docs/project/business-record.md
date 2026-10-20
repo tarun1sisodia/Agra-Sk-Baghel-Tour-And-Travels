@@ -2,7 +2,7 @@
 
 Updated: 2026-09-30
 
-- Brand: SK Baghel Tour & Travels
+- Brand: Agra SK Baghel Tour & Travels
 - Domain: https://agraskbagheltourandtravels.com/
 - Phone display: +91 63958 67598
 - Phone tel link: tel:+916395867598

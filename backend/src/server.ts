@@ -64,7 +64,7 @@ async function main(): Promise<void> {
 
 
   await app.listen({ port: env.PORT, host: "0.0.0.0" });
-  logger.info({ port: env.PORT, mode }, "SK Baghel API listening");
+  logger.info({ port: env.PORT, mode }, "Agra SK Baghel API listening");
 }
 
 main().catch((error: unknown) => {

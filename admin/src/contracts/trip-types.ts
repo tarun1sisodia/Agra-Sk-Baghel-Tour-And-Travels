@@ -5,7 +5,7 @@
  * Contract: C-CONTRACT-ALL · contracts/LOCKED.md
  */
 /**
- * @file trip-types.ts — Canonical Trip Types contract for SK Baghel Tour & Travels.
+ * @file trip-types.ts — Canonical Trip Types contract for Agra SK Baghel Tour & Travels.
  * @usage Contract C-ENUM-002: Synchronized across backend, admin, and react.
  */
 

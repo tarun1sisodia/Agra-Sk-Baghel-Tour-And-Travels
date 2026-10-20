@@ -1,7 +1,7 @@
 # Routes Module (Intercity Highway Corridors)
 
 ## 1. Executive Purpose & Business Role
-The **Routes** module manages all point-to-point intercity highway corridors (e.g., Agra to Delhi, Agra to Jaipur, Mathura to Agra) operated by SK Baghel Tour & Travels.
+The **Routes** module manages all point-to-point intercity highway corridors (e.g., Agra to Delhi, Agra to Jaipur, Mathura to Agra) operated by Agra SK Baghel Tour & Travels.
 
 It replaces the prior technical term `route_catalog` with the canonical domain entity **`routes`**.
 
