@@ -100,7 +100,7 @@ export function ProductDetailPage({ category, code }: ProductDetailPageProps) {
             Return Home
           </a>
           <a
-            href="/services"
+            href="/en/services/"
             className="rounded-sm border border-hairline px-5 py-2.5 text-xs font-semibold text-ink transition-colors hover:bg-surface-2"
           >
             Browse Services
@@ -420,7 +420,7 @@ export function ProductDetailPage({ category, code }: ProductDetailPageProps) {
                   <div className="text-xs text-ink-soft">
                     <p>Looking for a custom itinerary?</p>
                     <a
-                      href="/contact"
+                      href="/en/contact/"
                       className="mt-2 inline-block font-semibold text-gold-text hover:underline"
                     >
                       Speak with our concierge desk →

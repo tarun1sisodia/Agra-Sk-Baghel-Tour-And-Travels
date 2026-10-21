@@ -412,7 +412,7 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
           </p>
         </div>
         <a
-          href="/fleet"
+          href="/en/fleet/"
           className="inline-flex items-center gap-1 font-label-lg text-label-lg text-primary hover:text-primary-container font-semibold transition-colors shrink-0"
         >
           <span>Full fleet overview</span>

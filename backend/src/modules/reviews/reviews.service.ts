@@ -122,7 +122,15 @@ export class ReviewsService {
 
   async sendReviewEmail(linkId: string, booking: any, token: string): Promise<boolean> {
     try {
-      const reviewUrl = `${(this.deps.customerSiteUrl && this.deps.customerSiteUrl !== "https://agraskbagheltourandtravels.com" ? this.deps.customerSiteUrl : "https://skbagheltravels-customer.coccoder999.workers.dev").replace(/\/+$/, "")}/review/${encodeURIComponent(token)}`;
+      const configuredSiteUrl = this.deps.customerSiteUrl?.trim();
+      if (!configuredSiteUrl) {
+        throw new Error("CUSTOMER_SITE_URL is required before sending review email links.");
+      }
+      const siteOrigin = new URL(configuredSiteUrl);
+      if (siteOrigin.protocol !== "https:" || siteOrigin.pathname !== "/" || siteOrigin.search || siteOrigin.hash) {
+        throw new Error("CUSTOMER_SITE_URL must be an HTTPS origin without a path, query, or fragment.");
+      }
+      const reviewUrl = `${siteOrigin.origin}/review/${encodeURIComponent(token)}`;
       const tripSummary = `${booking.category} trip (Ticket ${booking.ticket_id})`;
 
       let fromAddress = this.deps.emailFrom || "bookings@agraskbagheltourandtravels.com";

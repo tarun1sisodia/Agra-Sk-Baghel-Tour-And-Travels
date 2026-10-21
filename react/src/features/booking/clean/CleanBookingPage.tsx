@@ -27,7 +27,6 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import {
   fetchPublishedCatalog,
-  getFallbackPublishedCatalog,
   fetchQuoteOptions,
   createBooking,
   createBookingPayment,
@@ -48,6 +47,7 @@ import {
 import { normalizeBookingUrlParams } from "./urlNormalizer";
 import { useLocationIQ } from "../../../hooks/useLocationIQ";
 import { useCustomerAuth } from "../../../auth/customerAuth";
+import { trackConversion } from "../../../services/analytics";
 import type {
   CustomerFormState,
   SelectedCarState,
@@ -172,13 +172,6 @@ function resolveProductFromCatalog(
     return { category: matchedProduct.category, code: matchedProduct.code };
   }
 
-  const availableInCat = cat.products.filter((p) => p.category === targetCategory);
-  if (availableInCat.length > 0) {
-    return { category: targetCategory, code: availableInCat[0].code };
-  }
-  if (cat.products.length > 0) {
-    return { category: cat.products[0].category, code: cat.products[0].code };
-  }
   return { category: targetCategory, code: "" };
 }
 
@@ -201,15 +194,16 @@ export function CleanBookingPage() {
   const initialTo = (normalizedParams.to || "").toLowerCase();
   const initialVehicle = (normalizedParams.car || "").toLowerCase();
 
-  // 2. Synchronous Baseline Catalog for Instant Zero-Flash Interaction
-  const baselineCatalog = useMemo(() => getFallbackPublishedCatalog(), []);
+  // 2. Live published catalog is mandatory; booking never starts from a static catalog.
+  const baselineCatalog: PublishedCatalogResponse = { products: [], groups: [], vehicles: [] };
   const initialSelection = useMemo(
     () => resolveProductFromCatalog(baselineCatalog, initialCategory, initialProductParam, initialFrom, initialTo),
     [baselineCatalog, initialCategory, initialProductParam, initialFrom, initialTo]
   );
 
   const [catalog, setCatalog] = useState<PublishedCatalogResponse>(baselineCatalog);
-  const [catalogLoading, setCatalogLoading] = useState(false);
+  const [catalogLoading, setCatalogLoading] = useState(true);
+  const [catalogError, setCatalogError] = useState<string | null>(null);
 
   const [category, setCategory] = useState<CategoryCode>(initialSelection.category);
   const [selectedProductCode, setSelectedProductCode] = useState<string>(initialSelection.code);
@@ -333,6 +327,7 @@ export function CleanBookingPage() {
     fetchPublishedCatalog()
       .then((data) => {
         if (!active) return;
+        setCatalogError(null);
         setCatalog(data);
 
         // Keep current product if still present in live catalog, otherwise re-resolve
@@ -348,6 +343,9 @@ export function CleanBookingPage() {
         setUnmatchedRouteError(null);
       })
       .catch((err) => {
+        if (active) {
+          setCatalogError(err instanceof Error ? err.message : "The live service catalog is unavailable.");
+        }
         console.warn("fetchPublishedCatalog background refresh warning:", err);
       })
       .finally(() => {
@@ -547,6 +545,7 @@ export function CleanBookingPage() {
     }
 
     const quoteToUse = overrideQuote || selectedCar.quote;
+    trackConversion("booking_form_submit", { category, trip_type: category === "outstation" ? tripType : undefined });
     setBookingSubmitting(true);
 
     const pickup_at = toIstISOString(pickupDate, pickupTime);
@@ -634,6 +633,11 @@ export function CleanBookingPage() {
         advance_amount: bookingRes.advance_amount,
         total_amount: bookingRes.total_amount,
       });
+      trackConversion("booking_request_success", {
+        category,
+        trip_type: category === "outstation" ? tripType : undefined,
+        vehicle_group: selectedCar.quote.vehicle.group_code,
+      });
 
       // Launch Razorpay
       try {
@@ -662,6 +666,7 @@ export function CleanBookingPage() {
               },
             },
             handler: (response: any) => {
+              trackConversion("payment_success", { category, payment_provider: "razorpay" });
               // Immediately launch 7-second post-payment confirmation countdown
               setCountdownModal({
                 isOpen: true,
@@ -735,7 +740,7 @@ export function CleanBookingPage() {
     }
   };
 
-  if (catalogLoading && (!catalog || catalog.products.length === 0)) {
+  if (catalogLoading && catalog.products.length === 0) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center bg-bg">
         <div className="text-center">
@@ -743,6 +748,16 @@ export function CleanBookingPage() {
           <p className="mt-3 font-mono text-xs uppercase tracking-widest text-ink-soft">
             Synchronizing live service catalog…
           </p>
+        </div>
+      </div>
+    );
+  }
+  if (catalogError && catalog.products.length === 0) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center bg-bg px-4">
+        <div className="max-w-md text-center">
+          <h1 className="font-display text-xl font-bold text-ink">Live booking catalog unavailable</h1>
+          <p className="mt-2 text-sm text-ink-soft">We cannot safely display or calculate a fare until the published service catalog is reachable. Please try again shortly.</p>
         </div>
       </div>
     );
@@ -1004,6 +1019,7 @@ export function CleanBookingPage() {
                             <button
                               key={v.vehicle_model_id}
                               type="button"
+                              data-vehicle-group={v.quote.vehicle.group_code}
                               onClick={() => setSelectedCar({ vehicle: v, quote: v.quote })}
                               className={cn(
                                 "group flex flex-col justify-between rounded-lg border p-4 text-left transition-all",

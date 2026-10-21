@@ -124,7 +124,7 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
         <nav className="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm mb-space-lg" aria-label="Breadcrumb">
           <a className="hover:text-primary transition-colors" href="/">Home</a>
           <span className="material-symbols-outlined text-icon-14" aria-hidden="true">chevron_right</span>
-          <a className="hover:text-primary transition-colors" href="/packages">Tour Packages</a>
+          <a className="hover:text-primary transition-colors" href="/en/packages/">Tour Packages</a>
           <span className="material-symbols-outlined text-icon-14" aria-hidden="true">chevron_right</span>
           <span className="text-primary font-semibold">{item.title}</span>
         </nav>

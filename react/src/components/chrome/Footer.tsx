@@ -221,11 +221,11 @@ export function Footer({ className = "" }: FooterProps) {
             © {new Date().getFullYear()} Agra SK Baghel Tour and Travels. All rights reserved.
           </p>
           <div className="flex flex-wrap items-center gap-space-md font-body-sm text-body-sm text-title-lg">
-            <a href="/privacy" className="hover:text-primary transition-colors py-2 min-h-[44px] inline-flex items-center">Privacy Policy</a>
+            <a href="/en/privacy/" className="hover:text-primary transition-colors py-2 min-h-[44px] inline-flex items-center">Privacy Policy</a>
             <span className="text-border-warm">•</span>
-            <a href="/terms" className="hover:text-primary transition-colors py-2 min-h-[44px] inline-flex items-center">Terms of Service</a>
+            <a href="/en/terms/" className="hover:text-primary transition-colors py-2 min-h-[44px] inline-flex items-center">Terms of Service</a>
             <span className="text-border-warm">•</span>
-            <a href="/faq" className="hover:text-primary transition-colors py-2 min-h-[44px] inline-flex items-center">FAQ & Cancellation</a>
+            <a href="/en/faq/" className="hover:text-primary transition-colors py-2 min-h-[44px] inline-flex items-center">FAQ & Cancellation</a>
           </div>
         </div>
       </div>

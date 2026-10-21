@@ -226,6 +226,7 @@ describe("Section 12.16: Reviews engine (RV-01 to RV-24)", () => {
       bookingsRepo: bookingsRepo as any,
       auditRepo: auditRepo as any,
       resendApiKey: "re_mock_key_12345",
+      customerSiteUrl: "https://agraskbagheltourandtravels.com",
       fetchImpl: fetchSpy,
     });
   });

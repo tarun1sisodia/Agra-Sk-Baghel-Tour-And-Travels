@@ -203,7 +203,7 @@ export function RouteTemplate({ language = "en", route }: RouteTemplateProps) {
           <nav aria-label="Breadcrumb" className="flex items-center gap-space-xs text-body-sm font-body-sm text-on-surface-variant">
             <a className="hover:text-primary transition-colors" href="/">Home</a>
             <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">chevron_right</span>
-            <a className="hover:text-primary transition-colors" href="/routes/">Routes</a>
+            <a className="hover:text-primary transition-colors" href="/en/routes/">Routes</a>
             <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">chevron_right</span>
             <span className="text-terracotta-sandstone font-medium">{fromEn} to {toEn}</span>
           </nav>

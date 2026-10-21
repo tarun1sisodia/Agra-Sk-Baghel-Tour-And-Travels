@@ -490,7 +490,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                     </div>
 
                     <h3 className="font-headline-md text-sm sm:text-base text-on-surface font-bold mb-1.5">
-                      <a href={`/routes/${route.id}/`} className="hover:text-primary transition-colors">
+                      <a href={`/en/${route.id}/`} className="hover:text-primary transition-colors">
                         {route.name}
                       </a>
                     </h3>
@@ -560,7 +560,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                     <div className="flex items-center gap-2">
                       <a
                         className="px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-caps text-xs transition-colors font-semibold inline-flex items-center gap-1"
-                        href={`/routes/${route.id}/`}
+                        href={`/en/${route.id}/`}
                       >
                         <span>Details</span>
                         <span className="material-symbols-outlined text-icon-13">info</span>

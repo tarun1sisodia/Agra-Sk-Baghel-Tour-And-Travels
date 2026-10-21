@@ -66,7 +66,7 @@ export function LatestRoutesSection({
             </p>
           </div>
           <a
-            href="/routes/"
+            href="/en/routes/"
             className="inline-flex items-center gap-1 text-primary hover:text-terracotta-deep font-semibold text-body-sm transition-colors"
           >
             <span>View All Routes</span>

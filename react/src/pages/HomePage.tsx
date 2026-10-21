@@ -602,7 +602,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
             ) : (
               <div className="py-8 text-center bg-surface-container-low rounded-xl p-6">
                 <p className="text-on-surface-variant">No outstation routes currently configured.</p>
-                <a href="/routes" className="text-primary font-semibold hover:underline mt-2 inline-block">Browse all destinations ↗</a>
+                <a href="/en/routes/" className="text-primary font-semibold hover:underline mt-2 inline-block">Browse all destinations ↗</a>
               </div>
             )}
           </div>
@@ -610,7 +610,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
           <div className="mt-6 flex justify-center">
             <a
               className="inline-flex items-center gap-1 font-label-lg text-label-lg text-primary hover:text-primary-container font-semibold transition-colors"
-              href="/routes"
+              href="/en/routes/"
             >
               <span>View All Published Routes</span>
               <span className="material-symbols-outlined text-icon-16">east</span>
@@ -724,7 +724,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
               </div>
               <a
                 className="inline-flex items-center gap-1 font-label-lg text-label-lg text-primary hover:text-primary-container font-semibold transition-colors"
-                href="/packages"
+                href="/en/packages/"
               >
                 <span>All packages</span>
                 <span className="material-symbols-outlined text-icon-16">east</span>
@@ -798,7 +798,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
               ) : (
                 <div className="col-span-full py-8 text-center bg-surface-container rounded-xl p-6">
                   <p className="text-on-surface-variant">No tours currently published. Check our complete packages catalogue.</p>
-                  <a href="/packages" className="text-primary font-semibold hover:underline mt-2 inline-block">View all packages ↗</a>
+                  <a href="/en/packages/" className="text-primary font-semibold hover:underline mt-2 inline-block">View all packages ↗</a>
                 </div>
               )}
             </div>
@@ -942,7 +942,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                   Popular Station Drops, Airport Transfers &amp; Heritage Guides
                 </h3>
               </div>
-              <a href="/packages" className="text-xs text-primary font-bold hover:underline shrink-0">
+              <a href="/en/packages/" className="text-xs text-primary font-bold hover:underline shrink-0">
                 View All Packages →
               </a>
             </div>

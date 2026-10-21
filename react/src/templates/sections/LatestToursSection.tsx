@@ -61,7 +61,7 @@ export function LatestToursSection({
             </p>
           </div>
           <a
-            href="/packages/"
+            href="/en/packages/"
             className="inline-flex items-center gap-1 text-primary hover:text-terracotta-deep font-semibold text-body-sm transition-colors"
           >
             <span>Explore City Tours</span>

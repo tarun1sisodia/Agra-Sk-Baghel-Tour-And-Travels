@@ -153,7 +153,7 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
           <nav aria-label="Breadcrumb" className="flex items-center gap-space-xs text-body-sm font-body-sm text-on-surface-variant">
             <a className="hover:text-primary transition-colors" href="/">Home</a>
             <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">chevron_right</span>
-            <a className="hover:text-primary transition-colors" href="/packages/">Heritage Guides</a>
+            <a className="hover:text-primary transition-colors" href="/en/packages/">Heritage Guides</a>
             <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">chevron_right</span>
             <span className="text-terracotta-sandstone font-medium">{item.name}</span>
           </nav>

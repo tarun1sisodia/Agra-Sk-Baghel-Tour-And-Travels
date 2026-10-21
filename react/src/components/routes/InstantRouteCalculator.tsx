@@ -133,7 +133,7 @@ export function InstantRouteCalculator({
 
   const applyRouteSelection = useCallback(
     (slug: string, item: CompressedRouteItem) => {
-      const targetUrl = `/routes/${slug}/`;
+      const targetUrl = `/en/${slug}/`;
       if (typeof window !== "undefined" && window.location.pathname !== targetUrl) {
         window.history.pushState({ slug, o: item.o, d: item.d }, "", targetUrl);
       }
@@ -280,7 +280,7 @@ export function InstantRouteCalculator({
           {/* Action CTAs */}
           <div className="flex flex-wrap items-center gap-2 pt-space-xs border-t border-border-warm/60">
             <a
-              href={`/routes/${matchedEntry.slug}/`}
+              href={`/en/${matchedEntry.slug}/`}
               onClick={(e) => {
                 e.preventDefault();
                 applyRouteSelection(matchedEntry.slug, matchedEntry);

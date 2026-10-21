@@ -51,6 +51,7 @@ import generatedPublishedRoutes from "../data/generated-published-routes.json";
 import generatedCatalog from "../data/generated-catalog.json";
 import { useScrollReveal } from "../utils/scrollReveal";
 import { onUserInteractionOrIdle } from "../utils/deferredRevalidation";
+import { installConversionAnalytics } from "../services/analytics";
 
 export function getMarketingPath(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
@@ -279,6 +280,7 @@ export interface AppProps {
 export function App({ pathname: propPathname }: AppProps = {}) {
   const pathname = propPathname || (typeof window !== "undefined" ? window.location.pathname : "/");
   useScrollReveal([pathname]);
+  useEffect(() => installConversionAnalytics(), []);
   const { language, section } = getMarketingPath(pathname);
   const isHome =
     pathname === "/" ||

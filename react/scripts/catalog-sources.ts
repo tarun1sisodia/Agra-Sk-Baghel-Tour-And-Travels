@@ -1,5 +1,3 @@
-import { existsSync } from "node:fs";
-
 export const FORBIDDEN_STAGING_HOST = "skb-baghel-api-staging.onrender.com";
 
 export type EnvMap = Record<string, string | undefined>;
@@ -132,9 +130,6 @@ export function catalogSourceUsesStagingHost(url: string | undefined): boolean {
 
 export function assertSnapshotPolicy(fetched: boolean, failClosed: boolean, path: string): void {
   if (!fetched && failClosed) {
-    if (path.endsWith("generated-published-content.json") && existsSync(path)) {
-      return;
-    }
     throw new Error(
       `[Manifest Builder] Fail-closed build failed to fetch snapshot for ${path}. Refusing to silently preserve stale snapshot in production release.`,
     );
