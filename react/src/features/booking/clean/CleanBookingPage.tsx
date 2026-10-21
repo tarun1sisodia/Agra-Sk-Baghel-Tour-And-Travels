@@ -791,10 +791,6 @@ export function CleanBookingPage() {
     );
   }
 
-  const paymentQuote = selectedCar && promoResult?.valid && promoResult.finalFare !== undefined
-    ? { ...selectedCar.quote, total: promoResult.finalFare, advance: promoResult.advanceTokenAmount ?? Math.round(promoResult.finalFare * 0.28), balance: promoResult.balanceOnTripAmount ?? 0 }
-    : selectedCar?.quote;
-
   return (
     <div className="min-h-screen bg-bg text-ink pb-20">
       {/* Header Banner */}
@@ -1376,6 +1372,23 @@ export function CleanBookingPage() {
             </div>
           </div>
 
+          {/* Promo code */}
+          <div className="rounded-xl border border-hairline bg-surface p-6">
+            <h2 className="font-display text-lg font-bold text-ink mb-3">Promo code</h2>
+            <div className="flex gap-2">
+              <input value={promoCode} onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoResult(null); }} placeholder="Enter coupon code" className="min-w-0 flex-1 rounded-md border border-hairline bg-surface p-2 text-sm text-ink" />
+              <button type="button" onClick={() => applyPromoCode()} disabled={promoBusy || !selectedCar} className="rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">{promoBusy ? "Checking…" : "Apply"}</button>
+            </div>
+            {promoOffers.length > 0 && <div className="mt-3 flex flex-wrap gap-2">
+              {promoOffers.filter((offer) => !activeProduct || offer.minTotal <= (selectedCar?.quote.total ?? 0)).map((offer) => (
+                <button key={offer.code} type="button" onClick={() => { setPromoCode(offer.code); applyPromoCode(offer.code); }} className="rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-[11px] font-semibold text-primary">Apply {offer.code} — Save {formatINR(offer.discountAmount)}</button>
+              ))}
+            </div>}
+            {promoResult && <div className={cn("mt-3 rounded-md p-3 text-xs", promoResult.valid ? "bg-emerald-500/10 text-emerald-700" : "bg-rose-500/10 text-rose-700")}>
+              {promoResult.valid ? <>Promo discount ({promoResult.code}): -{formatINR(promoResult.discount)}. Net payable {formatINR(promoResult.finalFare || 0)}; 28% advance {formatINR(promoResult.advanceTokenAmount || 0)}; balance {formatINR(promoResult.balanceOnTripAmount || 0)}.</> : promoResult.message}
+            </div>}
+          </div>
+
           {/* Right Column: Server-Authoritative Fare Panel */}
           <div className="lg:col-span-4 sticky top-6 space-y-4">
             <div className="rounded-xl border border-hairline bg-surface p-6 shadow-sm">
@@ -1400,43 +1413,26 @@ export function CleanBookingPage() {
                     ))}
                   </div>
 
-                  {/* Coupon / promo inside the payment section */}
-                  <div className="rounded-lg border border-hairline bg-surface-2/50 p-3">
-                    <p className="mb-2 text-xs font-semibold text-ink">Have a coupon?</p>
-                    <div className="flex gap-2">
-                      <input value={promoCode} onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoResult(null); }} placeholder="Enter coupon code" className="min-w-0 flex-1 rounded-md border border-hairline bg-surface p-2 text-xs text-ink" />
-                      <button type="button" onClick={() => applyPromoCode()} disabled={promoBusy} className="rounded-md bg-primary px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">{promoBusy ? "Checking…" : "Apply"}</button>
-                    </div>
-                    {promoOffers.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">
-                      {promoOffers.filter((offer) => offer.minTotal <= selectedCar.quote.total).map((offer) => (
-                        <button key={offer.code} type="button" onClick={() => { setPromoCode(offer.code); void applyPromoCode(offer.code); }} className="rounded-full border border-primary/30 bg-primary/5 px-2 py-1 text-[10px] font-semibold text-primary">{offer.code} · Save {formatINR(offer.discountAmount)}</button>
-                      ))}
-                    </div>}
-                    {promoResult && <div className={cn("mt-2 rounded p-2 text-[11px]", promoResult.valid ? "bg-emerald-500/10 text-emerald-700" : "bg-rose-500/10 text-rose-700")}>
-                      {promoResult.valid ? <>Discount ({promoResult.code}): -{formatINR(promoResult.discount)}. Net {formatINR(promoResult.finalFare || 0)} · Advance {formatINR(promoResult.advanceTokenAmount || 0)} · Balance {formatINR(promoResult.balanceOnTripAmount || 0)}</> : promoResult.message}
-                    </div>}
-                  </div>
-
                   {/* Totals */}
                   <div className="space-y-2 text-sm">
                     <div className="flex items-baseline justify-between">
                       <span className="font-semibold text-ink">Total Fare:</span>
                       <span className="font-display text-2xl font-extrabold text-gold-text">
-                        {formatINR(paymentQuote?.total ?? selectedCar.quote.total)}
+                        {formatINR(selectedCar.quote.total)}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-primary font-semibold">
                       <span>Advance Required Today (28%):</span>
                       <span className="font-mono text-sm">
-                        {formatINR(paymentQuote?.advance ?? selectedCar.quote.advance)}
+                        {formatINR(selectedCar.quote.advance)}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-ink-soft">
                       <span>Balance Payable at Drop-off (72%):</span>
                       <span className="font-mono">
-                        {formatINR(paymentQuote?.balance ?? selectedCar.quote.balance)}
+                        {formatINR(selectedCar.quote.balance)}
                       </span>
                     </div>
                   </div>

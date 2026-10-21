@@ -46,7 +46,6 @@ export const NAV_ITEMS: NavItem[] = [
   { to: "/fares/extra-charges", label: "Extra Charges", icon: Tag },
   { to: "/reviews", label: "Reviews", icon: Star },
   { to: "/publishing", label: "Publishing Outbox", icon: UploadCloud },
-  { to: "/promos", label: "Promo Codes", icon: Tag },
   { to: "/audit", label: "Audit Log", icon: ScrollText },
   { to: "/finance", label: "Finance & Refunds", icon: IndianRupee },
   { to: "/policies", label: "Policies & Company", icon: FileText },

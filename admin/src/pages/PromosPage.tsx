@@ -144,18 +144,6 @@ export function PromosPage({ user: _user }: { user: AdminUser }) {
     }
   }
 
-  async function handleRetire(promo: PromoCodeItem) {
-    setBusy(true);
-    try {
-      await updateAdminPromo(promo.id, { isActive: false, isBroadcast: false });
-      await reload();
-    } catch (e: any) {
-      setError(e.message || "Failed to retire promo code.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
     <div className="space-y-6">
       <PageHeader
@@ -286,18 +274,6 @@ export function PromosPage({ user: _user }: { user: AdminUser }) {
                       >
                         <Pencil className="h-3.5 w-3.5 mr-1" /> Edit
                       </Button>
-                      {promo.isActive && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-amber-500 hover:text-amber-400"
-                          onClick={() => void handleRetire(promo)}
-                          disabled={busy}
-                          title="Retire code"
-                        >
-                          Retire
-                        </Button>
-                      )}
                       <Button
                         size="sm"
                         variant="ghost"
