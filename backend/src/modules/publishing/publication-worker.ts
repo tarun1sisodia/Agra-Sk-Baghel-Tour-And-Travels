@@ -107,16 +107,16 @@ export class PublicationWorker {
   async confirmBuild(input: { catalogVersion?: number; outboxId?: string } = {}): Promise<{ updated: number }> {
     const result = input.outboxId
       ? await this.pool.query(
-          `UPDATE site_publish_events
+        `UPDATE site_publish_events
            SET status = 'succeeded', processed_at = NOW(), last_error = NULL
            WHERE id = $1 AND status IN ('processing', 'triggered', 'pending')`,
-          [input.outboxId],
-        )
+        [input.outboxId],
+      )
       : await this.pool.query(
-          `UPDATE site_publish_events
+        `UPDATE site_publish_events
            SET status = 'succeeded', processed_at = NOW(), last_error = NULL
            WHERE status IN ('processing', 'triggered', 'pending')`,
-        );
+      );
     return { updated: result.rowCount ?? 0 };
   }
 
@@ -329,7 +329,7 @@ export class PublicationWorker {
         `
         UPDATE site_publish_events
         SET status = 'failed',
-            last_error = 'PAGES_DEPLOY_HOOK_URL is not set. Deployment cannot be triggered automatically.',
+            last_error = 'CLOUDFLARE_DEPLOY_HOOK_URL or PAGES_DEPLOY_HOOK_URL is not set. Deployment cannot be triggered automatically.',
             processed_at = NULL
         WHERE id = $1
         `,
@@ -345,7 +345,7 @@ export class PublicationWorker {
         slug: null,
         sourceVersion: null,
         httpStatus: null,
-        message: "PAGES_DEPLOY_HOOK_URL is not set. Deployment cannot be triggered automatically.",
+        message: "CLOUDFLARE_DEPLOY_HOOK_URL or PAGES_DEPLOY_HOOK_URL is not set. Deployment cannot be triggered automatically.",
         attemptedAt: new Date().toISOString(),
       });
       this.logger.warn({ eventId: event.id }, "publication worker skipped: deploy hook not configured");
@@ -416,7 +416,7 @@ export class PublicationWorker {
         try {
           const json = (await response.json()) as any;
           deploymentRef = json?.result?.id || json?.id || null;
-        } catch {}
+        } catch { }
         if (!deploymentRef) {
           deploymentRef = response.headers.get("cf-ray") || `cf-api-${Date.now()}`;
         }

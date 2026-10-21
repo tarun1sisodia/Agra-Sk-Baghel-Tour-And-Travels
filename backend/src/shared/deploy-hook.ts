@@ -94,14 +94,14 @@ export async function triggerFrontendRebuild(reasonOrInput?: string | DeployHook
     attemptedAt,
   };
 
-  const hook = process.env.PAGES_DEPLOY_HOOK_URL?.trim();
+  const hook = (process.env.CLOUDFLARE_DEPLOY_HOOK_URL || process.env.PAGES_DEPLOY_HOOK_URL)?.trim();
   if (!hook) {
     return recordAttempt({
       ...base,
       status: "hook_missing",
       releaseState: "publish_committed",
       httpStatus: null,
-      message: "PAGES_DEPLOY_HOOK_URL is not set. Database publish can succeed, but the customer site will not auto-rebuild.",
+      message: "CLOUDFLARE_DEPLOY_HOOK_URL or PAGES_DEPLOY_HOOK_URL is not set. Database publish can succeed, but the customer site will not auto-rebuild.",
     });
   }
 
