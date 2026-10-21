@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/Button";
 import { Table, TBody, THead, TD, TH, TRow } from "@/components/ui/Table";
 import {
   fetchPublishEvents,
+  retryPublishEvent,
   type CleanPublishEvent,
 } from "@/services/cleanAdminApi";
 import type { AdminUser } from "@/lib/types";
@@ -29,6 +30,7 @@ export function PublishingPage({ user: _user }: { user: AdminUser }) {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [retryingId, setRetryingId] = useState<string | null>(null);
 
   // Status Filter
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -57,6 +59,25 @@ export function PublishingPage({ user: _user }: { user: AdminUser }) {
   const pendingCount = events.filter((e) => e.status === "pending" || e.status === "triggered").length;
   const failedCount = events.filter((e) => e.status === "failed").length;
   const succeededCount = events.filter((e) => e.status === "succeeded").length;
+  const retry = async (id: string) => {
+    setRetryingId(id);
+    try {
+      await retryPublishEvent(id);
+      setReloadKey((key) => key + 1);
+    } catch (err: any) {
+      setLoadError(err?.message || "Could not retry deployment.");
+    } finally {
+      setRetryingId(null);
+    }
+  };
+  const lifecycleLabel = (status: string) => ({
+    pending: "Queued",
+    processing: "Deploying",
+    triggered: "Deploying",
+    succeeded: "Live on Website",
+    failed: "Failed",
+    superseded: "Coalesced",
+  } as Record<string, string>)[status] || status;
 
   return (
     <div className="space-y-6">
@@ -171,7 +192,7 @@ export function PublishingPage({ user: _user }: { user: AdminUser }) {
             <span className="flex items-center gap-1.5 text-xs font-semibold text-ink-soft mr-2">
               <Filter className="h-3.5 w-3.5" /> Filter:
             </span>
-            {(["all", "pending", "triggered", "succeeded", "failed"] as const).map((s) => (
+            {(["all", "pending", "processing", "triggered", "succeeded", "failed"] as const).map((s) => (
               <Button
                 key={s}
                 variant={statusFilter === s ? "gold" : "outline"}
@@ -250,11 +271,21 @@ export function PublishingPage({ user: _user }: { user: AdminUser }) {
                                 : "neutral"
                             }
                           >
-                            {e.status}
+                            {lifecycleLabel(e.status)}
                           </Badge>
+                          {e.status === "failed" && (
+                            <div className="mt-1 max-w-[240px] text-left text-[10px] text-error" title={e.last_error || "Deployment failed"}>
+                              {e.deploy_http_status ? `HTTP ${e.deploy_http_status}: ` : ""}{e.last_error || "No diagnostic message recorded."}
+                            </div>
+                          )}
                         </TD>
                         <TD className="text-right font-mono text-xs text-ink-soft">
-                          {formatDate(e.created_at)}
+                          <div>{formatDate(e.processed_at || e.created_at)}</div>
+                          {(e.status === "failed" || e.status === "superseded") && (
+                            <Button variant="outline" size="sm" className="mt-1" disabled={retryingId === e.id} onClick={() => retry(e.id)}>
+                              <RotateCw className={cn("mr-1 h-3 w-3", retryingId === e.id && "animate-spin")} /> Retry
+                            </Button>
+                          )}
                         </TD>
                       </motion.tr>
                     ))

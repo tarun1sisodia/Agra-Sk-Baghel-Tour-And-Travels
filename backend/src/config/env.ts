@@ -58,6 +58,8 @@ const EnvSchema = z.object({
   ADMIN_EMAIL: z.string().trim().optional().default(""),
   // Cloudflare deploy hook fired after admin publishes content (routes, packages, monuments).
   PAGES_DEPLOY_HOOK_URL: z.string().optional().default(""),
+  CLOUDFLARE_DEPLOY_HOOK_URL: z.string().optional().default(""),
+  DEPLOY_CALLBACK_SECRET: z.string().optional().default(""),
   // Razorpay pending payment timeout window before auto-cancelling abandoned bookings (default 30 min)
   PAYMENT_PENDING_EXPIRY_MINUTES: z.coerce.number().min(1).max(1440).default(30),
 });

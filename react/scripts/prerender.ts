@@ -76,9 +76,10 @@ const packageRoutes = [
 
 function getPublishedPackageRoutes(): string[] {
   const snapshotPath = join(reactRoot, "src", "data", "generated-published-catalog.json");
-  if (!existsSync(snapshotPath)) return [];
+  const livePath = join(reactRoot, "src", "data", "live-catalog.snapshot.json");
   try {
-    const snapshot = JSON.parse(readFileSync(snapshotPath, "utf8")) as Array<{ type?: string; slug?: string }>;
+    const raw = existsSync(livePath) ? JSON.parse(readFileSync(livePath, "utf8")) : JSON.parse(readFileSync(snapshotPath, "utf8"));
+    const snapshot = (Array.isArray(raw) ? raw : raw?.data?.packages ?? raw?.packages ?? []) as Array<{ type?: string; slug?: string }>;
     return snapshot
       .filter((item) => (item.type === "package" || item.type === "tour" || item.type === "transfer") && isSitemapSafeSlug(item.slug))
       .map((item) => {
@@ -92,9 +93,10 @@ function getPublishedPackageRoutes(): string[] {
 
 function getPublishedRoutePages(): string[] {
   const snapshotPath = join(reactRoot, "src", "data", "generated-published-routes.json");
-  if (!existsSync(snapshotPath)) return [];
+  const livePath = join(reactRoot, "src", "data", "live-catalog.snapshot.json");
   try {
-    const snapshot = JSON.parse(readFileSync(snapshotPath, "utf8")) as Array<{ slug?: string }>;
+    const raw = existsSync(livePath) ? JSON.parse(readFileSync(livePath, "utf8")) : JSON.parse(readFileSync(snapshotPath, "utf8"));
+    const snapshot = (Array.isArray(raw) ? raw : Object.keys(raw?.data?.routes ?? raw?.routes ?? {}).map((slug) => ({ slug }))) as Array<{ slug?: string }>;
     return snapshot
       .filter((item) => isSitemapSafeSlug(item.slug))
       .map((item) => `/en/${item.slug}/`);
@@ -528,6 +530,26 @@ export async function prerender(): Promise<void> {
 
     // Generate XML sitemap & robots.txt
     await generateSitemapAndRobots();
+    const callbackBase = (process.env.VITE_API_BASE_URL || "https://api.agraskbagheltourandtravels.com").replace(/\/$/, "");
+    if (process.env.DEPLOY_CALLBACK_SECRET || process.env.DEPLOY_CALLBACK_URL) {
+      try {
+        const snapshotPath = join(reactRoot, "src", "data", "live-catalog.snapshot.json");
+        const snapshot = existsSync(snapshotPath) ? JSON.parse(readFileSync(snapshotPath, "utf8")) : null;
+        const callbackUrl = process.env.DEPLOY_CALLBACK_URL || `${callbackBase}/api/public/outbox/deploy-callback`;
+        const response = await fetch(callbackUrl, {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            ...(process.env.DEPLOY_CALLBACK_SECRET ? { "x-deploy-callback-secret": process.env.DEPLOY_CALLBACK_SECRET } : {}),
+          },
+          body: JSON.stringify({ catalogVersion: snapshot?.data?.version ?? snapshot?.version ?? null }),
+          signal: AbortSignal.timeout(10_000),
+        });
+        if (!response.ok) console.warn(`⚠️ Deploy callback returned HTTP ${response.status}.`);
+      } catch (error) {
+        console.warn(`⚠️ Deploy callback failed: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
 
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
     console.log(

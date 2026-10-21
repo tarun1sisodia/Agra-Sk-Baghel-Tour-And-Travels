@@ -367,9 +367,18 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
   if (farePool && fareCatalogRepo) {
     publicationWorker = new PublicationWorker({
       pool: farePool,
-      deployHookUrl: env.PAGES_DEPLOY_HOOK_URL,
+      deployHookUrl: env.CLOUDFLARE_DEPLOY_HOOK_URL || env.PAGES_DEPLOY_HOOK_URL,
       customerSiteUrl: env.CUSTOMER_SITE_URL || process.env.CUSTOMER_SITE_URL || process.env.SITE_URL || "https://agraskbagheltourandtravels.com",
       logger: options.logger,
+    });
+    app.post("/api/public/outbox/deploy-callback", async (request, reply) => {
+      const configuredSecret = env.DEPLOY_CALLBACK_SECRET.trim();
+      if (configuredSecret && request.headers["x-deploy-callback-secret"] !== configuredSecret) {
+        return reply.code(401).send({ success: false, error: { message: "Invalid deploy callback secret." } });
+      }
+      const body = (request.body ?? {}) as { catalogVersion?: number; outboxId?: string };
+      const result = await publicationWorker!.confirmBuild(body);
+      return reply.send({ success: true, ...result });
     });
     const quotesService = new QuotesService(fareCatalogRepo);
     await registerQuotesRoutes(app, quotesService);

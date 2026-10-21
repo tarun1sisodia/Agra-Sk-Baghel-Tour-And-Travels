@@ -62,3 +62,7 @@ services:
         value: bookings@agraskbagheltourandtravels.com
       - key: PAGES_DEPLOY_HOOK_URL
         sync: false
+      - key: CLOUDFLARE_DEPLOY_HOOK_URL
+        sync: false
+      - key: DEPLOY_CALLBACK_SECRET
+        sync: false

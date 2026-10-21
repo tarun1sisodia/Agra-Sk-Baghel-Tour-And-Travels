@@ -105,6 +105,24 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
     }
   }
 
+  // A single versioned snapshot is the source used by prerender and runtime
+  // revalidation. The older per-vertical snapshots below remain compatible
+  // with existing page components during the migration.
+  if (apiBase) {
+    try {
+      const unified = await fetchCatalogJson(`${apiBase}/api/v1/public/catalog`);
+      writeFileSync(
+        join(reactRoot, "src", "data", "live-catalog.snapshot.json"),
+        JSON.stringify(unified, null, 2),
+        "utf-8",
+      );
+      console.log("✅ [Manifest Builder] Saved live-catalog.snapshot.json.");
+    } catch (error) {
+      if (failClosed) throw error;
+      console.warn(`⚠️ [Manifest Builder] Unified catalog unavailable: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
   function writeSnapshot(path: string, value: unknown, fetched: boolean): void {
     assertSnapshotPolicy(fetched, failClosed, path);
     if (!fetched) {
@@ -341,11 +359,13 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   let publishedCatalogFetched = false;
   if (apiBase) {
     try {
-      const payload = await fetchCatalogJson(`${apiBase}/api/v1/catalog`) as { data?: unknown; products?: unknown };
+      const payload = await fetchCatalogJson(`${apiBase}/api/v1/public/catalog`) as { data?: any; products?: unknown };
       const rawCatalogItems = Array.isArray(payload)
         ? payload
-        : Array.isArray(payload.data)
-          ? payload.data
+        : Array.isArray(payload.data?.packages)
+          ? payload.data.packages
+          : Array.isArray(payload.data)
+            ? payload.data
           : Array.isArray(payload.products)
             ? payload.products
             : [];

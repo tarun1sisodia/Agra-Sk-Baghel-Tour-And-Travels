@@ -45,7 +45,7 @@ import { titleCaseSlug } from "../utils/format";
 import { marketingHubs } from "./routes";
 import { SeoHead } from "../components/seo/SeoHead";
 import { packages, routes, vehicles, type Route, type TourPackage } from "../data/catalogue";
-import { loadRoutesManifest, loadPublishedPackages, toDossierTourPackage } from "../services/catalogManifest";
+import { fetchCatalogManifest, loadRoutesManifest, loadPublishedPackages, toDossierTourPackage } from "../services/catalogManifest";
 import generatedPublishedTourPackages from "../data/generated-published-tour-packages.json";
 import generatedPublishedRoutes from "../data/generated-published-routes.json";
 import generatedCatalog from "../data/generated-catalog.json";
@@ -281,6 +281,9 @@ export function App({ pathname: propPathname }: AppProps = {}) {
   const pathname = propPathname || (typeof window !== "undefined" ? window.location.pathname : "/");
   useScrollReveal([pathname]);
   useEffect(() => installConversionAnalytics(), []);
+  useEffect(() => {
+    if (typeof window !== "undefined") void fetchCatalogManifest();
+  }, []);
   const { language, section } = getMarketingPath(pathname);
   const isHome =
     pathname === "/" ||

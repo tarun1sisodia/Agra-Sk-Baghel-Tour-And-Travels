@@ -125,6 +125,10 @@ export interface CleanPublishEvent {
   attempt_count: number;
   created_at: string;
   updated_at: string;
+  last_error?: string | null;
+  processed_at?: string | null;
+  deployment_ref?: string | null;
+  deploy_http_status?: number | null;
 }
 
 export async function fetchVehicleGroups(): Promise<CleanVehicleGroup[]> {
@@ -282,4 +286,9 @@ export async function fetchAuditLogs(limit = 100): Promise<CleanAuditLog[]> {
 export async function fetchPublishEvents(limit = 50): Promise<CleanPublishEvent[]> {
   const res = await apiFetch("/api/v1/admin/publishing/events");
   return (res.publish_events ?? []).slice(0, limit);
+}
+
+export async function retryPublishEvent(id: string): Promise<CleanPublishEvent> {
+  const res = await apiFetch(`/api/v1/admin/publishing/events/${encodeURIComponent(id)}/retry`, { method: "POST", body: "{}" });
+  return res.event;
 }

@@ -11,6 +11,7 @@ export interface PublishEventRecord {
   attempt_count: number;
   next_attempt_at: string | Date;
   deployment_ref: string | null;
+  deploy_http_status?: number | null;
   last_error: string | null;
   created_at: string | Date;
   processed_at: string | Date | null;
@@ -89,7 +90,34 @@ export class PublicationWorker {
       `,
       [limit, this.maxAttempts]
     );
-    return res.rows;
+    if (res.rows.length <= 1) return res.rows;
+    // One customer build publishes the complete catalog. Supersede the rest
+    // of the due batch so rapid admin edits cannot spam the deploy hook.
+    const [leader, ...coalesced] = res.rows as PublishEventRecord[];
+    if (!leader) return [];
+    await this.pool.query(
+      `UPDATE site_publish_events
+       SET status = 'superseded', processed_at = NOW(), last_error = 'Coalesced into a newer catalog deployment'
+       WHERE id = ANY($1::text[])`,
+      [coalesced.map((event) => event.id)],
+    );
+    return [leader];
+  }
+
+  async confirmBuild(input: { catalogVersion?: number; outboxId?: string } = {}): Promise<{ updated: number }> {
+    const result = input.outboxId
+      ? await this.pool.query(
+          `UPDATE site_publish_events
+           SET status = 'succeeded', processed_at = NOW(), last_error = NULL
+           WHERE id = $1 AND status IN ('processing', 'triggered', 'pending')`,
+          [input.outboxId],
+        )
+      : await this.pool.query(
+          `UPDATE site_publish_events
+           SET status = 'succeeded', processed_at = NOW(), last_error = NULL
+           WHERE status IN ('processing', 'triggered', 'pending')`,
+        );
+    return { updated: result.rowCount ?? 0 };
   }
 
   async resolveEntityData(event: PublishEventRecord): Promise<{
@@ -400,11 +428,12 @@ export class PublicationWorker {
         UPDATE site_publish_events
         SET status = 'triggered',
             deployment_ref = $2,
+            deploy_http_status = $3,
             last_error = NULL,
             next_attempt_at = NOW() + interval '15 seconds'
         WHERE id = $1
         `,
-        [event.id, deploymentRef]
+        [event.id, deploymentRef, responseStatus]
       );
 
       recordAttempt({
@@ -458,16 +487,19 @@ export class PublicationWorker {
       const isTerminal = event.attempt_count >= this.maxAttempts;
       const delaySeconds = Math.min(30 * Math.pow(2, Math.max(0, event.attempt_count - 1)), 1800);
       const errorMessage = err?.message ? String(err.message).slice(0, 500) : "Deploy hook failed";
+      const httpStatusMatch = errorMessage.match(/HTTP\s+(\d{3})/i);
+      const httpStatus = httpStatusMatch ? Number(httpStatusMatch[1]) : null;
 
       await this.pool.query(
         `
         UPDATE site_publish_events
         SET status = $2,
             next_attempt_at = NOW() + ($3 || ' seconds')::interval,
-            last_error = $4
+            last_error = $4,
+            deploy_http_status = $5
         WHERE id = $1
         `,
-        [event.id, isTerminal ? "failed" : "pending", delaySeconds, errorMessage]
+        [event.id, isTerminal ? "failed" : "pending", delaySeconds, errorMessage, httpStatus]
       );
 
       recordAttempt({

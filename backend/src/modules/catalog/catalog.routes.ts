@@ -16,6 +16,16 @@ export async function registerCatalogRoutes(
     config: { rateLimit: { max: 120, timeWindow: "1 minute" } },
     handler: controller.getManifest,
   });
+  // Canonical build-time catalog endpoint. Keep the versioned and unversioned
+  // aliases stable so Cloudflare builds do not depend on legacy manifests.
+  app.get("/api/public/catalog", {
+    config: { rateLimit: { max: 120, timeWindow: "1 minute" } },
+    handler: controller.getManifest,
+  });
+  app.get("/api/v1/public/catalog", {
+    config: { rateLimit: { max: 120, timeWindow: "1 minute" } },
+    handler: controller.getManifest,
+  });
   app.get("/api/v1/catalog/:slug", {
     config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     handler: controller.getPublished,
