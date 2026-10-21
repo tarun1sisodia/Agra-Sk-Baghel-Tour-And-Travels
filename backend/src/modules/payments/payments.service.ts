@@ -21,9 +21,6 @@ const FRAUD_DETECTION = {
   ROUND_AMOUNT_THRESHOLD: 10000, // ₹100
 };
 
-// Phone number validation for India
-const INDIA_PHONE_REGEX = /^[6-9]\d{9}$/;
-
 export interface PaymentsServiceDeps {
   paymentsRepo: PaymentsRepository;
   bookingsRepo: BookingsRepository;
@@ -59,11 +56,16 @@ export class PaymentsService {
    * @throws AppError if invalid
    */
   validatePhone(phone: string): void {
-    const cleaned = phone.trim().replace(/[\s\-+]/g, "");
-
-    // Check if it's a valid Indian mobile number
-    if (!INDIA_PHONE_REGEX.test(cleaned)) {
-      throw new AppError("VALIDATION_ERROR", "Invalid Indian phone number. Must start with 6-9 and be 10 digits.", 400);
+    let cleaned = phone.trim().replace(/[\s\-+()]/g, "");
+    if (cleaned.length === 12 && cleaned.startsWith("91")) {
+      cleaned = cleaned.slice(2);
+    } else if (cleaned.length === 11 && cleaned.startsWith("0")) {
+      cleaned = cleaned.slice(1);
+    }
+    const isIndianMobile = /^[6-9]\d{9}$/.test(cleaned);
+    const isInternational = /^\d{7,15}$/.test(cleaned);
+    if (!isIndianMobile && !isInternational) {
+      throw new AppError("VALIDATION_ERROR", "Invalid phone number format.", 400);
     }
   }
 
@@ -74,26 +76,11 @@ export class PaymentsService {
    * @throws AppError if invalid
    */
   validateAdvancePercentage(totalAmount: number, advanceAmount: number): void {
-    if (totalAmount <= 0 || advanceAmount < 0) {
+    if (!Number.isFinite(totalAmount) || totalAmount <= 0 || !Number.isFinite(advanceAmount) || advanceAmount <= 0) {
       throw new AppError("VALIDATION_ERROR", "Invalid fare amounts", 400);
     }
-
-    const advancePercent = (advanceAmount / totalAmount) * 100;
-
-    if (advancePercent < FRAUD_DETECTION.MIN_ADVANCE_PERCENT) {
-      throw new AppError(
-        "VALIDATION_ERROR",
-        `Advance must be at least ${FRAUD_DETECTION.MIN_ADVANCE_PERCENT}% of total fare`,
-        400
-      );
-    }
-
-    if (advancePercent > FRAUD_DETECTION.MAX_ADVANCE_PERCENT) {
-      throw new AppError(
-        "VALIDATION_ERROR",
-        `Advance cannot exceed ${FRAUD_DETECTION.MAX_ADVANCE_PERCENT}% of total fare`,
-        400
-      );
+    if (advanceAmount > totalAmount) {
+      throw new AppError("VALIDATION_ERROR", "Advance cannot exceed total fare", 400);
     }
   }
 
@@ -107,11 +94,11 @@ export class PaymentsService {
     const warnings: string[] = [];
     const now = new Date();
     const bookingDate = new Date(booking.created_at);
-    const hoursSinceBooking = (now.getTime() - bookingDate.getTime()) / (1000 * 60 * 60);
+    const minutesSinceBooking = (now.getTime() - bookingDate.getTime()) / (1000 * 60);
 
     // Check for unusually long delay between booking and payment
-    if (hoursSinceBooking > FRAUD_DETECTION.MAX_PAYMENT_DELAY_MINUTES) {
-      warnings.push(`Payment delay of ${Math.round(hoursSinceBooking)} hours exceeds normal pattern`);
+    if (minutesSinceBooking > FRAUD_DETECTION.MAX_PAYMENT_DELAY_MINUTES) {
+      warnings.push(`Payment delay of ${Math.round(minutesSinceBooking)} minutes exceeds normal pattern`);
     }
 
     // Check for suspiciously round amounts (potential test payments)
@@ -123,16 +110,20 @@ export class PaymentsService {
     // Check for multiple failed payments on same booking
     // This would require querying the repository for failed payments history
     // For now, we log a warning if the booking has been in pending_payment for too long
-    if (hoursSinceBooking > 24) {
-      warnings.push(`Booking has been pending payment for ${Math.round(hoursSinceBooking)} hours`);
+    if (minutesSinceBooking > 24 * 60) {
+      warnings.push(`Booking has been pending payment for ${Math.round(minutesSinceBooking / 60)} hours`);
     }
 
     return warnings;
   }
 
-  assertBookingOwnership(booking: BookingEntity, user?: any): void {
+  assertBookingOwnership(booking: BookingEntity, user?: any, guestToken?: string): void {
+    if (guestToken && booking.guest_access_token && guestToken.length === booking.guest_access_token.length) {
+      const a = Buffer.from(guestToken, "utf8");
+      const b = Buffer.from(booking.guest_access_token, "utf8");
+      if (crypto.timingSafeEqual(a, b)) return;
+    }
     if (user === undefined) {
-      // Direct service call / unit testing context
       return;
     }
     if (!user || !user.id) {
@@ -159,9 +150,9 @@ export class PaymentsService {
     const payment = await this.createPaymentOrder(bookingId, user);
     return {
       payment_id: payment.id,
-      order_id: payment.provider_order_id,
+      order_id: payment.providerOrderId,
       currency: "INR",
-      amount_paise: payment.amount_paise,
+      amount_paise: payment.amountPaise,
       key_id: this.keyId,
       customer_name: booking.customer_name,
       customer_phone: booking.customer_phone,
@@ -285,7 +276,7 @@ export class PaymentsService {
     if (!payment) {
       throw new AppError("NOT_FOUND", "Payment order not found", 404);
     }
-    if (payment.booking_id !== params.bookingId) {
+    if (payment.bookingId !== params.bookingId) {
       throw new AppError("VALIDATION_ERROR", "Payment order does not match booking", 400);
     }
 
@@ -293,100 +284,109 @@ export class PaymentsService {
       return { status: "already_captured" };
     }
 
+    // Local test mode - allow unverified capture for local development
+    if (this.keyId?.startsWith("rzp_test_local")) {
+      await this.deps.paymentsRepo.processCaptured({
+        paymentId: payment.id,
+        bookingId: payment.bookingId,
+        providerPaymentId: params.razorpayPaymentId,
+        paymentMethod: "test_mode",
+      });
+
+      try {
+        await this.sendBookingConfirmationEmail(payment.bookingId, params.razorpayPaymentId);
+      } catch (err: any) {
+        console.warn(`[payments] Background confirmation email skipped: ${err?.message || err}`);
+      }
+
+      return { status: "captured" };
+    }
+
+    // Production mode - require proper configuration and verification
+    if (!this.keyId || !this.keySecret) {
+      throw new AppError("INTERNAL_ERROR", "Payment gateway not configured", 500);
+    }
+
     // Cryptographic HMAC-SHA256 signature verification per Razorpay specification
-    if (this.keySecret && !this.keyId.startsWith("rzp_test_local")) {
-      const payload = `${params.razorpayOrderId}|${params.razorpayPaymentId}`;
-      const expected = crypto.createHmac("sha256", this.keySecret).update(payload).digest("hex");
-      const expectedBuf = Buffer.from(expected, "utf8");
-      const sigBuf = Buffer.from(params.razorpaySignature, "utf8");
-      if (expectedBuf.length !== sigBuf.length || !crypto.timingSafeEqual(expectedBuf, sigBuf)) {
-        throw new AppError("VALIDATION_ERROR", "Invalid payment signature", 400);
-      }
-
-      // Upstream provider verification of exact order, amount, currency, and captured state
-      if (this.keyId) {
-        try {
-          const auth = Buffer.from(`${this.keyId}:${this.keySecret}`).toString("base64");
-          const res = await this.fetchImpl(`https://api.razorpay.com/v1/payments/${encodeURIComponent(params.razorpayPaymentId)}`, {
-            method: "GET",
-            headers: { Authorization: `Basic ${auth}` },
-          });
-
-          if (res.ok) {
-            const body = (await res.json()) as any;
-            if (body?.id) {
-              if (body.order_id && body.order_id !== params.razorpayOrderId) {
-                throw new AppError("VALIDATION_ERROR", "Payment order ID mismatch", 400);
-              }
-              if (body.currency && body.currency.toUpperCase() !== "INR") {
-                await this.deps.paymentsRepo.processNeedsReview({
-                  paymentId: payment.id,
-                  reason: "currency_mismatch",
-                  providerPaymentId: params.razorpayPaymentId,
-                });
-                return { status: "needs_review" };
-              }
-              if (typeof body.amount === "number" && body.amount !== payment.amount_paise) {
-                await this.deps.paymentsRepo.processNeedsReview({
-                  paymentId: payment.id,
-                  reason: "amount_mismatch",
-                  providerPaymentId: params.razorpayPaymentId,
-                });
-                return { status: "needs_review" };
-              }
-              if (body.status === "failed") {
-                await this.deps.paymentsRepo.processFailed({
-                  paymentId: payment.id,
-                  reason: body.error_description || "payment_failed_at_gateway",
-                });
-                return { status: "failed" };
-              }
-
-              // Enforce provider captured status strictly
-              if (body.status !== "captured") {
-                console.warn(`[payments] Provider payment status for ${params.razorpayPaymentId} is '${body.status}', skipping capture.`);
-                return { status: body.status };
-              }
-
-              const paymentMethod = body.method || body.payment_method || null;
-
-              await this.deps.paymentsRepo.processCaptured({
-                paymentId: payment.id,
-                bookingId: payment.booking_id,
-                providerPaymentId: params.razorpayPaymentId,
-                paymentMethod,
-              });
-
-              try {
-                await this.sendBookingConfirmationEmail(payment.booking_id, params.razorpayPaymentId);
-              } catch (err: any) {
-                console.warn(`[payments] Background confirmation email skipped: ${err?.message || err}`);
-              }
-
-              return { status: "captured" };
-            }
-          }
-        } catch (err: any) {
-          if (err instanceof AppError) throw err;
-          console.warn(`[payments] Razorpay API payment status lookup warning: ${err?.message || err}`);
-        }
-      }
+    const payload = `${params.razorpayOrderId}|${params.razorpayPaymentId}`;
+    const expected = crypto.createHmac("sha256", this.keySecret).update(payload).digest("hex");
+    const expectedBuf = Buffer.from(expected, "utf8");
+    const sigBuf = Buffer.from(params.razorpaySignature, "utf8");
+    if (expectedBuf.length !== sigBuf.length || !crypto.timingSafeEqual(expectedBuf, sigBuf)) {
+      throw new AppError("VALIDATION_ERROR", "Invalid payment signature", 400);
     }
 
-    await this.deps.paymentsRepo.processCaptured({
-      paymentId: payment.id,
-      bookingId: payment.booking_id,
-      providerPaymentId: params.razorpayPaymentId,
-      paymentMethod: "test_mode",
-    });
-
+    // Upstream provider verification of exact order, amount, currency, and captured state
     try {
-      await this.sendBookingConfirmationEmail(payment.booking_id, params.razorpayPaymentId);
-    } catch (err: any) {
-      console.warn(`[payments] Background confirmation email skipped: ${err?.message || err}`);
-    }
+      const auth = Buffer.from(`${this.keyId}:${this.keySecret}`).toString("base64");
+      const res = await this.fetchImpl(`https://api.razorpay.com/v1/payments/${encodeURIComponent(params.razorpayPaymentId)}`, {
+        method: "GET",
+        headers: { Authorization: `Basic ${auth}` },
+      });
 
-    return { status: "captured" };
+      if (!res.ok) {
+        throw new AppError("PAYMENT_VERIFICATION_FAILED", `Razorpay API returned status ${res.status}`, 502);
+      }
+
+      const body = (await res.json()) as any;
+      if (!body?.id) {
+        throw new AppError("PAYMENT_VERIFICATION_FAILED", "Invalid response from Razorpay API", 502);
+      }
+
+      if (body.order_id && body.order_id !== params.razorpayOrderId) {
+        throw new AppError("VALIDATION_ERROR", "Payment order ID mismatch", 400);
+      }
+      if (body.currency && body.currency.toUpperCase() !== "INR") {
+        await this.deps.paymentsRepo.processNeedsReview({
+          paymentId: payment.id,
+          reason: "currency_mismatch",
+          providerPaymentId: params.razorpayPaymentId,
+        });
+        return { status: "needs_review" };
+      }
+      if (typeof body.amount === "number" && body.amount !== payment.amountPaise) {
+        await this.deps.paymentsRepo.processNeedsReview({
+          paymentId: payment.id,
+          reason: "amount_mismatch",
+          providerPaymentId: params.razorpayPaymentId,
+        });
+        return { status: "needs_review" };
+      }
+      if (body.status === "failed") {
+        await this.deps.paymentsRepo.processFailed({
+          paymentId: payment.id,
+          reason: body.error_description || "payment_failed_at_gateway",
+        });
+        return { status: "failed" };
+      }
+
+      // Enforce provider captured status strictly
+      if (body.status !== "captured") {
+        console.warn(`[payments] Provider payment status for ${params.razorpayPaymentId} is '${body.status}', skipping capture.`);
+        return { status: body.status };
+      }
+
+      const paymentMethod = body.method || body.payment_method || null;
+
+      await this.deps.paymentsRepo.processCaptured({
+        paymentId: payment.id,
+        bookingId: payment.bookingId,
+        providerPaymentId: params.razorpayPaymentId,
+        paymentMethod,
+      });
+
+      try {
+        await this.sendBookingConfirmationEmail(payment.bookingId, params.razorpayPaymentId);
+      } catch (err: any) {
+        console.warn(`[payments] Background confirmation email skipped: ${err?.message || err}`);
+      }
+
+      return { status: "captured" };
+    } catch (err: any) {
+      if (err instanceof AppError) throw err;
+      console.error(`[payments] Razorpay API payment status lookup error: ${err?.message || err}`);
+      throw new AppError("PAYMENT_VERIFICATION_FAILED", "Payment verification failed", 502);
+    }
   }
 
   async handleWebhook(
@@ -467,7 +467,7 @@ export class PaymentsService {
       return { status: "order_not_found" };
     }
 
-    const booking = await this.deps.bookingsRepo.getById(payment.booking_id);
+    const booking = await this.deps.bookingsRepo.getById(payment.bookingId);
 
     if (eventType === "payment.captured") {
       const webhookAmount = Number(paymentEntity?.amount ?? 0);
@@ -486,7 +486,7 @@ export class PaymentsService {
       }
 
       // PM-05: Webhook amount differs -> payment needs_review; booking stays pending_payment
-      if (webhookAmount !== payment.amount_paise) {
+      if (webhookAmount !== payment.amountPaise) {
         await this.deps.paymentsRepo.processNeedsReview({
           paymentId: payment.id,
           reason: "amount_mismatch",
@@ -510,7 +510,7 @@ export class PaymentsService {
       // PM-03: Matching amount and valid state -> payment captured, booking confirmed, one transaction
       await this.deps.paymentsRepo.processCaptured({
         paymentId: payment.id,
-        bookingId: payment.booking_id,
+        bookingId: payment.bookingId,
         providerPaymentId,
         webhookEventId: recordedEvent?.id,
         paymentMethod: paymentEntity?.method || null,
@@ -518,7 +518,7 @@ export class PaymentsService {
 
       // Post-transaction email voucher dispatch (isolated error boundary)
       try {
-        await this.sendBookingConfirmationEmail(payment.booking_id, providerPaymentId);
+        await this.sendBookingConfirmationEmail(payment.bookingId, providerPaymentId);
       } catch (emailErr: any) {
         console.warn(`[payments] Background confirmation email delivery skipped: ${emailErr?.message || emailErr}`);
       }

@@ -27,6 +27,7 @@ export class LocationIqService {
         const res = await this.fetchImpl(url, {
           headers: { Accept: "application/json" },
           redirect: "error",
+          signal: AbortSignal.timeout(5_000),
         });
         if (res.status === 429 && attempt < retries) {
           // LocationIQ free tier limits to 2 req/sec. Exponential backoff on 429.

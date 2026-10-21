@@ -15,7 +15,7 @@ async function main(): Promise<void> {
       await notifications.processQueued();
     } catch (err) {
       logger.error({ err }, "notification worker error");
-    }
+    } 
   }, 15_000);
   workerInterval.unref();
 
@@ -57,6 +57,7 @@ async function main(): Promise<void> {
     if (publishInterval) clearInterval(publishInterval);
     if (expiryInterval) clearInterval(expiryInterval);
     await app.close();
+    await repos.pool?.end();
     process.exit(0);
   };
   process.on("SIGINT", () => void shutdown("SIGINT"));

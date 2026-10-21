@@ -124,6 +124,13 @@ export type Repositories = {
       totalCapturedPaise: number;
       totalRefundedPaise: number;
     }>;
+    processCaptured(params: {
+      paymentId: string;
+      bookingId: string;
+      providerPaymentId: string;
+      webhookEventId?: string;
+      paymentMethod?: string | null;
+    }): Promise<void>;
   };
 
   refunds: {

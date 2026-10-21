@@ -3,18 +3,18 @@ import { AppError } from "../../shared/errors.js";
 
 export interface PaymentEntity {
   id: string;
-  booking_id: string;
+  bookingId: string;
   provider: string;
-  provider_order_id: string;
-  provider_payment_id: string | null;
-  amount_paise: number;
+  providerOrderId: string;
+  providerPaymentId: string | null;
+  amountPaise: number;
   status: "pending" | "captured" | "failed" | "needs_review" | "refunded" | "partially_refunded";
-  failure_reason: string | null;
-  payment_method?: string | null;
-  verified_at?: string | null;
-  reconciliation_status?: string | null;
-  created_at: string;
-  updated_at: string;
+  failureReason: string | null;
+  paymentMethod?: string | null;
+  verifiedAt?: string | null;
+  reconciliationStatus?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PaymentWebhookEventEntity {
@@ -28,7 +28,7 @@ export interface PaymentWebhookEventEntity {
 }
 
 export class PaymentsRepository {
-  constructor(private pool: pg.Pool) {} 
+  constructor(private pool: pg.Pool) { }
 
   async create(data: {
     booking_id: string;

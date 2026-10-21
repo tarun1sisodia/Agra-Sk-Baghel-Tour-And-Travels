@@ -457,6 +457,48 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
           totalRefundedPaise,
         };
       },
+      async processCaptured(params: {
+        paymentId: string;
+        bookingId: string;
+        providerPaymentId: string;
+        webhookEventId?: string;
+        paymentMethod?: string | null;
+      }): Promise<void> {
+        const payment = payments.get(params.paymentId);
+        if (!payment) {
+          throw new Error("Payment not found");
+        }
+
+        const booking = bookings.get(params.bookingId);
+        if (!booking) {
+          throw new Error("Booking not found");
+        }
+
+        if (booking.status === "cancelled" || booking.status === "refunded") {
+          throw new Error("BOOKING_NOT_PAYABLE: This booking is cancelled and cannot accept payment.");
+        }
+
+        payment.status = "captured";
+        payment.providerPaymentId = params.providerPaymentId;
+        payment.reconciliationStatus = "matched";
+        payment.verifiedAt = new Date().toISOString();
+        if (params.paymentMethod) {
+          payment.paymentMethod = params.paymentMethod;
+        }
+        payment.updatedAt = new Date().toISOString();
+
+        if (booking.status === "pending_payment") {
+          booking.status = "confirmed";
+          booking.updatedAt = new Date().toISOString();
+        }
+
+        if (params.webhookEventId) {
+          const event = webhookEvents.get(params.webhookEventId);
+          if (event) {
+            event.processed = true;
+          }
+        }
+      },
     },
     refunds: {
       async create(record) {
@@ -899,11 +941,11 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
           const q = filter.q.toLowerCase();
           list = list.filter((item) => item.name.toLowerCase().includes(q) || item.phone.includes(q) || item.ref.toLowerCase().includes(q));
         }
-        list.sort((a,b) => b.createdAt.localeCompare(a.createdAt));
+        list.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
         const total = list.length;
         const page = filter?.page ?? 1;
         const limit = filter?.limit ?? 50;
-        return { total, items: list.slice((page-1)*limit, page*limit).map(clone) };
+        return { total, items: list.slice((page - 1) * limit, page * limit).map(clone) };
       },
     },
     inquiries: {

@@ -383,14 +383,14 @@ describe("Admin Finance Visibility & Booking Status Alignment", () => {
 
     const mockBooking = {
       id: "bkg-up-1",
-      ticket_id: "SKB-20261018-UP1",
-      guest_access_token: "guest_tok_up1",
+      ticketId: "SKB-20261018-UP1",
+      guestAccessToken: "guest_tok_up1",
     };
 
     const mockPayment = {
       id: "pay-entity-1",
-      booking_id: "bkg-up-1",
-      amount_paise: 50000,
+      bookingId: "bkg-up-1",
+      amountPaise: 50000,
       status: "pending",
     };
 

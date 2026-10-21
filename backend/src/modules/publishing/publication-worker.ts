@@ -98,7 +98,7 @@ export class PublicationWorker {
     await this.pool.query(
       `UPDATE site_publish_events
        SET status = 'superseded', processed_at = NOW(), last_error = 'Coalesced into a newer catalog deployment'
-       WHERE id = ANY($1::text[])`,
+       WHERE id = ANY($1::uuid[])`,
       [coalesced.map((event) => event.id)],
     );
     return [leader];

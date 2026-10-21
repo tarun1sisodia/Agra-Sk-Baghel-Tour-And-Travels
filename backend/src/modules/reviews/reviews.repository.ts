@@ -50,7 +50,7 @@ export interface ReviewImageEntity {
 }
 
 export class ReviewsRepository {
-  constructor(private pool: pg.Pool) {}
+  constructor(private pool: pg.Pool) { }
 
   async createReviewLink(data: {
     kind: "qr" | "booking";
@@ -244,8 +244,14 @@ export class ReviewsRepository {
 
     for (const [key, val] of Object.entries(data)) {
       if (val !== undefined) {
-        updates.push(`${key} = $${idx++}`);
-        values.push(val);
+        if (key === "reviewed_by" && val) {
+          // Use subquery to get user ID from auth.users by email
+          updates.push(`reviewed_by = (SELECT id FROM auth.users WHERE email = $${idx++})`);
+          values.push(val);
+        } else {
+          updates.push(`${key} = $${idx++}`);
+          values.push(val);
+        }
       }
     }
     updates.push(`reviewed_at = NOW()`);
