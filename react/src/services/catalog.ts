@@ -56,6 +56,18 @@ export interface PublicFleetVehicle {
   active: boolean;
 }
 
+export interface PublicFleetModel {
+  id: string;
+  groupCode: string;
+  groupName: string;
+  name: string;
+  seats: number;
+  bags: number;
+  perKm: number | null;
+  imageUrl: string | null;
+  active: boolean;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object";
 }
@@ -229,9 +241,26 @@ export async function fetchCatalogItemBySlug(slug: string): Promise<PublicCatalo
   }
 }
 
+/** Dynamic detail equivalent of fetchCatalogItemBySlug with no browser cache. */
+export async function fetchLiveCatalogItemBySlug(slug: string): Promise<PublicCatalogItem> {
+  const response = await fetch(`${getApiBaseUrl()}/api/v1/catalog/${encodeURIComponent(slug)}?live=${Date.now()}`, {
+    headers: { accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`Catalog item request failed (${response.status})`);
+  const envelope = (await response.json()) as { data?: Record<string, unknown> };
+  return normalizeItem(envelope.data ?? (envelope as Record<string, unknown>));
+}
+
 /** Live fleet from the active fare rules (admin Fleet & Fare editor). */
 export async function fetchLiveFleet(): Promise<PublicFleetVehicle[]> {
-  const data = await getJson<{ vehicles?: unknown[] }>("/api/v1/fleet");
+  const response = await fetch(`${getApiBaseUrl()}/api/v1/fleet?live=${Date.now()}`, {
+    headers: { accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`Fleet request failed (${response.status})`);
+  const envelope = (await response.json()) as { data?: { vehicles?: unknown[] } | unknown[] };
+  const data = (envelope?.data ?? envelope) as { vehicles?: unknown[] };
   const vehicles = Array.isArray(data?.vehicles) ? data.vehicles : [];
   return vehicles
     .filter((v): v is Record<string, unknown> => Boolean(v) && typeof v === "object")
@@ -244,6 +273,36 @@ export async function fetchLiveFleet(): Promise<PublicFleetVehicle[]> {
       perKm: Number(v.perKm) || 0,
       active: v.active !== false,
     }));
+}
+
+/** Live vehicle-model catalogue, including database fare-rule per-km prices. */
+export async function fetchLiveFleetModels(): Promise<PublicFleetModel[]> {
+  const response = await fetch(`${getApiBaseUrl()}/api/v1/fleet?live=${Date.now()}`, {
+    headers: { accept: "application/json" },
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`Fleet request failed (${response.status})`);
+  const envelope = (await response.json()) as { data?: { groups?: unknown[]; vehicles?: unknown[] } };
+  const payload = envelope?.data ?? {};
+  const groups = Array.isArray(payload.groups) ? payload.groups : [];
+  return groups.flatMap((group) => {
+    if (!isRecord(group) || !Array.isArray(group.vehicles)) return [];
+    const groupCode = String(group.code ?? "");
+    const groupName = String(group.name ?? groupCode);
+    return group.vehicles
+      .filter(isRecord)
+      .map((vehicle) => ({
+        id: String(vehicle.id ?? ""),
+        groupCode,
+        groupName,
+        name: String(vehicle.displayName ?? vehicle.modelName ?? ""),
+        seats: Number(vehicle.seats) || 0,
+        bags: Number(vehicle.bags) || 0,
+        perKm: vehicle.perKm == null ? null : Number(vehicle.perKm) || null,
+        imageUrl: typeof vehicle.imageUrl === "string" ? vehicle.imageUrl : null,
+        active: vehicle.active !== false,
+      }));
+  });
 }
 
 export const TRIP_TYPE_LABEL: Record<PublicTripType, string> = {

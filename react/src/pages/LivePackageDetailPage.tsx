@@ -5,7 +5,7 @@ import { NotFoundPage } from "./NotFoundPage";
 import { buildBreadcrumbSchema, buildTouristTripSchema, JsonLd } from "../components/seo/JsonLd";
 import { CANONICAL_DOMAIN } from "../components/seo/SeoHead";
 import {
-  fetchCatalogItemBySlug,
+  fetchLiveCatalogItemBySlug,
   resolveCatalogMediaUrl,
   TRIP_TYPE_LABEL,
   type PublicCatalogItem,
@@ -32,7 +32,7 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
   useEffect(() => {
     let isMounted = true;
     if (!initialItem) setStatus("loading");
-    fetchCatalogItemBySlug(slug)
+    fetchLiveCatalogItemBySlug(slug)
       .then((data) => {
         if (!isMounted) return;
         setItem(data);
@@ -87,6 +87,9 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
     `Hello Agra SK Baghel Tour and Travels, I am interested in the ${item.title}${item.availability === "unavailable" ? " (custom availability enquiry)" : item.startingPriceInr != null && item.startingPriceInr > 0 ? ` (from ₹${item.startingPriceInr.toLocaleString("en-IN")})` : " (custom quote enquiry)"}.`,
   )}`;
+  const totalFare = item.startingPriceInr != null && item.startingPriceInr > 0 ? item.startingPriceInr : 0;
+  const advanceFare = Math.round(totalFare * 0.28);
+  const balanceFare = totalFare - advanceFare;
   const galleryImages = item.gallery.filter((g) => g.mediaType === "image");
   const active = galleryImages[Math.min(activeImage, Math.max(0, galleryImages.length - 1))];
   const heroSrc = active ? resolveCatalogMediaUrl(active.url) : null;
@@ -249,7 +252,7 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
                 )}
                 {item.startingPriceInr != null && item.startingPriceInr > 0 && (
                   <span className="block font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-                    28% advance reserves your vehicle
+                    Pay ₹{advanceFare.toLocaleString("en-IN")} now (28% advance). Balance ₹{balanceFare.toLocaleString("en-IN")} at drop-off.
                   </span>
                 )}
               </div>

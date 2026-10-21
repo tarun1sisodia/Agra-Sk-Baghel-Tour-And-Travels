@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { SupportedLanguage } from "../config";
 import { contact } from "../data/contact";
 import { type TourPackage, type TourPackageGalleryImage } from "../data";
 import { WhatsAppIcon } from "../components/icons";
 import { resolveCatalogMediaUrl } from "../services/catalog";
+import { fetchLiveTourPackageBySlug } from "../services/catalogManifest";
 import { VEHICLE_TIERS, type VehicleTier, resolveTierKey } from "../contracts/vehicle-tiers";
 import { JsonLd, buildBreadcrumbSchema, buildFaqSchema, buildTouristTripSchema, buildGraphSchema } from "../components/seo/JsonLd";
 import { CANONICAL_DOMAIN } from "../components/seo/SeoHead";
@@ -105,34 +106,46 @@ const CANONICAL_FLEET_DESCRIPTIONS: Record<VehicleTier, { name: string; seats: s
 export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplateProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [livePackage, setLivePackage] = useState<typeof pkg | null>(null);
+  const activePkg = livePackage ?? pkg;
+
+  useEffect(() => {
+    const slug = pkg.slug || pkg.id;
+    if (!slug || typeof window === "undefined") return;
+    let mounted = true;
+    fetchLiveTourPackageBySlug(String(slug)).then((fresh) => {
+      if (mounted && fresh) setLivePackage(fresh);
+    });
+    return () => { mounted = false; };
+  }, [pkg.slug, pkg.id]);
 
   // Normalize package properties
-  const packageName = pkg.name || "Signature Heritage Tour";
-  const packageKicker = pkg.kicker || (pkg.packageCode ? `CODE: ${pkg.packageCode}` : "Signature Heritage Expedition");
-  const packageDuration = pkg.duration || pkg.durationText || (pkg.days ? `${pkg.days} Days / ${pkg.nights ?? pkg.days - 1} Nights` : "Full Day Sightseeing");
-  const packageBlurb = pkg.blurb || (pkg.inclusionsHighlight ? `${pkg.inclusionsHighlight}. Private sanitized AC cab, dedicated chauffeur, and curated sightseeing.` : "Private air-conditioned chauffeur tour with personalized heritage exploration and doorstep pickup.");
-  const packageSlug = pkg.slug || pkg.id || "tour-package";
-  const packageSource = pkg.source || "Agra";
-  const packageDestination = pkg.destination || packageName;
+  const packageName = activePkg.name || "Signature Heritage Tour";
+  const packageKicker = activePkg.kicker || (activePkg.packageCode ? `CODE: ${activePkg.packageCode}` : "Signature Heritage Expedition");
+  const packageDuration = activePkg.duration || activePkg.durationText || (activePkg.days ? `${activePkg.days} Days / ${activePkg.nights ?? activePkg.days - 1} Nights` : "Full Day Sightseeing");
+  const packageBlurb = activePkg.blurb || (activePkg.inclusionsHighlight ? `${activePkg.inclusionsHighlight}. Private sanitized AC cab, dedicated chauffeur, and curated sightseeing.` : "Private air-conditioned chauffeur tour with personalized heritage exploration and doorstep pickup.");
+  const packageSlug = activePkg.slug || activePkg.id || "tour-package";
+  const packageSource = activePkg.source || "Agra";
+  const packageDestination = activePkg.destination || packageName;
 
   // Resolve starting gross price and 28% token
-  const grossPrice = Number(pkg.from || pkg.startingPriceInr || pkg.fleetPrices?.sedan || 0);
+  const grossPrice = Number(activePkg.from || activePkg.startingPriceInr || activePkg.fleetPrices?.sedan || 0);
   const advanceAmount = Math.round(grossPrice * 0.28);
   const balanceAmount = grossPrice - advanceAmount;
 
   // Normalized gallery list
   const galleryItems = useMemo<TourPackageGalleryImage[]>(() => {
-    if (pkg.gallery && Array.isArray(pkg.gallery) && pkg.gallery.length > 0) {
-      return pkg.gallery.map((item: any) => typeof item === "string" ? { url: item, caption: "Tour View" } : item);
+    if (activePkg.gallery && Array.isArray(activePkg.gallery) && activePkg.gallery.length > 0) {
+      return activePkg.gallery.map((item: any) => typeof item === "string" ? { url: item, caption: "Tour View" } : item);
     }
-    if (pkg.image) return [{ url: pkg.image, caption: "Signature Tour View" }];
+    if (activePkg.image) return [{ url: activePkg.image, caption: "Signature Tour View" }];
     return [];
-  }, [pkg]);
+  }, [activePkg]);
 
   // Media URL resolution with EXACTLY 3 BENTO HERO IMAGES (matching reference image)
   const mainImg = selectedImageIndex !== null && galleryItems[selectedImageIndex]
     ? resolveCatalogMediaUrl(galleryItems[selectedImageIndex].url)
-    : resolveCatalogMediaUrl(galleryItems[0]?.url || pkg.image || "/assets/packages/taj-dawn.webp");
+    : resolveCatalogMediaUrl(galleryItems[0]?.url || activePkg.image || "/assets/packages/taj-dawn.webp");
 
   const secImg1 = galleryItems[1]?.url
     ? resolveCatalogMediaUrl(galleryItems[1].url)
@@ -146,30 +159,30 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
 
   // Resolve timeline stops
   const timelineStops = useMemo<ItineraryItem[]>(() => {
-    if (pkg.itinerary && Array.isArray(pkg.itinerary) && pkg.itinerary.length > 0) {
-      return pkg.itinerary.map((stop: any, idx: number) => ({
+    if (activePkg.itinerary && Array.isArray(activePkg.itinerary) && activePkg.itinerary.length > 0) {
+      return activePkg.itinerary.map((stop: any, idx: number) => ({
         time: stop.time || `Stop 0${idx + 1}`,
         title: typeof stop.title === "string" ? stop.title : stop.title?.en || stop.name || `Sightseeing Stop ${idx + 1}`,
         desc: typeof stop.desc === "string" ? stop.desc : stop.desc?.en || stop.description || "Chauffeured sightseeing and heritage exploration.",
       }));
     }
-    if (pkg.timeline && Array.isArray(pkg.timeline) && pkg.timeline.length > 0) {
-      return pkg.timeline.map((stop: any) => ({
+    if (activePkg.timeline && Array.isArray(activePkg.timeline) && activePkg.timeline.length > 0) {
+      return activePkg.timeline.map((stop: any) => ({
         time: stop.time || "En Route",
         title: typeof stop.title === "string" ? stop.title : stop.title?.en || "Sightseeing Stop",
         desc: typeof stop.desc === "string" ? stop.desc : stop.desc?.en || "Guided exploration.",
       }));
     }
-    if (PACKAGE_DEFAULT_TIMELINES[pkg.id] || PACKAGE_DEFAULT_TIMELINES[pkg.slug]) {
-      return PACKAGE_DEFAULT_TIMELINES[pkg.id] || PACKAGE_DEFAULT_TIMELINES[pkg.slug];
+    if (PACKAGE_DEFAULT_TIMELINES[activePkg.id] || PACKAGE_DEFAULT_TIMELINES[activePkg.slug]) {
+      return PACKAGE_DEFAULT_TIMELINES[activePkg.id] || PACKAGE_DEFAULT_TIMELINES[activePkg.slug];
     }
-    const placesList = pkg.places && pkg.places.length > 0 ? pkg.places : [packageSource, packageDestination];
+    const placesList = activePkg.places && activePkg.places.length > 0 ? activePkg.places : [packageSource, packageDestination];
     return placesList.map((place: string, idx: number) => ({
       time: `Stop 0${idx + 1}`,
       title: place,
       desc: `Chauffeured visit and guided architectural exploration of ${place} with dedicated waiting time and parking assistance.`,
     }));
-  }, [pkg, packageSource, packageDestination]);
+  }, [activePkg, packageSource, packageDestination]);
 
   const defaultIncludes = [
     "Dedicated sanitized commercial AC cab exclusively for your group",
@@ -185,8 +198,8 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
     "Optional gratuities to chauffeur or licensed ASI guide",
   ];
 
-  const packageIncludes = pkg.includes && pkg.includes.length > 0 ? pkg.includes : defaultIncludes;
-  const packageExcludes = pkg.excludes && pkg.excludes.length > 0 ? pkg.excludes : defaultExcludes;
+  const packageIncludes = activePkg.includes && activePkg.includes.length > 0 ? activePkg.includes : defaultIncludes;
+  const packageExcludes = activePkg.excludes && activePkg.excludes.length > 0 ? activePkg.excludes : defaultExcludes;
 
   const bookStep1Url = `/book.html?category=tour_package&product=${encodeURIComponent(packageSlug)}&from=${encodeURIComponent(packageSource)}&to=${encodeURIComponent(packageDestination)}`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
@@ -574,7 +587,7 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-md">
             {VEHICLE_TIERS.map((tier) => {
               const spec = CANONICAL_FLEET_DESCRIPTIONS[tier];
-              const resolved = resolveTierKey(pkg.fleetPrices, tier);
+              const resolved = resolveTierKey(activePkg.fleetPrices, tier);
               let tierFare = Number(resolved.value || 0);
 
               if (!tierFare && tier === "sedan") {

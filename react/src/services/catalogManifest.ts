@@ -341,6 +341,22 @@ export async function fetchTourPackageBySlug(slug: string): Promise<TourPackage 
   return null;
 }
 
+/** Fetch the current package tariff without the SSG/local manifest cache. */
+export async function fetchLiveTourPackageBySlug(slug: string): Promise<TourPackage | null> {
+  try {
+    const apiBase = getApiBaseUrl();
+    const res = await fetch(`${apiBase}/api/v1/tour-packages/by-code/${encodeURIComponent(slug.trim().toLowerCase())}?live=${Date.now()}`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json?.data ? toDossierTourPackage(json.data) : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Canonical alias: fetchPublishedTourPackages */
 export const fetchPublishedTourPackages = loadPublishedPackages;
 
@@ -398,5 +414,4 @@ export async function fetchFleet(): Promise<any[]> {
   }
   return getFallbackPublishedCatalog().vehicles;
 }
-
 

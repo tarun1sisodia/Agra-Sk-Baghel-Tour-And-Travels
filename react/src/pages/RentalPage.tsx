@@ -13,6 +13,7 @@ import {
   Car,
 } from "lucide-react";
 import { fetchPublishedCatalog, getApiBaseUrl } from "../services/cleanFareApi";
+import { fetchLiveFleetModels, type PublicFleetModel } from "../services/catalog";
 import type { PublishedCatalogResponse, VehicleGroupCode } from "../contracts/fare-system";
 import "../styles/rental.css";
 
@@ -84,11 +85,13 @@ export function getVehicleFallbackImage(groupCode: string, modelName?: string): 
 function RentalVehicleCard({
   vehicle,
   activeGroup,
+  liveModel,
   isSelected,
   onSelect,
 }: {
   vehicle: CatalogVehicle;
   activeGroup?: CatalogGroup;
+  liveModel?: PublicFleetModel;
   isSelected: boolean;
   onSelect: (modelId: string, groupCode: VehicleGroupCode) => void;
 }) {
@@ -155,10 +158,18 @@ function RentalVehicleCard({
         </div>
 
         <div className="rental-rate-banner">
-          <p>
-            <strong>{"Custom quote confirmed on call"}</strong> ·{" "}
-            {"Final rental fare confirmed by our dispatch desk."}
-          </p>
+          {liveModel?.perKm && liveModel.perKm > 0 ? (
+            <p>
+              <strong>{`₹${liveModel.perKm.toLocaleString("en-IN")}/km`}</strong>{" "}
+              <span>{"Live fleet tariff"}</span><br />
+              <small>{"28% advance to reserve · balance at drop-off"}</small>
+            </p>
+          ) : (
+            <p>
+              <strong>{"Live tariff on request"}</strong> ·{" "}
+              {"Final rental fare confirmed by our dispatch desk."}
+            </p>
+          )}
         </div>
 
         <button
@@ -178,6 +189,7 @@ function RentalVehicleCard({
 export function RentalPage(_props: { language?: string }) {
 
   const [catalog, setCatalog] = useState<PublishedCatalogResponse | null>(null);
+  const [liveFleetModels, setLiveFleetModels] = useState<PublicFleetModel[]>([]);
   const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [catalogError, setCatalogError] = useState<string | null>(null);
 
@@ -203,6 +215,7 @@ export function RentalPage(_props: { language?: string }) {
     try {
       const data = await fetchPublishedCatalog();
       setCatalog(data);
+      setLiveFleetModels(await fetchLiveFleetModels().catch(() => []));
       if (data.groups && data.groups.length > 0) {
         const availableCodes = new Set(data.groups.map((g) => g.group_code));
         const firstGroup = data.groups[0]!.group_code;
@@ -462,12 +475,15 @@ export function RentalPage(_props: { language?: string }) {
               {modelsInSelectedGroup.map((vehicle) => {
                 const isSelected = form.vehicleModelId === vehicle.id;
                 const activeGroup = activeGroups.find((g) => g.group_code === vehicle.group_code);
+                const liveModel = liveFleetModels.find((model) => model.id === vehicle.id)
+                  || liveFleetModels.find((model) => model.groupCode === vehicle.group_code && model.name.toLowerCase() === vehicle.display_name.toLowerCase());
 
                 return (
                   <RentalVehicleCard
                     key={vehicle.id}
                     vehicle={vehicle}
                     activeGroup={activeGroup}
+                    liveModel={liveModel}
                     isSelected={isSelected}
                     onSelect={handleSelectModel}
                   />
