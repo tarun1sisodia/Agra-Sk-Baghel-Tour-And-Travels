@@ -272,30 +272,29 @@ describe("Task 2: Legacy API Modules & Canonical Schema Reconciliation", () => {
     expect(body.data).toBeNull();
   });
 
-  it("P5: postgres.ts promos repo returns intentional empty states and rejects mutations with 410 AppError", async () => {
-    // Dynamically test the postgres.ts promos implementation contract
-    const { createPostgresRepositories } = await import("../../src/db/postgres.js");
-    // Passing a dummy URL doesn't connect until query is executed
-    const pgRepos = await createPostgresRepositories("postgres://dummy:dummy@localhost:5432/dummy");
+  it("P5: promo ledger supports lookup, featured listing, and atomic redemption", async () => {
+    const memoryDb = createMemoryRepositories(new Date().toISOString());
+    const promo = {
+      id: "00000000-0000-0000-0000-000000000010",
+      code: "DISCOUNT10",
+      discountAmount: 200,
+      minTotal: 1000,
+      description: "Save ₹200 on eligible bookings",
+      isActive: true,
+      maxRedemptions: 2,
+      redemptionCount: 0,
+      validFrom: null,
+      validTo: null,
+      allowGroupVehicles: false,
+      isBroadcast: true,
+    };
 
-    expect(await pgRepos.promos.getByCode("DISCOUNT10")).toBeNull();
-    expect(await pgRepos.promos.getById("00000000-0000-0000-0000-000000000000")).toBeNull();
-    expect(await pgRepos.promos.list()).toEqual([]);
-    expect(await pgRepos.promos.getFeatured()).toBeNull();
-    expect(await pgRepos.promos.consume("DISCOUNT10")).toBeNull();
-
-    await expect(
-      pgRepos.promos.create({ code: "DISCOUNT10" } as unknown as Parameters<typeof pgRepos.promos.create>[0])
-    ).rejects.toThrow("Promo codes were retired in migration 0038");
-    await expect(
-      pgRepos.promos.update({ code: "DISCOUNT10" } as unknown as Parameters<typeof pgRepos.promos.update>[0])
-    ).rejects.toThrow("Promo codes were retired in migration 0038");
-    await expect(
-      pgRepos.promos.delete("00000000-0000-0000-0000-000000000000")
-    ).rejects.toThrow("Promo codes were retired in migration 0038");
-
-    // Close pool to clean up
-    await (pgRepos as unknown as { pool: { end: () => Promise<void> } }).pool.end();
+    await memoryDb.promos.create(promo);
+    expect((await memoryDb.promos.getByCode("discount10"))?.discountAmount).toBe(200);
+    expect((await memoryDb.promos.getFeatured())?.code).toBe("DISCOUNT10");
+    expect((await memoryDb.promos.consume("DISCOUNT10"))?.redemptionCount).toBe(1);
+    expect((await memoryDb.promos.consume("DISCOUNT10"))?.redemptionCount).toBe(2);
+    expect(await memoryDb.promos.consume("DISCOUNT10")).toBeNull();
   });
 
   it("P6: catalog starting_price_inr missing or non-positive returns null, not ₹0 (CodeRabbit #4296910823)", async () => {
@@ -353,4 +352,3 @@ describe("Task 2: Legacy API Modules & Canonical Schema Reconciliation", () => {
     expect(pkg.startingPriceInr).toBeNull();
   });
 });
-
