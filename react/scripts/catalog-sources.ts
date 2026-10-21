@@ -1,4 +1,7 @@
-export const FORBIDDEN_STAGING_HOST = "skb-baghel-api-staging.onrender.com";
+// The Render service below is the current production API despite its historical
+// service name containing "staging". Keep only the separate preview hostname
+// blocked by production-build safeguards.
+export const FORBIDDEN_STAGING_HOST = "skb-baghel-api-preview.onrender.com";
 
 export type EnvMap = Record<string, string | undefined>;
 

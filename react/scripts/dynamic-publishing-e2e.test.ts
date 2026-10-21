@@ -54,11 +54,11 @@ describe("Phase D.2 — Dynamic Catalog Publishing, SEO & SSG Pipeline (Build & 
 
     // Valid API base resolves all required source endpoints
     const sources = listCatalogSources({
-      VITE_API_BASE_URL: "https://api.agraskbagheltourandtravels.com",
+      VITE_API_BASE_URL: "https://skb-baghel-api-staging.onrender.com",
     });
     assert.equal(sources.length, 6);
     for (const source of sources) {
-      assert.ok(source.url?.startsWith("https://api.agraskbagheltourandtravels.com/api/v1/"));
+      assert.ok(source.url?.startsWith("https://skb-baghel-api-staging.onrender.com/api/v1/"));
     }
 
     // Fail-closed snapshot policy strictly rejects preserving un-fetched / stale snapshots

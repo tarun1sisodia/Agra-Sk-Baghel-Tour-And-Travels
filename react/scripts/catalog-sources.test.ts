@@ -29,13 +29,13 @@ describe("catalog source resolution (P0-T03 / P0-T04)", () => {
   });
 
   it("derives the implemented content manifest path from the API base", () => {
-    const env = { VITE_API_BASE_URL: "https://api.agraskbagheltourandtravels.com/" };
+    const env = { VITE_API_BASE_URL: "https://skb-baghel-api-staging.onrender.com/" };
     const sources = Object.fromEntries(listCatalogSources(env).map((source) => [source.name, source.url]));
-    assert.equal(sources["content-manifest"], "https://api.agraskbagheltourandtravels.com/api/v1/content/manifest");
-    assert.equal(sources["route-catalog"], "https://api.agraskbagheltourandtravels.com/api/v1/route-catalog/manifest");
-    assert.equal(sources["tour-packages"], "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/manifest");
-    assert.equal(sources["local-packages"], "https://api.agraskbagheltourandtravels.com/api/v1/local-packages/manifest");
-    assert.equal(sources["transfer-routes"], "https://api.agraskbagheltourandtravels.com/api/v1/transfer-routes/manifest");
+    assert.equal(sources["content-manifest"], "https://skb-baghel-api-staging.onrender.com/api/v1/content/manifest");
+    assert.equal(sources["route-catalog"], "https://skb-baghel-api-staging.onrender.com/api/v1/route-catalog/manifest");
+    assert.equal(sources["tour-packages"], "https://skb-baghel-api-staging.onrender.com/api/v1/tour-packages/manifest");
+    assert.equal(sources["local-packages"], "https://skb-baghel-api-staging.onrender.com/api/v1/local-packages/manifest");
+    assert.equal(sources["transfer-routes"], "https://skb-baghel-api-staging.onrender.com/api/v1/transfer-routes/manifest");
   });
 
   it("prefers the exact ROUTE_CATALOG_MANIFEST_URL spelling over a constructed fallback", () => {

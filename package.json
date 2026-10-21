@@ -43,7 +43,7 @@
     "verify:t1": "node scripts/network/verify-t1-headers.mjs",
     "testsprite:validate": "node scripts/validate-testsprite.mjs",
     "deploy:customer": "npm --prefix react ci && VITE_API_BASE_URL=https://skb-baghel-api-staging.onrender.com VITE_SITE_URL=https://agraskbagheltourandtravels.com VITE_SITE_MODE=production RELEASE_BUILD=1 npm run customer:build && npx wrangler pages deploy react/dist --project-name skbagheltravels-customer",
-    "deploy:admin": "npm --prefix admin ci && npm run admin:build && npx wrangler pages deploy admin/dist --project-name skbagheltravels-admin",
+    "deploy:admin": "npm --prefix admin ci && VITE_API_BASE_URL=https://skb-baghel-api-staging.onrender.com npm run admin:build && npx wrangler pages deploy admin/dist --project-name skbagheltravels-admin",
     "beacon": "beacon",
     "beacon:stop": "beacon stop"
   },
