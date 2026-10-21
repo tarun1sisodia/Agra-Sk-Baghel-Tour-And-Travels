@@ -1,4 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
+import { z } from "zod";
 import { requireUser } from "../../middlewares/authGuard.js";
 import { sendSuccess } from "../../middlewares/errorHandler.js";
 import { ADMIN_ROLES, requireRole } from "../../middlewares/roleGuard.js";
@@ -16,6 +17,18 @@ export function createPromosController(service: ReturnType<typeof createPromosSe
   };
 
   return {
+    async publicList(_request: FastifyRequest, reply: FastifyReply) {
+      const items = await service.listPublic();
+      return sendSuccess(reply, items.map((promo) => ({ code: promo.code, discountAmount: promo.discountAmount, minTotal: promo.minTotal, description: promo.description, allowGroupVehicles: promo.allowGroupVehicles })));
+    },
+
+    async validatePublic(request: FastifyRequest, reply: FastifyReply) {
+      const body = z.object({ code: z.string().trim().min(3).max(30), baseFare: z.number().nonnegative(), category: z.string().optional(), routeSlug: z.string().optional(), vehicleCode: z.string().optional() }).parse(request.body);
+      const result = await service.validate(body.code, body.baseFare, body.vehicleCode || body.category);
+      if (!result.valid) return reply.code(400).send(result);
+      return sendSuccess(reply, result);
+    },
+
     async list(request: FastifyRequest, reply: FastifyReply) {
       admin(request);
       const items = await service.list();

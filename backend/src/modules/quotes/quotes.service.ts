@@ -14,13 +14,15 @@ import {
   calculateIstCalendarDays,
 } from "../fare-engine/index.js";
 import type { FareCatalogRepository } from "../fare-catalog/fare-catalog.repository.js";
+import type pg from "pg";
 
 const GROUP_ORDER: VehicleGroupCode[] = ["sedan", "suv", "luxury", "tempo_traveller"];
 
 export class QuotesService {
   constructor(
     private repo: FareCatalogRepository,
-    private readonly now: () => Date = () => new Date()
+    private readonly now: () => Date = () => new Date(),
+    private readonly pool?: pg.Pool,
   ) {}
 
   private validatePickupAt(pickupAt: string): Date {
@@ -40,6 +42,22 @@ export class QuotesService {
   }
 
   async quote(req: QuoteRequest): Promise<QuoteResponse> {
+    const quote = await this.quoteWithoutPromo(req);
+    if (!req.promo_code || !this.pool) return quote;
+    const result = await this.pool.query(`select discount_amount, min_total, is_active, valid_from, valid_to, max_redemptions, redemption_count
+      from promo_codes where upper(code)=upper($1) limit 1`, [req.promo_code]);
+    const promo = result.rows[0];
+    if (!promo || !promo.is_active || quote.total < Number(promo.min_total ?? 0)
+      || (promo.valid_from && new Date(promo.valid_from).getTime() > Date.now())
+      || (promo.valid_to && new Date(promo.valid_to).getTime() < Date.now())
+      || (promo.max_redemptions != null && Number(promo.redemption_count) >= Number(promo.max_redemptions))) return quote;
+    const discount = Math.min(quote.total, Math.max(0, Math.round(Number(promo.discount_amount))));
+    const total = Math.max(1, quote.total - discount);
+    const advance = Math.round(total * 0.28);
+    return { ...quote, total, advance, balance: total - advance, messages: [...quote.messages, `Promo ${req.promo_code.toUpperCase()}: -₹${discount}`] };
+  }
+
+  private async quoteWithoutPromo(req: QuoteRequest): Promise<QuoteResponse> {
     const pickupDate = this.validatePickupAt(req.pickup_at);
     if (req.category === "outstation" && req.trip_type === "round_trip") {
       if (!req.return_at) {
@@ -253,6 +271,12 @@ export class QuotesService {
     }
 
     throw new Error("VALIDATION_ERROR");
+  }
+
+  async consumePromo(code?: string): Promise<void> {
+    if (!code || !this.pool) return;
+    await this.pool.query(`update promo_codes set used_count=used_count+1, redemption_count=redemption_count+1, updated_at=now()
+      where upper(code)=upper($1) and is_active and (usage_limit is null or used_count < usage_limit)`, [code]);
   }
 
   async options(req: OptionsRequest): Promise<OptionsResponse> {

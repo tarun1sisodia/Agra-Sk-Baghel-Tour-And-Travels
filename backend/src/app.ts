@@ -380,7 +380,7 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
       const result = await publicationWorker!.confirmBuild(body);
       return reply.send({ success: true, ...result });
     });
-    const quotesService = new QuotesService(fareCatalogRepo);
+    const quotesService = new QuotesService(fareCatalogRepo, () => new Date(), farePool);
     await registerQuotesRoutes(app, quotesService);
     await registerFareCatalogRoutes(app, fareCatalogRepo);
 

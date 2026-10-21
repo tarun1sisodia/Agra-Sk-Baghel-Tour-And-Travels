@@ -27,10 +27,11 @@ export const QuoteRequest = z.discriminatedUnion("category", [
     route_id: Uuid,
     trip_type: z.enum(["one_way", "round_trip"]),
     return_at: z.string().datetime({ offset: true }).optional(), // required for round_trip; after pickup_at
+    promo_code: z.string().trim().max(30).regex(/^[A-Za-z0-9_-]+$/).optional(),
   }),
-  Common.extend({ category: z.literal("local_package"), local_package_id: Uuid }),
-  Common.extend({ category: z.literal("transfer"), transfer_id: Uuid }),
-  Common.extend({ category: z.literal("tour_package"), tour_package_id: Uuid }),
+  Common.extend({ category: z.literal("local_package"), local_package_id: Uuid, promo_code: z.string().trim().max(30).regex(/^[A-Za-z0-9_-]+$/).optional() }),
+  Common.extend({ category: z.literal("transfer"), transfer_id: Uuid, promo_code: z.string().trim().max(30).regex(/^[A-Za-z0-9_-]+$/).optional() }),
+  Common.extend({ category: z.literal("tour_package"), tour_package_id: Uuid, promo_code: z.string().trim().max(30).regex(/^[A-Za-z0-9_-]+$/).optional() }),
 ]);
 export type QuoteRequest = z.infer<typeof QuoteRequest>;
 
@@ -415,4 +416,3 @@ export const AdminAuditLogItem = z.object({
   created_at: z.string(),
 });
 export type AdminAuditLogItem = z.infer<typeof AdminAuditLogItem>;
-

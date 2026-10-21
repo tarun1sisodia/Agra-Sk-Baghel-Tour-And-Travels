@@ -50,4 +50,7 @@ export interface PromoValidateResponse {
   discount: number;
   description?: string;
   message?: string;
+  finalFare?: number;
+  advanceTokenAmount?: number;
+  balanceOnTripAmount?: number;
 }

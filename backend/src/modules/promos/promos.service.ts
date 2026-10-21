@@ -40,6 +40,32 @@ export function createPromosService(deps: { db: Repositories }) {
       };
     },
 
+    async listPublic(): Promise<PromoCodeRecord[]> {
+      const now = Date.now();
+      const items = await db.promos.list();
+      return items.filter((promo) => promo.isActive && promo.isBroadcast
+        && (!promo.validFrom || Date.parse(promo.validFrom) <= now)
+        && (!promo.validTo || Date.parse(promo.validTo) >= now)
+        && (promo.maxRedemptions == null || promo.redemptionCount < promo.maxRedemptions));
+    },
+
+    async validate(code: string, baseFare: number, category?: string) {
+      const clean = code.trim().toUpperCase();
+      const promo = await db.promos.getByCode(clean);
+      const invalid = (message: string) => ({ valid: false, code: clean, discount: 0, message });
+      if (!promo || !promo.isActive) return invalid("This promo code is not active.");
+      const now = Date.now();
+      if (promo.validFrom && Date.parse(promo.validFrom) > now) return invalid("This promo code is not active yet.");
+      if (promo.validTo && Date.parse(promo.validTo) < now) return invalid("This promo code has expired.");
+      if (promo.maxRedemptions != null && promo.redemptionCount >= promo.maxRedemptions) return invalid("This promo code has reached its usage limit.");
+      if (baseFare < promo.minTotal) return invalid(`Minimum booking fare of ₹${Math.round(promo.minTotal).toLocaleString("en-IN")} required for this code.`);
+      if (category === "tempo_traveller" && !promo.allowGroupVehicles) return invalid("This promo is not valid for group commercial vehicles.");
+      const discount = Math.min(Math.max(0, baseFare), Math.max(0, promo.discountAmount));
+      const finalFare = Math.max(0, Math.round(baseFare - discount));
+      const advanceTokenAmount = Math.round(finalFare * 0.28);
+      return { valid: true, code: clean, discount, description: promo.description, finalFare, advanceTokenAmount, balanceOnTripAmount: finalFare - advanceTokenAmount };
+    },
+
     async create(rawInput: CreatePromoInput): Promise<PromoCodeRecord> {
       const input = CreatePromoSchema.parse(rawInput);
       const code = input.code.trim().toUpperCase();

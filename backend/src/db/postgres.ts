@@ -400,6 +400,23 @@ function mapBookingIntent(row: Record<string, unknown>): BookingIntentRecord {
   };
 }
 
+function mapPromoCode(row: Record<string, unknown>): PromoCodeRecord {
+  return {
+    id: String(row.id),
+    code: String(row.code),
+    discountAmount: num(row.discount_amount ?? row.discount_value ?? 0),
+    minTotal: num(row.min_total ?? row.min_booking_amount ?? 0),
+    description: String(row.description ?? row.title ?? ""),
+    isActive: Boolean(row.is_active),
+    maxRedemptions: row.max_redemptions == null ? null : num(row.max_redemptions),
+    redemptionCount: num(row.redemption_count ?? row.used_count ?? 0),
+    validFrom: row.valid_from ? new Date(String(row.valid_from)).toISOString() : null,
+    validTo: (row.valid_to ?? row.valid_until) ? new Date(String(row.valid_to ?? row.valid_until)).toISOString() : null,
+    allowGroupVehicles: Boolean(row.allow_group_vehicles),
+    isBroadcast: Boolean(row.is_broadcast ?? row.is_public),
+  };
+}
+
 function mapPayment(row: Record<string, unknown>): PaymentRecord {
   // Fail-closed validation on canonical payment columns
   let amountPaise: number;
@@ -1972,36 +1989,48 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
         },
       },
       promos: {
-        /**
-         * Promo codes were officially retired in canonical migration 0038_fare_system_clean_rebuild.sql
-         * in favor of server-authoritative fare rules and explicit extra charges.
-         * Read methods return intentional, documented empty states (null or empty array) so legacy callers
-         * receive valid empty responses rather than HTTP 500 runtime database relation errors.
-         * Mutating operations fail fast with an explicit AppError explaining the retirement.
-         */
-        async getByCode(_code: string) {
-          return null;
+        async getByCode(code: string) {
+          const rows = await query(client, "select * from promo_codes where upper(code)=upper($1) limit 1", [code]);
+          return rows[0] ? mapPromoCode(rows[0]) : null;
         },
-        async getById(_id: string) {
-          return null;
+        async getById(id: string) {
+          const rows = await query(client, "select * from promo_codes where id=$1", [id]);
+          return rows[0] ? mapPromoCode(rows[0]) : null;
         },
         async list() {
-          return [];
+          const rows = await query(client, "select * from promo_codes order by created_at desc", []);
+          return rows.map(mapPromoCode);
         },
         async getFeatured() {
-          return null;
+          const rows = await query(client, `select * from promo_codes
+            where is_active and is_public and (valid_from is null or valid_from <= now())
+              and (valid_until is null or valid_until >= now())
+              and (usage_limit is null or used_count < usage_limit)
+            order by created_at desc limit 1`, []);
+          return rows[0] ? mapPromoCode(rows[0]) : null;
         },
-        async consume(_code: string) {
-          return null;
+        async consume(code: string) {
+          const rows = await query(client, `update promo_codes set used_count=used_count+1, redemption_count=redemption_count+1, updated_at=now()
+            where upper(code)=upper($1) and is_active and (usage_limit is null or used_count < usage_limit)
+            returning *`, [code]);
+          return rows[0] ? mapPromoCode(rows[0]) : null;
         },
-        async create(_record: PromoCodeRecord) {
-          throw new AppError("PROMOS_RETIRED", "Promo codes were retired in migration 0038. Use fare_rules or extra_charges.", 410);
+        async create(record: PromoCodeRecord) {
+          const rows = await query(client, `insert into promo_codes (id,code,title,description,discount_type,discount_value,max_discount_amount,min_booking_amount,applicable_categories,is_public,is_active,valid_from,valid_until,usage_limit,used_count,discount_amount,min_total,max_redemptions,redemption_count,allow_group_vehicles,is_broadcast)
+            values ($1,$2,$3,$4,'FLAT',$5,null,$6,'{all}',false,$7,$8,$9,$10,0,$5,$6,$10,0,$11,$12) returning *`,
+            [record.id,record.code,record.description,record.description,record.discountAmount,record.minTotal,record.isActive,record.validFrom,record.validTo,record.maxRedemptions,record.allowGroupVehicles,record.isBroadcast]);
+          if (!rows[0]) throw new AppError("PROMO_CREATE_FAILED", "Promo code could not be created.", 500);
+          return mapPromoCode(rows[0]);
         },
-        async update(_record: PromoCodeRecord) {
-          throw new AppError("PROMOS_RETIRED", "Promo codes were retired in migration 0038. Use fare_rules or extra_charges.", 410);
+        async update(record: PromoCodeRecord) {
+          const rows = await query(client, `update promo_codes set code=$2,description=$3,discount_value=$4,discount_amount=$4,min_booking_amount=$5,min_total=$5,is_active=$6,valid_from=$7,valid_until=$8,max_redemptions=$9,usage_limit=$9,allow_group_vehicles=$10,is_broadcast=$11,updated_at=now() where id=$1 returning *`,
+            [record.id,record.code,record.description,record.discountAmount,record.minTotal,record.isActive,record.validFrom,record.validTo,record.maxRedemptions,record.allowGroupVehicles,record.isBroadcast]);
+          if (!rows[0]) throw new AppError("PROMO_NOT_FOUND", "Promo code not found.", 404);
+          return mapPromoCode(rows[0]);
         },
-        async delete(_id: string) {
-          throw new AppError("PROMOS_RETIRED", "Promo codes were retired in migration 0038. Use fare_rules or extra_charges.", 410);
+        async delete(id: string) {
+          const result = await query(client, "delete from promo_codes where id=$1", [id]);
+          return result.length > 0;
         },
       },
       audit: {
