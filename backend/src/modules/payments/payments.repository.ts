@@ -1,4 +1,5 @@
 import type pg from "pg";
+import { AppError } from "../../shared/errors.js";
 
 export interface PaymentEntity {
   id: string;
@@ -9,6 +10,9 @@ export interface PaymentEntity {
   amount_paise: number;
   status: "pending" | "captured" | "failed" | "needs_review" | "refunded" | "partially_refunded";
   failure_reason: string | null;
+  payment_method?: string | null;
+  verified_at?: string | null;
+  reconciliation_status?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -112,18 +116,41 @@ export class PaymentsRepository {
     bookingId: string;
     providerPaymentId: string;
     webhookEventId?: string;
+    paymentMethod?: string | null;
   }): Promise<void> {
     const client = await this.pool.connect();
     try {
       await client.query("BEGIN");
 
+      // Verify booking state: cannot capture payment for cancelled or refunded bookings
+      const bookingRes = await client.query(
+        `SELECT id, status FROM bookings WHERE id = $1 FOR UPDATE`,
+        [params.bookingId]
+      );
+      if (bookingRes.rows.length === 0) {
+        throw new AppError("NOT_FOUND", "Booking not found", 404);
+      }
+      const booking = bookingRes.rows[0];
+      if (booking.status === "cancelled" || booking.status === "refunded") {
+        throw new AppError("BOOKING_NOT_PAYABLE", "This booking is cancelled and cannot accept payment.", 409);
+      }
+
       await client.query(
-        `UPDATE payments SET status = 'captured', provider_payment_id = $1, updated_at = NOW() WHERE id = $2`,
-        [params.providerPaymentId, params.paymentId]
+        `UPDATE payments 
+         SET status = 'captured', 
+             provider_payment_id = $1, 
+             reconciliation_status = 'matched',
+             verified_at = NOW(),
+             payment_method = COALESCE($3, payment_method),
+             updated_at = NOW() 
+         WHERE id = $2`,
+        [params.providerPaymentId, params.paymentId, params.paymentMethod ?? null]
       );
 
       await client.query(
-        `UPDATE bookings SET status = 'confirmed', updated_at = NOW() WHERE id = $1 AND status = 'pending_payment'`,
+        `UPDATE bookings 
+         SET status = 'confirmed', updated_at = NOW() 
+         WHERE id = $1 AND status IN ('pending_payment', 'payment_failed')`,
         [params.bookingId]
       );
 

@@ -159,6 +159,10 @@ export class PaymentsService {
     }
     this.assertBookingOwnership(booking, params.user);
 
+    if (booking.status === "cancelled" || (booking.status as string) === "refunded") {
+      throw new AppError("BOOKING_NOT_PAYABLE", "This booking is cancelled and cannot accept payment.", 409);
+    }
+
     const payment = await this.deps.paymentsRepo.getByProviderOrderId(params.razorpayOrderId);
     if (!payment) {
       throw new AppError("NOT_FOUND", "Payment order not found", 404);
@@ -219,6 +223,29 @@ export class PaymentsService {
                 });
                 return { status: "failed" };
               }
+
+              // Enforce provider captured status strictly
+              if (body.status !== "captured") {
+                console.warn(`[payments] Provider payment status for ${params.razorpayPaymentId} is '${body.status}', skipping capture.`);
+                return { status: body.status };
+              }
+
+              const paymentMethod = body.method || body.payment_method || null;
+
+              await this.deps.paymentsRepo.processCaptured({
+                paymentId: payment.id,
+                bookingId: payment.booking_id,
+                providerPaymentId: params.razorpayPaymentId,
+                paymentMethod,
+              });
+
+              try {
+                await this.sendBookingConfirmationEmail(payment.booking_id, params.razorpayPaymentId);
+              } catch (err: any) {
+                console.warn(`[payments] Background confirmation email skipped: ${err?.message || err}`);
+              }
+
+              return { status: "captured" };
             }
           }
         } catch (err: any) {
@@ -232,6 +259,7 @@ export class PaymentsService {
       paymentId: payment.id,
       bookingId: payment.booking_id,
       providerPaymentId: params.razorpayPaymentId,
+      paymentMethod: "test_mode",
     });
 
     try {
@@ -351,6 +379,7 @@ export class PaymentsService {
         bookingId: payment.booking_id,
         providerPaymentId,
         webhookEventId: recordedEvent?.id,
+        paymentMethod: paymentEntity?.method || null,
       });
 
       // Post-transaction email voucher dispatch (isolated error boundary)

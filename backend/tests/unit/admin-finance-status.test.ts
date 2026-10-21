@@ -439,8 +439,83 @@ describe("Admin Finance Visibility & Booking Status Alignment", () => {
         paymentId: "pay-entity-1",
         bookingId: "bkg-up-1",
         providerPaymentId: paymentId,
+        paymentMethod: "upi",
       });
       expect(mockPaymentsRepo.processNeedsReview).not.toHaveBeenCalled();
+    });
+
+    it("does not call processCaptured when upstream payment status is authorized", async () => {
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          id: paymentId,
+          order_id: orderId,
+          amount: 50000,
+          currency: "INR",
+          status: "authorized",
+          method: "card",
+        }),
+      });
+
+      const mockPaymentsRepo = {
+        getByProviderOrderId: vi.fn().mockResolvedValue(mockPayment),
+        processCaptured: vi.fn(),
+        processNeedsReview: vi.fn(),
+        processFailed: vi.fn(),
+      } as any;
+
+      const mockBookingsRepo = {
+        getById: vi.fn().mockResolvedValue(mockBooking),
+      } as any;
+
+      const service = new PaymentsService({
+        paymentsRepo: mockPaymentsRepo,
+        bookingsRepo: mockBookingsRepo,
+        razorpayKeyId: keyId,
+        razorpayKeySecret: keySecret,
+        razorpayWebhookSecret: "whsec_test",
+        fetchImpl: mockFetch as any,
+      });
+
+      const res = await service.verifyPayment({
+        bookingId: "bkg-up-1",
+        razorpayPaymentId: paymentId,
+        razorpayOrderId: orderId,
+        razorpaySignature: signature,
+      });
+
+      expect(res.status).toBe("authorized");
+      expect(mockPaymentsRepo.processCaptured).not.toHaveBeenCalled();
+    });
+
+    it("rejects payment verification if the booking is cancelled", async () => {
+      const mockPaymentsRepo = {
+        getByProviderOrderId: vi.fn().mockResolvedValue(mockPayment),
+        processCaptured: vi.fn(),
+      } as any;
+
+      const mockBookingsRepo = {
+        getById: vi.fn().mockResolvedValue({ ...mockBooking, status: "cancelled" }),
+      } as any;
+
+      const service = new PaymentsService({
+        paymentsRepo: mockPaymentsRepo,
+        bookingsRepo: mockBookingsRepo,
+        razorpayKeyId: keyId,
+        razorpayKeySecret: keySecret,
+        razorpayWebhookSecret: "whsec_test",
+      });
+
+      await expect(
+        service.verifyPayment({
+          bookingId: "bkg-up-1",
+          razorpayPaymentId: paymentId,
+          razorpayOrderId: orderId,
+          razorpaySignature: signature,
+        })
+      ).rejects.toThrow("This booking is cancelled and cannot accept payment.");
+
+      expect(mockPaymentsRepo.processCaptured).not.toHaveBeenCalled();
     });
 
     it("moves payment to needs_review when upstream currency is not INR", async () => {
