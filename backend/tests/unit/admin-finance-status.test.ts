@@ -678,6 +678,13 @@ describe("Admin Finance Visibility & Booking Status Alignment", () => {
             }
           }
         }),
+        processNeedsReview: vi.fn().mockImplementation(async (params: any) => {
+          if (params.webhookEventId) {
+            for (const ev of webhookEvents.values()) {
+              if (ev.id === params.webhookEventId) ev.processed = true;
+            }
+          }
+        }),
       } as any;
 
       const mockBookingsRepo = {

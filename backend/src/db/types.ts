@@ -131,6 +131,12 @@ export type Repositories = {
       webhookEventId?: string;
       paymentMethod?: string | null;
     }): Promise<void>;
+    processNeedsReview(params: {
+      paymentId: string;
+      reason: string;
+      providerPaymentId?: string;
+      webhookEventId?: string;
+    }): Promise<void>;
   };
 
   refunds: {

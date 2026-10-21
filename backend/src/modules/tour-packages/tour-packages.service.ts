@@ -15,6 +15,9 @@ import type {
   UploadTourPackageImageInput,
 } from "./tour-packages.schema.js";
 
+const MAX_CACHE_SIZE = 50; // Maximum number of media files to cache in memory
+const MAX_FILE_SIZE = 5_000_000; // 5MB max file size for security
+
 const inMemoryMediaCache = new Map<string, { buffer: Buffer; mimeType: string }>();
 
 function toRecord(input: CreateTourPackageInput, now: string, id = newId()): TourPackageRecord {
@@ -242,12 +245,23 @@ export function createTourPackagesService(deps: {
       };
     },
     async getMedia(filename: string) {
+      // Security: Prevent path traversal attacks
+      if (filename.includes("..") || filename.includes("/")) {
+        return null;
+      }
+
       const cached = inMemoryMediaCache.get(filename);
       if (cached) return cached;
 
       if (deps.mediaStorage) {
         try {
           const buffer = await deps.mediaStorage.download(`packages/${filename}`);
+
+          // Security: Check file size before caching
+          if (buffer.length > MAX_FILE_SIZE) {
+            return null;
+          }
+
           const ext = filename.split(".").pop()?.toLowerCase() || "";
           const mimeMap: Record<string, string> = {
             jpg: "image/jpeg",
@@ -257,6 +271,13 @@ export function createTourPackagesService(deps: {
             avif: "image/avif",
           };
           const mimeType = mimeMap[ext] || "application/octet-stream";
+
+          // Enforce cache size limit (LRU eviction)
+          if (inMemoryMediaCache.size >= MAX_CACHE_SIZE) {
+            const firstKey = inMemoryMediaCache.keys().next().value;
+            if (firstKey) inMemoryMediaCache.delete(firstKey);
+          }
+
           inMemoryMediaCache.set(filename, { buffer, mimeType });
           return { buffer, mimeType };
         } catch {

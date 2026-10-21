@@ -3,6 +3,7 @@ import { ReviewsService } from "./reviews.service.js";
 import { AppError } from "../../shared/errors.js";
 import { z } from "zod";
 import type { MediaStorage } from "../catalog/media.storage.js";
+import { mimeTypeForPath } from "../catalog/media.storage.js";
 
 function getActor(req: FastifyRequest) {
   const user = (req as any).user;
@@ -58,7 +59,7 @@ export function registerReviewsRoutes(app: FastifyInstance, reviewsService: Revi
     if (!image.storage_key.startsWith("reviews/") || image.storage_key.includes("..")) return reply.status(404).send({ error: "MEDIA_NOT_FOUND" });
     try {
       const buffer = await mediaStorage.download(image.storage_key);
-      reply.header("content-type", "image/*").header("cache-control", "public, max-age=31536000, immutable").header("x-content-type-options", "nosniff");
+      reply.header("content-type", mimeTypeForPath(image.storage_key) ?? "image/jpeg").header("cache-control", "public, max-age=31536000, immutable").header("x-content-type-options", "nosniff");
       return reply.send(buffer);
     } catch { return reply.status(404).send({ error: "MEDIA_NOT_FOUND" }); }
   };

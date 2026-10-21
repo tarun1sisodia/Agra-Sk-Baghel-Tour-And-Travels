@@ -506,11 +506,12 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
   it("verifyDeployment: resolves tour package from dedicated tour_packages table with full CDN image", async () => {
     const customPool = {
       query: vi.fn().mockImplementation(async (sql: string) => {
-        if (sql.includes("FROM tour_packages WHERE")) {
+        if (sql.includes("FROM tour_packages")) {
           return {
             rows: [
               {
-                package_code: "golden-triangle-express",
+                id: "gt-uuid-1",
+                code: "golden-triangle-express",
                 name: "Golden Triangle Express",
                 image_url: "https://cdn.example.com/gt-cover.webp",
                 gallery: [],
@@ -571,12 +572,15 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
   it("verifyDeployment: resolves local package from local_sightseeing_packages table", async () => {
     const customPool = {
       query: vi.fn().mockImplementation(async (sql: string) => {
-        if (sql.includes("FROM local_sightseeing_packages WHERE")) {
+        if (sql.includes("FROM local_packages")) {
           return {
             rows: [
               {
-                package_code: "agra-half-day-sightseeing",
+                id: "lp-uuid-1",
+                code: "agra-half-day-sightseeing",
                 name: "Agra Half Day Sightseeing",
+                image_url: null,
+                gallery: [],
               },
             ],
           };
@@ -627,11 +631,12 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
   it("verifyDeployment: resolves transfer route from transfer_routes table", async () => {
     const customPool = {
       query: vi.fn().mockImplementation(async (sql: string) => {
-        if (sql.includes("FROM transfer_routes WHERE")) {
+        if (sql.includes("FROM transfers")) {
           return {
             rows: [
               {
-                route_code: "delhi-airport-to-agra",
+                id: "tr-uuid-1",
+                code: "delhi-airport-to-agra",
                 name: "Delhi Airport to Agra",
               },
             ],
@@ -683,12 +688,15 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
   it("verifyDeployment: for archived event, returns true only when sitemap excludes it and detail page is 404", async () => {
     const customPool = {
       query: vi.fn().mockImplementation(async (sql: string) => {
-        if (sql.includes("FROM tour_packages WHERE")) {
+        if (sql.includes("FROM tour_packages")) {
           return {
             rows: [
               {
-                package_code: "monsoon-heritage-special",
+                id: "mhs-1",
+                code: "monsoon-heritage-special",
                 name: "Monsoon Heritage Special",
+                image_url: null,
+                gallery: [],
               },
             ],
           };
@@ -737,12 +745,15 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
   it("verifyDeployment: for archived event, returns false if sitemap still contains URL", async () => {
     const customPool = {
       query: vi.fn().mockImplementation(async (sql: string) => {
-        if (sql.includes("FROM tour_packages WHERE")) {
+        if (sql.includes("FROM tour_packages")) {
           return {
             rows: [
               {
-                package_code: "monsoon-heritage-special",
+                id: "mhs-1",
+                code: "monsoon-heritage-special",
                 name: "Monsoon Heritage Special",
+                image_url: null,
+                gallery: [],
               },
             ],
           };
@@ -1101,20 +1112,22 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
   it("verifyDeployment: resolves transfer route and outstation route to canonical detail URLs", async () => {
     const customPool = {
       query: vi.fn().mockImplementation(async (sql: string) => {
-        if (sql.includes("FROM transfer_routes WHERE")) {
+        if (sql.includes("FROM transfers")) {
           return {
             rows: [
               {
-                route_code: "agra-cantt-to-taj-ganj",
+                id: "tr-uuid-1",
+                code: "agra-cantt-to-taj-ganj",
                 name: "Agra Cantt to Taj Ganj Transfer",
               },
             ],
           };
         }
-        if (sql.includes("FROM outstation_routes") || sql.includes("FROM routes")) {
+        if (sql.includes("FROM outstation_routes")) {
           return {
             rows: [
               {
+                id: "rt-uuid-1",
                 code: "agra-to-delhi-taxi",
                 origin_name: "Agra",
                 destination_name: "Delhi Taxi",

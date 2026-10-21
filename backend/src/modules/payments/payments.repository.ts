@@ -46,8 +46,19 @@ export class PaymentsRepository {
     );
     const r = res.rows[0];
     return {
-      ...r,
-      amount_paise: Number(r.amount_paise),
+      id: r.id,
+      bookingId: r.booking_id,
+      provider: r.provider,
+      providerOrderId: r.provider_order_id,
+      providerPaymentId: r.provider_payment_id,
+      amountPaise: Number(r.amount_paise),
+      status: r.status,
+      failureReason: r.failure_reason,
+      paymentMethod: r.payment_method,
+      verifiedAt: r.verified_at,
+      reconciliationStatus: r.reconciliation_status,
+      createdAt: r.created_at,
+      updatedAt: r.updated_at,
     };
   }
 
@@ -59,8 +70,19 @@ export class PaymentsRepository {
     if (res.rows.length === 0) return null;
     const r = res.rows[0];
     return {
-      ...r,
-      amount_paise: Number(r.amount_paise),
+      id: r.id,
+      bookingId: r.booking_id,
+      provider: r.provider,
+      providerOrderId: r.provider_order_id,
+      providerPaymentId: r.provider_payment_id,
+      amountPaise: Number(r.amount_paise),
+      status: r.status,
+      failureReason: r.failure_reason,
+      paymentMethod: r.payment_method,
+      verifiedAt: r.verified_at,
+      reconciliationStatus: r.reconciliation_status,
+      createdAt: r.created_at,
+      updatedAt: r.updated_at,
     };
   }
 
@@ -72,8 +94,19 @@ export class PaymentsRepository {
     if (res.rows.length === 0) return null;
     const r = res.rows[0];
     return {
-      ...r,
-      amount_paise: Number(r.amount_paise),
+      id: r.id,
+      bookingId: r.booking_id,
+      provider: r.provider,
+      providerOrderId: r.provider_order_id,
+      providerPaymentId: r.provider_payment_id,
+      amountPaise: Number(r.amount_paise),
+      status: r.status,
+      failureReason: r.failure_reason,
+      paymentMethod: r.payment_method,
+      verifiedAt: r.verified_at,
+      reconciliationStatus: r.reconciliation_status,
+      createdAt: r.created_at,
+      updatedAt: r.updated_at,
     };
   }
 
@@ -150,7 +183,7 @@ export class PaymentsRepository {
       await client.query(
         `UPDATE bookings 
          SET status = 'confirmed', updated_at = NOW() 
-         WHERE id = $1 AND status IN ('pending_payment', 'payment_failed')`,
+         WHERE id = $1 AND status = 'pending_payment'`,
         [params.bookingId]
       );
 

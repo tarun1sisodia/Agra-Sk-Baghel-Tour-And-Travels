@@ -245,8 +245,8 @@ export class ReviewsRepository {
     for (const [key, val] of Object.entries(data)) {
       if (val !== undefined) {
         if (key === "reviewed_by" && val) {
-          // Use subquery to get user ID from auth.users by email
-          updates.push(`reviewed_by = (SELECT id FROM auth.users WHERE email = $${idx++})`);
+          // Use subquery to get user ID from profiles by UUID
+          updates.push(`reviewed_by = (SELECT id FROM profiles WHERE id::text = $${idx++}::text)`);
           values.push(val);
         } else {
           updates.push(`${key} = $${idx++}`);
@@ -347,7 +347,7 @@ export class ReviewsRepository {
     const res = await this.pool.query(`
       SELECT
         s.*,
-        TRUE AS is_verified
+        (s.booking_id IS NOT NULL) AS is_verified
       FROM review_submissions s
       WHERE s.status = 'approved'
         AND s.consent_public = true

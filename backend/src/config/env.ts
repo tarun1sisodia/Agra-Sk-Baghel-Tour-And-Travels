@@ -107,6 +107,9 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (!env.RAZORPAY_WEBHOOK_SECRET) {
       missing.push("RAZORPAY_WEBHOOK_SECRET is mandatory in production");
     }
+    if (!env.DEPLOY_CALLBACK_SECRET) {
+      missing.push("DEPLOY_CALLBACK_SECRET is mandatory in production");
+    }
     if (env.ALLOW_TEST_AUTH) missing.push("ALLOW_TEST_AUTH must be false in production");
     // Validate CORS origins are HTTPS in production
     const origins = env.CORS_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean);

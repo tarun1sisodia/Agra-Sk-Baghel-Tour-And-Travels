@@ -33,7 +33,7 @@ export interface BookingEntity {
 }
 
 export class BookingsRepository {
-  constructor(private pool: pg.Pool) {}
+  constructor(private pool: pg.Pool) { }
 
   async create(data: {
     ticket_id: string;
@@ -349,9 +349,14 @@ export class BookingsRepository {
           AND status = 'pending'
         `,
         [bookingIds]
-      ).catch(() => {});
+      ).catch(() => { });
     }
 
     return cancelledBookings;
+  }
+
+  async ticketExists(ticketId: string): Promise<boolean> {
+    const res = await this.pool.query("SELECT 1 FROM bookings WHERE ticket_id = $1 LIMIT 1", [ticketId]);
+    return res.rows.length > 0;
   }
 }

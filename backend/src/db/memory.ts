@@ -499,6 +499,32 @@ export function createMemoryRepositories(nowIso = new Date().toISOString()): Rep
           }
         }
       },
+
+      async processNeedsReview(params: {
+        paymentId: string;
+        reason: string;
+        providerPaymentId?: string;
+        webhookEventId?: string;
+      }): Promise<void> {
+        const payment = payments.get(params.paymentId);
+        if (!payment) {
+          throw new Error("Payment not found");
+        }
+
+        payment.status = "needs_review";
+        payment.failureReason = params.reason;
+        if (params.providerPaymentId) {
+          payment.providerPaymentId = params.providerPaymentId;
+        }
+        payment.updatedAt = new Date().toISOString();
+
+        if (params.webhookEventId) {
+          const event = webhookEvents.get(params.webhookEventId);
+          if (event) {
+            event.processed = true;
+          }
+        }
+      },
     },
     refunds: {
       async create(record) {

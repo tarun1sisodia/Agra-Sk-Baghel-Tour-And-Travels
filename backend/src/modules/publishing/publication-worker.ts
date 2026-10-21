@@ -138,28 +138,23 @@ export class PublicationWorker {
     }
 
     if (event.entity_type === "tour_package") {
-      let tpRes = await this.pool.query(
-        "SELECT code, name, image_url, gallery, base_price_inr, fleet_prices FROM tour_packages WHERE id::text = $1 OR code = $1",
+      // Query tour_package with MIN(fare_rules.amount) for price
+      const tpRes = await this.pool.query(
+        `SELECT tp.code, tp.name, tp.image_url, tp.gallery,
+                (SELECT MIN(fr.amount) FROM fare_rules fr WHERE fr.tour_package_id = tp.id AND fr.is_active = true) as min_fare
+         FROM tour_packages tp
+         WHERE tp.id::text = $1 OR tp.code = $1
+         LIMIT 1`,
         [event.entity_id]
       ).catch(() => ({ rows: [] }));
 
-      if (tpRes.rows.length === 0 || !tpRes.rows[0]?.code) {
-        const fallback = await this.pool.query(
-          "SELECT package_code, name, image_url, gallery, base_price_inr, fleet_prices FROM tour_packages WHERE id::text = $1 OR package_code = $1",
-          [event.entity_id]
-        ).catch(() => ({ rows: [] }));
-        if (fallback.rows.length > 0) {
-          tpRes = fallback;
-        }
-      }
-
       if (tpRes.rows.length > 0) {
         const row = tpRes.rows[0];
-        slug = row.code || row.package_code;
+        slug = row.code;
         expectedPath = `/en/packages/${slug}/`;
         expectedTitle = row.name;
         expectedImage = row.image_url || (Array.isArray(row.gallery) ? row.gallery[0]?.url : null) || null;
-        expectedFare = Number(row.base_price_inr ?? row.fleet_prices?.sedan ?? null) || null;
+        expectedFare = Number(row.min_fare ?? null) || null;
       } else {
         const catRes = await this.pool.query(
           "SELECT slug, title, type, price_inr FROM catalog_items WHERE id = $1 OR slug = $1",
@@ -184,28 +179,23 @@ export class PublicationWorker {
         }
       }
     } else if (event.entity_type === "local_package") {
-      let lpRes = await this.pool.query(
-        "SELECT code, name, image_url, gallery, base_price_inr, fleet_prices FROM local_packages WHERE id::text = $1 OR code = $1",
+      // Query local_package with MIN(fare_rules.amount) for price
+      const lpRes = await this.pool.query(
+        `SELECT lp.code, lp.name, lp.image_url, lp.gallery,
+                (SELECT MIN(fr.amount) FROM fare_rules fr WHERE fr.local_package_id = lp.id AND fr.is_active = true) as min_fare
+         FROM local_packages lp
+         WHERE lp.id::text = $1 OR lp.code = $1
+         LIMIT 1`,
         [event.entity_id]
       ).catch(() => ({ rows: [] }));
 
-      if (lpRes.rows.length === 0 || !lpRes.rows[0]?.code) {
-        const fallback = await this.pool.query(
-          "SELECT package_code, name, image_url, gallery, base_price_inr, fleet_prices FROM local_sightseeing_packages WHERE id::text = $1 OR package_code = $1",
-          [event.entity_id]
-        ).catch(() => ({ rows: [] }));
-        if (fallback.rows.length > 0) {
-          lpRes = fallback;
-        }
-      }
-
       if (lpRes.rows.length > 0) {
         const row = lpRes.rows[0];
-        slug = row.code || row.package_code;
+        slug = row.code;
         expectedPath = `/en/local-packages/${slug}/`;
         expectedTitle = row.name;
         expectedImage = row.image_url || (Array.isArray(row.gallery) ? row.gallery[0]?.url : null) || null;
-        expectedFare = Number(row.base_price_inr ?? row.fleet_prices?.sedan ?? null) || null;
+        expectedFare = Number(row.min_fare ?? null) || null;
       } else {
         const catRes = await this.pool.query(
           "SELECT slug, title, price_inr FROM catalog_items WHERE id = $1 OR slug = $1",
@@ -228,27 +218,22 @@ export class PublicationWorker {
         }
       }
     } else if (event.entity_type === "transfer") {
-      let trRes = await this.pool.query(
-        "SELECT code, name, fleet_prices FROM transfers WHERE id::text = $1 OR code = $1",
+      // Query transfer with MIN(fare_rules.amount) for price
+      const trRes = await this.pool.query(
+        `SELECT t.code, t.name,
+                (SELECT MIN(fr.amount) FROM fare_rules fr WHERE fr.transfer_id = t.id AND fr.is_active = true) as min_fare
+         FROM transfers t
+         WHERE t.id::text = $1 OR t.code = $1
+         LIMIT 1`,
         [event.entity_id]
       ).catch(() => ({ rows: [] }));
 
-      if (trRes.rows.length === 0 || !trRes.rows[0]?.code) {
-        const fallback = await this.pool.query(
-          "SELECT route_code, name, fleet_prices FROM transfer_routes WHERE id::text = $1 OR route_code = $1",
-          [event.entity_id]
-        ).catch(() => ({ rows: [] }));
-        if (fallback.rows.length > 0) {
-          trRes = fallback;
-        }
-      }
-
       if (trRes.rows.length > 0) {
         const row = trRes.rows[0];
-        slug = row.code || row.route_code;
+        slug = row.code;
         expectedPath = `/en/transfers/${slug}/`;
         expectedTitle = row.name;
-        expectedFare = Number(row.fleet_prices?.sedan ?? null) || null;
+        expectedFare = Number(row.min_fare ?? null) || null;
       } else {
         const catRes = await this.pool.query(
           "SELECT slug, title, price_inr FROM catalog_items WHERE id = $1 OR slug = $1",
@@ -712,9 +697,11 @@ export class PublicationWorker {
           return false;
         }
 
+        // Read page HTML once and reuse for title and price checks
+        const pageHtml = await pageRes.text();
+
         if (expectedTitle) {
-          const html = await pageRes.text();
-          if (!html.includes(expectedTitle)) {
+          if (!pageHtml.includes(expectedTitle)) {
             this.logger.debug?.({ eventId: event.id, expectedTitle }, "Detail page does not yet reflect published title");
             return false;
           }
@@ -796,9 +783,8 @@ export class PublicationWorker {
           // 2. Check detail page HTML for the expected fare or formatted Indian currency
           if (!priceMatched) {
             try {
-              const html = await pageRes.text();
               const fareFormatted = new Intl.NumberFormat("en-IN").format(expectedFare);
-              if (html.includes(String(expectedFare)) || html.includes(fareFormatted)) {
+              if (pageHtml.includes(String(expectedFare)) || pageHtml.includes(fareFormatted)) {
                 priceMatched = true;
               }
             } catch {

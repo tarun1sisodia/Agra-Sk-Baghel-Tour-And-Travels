@@ -6,6 +6,9 @@ import { USER_ROLES, type AuthUser, type UserRole } from "../types/domain.js";
 
 const TEST_ROLE_PREFIX = "test-";
 
+// JWKS cache: Map of normalized URL to JWKSet function
+const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
+
 /**
  * Secure authentication:
  * - Only trusts app_metadata.role (server-controlled), never user_metadata or payload.role which are client-writable
@@ -54,7 +57,13 @@ export async function authenticateRequest(request: FastifyRequest, env: Env): Pr
     // 2. If asymmetric (ES256/RS256) or no symmetric secret, verify against Supabase JWKS
     if (env.SUPABASE_URL) {
       const normalizedUrl = env.SUPABASE_URL.replace(/\/+$/, "");
-      const jwks = createRemoteJWKSet(new URL(`${normalizedUrl}/auth/v1/.well-known/jwks.json`));
+      const jwksUrl = `${normalizedUrl}/auth/v1/.well-known/jwks.json`;
+      // Use cached JWKSet if available
+      let jwks = jwksCache.get(jwksUrl);
+      if (!jwks) {
+        jwks = createRemoteJWKSet(new URL(jwksUrl));
+        jwksCache.set(jwksUrl, jwks);
+      }
       const { payload } = await jwtVerify(token, jwks, {
         issuer: [`${normalizedUrl}/auth/v1`, normalizedUrl, "supabase"],
         audience: "authenticated",
