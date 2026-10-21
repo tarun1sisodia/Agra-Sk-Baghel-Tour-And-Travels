@@ -33,7 +33,7 @@ interface EditableVehicle {
 export function FaresPage({ user }: { user: AdminUser }) {
   const reduce = useReducedMotion();
   const canRead = can(user.role, "fares:read");
-  const canEdit = user.role === "super_admin" || user.role === "operator" || user.role === "finance_operator";
+  const canEdit = user.role === "super_admin" || user.role === "finance_operator";
 
   const [rs, setRs] = useState<FareRuleset | null>(null);
   const [loading, setLoading] = useState(true);
@@ -295,30 +295,30 @@ export function FaresPage({ user }: { user: AdminUser }) {
                   {rs.rules
                     .filter((r) => CANONICAL_TIERS.includes(r.vehicleTier as VehicleTier))
                     .map((r, i) => (
-                    <motion.tr
-                      key={r.vehicleTier}
-                      initial={reduce ? { opacity: 1 } : { opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.15 + i * 0.06, duration: 0.3 }}
-                      className={cn("transition-colors hover:bg-gold-wash/50", r.active === false && "opacity-60")}
-                    >
-                      <TD className="text-[13px] font-medium">{r.label}</TD>
-                      <TD className="text-right font-mono text-[13px]">{r.seats}</TD>
-                      <TD className="text-right font-display text-[15px] font-semibold text-gold-text">
-                        {formatINR(r.perKm)}
-                      </TD>
-                      <TD className="text-right font-mono text-[13px]">{r.minDailyKm}</TD>
-                      <TD className="text-right font-mono text-[13px]">{formatINR(r.nightChargePerHour)}</TD>
-                      <TD className="text-right font-mono text-[13px]">{formatINR(r.driverAllowance)}</TD>
-                      <TD className="text-center">
-                        {r.active === false ? (
-                          <Badge tone="neutral">Off fleet</Badge>
-                        ) : (
-                          <Badge tone="success">Available</Badge>
-                        )}
-                      </TD>
-                    </motion.tr>
-                  ))}
+                      <motion.tr
+                        key={r.vehicleTier}
+                        initial={reduce ? { opacity: 1 } : { opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.15 + i * 0.06, duration: 0.3 }}
+                        className={cn("transition-colors hover:bg-gold-wash/50", r.active === false && "opacity-60")}
+                      >
+                        <TD className="text-[13px] font-medium">{r.label}</TD>
+                        <TD className="text-right font-mono text-[13px]">{r.seats}</TD>
+                        <TD className="text-right font-display text-[15px] font-semibold text-gold-text">
+                          {formatINR(r.perKm)}
+                        </TD>
+                        <TD className="text-right font-mono text-[13px]">{r.minDailyKm}</TD>
+                        <TD className="text-right font-mono text-[13px]">{formatINR(r.nightChargePerHour)}</TD>
+                        <TD className="text-right font-mono text-[13px]">{formatINR(r.driverAllowance)}</TD>
+                        <TD className="text-center">
+                          {r.active === false ? (
+                            <Badge tone="neutral">Off fleet</Badge>
+                          ) : (
+                            <Badge tone="success">Available</Badge>
+                          )}
+                        </TD>
+                      </motion.tr>
+                    ))}
                 </TBody>
               </Table>
             </div>

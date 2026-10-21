@@ -162,10 +162,11 @@ export async function refundAdminBooking(
   bookingId: string,
   reason: string,
   idempotencyKey: string,
+  amountMinor?: number,
 ): Promise<any> {
   const json = await apiFetch(`/api/v1/ops/admin/refunds`, {
     method: "POST",
-    body: JSON.stringify({ bookingId, reason, idempotencyKey }),
+    body: JSON.stringify({ bookingId, reason, idempotencyKey, amountMinor }),
   });
   return json.data;
 }
@@ -227,20 +228,20 @@ export async function fetchAdminPayments(filter?: {
 
   const mapped: Payment[] = Array.isArray(items)
     ? items.map((p: any) => ({
-        id: p.id,
-        bookingTicketId: p.bookingTicketId || "—",
-        provider: (p.provider as PaymentProvider) || "razorpay",
-        method: (p.method ?? p.paymentMethod ?? null) as PaymentMethod | null,
-        providerPaymentId: p.providerPaymentId ?? null,
-        providerOrderId: p.providerOrderId || "—",
-        checkoutSessionId: p.checkoutSessionId ?? null,
-        checkoutUrl: p.checkoutUrl ?? null,
-        webhookEventId: p.webhookEventId ?? null,
-        reconciliationStatus: (p.reconciliationStatus as Payment["reconciliationStatus"]) || "pending",
-        amount: Math.round(Number(p.amountMinor ?? p.amountPaise ?? 0) / 100),
-        status: (p.status as PaymentStatus) || "pending",
-        capturedAt: p.capturedAt ?? p.verifiedAt ?? null,
-      }))
+      id: p.id,
+      bookingTicketId: p.bookingTicketId || "—",
+      provider: (p.provider as PaymentProvider) || "razorpay",
+      method: (p.method ?? p.paymentMethod ?? null) as PaymentMethod | null,
+      providerPaymentId: p.providerPaymentId ?? null,
+      providerOrderId: p.providerOrderId || "—",
+      checkoutSessionId: p.checkoutSessionId ?? null,
+      checkoutUrl: p.checkoutUrl ?? null,
+      webhookEventId: p.webhookEventId ?? null,
+      reconciliationStatus: (p.reconciliationStatus as Payment["reconciliationStatus"]) || "pending",
+      amount: Math.round(Number(p.amountMinor ?? p.amountPaise ?? 0) / 100),
+      status: (p.status as PaymentStatus) || "pending",
+      capturedAt: p.capturedAt ?? p.verifiedAt ?? null,
+    }))
     : [];
 
   return {
@@ -260,7 +261,7 @@ export async function fetchAdminFareRules(): Promise<FareRuleset> {
   const outstation = data.outstation || {};
   const vehicles = Array.isArray(data.vehicles) ? data.vehicles : [];
 
-  const rules = vehicles.map((v: any) => ({ 
+  const rules = vehicles.map((v: any) => ({
     vehicleTier: (v.tier || v.id) as VehicleTier,
     label: `${v.name || v.id} (${v.seats}-seater)`,
     seats: Number(v.seats) || 4,
@@ -282,12 +283,12 @@ export async function fetchAdminFareRules(): Promise<FareRuleset> {
     notes: Array.isArray(data.notes)
       ? data.notes
       : [
-          `Outstation trips bill the greater of actual km or the tier minimum daily km (${outstation.minKmPerDay || 300} km/day).`,
-          `Night allowance applies when travel occurs inside the ${startHour}:00–${endHour}:00 IST window.`,
-          `Driver daily allowance is fixed per commercial agreement (₹${outstation.nightAllowanceCab || 300} cab / ₹${outstation.nightAllowanceTempo || 500} tempo).`,
-          "Tolls, parking and state check-gate fees are passed at actuals with receipts.",
-          "Fares are calculated exclusively by the backend fare engine — admin cannot override.",
-        ],
+        `Outstation trips bill the greater of actual km or the tier minimum daily km (${outstation.minKmPerDay || 300} km/day).`,
+        `Night allowance applies when travel occurs inside the ${startHour}:00–${endHour}:00 IST window.`,
+        `Driver daily allowance is fixed per commercial agreement (₹${outstation.nightAllowanceCab || 300} cab / ₹${outstation.nightAllowanceTempo || 500} tempo).`,
+        "Tolls, parking and state check-gate fees are passed at actuals with receipts.",
+        "Fares are calculated exclusively by the backend fare engine — admin cannot override.",
+      ],
   };
 }
 

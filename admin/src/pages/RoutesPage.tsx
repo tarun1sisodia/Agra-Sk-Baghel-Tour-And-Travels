@@ -114,7 +114,7 @@ function LocationInput({
 export function RoutesPage({ user }: { user: AdminUser }) {
   const reduce = useReducedMotion();
   const canEditPrices = user.role === "super_admin";
-  const canEditContent = user.role === "super_admin" || user.role === "operator";
+  const canEditContent = user.role === "super_admin" || user.role === "finance_operator";
 
   const [routes, setRoutes] = useState<CleanRoute[]>([]);
   const [vehicleModels, setVehicleModels] = useState<CleanVehicleModel[]>([]);
@@ -493,8 +493,8 @@ export function RoutesPage({ user }: { user: AdminUser }) {
                               r.status === "published"
                                 ? "success"
                                 : r.status === "archived"
-                                ? "neutral"
-                                : "gold"
+                                  ? "neutral"
+                                  : "gold"
                             }
                           >
                             {r.status}

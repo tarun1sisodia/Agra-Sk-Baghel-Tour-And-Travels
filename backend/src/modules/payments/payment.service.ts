@@ -449,6 +449,7 @@ export function createPaymentService(deps: {
       reason: string;
       idempotencyKey: string;
       actorId: string;
+      amountMinor?: number;
     }) {
       if (!input.reason || input.reason.trim().length < 5) {
         throw Errors.validation([{ path: "reason", message: "Reason must be at least 5 characters" }]);
@@ -482,6 +483,9 @@ export function createPaymentService(deps: {
           throw Errors.conflict("REFUND_NOT_ELIGIBLE", "No captured payment exists for this booking.");
         }
 
+        // Use provided amountMinor or default to captured payment amount
+        const refundAmountMinor = input.amountMinor ?? captured.amountMinor;
+
         const adapter = deps.providers[captured.provider];
         if (!adapter) {
           throw new AppError("PROVIDER_NOT_CONFIGURED", "Payment provider not configured for refund.", 500);
@@ -489,7 +493,7 @@ export function createPaymentService(deps: {
 
         const result = await adapter.refund({
           providerPaymentId: captured.providerPaymentId,
-          amountMinor: captured.amountMinor,
+          amountMinor: refundAmountMinor,
           currency: captured.currency,
           reason: input.reason.trim(),
           idempotencyKey: input.idempotencyKey,
@@ -501,7 +505,7 @@ export function createPaymentService(deps: {
           paymentId: captured.id,
           bookingId: booking.id,
           providerRefundId: result.providerRefundId,
-          amountMinor: captured.amountMinor,
+          amountMinor: refundAmountMinor,
           currency: captured.currency,
           reason: input.reason.trim(),
           status: result.status === "processed" ? "processed" : "pending",

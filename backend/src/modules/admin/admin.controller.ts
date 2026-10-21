@@ -67,6 +67,7 @@ export function createAdminController(
         reason: body.reason,
         idempotencyKey: body.idempotencyKey,
         actorId: actor.id,
+        amountMinor: body.amountMinor,
       });
       return sendSuccess(reply, data, 201);
     },

@@ -129,7 +129,8 @@ export function FinancePage({ user }: { user: AdminUser }) {
     setStage("processing");
     try {
       const targetBookingId = refundTarget.bookingId || refundTarget.bookingTicketId;
-      await refundAdminBooking(targetBookingId, reason || "Staff requested refund", idemKey);
+      const amountMinor = Math.round(amount * 100); // Convert INR to paise
+      await refundAdminBooking(targetBookingId, reason || "Staff requested refund", idemKey, amountMinor);
       setTimeout(() => setStage("done"), 600);
     } catch (err) {
       setStage("form");

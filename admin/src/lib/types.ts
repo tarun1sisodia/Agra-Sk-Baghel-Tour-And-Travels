@@ -1,4 +1,4 @@
-export type AdminRole = "super_admin";
+export type AdminRole = "super_admin" | "finance_operator";
 
 export interface AdminUser {
   id: string;
@@ -292,6 +292,7 @@ export const VEHICLE_LABELS: Record<VehicleTier, string> = {
 
 export const ROLE_LABELS: Record<AdminRole, string> = {
   super_admin: "Super Admin",
+  finance_operator: "Finance Operator",
 };
 
 export type AdminPermission =
@@ -315,7 +316,7 @@ export const PERMISSIONS: Record<AdminPermission, AdminRole[]> = {
   "bookings:transition": ["super_admin"],
   "bookings:unmask": ["super_admin"],
   "finance:read": ["super_admin"],
-  "finance:refund": ["super_admin"],
+  "finance:refund": ["super_admin", "finance_operator"],
   "catalog:create": ["super_admin"],
   "catalog:edit": ["super_admin"],
   "catalog:publish": ["super_admin"],

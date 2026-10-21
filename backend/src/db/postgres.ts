@@ -921,10 +921,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
             `select
                count(*)::int as total,
                coalesce(sum(case when status='captured' then amount_paise else 0 end), 0)::bigint as total_captured,
-               greatest(
-                 coalesce(sum(case when status in ('refunded', 'partially_refunded') then amount_paise else 0 end), 0),
-                 coalesce((select sum(amount_minor) from refunds where status = 'processed'), 0)
-               )::bigint as total_refunded
+               coalesce(sum(case when status in ('refunded', 'partially_refunded') then amount_paise else 0 end), 0)::bigint +
+               coalesce((select coalesce(sum(amount_minor), 0) from refunds where status = 'processed'), 0)::bigint as total_refunded
              from payments ${where}`,
             params,
           );
