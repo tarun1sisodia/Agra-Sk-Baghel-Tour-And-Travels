@@ -6,189 +6,175 @@ export interface PrivacyPageProps {
   language?: SupportedLanguage;
 }
 
-const PRIVACY_TOC = [
-  { id: "info-collected", label: "1. Information We Collect" },
-  { id: "purpose-use", label: "2. Purpose & Lawful Use" },
-  { id: "zero-selling", label: "3. Zero Data Selling Guarantee" },
-  { id: "chauffeur-protocol", label: "4. Chauffeur Discretion & Privacy" },
-  { id: "retention-rights", label: "5. Retention & Passenger Rights" },
-  { id: "cookies-storage", label: "6. Cookies & Session Storage" },
-  { id: "grievance-dpo", label: "7. Data Protection Officer (DPO)" },
-];
+const LAST_UPDATED = "22 October 2026";
 
 export function PrivacyPage({ language = "en" }: PrivacyPageProps) {
-  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-    e.preventDefault();
-    const elem = document.getElementById(id);
-    if (elem) {
-      elem.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-
   return (
-    <div className="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen">
-      {/* 1. HERO SECTION */}
-      <section className="bg-sandstone-wash/60 border-b border-border-warm py-8 md:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs sm:text-sm font-medium mb-4 text-on-surface-variant font-label-caps">
-            <a className="text-primary hover:underline" href="/">
-              Home
-            </a>
-            <span className="text-secondary text-xs">/</span>
-            <span className="text-ink-charcoal font-semibold">Passenger Data Integrity</span>
+    <main lang={language} className="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen">
+      <header className="bg-sandstone-wash/60 border-b border-border-warm py-8 md:py-12">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm mb-4 text-on-surface-variant">
+            <a className="text-primary hover:underline" href="/">Home</a>
+            <span aria-hidden="true">/</span>
+            <span>Privacy Policy</span>
           </nav>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-end">
-            <div className="lg:col-span-8 space-y-2">
-              <span className="font-label-caps text-xs text-terracotta-sandstone uppercase tracking-widest block font-bold">
-                Statutory Charter &amp; Digital Discretion
-              </span>
-              <h1 className="font-headline-hero text-ink-charcoal text-headline-hero tracking-tight leading-tight">
-                Privacy Policy &amp; <br />
-                <span className="text-terracotta-sandstone italic font-normal">Passenger Data Integrity</span>
-              </h1>
-              <p className="font-body-lg text-xs sm:text-title-lg text-on-surface-variant max-w-2xl pt-1">
-                Upholding timeless hospitality discretion with state-of-the-art telemetry compliance. Your movement across
-                North India remains strictly sovereign, encrypted, and respected.
-              </p>
-            </div>
-            <div className="lg:col-span-4 flex flex-col gap-2 bg-surface-container-lowest p-5 rounded-xl shadow-xs border border-border-warm/70">
-              <div className="flex items-center justify-between text-xs text-on-surface-variant">
-                <span>Last Revision:</span>
-                <span className="font-bold text-ink-charcoal">January 2026</span>
-              </div>
-              <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
-                <div className="bg-terracotta-sandstone h-full w-full" />
-              </div>
-              <div className="flex items-center justify-between font-label-caps text-label-lg text-on-surface-variant uppercase tracking-wider">
-                <span>Compliance Standard:</span>
-                <span className="text-success-jade font-bold">DPDP Act (India) Compliant</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Jump Strip */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 mt-6">
-            {PRIVACY_TOC.map((item) => (
-              <a
-                key={item.id}
-                href={`#${item.id}`}
-                onClick={(e) => scrollToSection(e, item.id)}
-                className="whitespace-nowrap px-3.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-ink-charcoal font-label-caps text-xs transition-colors font-bold"
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 2. PRIVACY CONTENT BODY */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
-        {/* Core Commitments */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="p-3.5 sm:p-4 rounded-xl bg-surface-container-lowest border border-border-warm shadow-xs">
-            <span className="material-symbols-outlined text-primary text-xl mb-1.5">lock</span>
-            <h2 className="font-bold text-xs text-ink-charcoal mb-0.5">Zero Data Selling</h2>
-            <p className="text-label-lg text-on-surface-variant leading-relaxed">
-              We never sell or rent passenger phone numbers, itineraries, or emails to souvenir shops, hotels, or advertisers.
-            </p>
-          </div>
-          <div className="p-3.5 sm:p-4 rounded-xl bg-surface-container-lowest border border-border-warm shadow-xs">
-            <span className="material-symbols-outlined text-success-jade text-xl mb-1.5">encrypted</span>
-            <h2 className="font-bold text-xs text-ink-charcoal mb-0.5">Encrypted Transit</h2>
-            <p className="text-label-lg text-on-surface-variant leading-relaxed">
-              All booking vouchers, driver allocations, and payment tokens are processed over secure HTTPS with 256-bit encryption.
-            </p>
-          </div>
-          <div className="p-3.5 sm:p-4 rounded-xl bg-surface-container-lowest border border-border-warm shadow-xs">
-            <span className="material-symbols-outlined text-primary text-xl mb-1.5">delete_forever</span>
-            <h2 className="font-bold text-xs text-ink-charcoal mb-0.5">Right to Erasure</h2>
-            <p className="text-label-lg text-on-surface-variant leading-relaxed">
-              Guests can email privacy@agraskbagheltourandtravels.com anytime to request immediate deletion of their historical travel records.
-            </p>
-          </div>
-        </div>
-
-        {/* Clause 1: Information Collected */}
-        <div id="info-collected" className="scroll-mt-28 space-y-2.5">
-          <h2 className="font-headline-md text-sm sm:text-base font-bold text-ink-charcoal">1. Categories of Information We Collect</h2>
-          <p className="text-body-md sm:text-xs text-on-surface-variant leading-relaxed">
-            To coordinate high-precision pickups and issue verified booking receipts, we collect:
+          <p className="font-label-caps text-xs uppercase tracking-widest text-primary font-bold mb-2">Privacy and Data Use</p>
+          <h1 className="font-headline-hero text-ink-charcoal text-headline-hero tracking-tight leading-tight">Privacy Policy</h1>
+          <p className="max-w-3xl mt-4 text-on-surface-variant leading-relaxed">
+            This policy explains how Agra SK Baghel Tour and Travels handles information when you visit our website, contact our travel desk,
+            ask about a journey, make a booking, or sign in with Google.
           </p>
-          <ul className="list-disc pl-5 space-y-1 text-body-md sm:text-xs text-on-surface-variant">
-            <li>
-              <strong>Identity &amp; Contact:</strong> Guest Full Name, Primary Phone/WhatsApp Number, and Email Address.
-            </li>
-            <li>
-              <strong>Itinerary Logistics:</strong> Pickup Date, Rendezvous Location/Hotel, Flight/Train Number (for delay tracking), and Destination.
-            </li>
-            <li>
-              <strong>Financial Tokens:</strong> Advance token payment transaction IDs (card/banking credentials are never stored on our servers).
-            </li>
+          <p className="mt-4 text-sm text-on-surface-variant">Last updated: {LAST_UPDATED}</p>
+        </div>
+      </header>
+
+      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
+        <section id="operator" className="scroll-mt-28 space-y-3">
+          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">1. Who we are and how to contact us</h2>
+          <p className="text-on-surface-variant leading-relaxed">
+            Agra SK Baghel Tour and Travels provides taxi, chauffeur-driven transport, sightseeing, and tour enquiry and booking services in and around
+            Agra and other destinations in North India. For this policy, "we" means Agra SK Baghel Tour and Travels and "you" means a visitor, customer,
+            or person contacting us.
+          </p>
+          <address className="not-italic rounded-xl border border-border-warm bg-surface-container-lowest p-4 space-y-1 text-on-surface-variant">
+            <p><strong className="text-ink-charcoal">Privacy and customer support contact</strong></p>
+            <p>Agra SK Baghel Tour and Travels</p>
+            <p>{contact.address}</p>
+            <p>Email: <a className="text-primary underline" href={`mailto:${contact.email}`}>{contact.email}</a></p>
+            <p>Telephone: <a className="text-primary underline" href={`tel:${contact.phone}`}>{contact.phoneDisplay}</a></p>
+          </address>
+        </section>
+
+        <section id="information" className="scroll-mt-28 space-y-3 border-t border-border-warm/60 pt-6">
+          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">2. Information we collect</h2>
+          <p className="text-on-surface-variant leading-relaxed">Depending on the feature you use, we may handle these categories of information:</p>
+          <ul className="list-disc pl-5 space-y-2 text-on-surface-variant leading-relaxed">
+            <li><strong className="text-ink-charcoal">Contact and identity details:</strong> name, email address, phone number, and account identifiers you provide or authorise through sign-in.</li>
+            <li><strong className="text-ink-charcoal">Journey and booking details:</strong> pickup and destination, dates and times, vehicle or tour requested, passenger count, booking reference, trip instructions, and messages sent to our travel desk.</li>
+            <li><strong className="text-ink-charcoal">Payment and receipt details:</strong> transaction reference, payment status, amount, and refund or reconciliation information returned by the payment provider. Payment-provider services handle payment credentials according to their own terms and controls.</li>
+            <li><strong className="text-ink-charcoal">Communications:</strong> emails, telephone or WhatsApp messages, and the information needed to respond to a request or manage a booking.</li>
+            <li><strong className="text-ink-charcoal">Technical and security information:</strong> basic request logs, device or browser information, IP address, authentication/session state, and error or security events where collected by the website or its infrastructure providers.</li>
           </ul>
-        </div>
+          <p className="text-on-surface-variant leading-relaxed">Please do not send passwords, one-time passcodes, full payment-card numbers, CVV codes, or other authentication secrets to our support desk.</p>
+        </section>
 
-        {/* Clause 2: Purpose */}
-        <div id="purpose-use" className="scroll-mt-28 space-y-2.5 border-t border-border-warm/60 pt-6">
-          <h2 className="font-headline-md text-sm sm:text-base font-bold text-ink-charcoal">2. Purpose &amp; Lawful Basis of Processing</h2>
-          <p className="text-body-md sm:text-xs text-on-surface-variant leading-relaxed">
-            Data is collected solely to perform our contractual service: assigning a verified chauffeur, tracking vehicle arrival
-            punctuality, issuing computerized tax invoices, and providing immediate customer support on WhatsApp and phone.
+        <section id="google-sign-in" className="scroll-mt-28 space-y-3 border-t border-border-warm/60 pt-6">
+          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">3. Google Sign-In and Google user data</h2>
+          <p className="text-on-surface-variant leading-relaxed">
+            If you choose "Continue with Google", the sign-in flow uses Google OAuth through our authentication provider. The flow is intended to obtain
+            the basic identity information necessary to authenticate you, such as the Google account identifier and the email address, name, or profile image
+            made available by Google and the configured sign-in scopes.
           </p>
-        </div>
+          <p className="text-on-surface-variant leading-relaxed">
+            We use this information to create or maintain your sign-in session, secure the account, associate your account with bookings or payment-status
+            records where relevant, and provide customer support. We do not use Google user data for advertising, sell it, or rent it to marketers.
+            The website sign-in flow does not request Gmail, Google Drive, Google Calendar, or Google Contacts access.
+          </p>
+          <p className="text-on-surface-variant leading-relaxed">
+            Google account information is processed by Google and our authentication provider as needed to operate sign-in. We limit our use of Google user
+            data to the purposes explained here and follow the Google API Services User Data Policy, including its Limited Use requirements where applicable.
+            Personnel access to account data should be limited to what is necessary for support, security, or operation and appropriately authorised.
+          </p>
+          <p className="text-on-surface-variant leading-relaxed">
+            You can stop using Google Sign-In at any time. You may also review third-party app access in your Google Account settings. Revoking sign-in
+            access may not remove booking, tax, transaction, or safety records that we are required or otherwise permitted to retain.
+          </p>
+        </section>
 
-        {/* Clause 3: Zero Data Selling */}
-        <div id="zero-selling" className="scroll-mt-28 space-y-2.5 border-t border-border-warm/60 pt-6">
-          <h2 className="font-headline-md text-sm sm:text-base font-bold text-ink-charcoal">3. Zero Data Selling Guarantee</h2>
-          <p className="text-body-md sm:text-xs text-on-surface-variant leading-relaxed">
-            Unlike mass online aggregators, Agra SK Baghel Tour and Travels operates as an independent, private fleet. We do not
-            monetize guest telemetry or share personal contact details with commercial telemarketers, shopping emporiums, or tourist
-            commission networks.
-          </p>
-        </div>
+        <section id="purposes" className="scroll-mt-28 space-y-3 border-t border-border-warm/60 pt-6">
+          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">4. How we use information</h2>
+          <p className="text-on-surface-variant leading-relaxed">We use information only as reasonably needed for purposes such as:</p>
+          <ul className="list-disc pl-5 space-y-1.5 text-on-surface-variant leading-relaxed">
+            <li>responding to enquiries and preparing or managing transport and tour bookings;</li>
+            <li>authenticating accounts and associating signed-in customers with their bookings;</li>
+            <li>sending booking confirmations, vouchers, service updates, invoices, payment or refund notifications, and responses to your requests;</li>
+            <li>coordinating a trip with an assigned driver or transport partner, sharing only the necessary journey details;</li>
+            <li>protecting the website, preventing misuse, debugging errors, and maintaining service reliability; and</li>
+            <li>meeting accounting, tax, safety, legal, or regulatory obligations, or establishing and responding to legal claims.</li>
+          </ul>
+          <p className="text-on-surface-variant leading-relaxed">We will update this policy if we introduce a materially different use of personal information and provide notices or obtain consent where applicable law requires it.</p>
+        </section>
 
-        {/* Clause 4: Chauffeur Protocol */}
-        <div id="chauffeur-protocol" className="scroll-mt-28 space-y-2.5 border-t border-border-warm/60 pt-6">
-          <h2 className="font-headline-md text-sm sm:text-base font-bold text-ink-charcoal">4. Chauffeur Discretion &amp; Privacy Protocol</h2>
-          <p className="text-body-md sm:text-xs text-on-surface-variant leading-relaxed">
-            Chauffeurs receive only the minimal logistical details needed to meet you (Name, Pickup Time, and Hotel/Terminal). Drivers
-            are bound by our strict non-solicitation agreement and are forbidden from sharing passenger phone numbers or taking
-            unauthorized photos.
+        <section id="sharing" className="scroll-mt-28 space-y-3 border-t border-border-warm/60 pt-6">
+          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">5. When information is shared</h2>
+          <p className="text-on-surface-variant leading-relaxed">We do not sell personal information. Information may be shared only when needed for the purposes above, including with:</p>
+          <ul className="list-disc pl-5 space-y-1.5 text-on-surface-variant leading-relaxed">
+            <li>Google and our authentication provider to complete sign-in and maintain account sessions;</li>
+            <li>website, application, database, hosting, content delivery, and security providers that help operate the service;</li>
+            <li>a payment provider to process or reconcile a payment, refund, or transaction;</li>
+            <li>transactional email providers to deliver booking confirmations, receipts, and vouchers;</li>
+            <li>drivers or transport partners, only with journey details required to provide the requested service; and</li>
+            <li>authorities, courts, regulators, or other parties where disclosure is required by law or necessary to protect rights, safety, and security.</li>
+          </ul>
+          <p className="text-on-surface-variant leading-relaxed">
+            Third-party providers process data under their own service terms and privacy notices as well as any applicable contractual protections.
+            If a provider processes information in another jurisdiction, that processing is subject to applicable law and the provider's relevant safeguards.
           </p>
-        </div>
+        </section>
 
-        {/* Clause 5: Retention & Rights */}
-        <div id="retention-rights" className="scroll-mt-28 space-y-2.5 border-t border-border-warm/60 pt-6">
-          <h2 className="font-headline-md text-sm sm:text-base font-bold text-ink-charcoal">5. Retention &amp; Passenger Rights</h2>
-          <p className="text-body-md sm:text-xs text-on-surface-variant leading-relaxed">
-            Under India&apos;s Digital Personal Data Protection (DPDP) Act 2023, you have the right to review, update, or request the
-            permanent erasure of all personal records held in our dispatch registry upon completion of your journey.
+        <section id="retention" className="scroll-mt-28 space-y-3 border-t border-border-warm/60 pt-6">
+          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">6. Retention, access, correction, and deletion requests</h2>
+          <p className="text-on-surface-variant leading-relaxed">
+            We keep personal information for as long as it is reasonably needed to provide services, maintain accounts and booking histories, resolve disputes,
+            protect against misuse, and satisfy applicable tax, accounting, recordkeeping, or legal requirements. Different records may have different retention
+            periods. We do not promise immediate deletion of every record when a trip ends or an account is closed.
           </p>
-        </div>
+          <p className="text-on-surface-variant leading-relaxed">
+            You may contact us to request access to or correction of information associated with you, ask about deletion, withdraw consent where processing
+            relies on consent, or raise a privacy concern. We may ask for reasonable information to verify your identity before acting. We may retain records
+            where the law permits or requires us to do so, and will explain any applicable limitation when responding.
+          </p>
+        </section>
 
-        {/* Clause 6: Cookies */}
-        <div id="cookies-storage" className="scroll-mt-28 space-y-2.5 border-t border-border-warm/60 pt-6">
-          <h2 className="font-headline-md text-sm sm:text-base font-bold text-ink-charcoal">6. Cookies &amp; Session Storage</h2>
-          <p className="text-body-md sm:text-xs text-on-surface-variant leading-relaxed">
-            Our website uses strictly necessary local storage cookies to retain your chosen itinerary parameters while you complete
-            your booking form. We do not utilize third-party cross-site advertising trackers or retargeting pixels.
+        <section id="cookies" className="scroll-mt-28 space-y-3 border-t border-border-warm/60 pt-6">
+          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">7. Cookies, browser storage, and logs</h2>
+          <p className="text-on-surface-variant leading-relaxed">
+            The website may use essential browser storage, cookies, or similar mechanisms for authentication, session continuity, security, saved preferences,
+            and booking-form functionality. Infrastructure providers may maintain operational and security logs. Blocking such storage can affect sign-in or
+            other site features. If optional analytics or advertising tools are introduced, this policy will be updated and any legally required choices or
+            notices will be provided.
           </p>
-        </div>
+        </section>
 
-        {/* Clause 7: DPO */}
-        <div id="grievance-dpo" className="scroll-mt-28 space-y-2.5 border-t border-border-warm/60 pt-6">
-          <h2 className="font-headline-md text-sm sm:text-base font-bold text-ink-charcoal">7. Data Protection Officer (DPO)</h2>
-          <p className="text-body-md sm:text-xs text-on-surface-variant leading-relaxed">
-            For any privacy inquiries, grievance redressals, or data deletion requests, contact our designated Data Protection Officer:
+        <section id="security" className="scroll-mt-28 space-y-3 border-t border-border-warm/60 pt-6">
+          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">8. Security and third-party links</h2>
+          <p className="text-on-surface-variant leading-relaxed">
+            We use reasonable technical and organisational measures intended to protect information from unauthorised access, loss, misuse, or alteration.
+            No website or transmission method can be guaranteed completely secure. Links to Google, payment services, map services, WhatsApp, or other third-party
+            websites are governed by those services' own privacy terms when you leave our website.
           </p>
-          <div className="p-3 sm:p-3.5 rounded-xl bg-surface-container-lowest border border-border-warm text-body-md space-y-1">
-            <p><strong>Officer:</strong> Privacy &amp; Compliance Officer</p>
-            <p><strong>Email:</strong> privacy@agraskbagheltourandtravels.com</p>
-            <p><strong>Address:</strong> Near Taj East Gate Road, Taj Ganj, Agra, Uttar Pradesh 282001, India</p>
-          </div>
+        </section>
+
+        <section id="children-and-law" className="scroll-mt-28 space-y-3 border-t border-border-warm/60 pt-6">
+          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">9. Children and applicable law</h2>
+          <p className="text-on-surface-variant leading-relaxed">
+            Our website is intended for people arranging or enquiring about travel, not for children to create independent accounts. A parent or lawful
+            guardian should provide information needed to arrange travel for a child and should contact us with any related privacy concern.
+          </p>
+          <p className="text-on-surface-variant leading-relaxed">
+            We aim to handle personal information in line with the laws applicable to our services in India, including relevant requirements under the
+            Information Technology Act, 2000, consumer-protection laws, and the Digital Personal Data Protection Act, 2023 and Rules, 2025 to the extent
+            applicable and as their provisions take effect. This policy describes our stated practices; the policy by itself does not replace any operational
+            steps, notices, consents, security controls, or appointments that applicable law may require.
+          </p>
+        </section>
+
+        <section id="updates" className="scroll-mt-28 space-y-3 border-t border-border-warm/60 pt-6">
+          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">10. Changes to this policy and privacy complaints</h2>
+          <p className="text-on-surface-variant leading-relaxed">
+            We may revise this policy when the service or applicable requirements change. The date at the top shows the latest revision. For a privacy request,
+            complaint, or question, contact us using the email, phone, or postal details in Section 1. Please include enough context for us to locate the
+            relevant account or booking, but do not include passwords, one-time passcodes, or full payment credentials.
+          </p>
+        </section>
+
+        <div className="border-t border-border-warm pt-6 flex flex-wrap gap-4 text-sm">
+          <a className="text-primary underline" href="/terms-and-conditions/">Terms and Conditions</a>
+          <a className="text-primary underline" href="/contact/">Contact the travel desk</a>
         </div>
-      </section>
-    </div>
+      </article>
+    </main>
   );
 }
+
+export default PrivacyPage;

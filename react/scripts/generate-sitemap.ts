@@ -322,6 +322,16 @@ export function getSitemapEntries(): SitemapEntry[] {
     });
   }
 
+  // Public legal pages used by the website footer and Google OAuth verification.
+  for (const path of ["/privacy-policy/", "/terms-and-conditions/"]) {
+    entries.push({
+      path,
+      priority: 0.7,
+      changefreq: "monthly",
+      enPath: path,
+    });
+  }
+
   // 2b. Taxi Rental
   entries.push({
     path: "/en/taxis/rent/",

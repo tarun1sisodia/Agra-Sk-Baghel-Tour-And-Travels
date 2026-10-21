@@ -217,6 +217,10 @@ const routesToRender: string[] = Array.from(new Set([
   "/",
   "/en/",
 
+  // Canonical public legal URLs for customers and Google OAuth verification
+  "/privacy-policy/",
+  "/terms-and-conditions/",
+
   // Booking Funnel & 404 Recovery
   "/book.html",
   "/book/",

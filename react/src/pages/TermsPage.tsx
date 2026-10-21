@@ -27,6 +27,7 @@ const TOC_ITEMS = [
   { id: "sec-advance", label: "5. 28% Advance & Refunds" },
   { id: "sec-luggage", label: "6. Luggage & Etiquette" },
   { id: "sec-legal", label: "7. Agra Jurisdiction" },
+  { id: "sec-contact", label: "8. Contact & Complaints" },
 ];
 
 export function TermsPage({ language = "en" }: TermsPageProps) {
@@ -89,6 +90,7 @@ export function TermsPage({ language = "en" }: TermsPageProps) {
               Binding operational agreement between Agra SK Baghel Tour and Travels (Agra) and the reserving guest or corporate
               client. Transparent commercial tariffs with zero hidden conditions.
             </p>
+            <p className="text-xs text-on-surface-variant mb-3">Last updated: 22 October 2026</p>
           </div>
 
           {/* Quick Jump Strip */}
@@ -306,6 +308,31 @@ export function TermsPage({ language = "en" }: TermsPageProps) {
           <p className="text-body-md sm:text-xs text-on-surface-variant leading-relaxed">
             Any dispute, controversy, or claim arising out of or relating to services rendered by Agra SK Baghel Tour and Travels shall
             be subject exclusively to the jurisdiction of the competent courts of law located in Agra, Uttar Pradesh, India.
+          </p>
+        </div>
+        {/* Section 8: Contact and Complaints */}
+        <div id="sec-contact" className="scroll-mt-28 space-y-3 border-t border-border-warm/60 pt-6">
+          <div className="flex items-center gap-2.5">
+            <span className="w-6 h-6 rounded-full bg-primary text-white font-bold flex items-center justify-center text-xs">08</span>
+            <h2 className="font-headline-md text-sm sm:text-base font-bold text-ink-charcoal">Customer Support, Complaints &amp; Privacy Queries</h2>
+          </div>
+          <p className="text-body-md sm:text-xs text-on-surface-variant leading-relaxed">
+            For booking questions, fare clarification, cancellations, refunds, complaints, or privacy requests, contact the travel desk directly.
+            Please include the booking reference and journey date where available so we can locate the relevant record.
+          </p>
+          <div className="rounded-xl border border-border-warm bg-surface-container-lowest p-4 space-y-1 text-body-md sm:text-xs text-on-surface-variant">
+            <p><strong className="text-ink-charcoal">Agra SK Baghel Tour and Travels</strong></p>
+            <p>{contact.address}</p>
+            <p>Email: <a className="text-primary underline" href={`mailto:${contact.email}`}>{contact.email}</a></p>
+            <p>Telephone: <a className="text-primary underline" href={`tel:${contact.phone}`}>{contact.phoneDisplay}</a></p>
+          </div>
+          <p className="text-body-md sm:text-xs text-on-surface-variant leading-relaxed">
+            We aim to acknowledge consumer complaints within 48 hours and resolve them within 30 days, or sooner where a shorter period is required by
+            applicable law. Nothing in these terms limits rights or remedies that cannot lawfully be excluded. If any provision conflicts with mandatory
+            applicable law, that law will prevail to the extent of the conflict.
+          </p>
+          <p className="text-body-md sm:text-xs text-on-surface-variant leading-relaxed">
+            For details on personal information and Google Sign-In, please also read our <a className="text-primary underline" href="/privacy-policy/">Privacy Policy</a>.
           </p>
         </div>
       </section>

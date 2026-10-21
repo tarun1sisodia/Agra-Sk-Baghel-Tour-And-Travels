@@ -135,7 +135,13 @@ function toFrontendRoute(item: GeneratedRouteItem): Route {
 export function getMarketingPath(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
   const localizedSegments = segments[0] === "en" || segments[0] === "hi" ? segments.slice(1) : segments;
-  const lastSegment = localizedSegments.at(-1)?.replace(/\.html$/, "") ?? "home";
+  const rawSegment = localizedSegments.at(-1)?.replace(/\.html$/, "") ?? "home";
+  const routeAliases: Record<string, string> = {
+    "privacy-policy": "privacy",
+    "terms-and-conditions": "terms",
+    "terms-of-service": "terms",
+  };
+  const lastSegment = routeAliases[rawSegment] ?? rawSegment;
   return { language: "en" as const, section: lastSegment };
 }
 
@@ -411,7 +417,7 @@ function getSeoBase(
   if (section === "privacy") {
     return {
       title: "Privacy Policy — Agra SK Baghel Tour and Travels Agra | Data Protection",
-      description: "Learn how we protect your personal information: DPDP Act 2023 compliance, zero third-party data selling, and secure booking phone & WhatsApp communication.",
+      description: "Learn how we handle Google Sign-In, travel and booking information, service providers, retention, and privacy requests.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Privacy policy", "DPDP Act 2023", "passenger data protection", "confidentiality"],
     };
