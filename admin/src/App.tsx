@@ -22,6 +22,7 @@ const RoundTripRatesPage = lazy(() => import("@/pages/RoundTripRatesPage").then(
 const ExtraChargesPage = lazy(() => import("@/pages/ExtraChargesPage").then((m) => ({ default: m.ExtraChargesPage })));
 const PublishingPage = lazy(() => import("@/pages/PublishingPage").then((m) => ({ default: m.PublishingPage })));
 const AuditPage = lazy(() => import("@/pages/AuditPage").then((m) => ({ default: m.AuditPage })));
+const PromosPage = lazy(() => import("@/pages/PromosPage").then((m) => ({ default: m.PromosPage })));
 import { AUTH_EXPIRED_EVENT, clearSession, getStoredSession, saveSession, validateStoredSession } from "@/lib/auth";
 import type { AdminUser } from "@/lib/types";
 
@@ -108,6 +109,7 @@ function Root({ user, onLogin, onLogout }: { user: AdminUser | null; onLogin: (u
                       <Route path="sign-off" element={<SignoffPage user={user} />} />
                       <Route path="reviews" element={<ReviewsPage user={user} />} />
                       <Route path="publishing" element={<PublishingPage user={user} />} />
+                      <Route path="promos" element={<PromosPage user={user} />} />
                       <Route path="inquiries" element={<InquiriesPage user={user} />} />
                       <Route path="rental-requests" element={<RentalRequestsPage user={user} />} />
                       <Route path="finance" element={<FinancePage user={user} />} />
