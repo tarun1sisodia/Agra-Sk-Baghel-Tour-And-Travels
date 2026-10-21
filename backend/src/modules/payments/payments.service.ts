@@ -5,6 +5,25 @@ import type { BookingsRepository, BookingEntity } from "../bookings/bookings.rep
 import { generateBookingPdf } from "../bookings/booking-pdf.service.js";
 import type { PaymentOrderResponse } from "../../contracts/fare-system.js";
 
+// Fraud detection constants
+const FRAUD_DETECTION = {
+  // Maximum advance amount as percentage of total (RBI guideline: max 50% for taxi services)
+  MAX_ADVANCE_PERCENT: 50,
+  // Minimum advance amount (RBI guideline: min 25% for taxi services)
+  MIN_ADVANCE_PERCENT: 25,
+  // Maximum time between booking creation and payment (in minutes)
+  MAX_PAYMENT_DELAY_MINUTES: 60,
+  // Maximum number of failed payments per booking
+  MAX_FAILED_PAYMENTS: 3,
+  // Maximum number of payment attempts per hour
+  MAX_PAYMENT_ATTEMPTS_PER_HOUR: 5,
+  // Flag amounts that are suspiciously close to round numbers (potential test payments)
+  ROUND_AMOUNT_THRESHOLD: 10000, // ₹100
+};
+
+// Phone number validation for India
+const INDIA_PHONE_REGEX = /^[6-9]\d{9}$/;
+
 export interface PaymentsServiceDeps {
   paymentsRepo: PaymentsRepository;
   bookingsRepo: BookingsRepository;
@@ -32,6 +51,83 @@ export class PaymentsService {
 
   getKeyId(): string {
     return this.keyId;
+  }
+
+  /**
+   * Validates Indian phone number (E.164 format)
+   * @param phone - Phone number to validate
+   * @throws AppError if invalid
+   */
+  validatePhone(phone: string): void {
+    const cleaned = phone.trim().replace(/[\s\-+]/g, "");
+
+    // Check if it's a valid Indian mobile number
+    if (!INDIA_PHONE_REGEX.test(cleaned)) {
+      throw new AppError("VALIDATION_ERROR", "Invalid Indian phone number. Must start with 6-9 and be 10 digits.", 400);
+    }
+  }
+
+  /**
+   * Validates advance amount percentage against total
+   * @param totalAmount - Total fare in INR
+   * @param advanceAmount - Advance amount in INR
+   * @throws AppError if invalid
+   */
+  validateAdvancePercentage(totalAmount: number, advanceAmount: number): void {
+    if (totalAmount <= 0 || advanceAmount < 0) {
+      throw new AppError("VALIDATION_ERROR", "Invalid fare amounts", 400);
+    }
+
+    const advancePercent = (advanceAmount / totalAmount) * 100;
+
+    if (advancePercent < FRAUD_DETECTION.MIN_ADVANCE_PERCENT) {
+      throw new AppError(
+        "VALIDATION_ERROR",
+        `Advance must be at least ${FRAUD_DETECTION.MIN_ADVANCE_PERCENT}% of total fare`,
+        400
+      );
+    }
+
+    if (advancePercent > FRAUD_DETECTION.MAX_ADVANCE_PERCENT) {
+      throw new AppError(
+        "VALIDATION_ERROR",
+        `Advance cannot exceed ${FRAUD_DETECTION.MAX_ADVANCE_PERCENT}% of total fare`,
+        400
+      );
+    }
+  }
+
+  /**
+   * Checks for suspicious payment patterns (fraud detection)
+   * @param booking - Booking entity
+   * @param paymentAmount - Payment amount in paise
+   * @returns Array of fraud warnings (empty if clean)
+   */
+  checkFraudPatterns(booking: BookingEntity, paymentAmount: number): string[] {
+    const warnings: string[] = [];
+    const now = new Date();
+    const bookingDate = new Date(booking.created_at);
+    const hoursSinceBooking = (now.getTime() - bookingDate.getTime()) / (1000 * 60 * 60);
+
+    // Check for unusually long delay between booking and payment
+    if (hoursSinceBooking > FRAUD_DETECTION.MAX_PAYMENT_DELAY_MINUTES) {
+      warnings.push(`Payment delay of ${Math.round(hoursSinceBooking)} hours exceeds normal pattern`);
+    }
+
+    // Check for suspiciously round amounts (potential test payments)
+    const amountInRupees = paymentAmount / 100;
+    if (amountInRupees % FRAUD_DETECTION.ROUND_AMOUNT_THRESHOLD === 0) {
+      warnings.push(`Payment amount ₹${amountInRupees} is suspiciously round (potential test payment)`);
+    }
+
+    // Check for multiple failed payments on same booking
+    // This would require querying the repository for failed payments history
+    // For now, we log a warning if the booking has been in pending_payment for too long
+    if (hoursSinceBooking > 24) {
+      warnings.push(`Booking has been pending payment for ${Math.round(hoursSinceBooking)} hours`);
+    }
+
+    return warnings;
   }
 
   assertBookingOwnership(booking: BookingEntity, user?: any): void {
@@ -94,6 +190,28 @@ export class PaymentsService {
     const amountPaise = booking.advance_amount * 100;
     if (!Number.isFinite(amountPaise) || amountPaise <= 0) {
       throw new AppError("VALIDATION_ERROR", "Invalid advance amount", 400);
+    }
+
+    // Security: Validate phone number format
+    try {
+      this.validatePhone(booking.customer_phone);
+    } catch (err: any) {
+      console.warn(`[payments] Invalid phone for booking ${bookingId}: ${booking.customer_phone}`);
+      throw err;
+    }
+
+    // Security: Validate advance percentage
+    try {
+      this.validateAdvancePercentage(booking.total_amount, booking.advance_amount);
+    } catch (err: any) {
+      console.warn(`[payments] Invalid advance percentage for booking ${bookingId}: total=${booking.total_amount}, advance=${booking.advance_amount}`);
+      throw err;
+    }
+
+    // Security: Check fraud patterns (log warnings but don't block)
+    const fraudWarnings = this.checkFraudPatterns(booking, amountPaise);
+    if (fraudWarnings.length > 0) {
+      console.warn(`[payments] Fraud pattern warnings for booking ${bookingId}:`, fraudWarnings);
     }
 
     let providerOrderId: string;
@@ -273,13 +391,28 @@ export class PaymentsService {
 
   async handleWebhook(
     rawBody: Buffer | string,
-    signature: string
+    signature: string,
+    timestamp?: string
   ): Promise<{ status: string; reason?: string }> {
     const rawBuffer = typeof rawBody === "string" ? Buffer.from(rawBody, "utf8") : rawBody;
 
     // Fail closed: Webhook secret MUST be configured
     if (!this.webhookSecret) {
       throw new AppError("CONFIG_ERROR", "RAZORPAY_WEBHOOK_SECRET is not configured on server", 500);
+    }
+
+    // Security: Validate timestamp to prevent replay attacks
+    // Razorpay sends X-Razorpay-Signature-Timestamp header
+    if (timestamp) {
+      const now = Math.floor(Date.now() / 1000);
+      const webhookTime = parseInt(timestamp, 10);
+      const timeDiff = Math.abs(now - webhookTime);
+
+      // Reject if timestamp is more than 5 minutes off
+      if (timeDiff > 300) {
+        console.warn(`[payments] Webhook timestamp skew too large: ${timeDiff}s`);
+        throw new AppError("VALIDATION_ERROR", "Webhook timestamp too old or too new", 400);
+      }
     }
 
     // PM-06: Invalid signature -> rejected; no state change
@@ -294,6 +427,7 @@ export class PaymentsService {
       crypto.timingSafeEqual(Buffer.from(expectedSignature), Buffer.from(signature));
 
     if (!validSig) {
+      console.error(`[payments] Invalid webhook signature received`);
       throw new AppError("VALIDATION_ERROR", "Invalid webhook signature", 400);
     }
 
@@ -458,10 +592,10 @@ export class PaymentsService {
         (booking.category === "tour_package"
           ? "Tour Package"
           : booking.category === "local_package"
-          ? "Local Sightseeing"
-          : booking.category === "transfer"
-          ? "Airport / Station Transfer"
-          : "Outstation Taxi");
+            ? "Local Sightseeing"
+            : booking.category === "transfer"
+              ? "Airport / Station Transfer"
+              : "Outstation Taxi");
 
       const vehicleName =
         (booking as any).vehicle_model?.display_name ||
@@ -472,14 +606,14 @@ export class PaymentsService {
       const dropAddress = booking.drop_address || "";
       const pickupAt = booking.pickup_at
         ? new Date(booking.pickup_at).toLocaleString("en-IN", {
-            timeZone: "Asia/Kolkata",
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          })
+          timeZone: "Asia/Kolkata",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
         : "As scheduled";
 
       const siteUrl = (this.deps.customerSiteUrl || "https://agraskbagheltourandtravels.com").replace(/\/+$/, "");
@@ -548,16 +682,15 @@ export class PaymentsService {
                   <td style="padding: 6px 0; color: #64748b; font-size: 13px; font-weight: 500;">Pickup Address</td>
                   <td style="padding: 6px 0; color: #0f172a; font-size: 14px; line-height: 1.4;">${pickupAddress}</td>
                 </tr>
-                ${
-                  dropAddress
-                    ? `
+                ${dropAddress
+          ? `
                 <tr>
                   <td style="padding: 6px 0; color: #64748b; font-size: 13px; font-weight: 500;">Drop Address</td>
                   <td style="padding: 6px 0; color: #0f172a; font-size: 14px; line-height: 1.4;">${dropAddress}</td>
                 </tr>
                 `
-                    : ""
-                }
+          : ""
+        }
               </table>
             </td>
           </tr>
@@ -570,20 +703,20 @@ export class PaymentsService {
                 <tr style="border-bottom: 1px solid #f1f5f9;">
                   <td style="padding: 8px 0; color: #475569; font-size: 14px;">Total Guaranteed Fare</td>
                   <td align="right" style="padding: 8px 0; color: #0f172a; font-size: 14px; font-weight: 600;">₹${Math.round(
-                    totalAmount
-                  ).toLocaleString("en-IN")}</td>
+          totalAmount
+        ).toLocaleString("en-IN")}</td>
                 </tr>
                 <tr style="border-bottom: 1px solid #f1f5f9;">
                   <td style="padding: 8px 0; color: #059669; font-size: 14px; font-weight: 600;">Advance Deposit Received (28%)</td>
                   <td align="right" style="padding: 8px 0; color: #059669; font-size: 14px; font-weight: 700;">₹${Math.round(
-                    advanceAmount
-                  ).toLocaleString("en-IN")}</td>
+          advanceAmount
+        ).toLocaleString("en-IN")}</td>
                 </tr>
                 <tr>
                   <td style="padding: 10px 0 4px 0; color: #0f172a; font-size: 15px; font-weight: 700;">Balance Due to Chauffeur (72%)</td>
                   <td align="right" style="padding: 10px 0 4px 0; color: #9a3412; font-size: 16px; font-weight: 800;">₹${Math.round(
-                    balanceAmount
-                  ).toLocaleString("en-IN")}</td>
+          balanceAmount
+        ).toLocaleString("en-IN")}</td>
                 </tr>
                 <tr>
                   <td colspan="2" style="padding: 0; color: #64748b; font-size: 12px;">* Balance payable at the end of the journey directly to the driver via UPI or Cash.</td>

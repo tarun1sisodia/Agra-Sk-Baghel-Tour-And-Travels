@@ -39,8 +39,15 @@ export function registerPaymentsRoutes(app: FastifyInstance, paymentsService: Pa
   const handleWebhook = async (req: FastifyRequest, reply: FastifyReply) => {
     const signature = String(
       req.headers["x-razorpay-signature"] ||
-        req.headers["X-Razorpay-Signature"] ||
-        ""
+      req.headers["X-Razorpay-Signature"] ||
+      ""
+    );
+
+    // Security: Extract timestamp for replay attack prevention
+    const timestamp = String(
+      req.headers["x-razorpay-signature-timestamp"] ||
+      req.headers["X-Razorpay-Signature-Timestamp"] ||
+      ""
     );
 
     const rawBody = (req as any).rawBody || req.body;
@@ -49,7 +56,7 @@ export function registerPaymentsRoutes(app: FastifyInstance, paymentsService: Pa
       : Buffer.from(typeof rawBody === "string" ? rawBody : JSON.stringify(rawBody));
 
     try {
-      const result = await paymentsService.handleWebhook(bodyBuffer, signature);
+      const result = await paymentsService.handleWebhook(bodyBuffer, signature, timestamp);
       return reply.status(200).send({
         success: true,
         ...result,
