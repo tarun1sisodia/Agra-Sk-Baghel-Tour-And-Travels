@@ -460,12 +460,31 @@ Sitemap: ${CANONICAL_DOMAIN}/sitemap.xml
 `;
 }
 
-export async function generateSitemapAndRobots(): Promise<{
+function hasBuiltArtifact(pathname: string): boolean {
+  const cleanPath = pathname.replace(/^\/+|\/+$/g, "");
+  const artifact = pathname.endsWith(".html")
+    ? join(reactRoot, "dist", cleanPath)
+    : join(reactRoot, "dist", cleanPath, "index.html");
+  return existsSync(artifact);
+}
+
+export async function generateSitemapAndRobots(options: { requireBuiltArtifacts?: boolean } = {}): Promise<{
   entriesCount: number;
   sitemapPath: string;
   robotsPath: string;
 }> {
-  const entries = getSitemapEntries();
+  const allEntries = getSitemapEntries();
+  const entries = options.requireBuiltArtifacts
+    ? allEntries.filter((entry) => {
+        const englishBuilt = hasBuiltArtifact(entry.path);
+        const hindiBuilt = !HINDI_INDEXING_ENABLED || !entry.hiPath || hasBuiltArtifact(entry.hiPath);
+        if (!englishBuilt || !hindiBuilt) {
+          console.warn(`⚠️ Sitemap skipped URL without a built HTML artifact: ${entry.path}`);
+          return false;
+        }
+        return true;
+      })
+    : allEntries;
   const sitemapXml = generateSitemapXml(entries);
   const robotsTxt = generateRobotsTxt();
 
