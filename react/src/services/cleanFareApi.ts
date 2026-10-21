@@ -15,7 +15,6 @@ import {
   type CategoryCode,
 } from "../contracts/fare-system.js";
 import { z } from "zod";
-import type { FeaturedPromo, PromoValidateResponse } from "../../../contracts/promos.js";
 
 function isLocalHost(hostname: string): boolean {
   return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "0.0.0.0";
@@ -279,20 +278,6 @@ export async function fetchQuoteOptions(req: OptionsRequest): Promise<OptionsRes
     },
     OptionsResponse
   );
-}
-
-export async function fetchPublicPromos(): Promise<FeaturedPromo[]> {
-  const raw = await apiRequest<any>("/api/v1/public/promos", { method: "GET" });
-  const list = Array.isArray(raw) ? raw : raw?.data;
-  return Array.isArray(list) ? list : [];
-}
-
-export async function validatePublicPromo(code: string, baseFare: number, category?: string): Promise<PromoValidateResponse> {
-  const raw = await apiRequest<any>("/api/v1/public/promos/validate", {
-    method: "POST",
-    body: JSON.stringify({ code, baseFare, category }),
-  });
-  return (raw?.data || raw) as PromoValidateResponse;
 }
 
 // 4. Exact Fare Quote

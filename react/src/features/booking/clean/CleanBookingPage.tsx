@@ -28,8 +28,6 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   fetchPublishedCatalog,
   fetchQuoteOptions,
-  fetchPublicPromos,
-  validatePublicPromo,
   createBooking,
   createBookingPayment,
   verifyBookingPayment,
@@ -231,10 +229,6 @@ export function CleanBookingPage() {
 
   // 4. Selected Vehicle
   const [selectedCar, setSelectedCar] = useState<SelectedCarState | null>(null);
-  const [promoCode, setPromoCode] = useState(() => searchParams.get("promo") || searchParams.get("coupon") || "");
-  const [promoOffers, setPromoOffers] = useState<Array<{ code: string; discountAmount: number; minTotal: number; description: string }>>([]);
-  const [promoResult, setPromoResult] = useState<{ valid: boolean; code: string; discount: number; finalFare?: number; advanceTokenAmount?: number; balanceOnTripAmount?: number; message?: string } | null>(null);
-  const [promoBusy, setPromoBusy] = useState(false);
 
   // 5. Customer Details Form & Google Auth Pre-fill
   const { user, accessToken, signInWithGoogle, signInWithSeedCustomer } = useCustomerAuth();
@@ -264,10 +258,6 @@ export function CleanBookingPage() {
       }));
     }
   }, [user]);
-
-  useEffect(() => {
-    fetchPublicPromos().then(setPromoOffers).catch(() => setPromoOffers([]));
-  }, []);
 
   // 6. Booking & Payment Execution State
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
@@ -536,21 +526,6 @@ export function CleanBookingPage() {
   };
 
   // 9. Execute Booking and Razorpay Flow
-  const applyPromoCode = async (code = promoCode) => {
-    const clean = code.trim().toUpperCase();
-    if (!clean || !selectedCar) return;
-    setPromoCode(clean);
-    setPromoBusy(true);
-    try {
-      const result = await validatePublicPromo(clean, selectedCar.quote.total, category);
-      setPromoResult(result);
-    } catch (err: any) {
-      setPromoResult({ valid: false, code: clean, discount: 0, message: err?.message || "Promo code could not be validated." });
-    } finally {
-      setPromoBusy(false);
-    }
-  };
-
   const handleProceedToBooking = async (overrideQuote?: QuoteResponse) => {
     setBookingError(null);
     if (!selectedCar || !activeProduct) {
@@ -569,9 +544,7 @@ export function CleanBookingPage() {
       return;
     }
 
-    const quoteToUse = overrideQuote || (promoResult?.valid && promoResult.finalFare !== undefined
-      ? { ...selectedCar.quote, total: promoResult.finalFare, advance: promoResult.advanceTokenAmount ?? Math.round(promoResult.finalFare * 0.28), balance: promoResult.balanceOnTripAmount ?? 0 }
-      : selectedCar.quote);
+    const quoteToUse = overrideQuote || selectedCar.quote;
     trackConversion("booking_form_submit", { category, trip_type: category === "outstation" ? tripType : undefined });
     setBookingSubmitting(true);
 
@@ -593,7 +566,6 @@ export function CleanBookingPage() {
         ...(category === "local_package" ? { local_package_id: activeProduct.id } : {}),
         ...(category === "transfer" ? { transfer_id: activeProduct.id } : {}),
         ...(category === "tour_package" ? { tour_package_id: activeProduct.id } : {}),
-        ...(promoResult?.valid && promoResult.code ? { promo_code: promoResult.code } : {}),
       },
       quoted_total: quoteToUse.total,
       customer_name: customer.name.trim(),
@@ -1370,23 +1342,6 @@ export function CleanBookingPage() {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Promo code */}
-          <div className="rounded-xl border border-hairline bg-surface p-6">
-            <h2 className="font-display text-lg font-bold text-ink mb-3">Promo code</h2>
-            <div className="flex gap-2">
-              <input value={promoCode} onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoResult(null); }} placeholder="Enter coupon code" className="min-w-0 flex-1 rounded-md border border-hairline bg-surface p-2 text-sm text-ink" />
-              <button type="button" onClick={() => applyPromoCode()} disabled={promoBusy || !selectedCar} className="rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">{promoBusy ? "Checking…" : "Apply"}</button>
-            </div>
-            {promoOffers.length > 0 && <div className="mt-3 flex flex-wrap gap-2">
-              {promoOffers.filter((offer) => !activeProduct || offer.minTotal <= (selectedCar?.quote.total ?? 0)).map((offer) => (
-                <button key={offer.code} type="button" onClick={() => { setPromoCode(offer.code); applyPromoCode(offer.code); }} className="rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-[11px] font-semibold text-primary">Apply {offer.code} — Save {formatINR(offer.discountAmount)}</button>
-              ))}
-            </div>}
-            {promoResult && <div className={cn("mt-3 rounded-md p-3 text-xs", promoResult.valid ? "bg-emerald-500/10 text-emerald-700" : "bg-rose-500/10 text-rose-700")}>
-              {promoResult.valid ? <>Promo discount ({promoResult.code}): -{formatINR(promoResult.discount)}. Net payable {formatINR(promoResult.finalFare || 0)}; 28% advance {formatINR(promoResult.advanceTokenAmount || 0)}; balance {formatINR(promoResult.balanceOnTripAmount || 0)}.</> : promoResult.message}
-            </div>}
           </div>
 
           {/* Right Column: Server-Authoritative Fare Panel */}

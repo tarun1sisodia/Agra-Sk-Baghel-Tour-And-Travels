@@ -11,16 +11,6 @@ export async function registerPromosRoutes(
     handler: controller.featured,
   });
 
-  app.get("/api/v1/public/promos", {
-    config: { rateLimit: { max: 120, timeWindow: "1 minute" } },
-    handler: controller.publicList,
-  });
-
-  app.post("/api/v1/public/promos/validate", {
-    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
-    handler: controller.validatePublic,
-  });
-
   // Admin operations routes with admin auth
   app.get("/api/v1/ops/admin/promos", {
     config: { rateLimit: { max: 60, timeWindow: "1 minute" } },

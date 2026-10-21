@@ -65,8 +65,6 @@ export class BookingsService {
       advance_amount: freshQuote.advance,
     });
 
-    await this.quotesService.consumePromo(req.quote.promo_code);
-
     return booking;
   }
 
