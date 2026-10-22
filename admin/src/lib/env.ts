@@ -16,7 +16,7 @@ export const env = {
     (import.meta.env.VITE_CUSTOMER_SITE_URL as string | undefined)?.replace(/\/+$/, "") ||
     (typeof window !== "undefined" && isLocalHost(window.location.hostname)
       ? "http://localhost:5173"
-      : "https://skbagheltravels-customer.coccoder999.workers.dev"),
+      : "https://agraskbagheltourandtravels.com"),
   SUPABASE_URL: (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.replace(/\/+$/, "") || "",
   SUPABASE_ANON_KEY: (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) || "",
   ADMIN_EMAIL: (import.meta.env.VITE_ADMIN_EMAIL as string | undefined)?.trim().toLowerCase() || "",

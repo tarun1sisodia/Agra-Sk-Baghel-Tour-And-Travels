@@ -534,7 +534,7 @@ export async function prerender(): Promise<void> {
 
     // Generate XML sitemap & robots.txt
     await generateSitemapAndRobots({ requireBuiltArtifacts: true });
-    const callbackBase = (process.env.VITE_API_BASE_URL || "https://skb-baghel-api-staging.onrender.com").replace(/\/$/, "");
+    const callbackBase = (process.env.VITE_API_BASE_URL || "https://api.agraskbagheltourandtravels.com").replace(/\/$/, "");
     if (process.env.DEPLOY_CALLBACK_SECRET || process.env.DEPLOY_CALLBACK_URL) {
       try {
         const snapshotPath = join(reactRoot, "src", "data", "live-catalog.snapshot.json");

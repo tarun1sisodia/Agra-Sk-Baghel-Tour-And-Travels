@@ -69,11 +69,11 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [copiedLink, setCopiedLink] = useState(false);
 
-  // Testing review sharing base URL (temporary override for Cloudflare Workers customer site testing)
+  // Production review links can still be overridden for preview deployments.
   const reviewSharingBaseUrl =
     (import.meta.env.VITE_REVIEW_SHARING_URL as string | undefined)?.replace(/\/+$/, "") ||
     env.CUSTOMER_SITE_URL ||
-    "https://skbagheltravels-customer.coccoder999.workers.dev";
+    "https://agraskbagheltourandtravels.com";
 
   const activeReviewUrl = useMemo(() => {
     if (generatedToken) {

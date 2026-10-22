@@ -15,8 +15,8 @@
 const timeoutMs = Number.parseInt(process.env.HEALTHCHECK_TIMEOUT_MS || "10000", 10);
 const attempts = Math.max(1, Number.parseInt(process.env.HEALTHCHECK_ATTEMPTS || "2", 10));
 const urls = (process.env.HEALTHCHECK_URLS || [
-  "https://skb-baghel-api-staging.onrender.com/api/v1/health",
-  "https://skbagheltravels-customer.coccoder999.workers.dev/",
+  "https://api.agraskbagheltourandtravels.com/api/v1/health",
+  "https://agraskbagheltourandtravels.com/",
   "https://skbagheltravels-admin.coccoder999.workers.dev/",
 ].join(","))
   .split(",")

@@ -7,7 +7,7 @@
 - **Canonical Deployment Origin:** `https://admin.agraskbagheltourandtravels.com`
 - **Active Staging Origin:** `https://skbagheltravels-admin.coccoder999.workers.dev`
 - **Local Development URL:** `http://localhost:5174`
-- **Backend API Origin:** `https://skb-baghel-api-staging.onrender.com` / `http://localhost:4000`
+- **Backend API Origin:** `https://api.agraskbagheltourandtravels.com` / `http://localhost:4000`
 - **Connected Customer Portal:** `https://skbagheltravels-customer.coccoder999.workers.dev` (Staging) / `https://agraskbagheltourandtravels.com` (Prod)
 - **Target Test Automation Engine:** TestSprite (Admin UI & Role Permission Test Generation)
 

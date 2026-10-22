@@ -7,7 +7,7 @@ deployable applications:
 |---|---|---|---|---|---|
 | Customer site | [`react/`](./react/) | React 19 + Vite 7, bilingual SSG pre-render | `npm run customer:dev` → http://localhost:5173 | `react/dist` | Cloudflare Pages (`agraskbagheltourandtravels.com`) |
 | Operations desk | [`admin/`](./admin/) | React 19 + Vite 7 + Tailwind 4 (Vercel light design system) | `npm run admin:dev` → http://localhost:5174 | `admin/dist` | Cloudflare Pages (`admin.agraskbagheltourandtravels.com`) |
-| API | [`backend/`](./backend/) | Fastify 5 + TypeScript, PostgreSQL ledger | `npm run backend:dev` → http://localhost:4000 | `backend/dist` | Render Docker service (`skb-baghel-api-staging.onrender.com`) |
+| API | [`backend/`](./backend/) | Fastify 5 + TypeScript, PostgreSQL ledger | `npm run backend:dev` → http://localhost:4000 | `backend/dist` | Render Docker service (`api.agraskbagheltourandtravels.com`) |
 
 The full topology, provider settings, environment variables, release order and
 rollback notes are in [`docs/DEPLOYMENT.md`](./docs/DEPLOYMENT.md). Read that

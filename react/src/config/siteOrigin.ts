@@ -9,7 +9,7 @@ export const APPROVED_PRODUCTION_ORIGINS = [
 export const DEFAULT_PRODUCTION_ORIGIN =
   (typeof process !== "undefined" && process.env?.VITE_SITE_URL?.trim()) ||
   (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_SITE_URL?.trim()) ||
-  STAGING_WORKERS_ORIGIN;
+  CLIENT_PRODUCTION_ORIGIN;
 
 export const APPROVED_PRODUCTION_ORIGIN = DEFAULT_PRODUCTION_ORIGIN;
 

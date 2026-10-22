@@ -281,7 +281,7 @@ VITE_API_BASE_URL=/api/v1   (proxied to http://localhost:4000 in dev)
 
 ### Key Frontend Env Vars
 ```bash
-VITE_API_BASE_URL=https://skb-baghel-api-staging.onrender.com
+VITE_API_BASE_URL=https://api.agraskbagheltourandtravels.com
 VITE_RAZORPAY_KEY_ID=rzp_live_...
 VITE_SUPABASE_URL=https://xxx.supabase.co
 VITE_SUPABASE_ANON_KEY=...

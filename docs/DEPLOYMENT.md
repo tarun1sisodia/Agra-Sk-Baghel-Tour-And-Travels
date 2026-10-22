@@ -6,7 +6,7 @@ ArenaAI is a single repository with three independently deployable applications.
 |---|---|---|---|---|---|
 | Customer site | `react/` | Cloudflare Pages | `agraskbagheltourandtravels.com` | `npm ci && npm run build` | `dist` |
 | Admin panel | `admin/` | Cloudflare Pages | `admin.agraskbagheltourandtravels.com` | `npm ci && npm run build` | `dist` |
-| Backend API | `backend/` | Render Docker service (or VPS Docker + Cloudflare Tunnel) | `skb-baghel-api-staging.onrender.com` | Dockerfile | Port `4000` |
+| Backend API | `backend/` | Render Docker service (or VPS Docker + Cloudflare Tunnel) | `api.agraskbagheltourandtravels.com` | Dockerfile | Port `4000` |
 
 `main` is the production branch. `design/homepage` is the integration branch. The normal release path is: feature branch → pull request into `design/homepage` → validation → pull request into `main` → provider auto-deploy from `main`. No application may be copied into a second repository, and nothing may be deployed from a generated artifact committed to Git.
 
@@ -112,13 +112,13 @@ For enterprise container hardening, the repository provides [`backend/Dockerfile
 ### Add the API custom domain
 
 1. In Render, open the service's **Settings → Custom Domains → Add Custom Domain**.
-2. Enter `skb-baghel-api-staging.onrender.com` and copy the DNS target Render gives you.
+2. Enter `api.agraskbagheltourandtravels.com` and copy the DNS target Render gives you.
 3. In Cloudflare DNS, create the requested CNAME record. Start with the proxy disabled if Render's domain verification requires direct DNS; enable the orange-cloud proxy only after TLS and routing are confirmed.
 4. Wait for Render TLS issuance and verify:
 
 ```bash
-curl -fsS https://skb-baghel-api-staging.onrender.com/health
-curl -fsS https://skb-baghel-api-staging.onrender.com/ready
+curl -fsS https://api.agraskbagheltourandtravels.com/health
+curl -fsS https://api.agraskbagheltourandtravels.com/ready
 ```
 
 The API must allow CORS from `https://agraskbagheltourandtravels.com`, `https://www.agraskbagheltourandtravels.com`, and `https://admin.agraskbagheltourandtravels.com` (`CORS_ORIGINS`).
@@ -138,7 +138,7 @@ If the final hosting decision is a VPS instead of Render, use the same `backend/
 5. Set **Root directory** to `/react`.
 6. Set **Build command** to `npm ci && npm run build`.
 7. Set **Build output directory** to `dist`.
-8. Add the production variable `VITE_API_BASE_URL=https://skb-baghel-api-staging.onrender.com` under **Settings → Environment variables → Production**.
+8. Add the production variable `VITE_API_BASE_URL=https://api.agraskbagheltourandtravels.com` under **Settings → Environment variables → Production**.
 9. Under **Settings → Build & deployments → Ignored build command**, enter:
    ```
    git diff --quiet HEAD^ HEAD -- react/
@@ -172,7 +172,7 @@ Keep `CUSTOMER_SITE_URL=https://agraskbagheltourandtravels.com` in the productio
 4. Set **Build command** to `npm ci && npm run build`.
 5. Set **Build output directory** to `dist`.
 6. Add the following production build variables under **Settings → Environment variables → Production**:
-   - `VITE_API_BASE_URL=https://skb-baghel-api-staging.onrender.com`
+   - `VITE_API_BASE_URL=https://api.agraskbagheltourandtravels.com`
    - `VITE_SUPABASE_URL=https://<SUPABASE_PROJECT_REF>.supabase.co`
    - `VITE_SUPABASE_ANON_KEY=<SUPABASE_ANON_PUBLIC_KEY>`
    - `VITE_ADMIN_EMAIL=<ALLOWED_ADMIN_GMAIL>` (Optional: locks admin desk exclusively to this single Gmail address)
@@ -245,14 +245,14 @@ The admin panel is a React Router SPA with a single `index.html`. It handles SPA
 Use this order to avoid deploying frontends that point at an unavailable API:
 
 1. Deploy Render and verify `/health` and `/ready` on the Render hostname.
-2. Add and verify `skb-baghel-api-staging.onrender.com`.
+2. Add and verify `api.agraskbagheltourandtravels.com`.
 3. Set `VITE_API_BASE_URL` in both Pages projects.
 4. Deploy the customer Pages project and add `agraskbagheltourandtravels.com`.
 5. Deploy the admin Pages project and add `admin.agraskbagheltourandtravels.com`.
 6. Run the complete public check:
 
 ```bash
-HEALTHCHECK_URLS="https://skb-baghel-api-staging.onrender.com/health,https://agraskbagheltourandtravels.com/,https://admin.agraskbagheltourandtravels.com/" npm run healthcheck
+HEALTHCHECK_URLS="https://api.agraskbagheltourandtravels.com/health,https://agraskbagheltourandtravels.com/,https://admin.agraskbagheltourandtravels.com/" npm run healthcheck
 ```
 
 The API is the authority for fares, booking state, payments, and admin permissions. Never put database, payment, webhook, or service-role secrets in Cloudflare or Vite variables — frontend builds are public static clients.
@@ -272,7 +272,7 @@ npm run healthcheck
 To monitor custom domains instead of provider-hosted URLs, override:
 
 ```bash
-HEALTHCHECK_URLS="https://skb-baghel-api-staging.onrender.com/health,https://agraskbagheltourandtravels.com/,https://admin.agraskbagheltourandtravels.com/" npm run healthcheck
+HEALTHCHECK_URLS="https://api.agraskbagheltourandtravels.com/health,https://agraskbagheltourandtravels.com/,https://admin.agraskbagheltourandtravels.com/" npm run healthcheck
 ```
 
 Override the targets for staging or a Render preview service:

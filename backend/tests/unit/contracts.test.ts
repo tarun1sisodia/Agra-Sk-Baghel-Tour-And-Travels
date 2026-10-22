@@ -123,7 +123,7 @@ describe("Phase 1 Contract Synchronizations & Validation", () => {
       payment_id: "00000000-0000-0000-0000-000000000001",
       order_id: "order_K8dG91k2s8A1",
       currency: "INR",
-      amountPaise: 98000,
+      amount_paise: 98000,
       key_id: "rzp_test_12345",
       customer_name: "Rahul Sharma",
       customer_phone: "9876543210",
@@ -336,4 +336,3 @@ describe("Phase 6 Contract C-FLEET-PRICING-001: FleetPriceOption", () => {
     expect(FleetPriceOptionSchema.safeParse(invalidPriceSource).success).toBe(false);
   });
 });
-

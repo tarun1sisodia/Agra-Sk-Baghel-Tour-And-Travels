@@ -949,35 +949,46 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           webhookEventId?: string;
           paymentMethod?: string | null;
         }) {
-          const rows = await query(
-            client,
-            `update payments set
-              status='captured',
-              provider_payment_id=$3,
-              reconciliation_status='matched',
-              verified_at=$4,
-              payment_method=$5,
-              updated_at=$6
-            where id=$1 returning *`,
-            [
-              params.paymentId,
-              params.providerPaymentId,
-              new Date().toISOString(),
-              params.paymentMethod,
-              new Date().toISOString(),
-            ],
-          );
-          if (!rows[0]) throw new Error("Payment not found");
-
-          // Update booking status if pending_payment
-          await query(
-            client,
-            `update bookings set status='confirmed', updated_at=$2 where id=$1 and status='pending_payment'`,
-            [params.bookingId, new Date().toISOString()],
-          );
-
-          if (params.webhookEventId) {
-            await query(client, "update webhook_events set processed=true where id=$1", [params.webhookEventId]);
+          const ownsClient = !("release" in client && typeof (client as { release?: unknown }).release === "function");
+          const txClient = ownsClient ? await pool.connect() : client;
+          try {
+            if (ownsClient) await txClient.query("BEGIN");
+            const bookingRows = await query<{ status: string }>(
+              txClient,
+              "select status from bookings where id=$1 for update",
+              [params.bookingId],
+            );
+            if (!bookingRows[0]) throw new Error("Booking not found");
+            if (bookingRows[0].status === "cancelled" || bookingRows[0].status === "refunded") {
+              throw new Error("BOOKING_NOT_PAYABLE: This booking is cancelled and cannot accept payment.");
+            }
+            const rows = await query(
+              txClient,
+              `update payments set
+                status='captured',
+                provider_payment_id=$2,
+                reconciliation_status='matched',
+                verified_at=$3,
+                payment_method=coalesce($4, payment_method),
+                updated_at=$3
+              where id=$1 and booking_id=$5 returning *`,
+              [params.paymentId, params.providerPaymentId, new Date().toISOString(), params.paymentMethod ?? null, params.bookingId],
+            );
+            if (!rows[0]) throw new Error("Payment not found");
+            await query(
+              txClient,
+              `update bookings set status='confirmed', updated_at=$2 where id=$1 and status='pending_payment'`,
+              [params.bookingId, new Date().toISOString()],
+            );
+            if (params.webhookEventId) {
+              await query(txClient, "update payment_webhook_events set processed=true where id=$1", [params.webhookEventId]);
+            }
+            if (ownsClient) await txClient.query("COMMIT");
+          } catch (error) {
+            if (ownsClient) await txClient.query("ROLLBACK");
+            throw error;
+          } finally {
+            if (ownsClient) txClient.release();
           }
         },
         async processNeedsReview(params: {
@@ -986,26 +997,30 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           providerPaymentId?: string;
           webhookEventId?: string;
         }) {
-          const rows = await query(
-            client,
-            `update payments set
-              status='needs_review',
-              failure_reason=$2,
-              updated_at=$3
-            where id=$1 returning *`,
-            [params.paymentId, params.reason, new Date().toISOString()],
-          );
-          if (!rows[0]) throw new Error("Payment not found");
-
-          if (params.providerPaymentId) {
-            await query(client, "update payments set provider_payment_id=$1 where id=$2", [
-              params.providerPaymentId,
-              params.paymentId,
-            ]);
-          }
-
-          if (params.webhookEventId) {
-            await query(client, "update webhook_events set processed=true where id=$1", [params.webhookEventId]);
+          const ownsClient = !("release" in client && typeof (client as { release?: unknown }).release === "function");
+          const txClient = ownsClient ? await pool.connect() : client;
+          try {
+            if (ownsClient) await txClient.query("BEGIN");
+            const rows = await query(
+              txClient,
+              `update payments set
+                status='needs_review',
+                failure_reason=$2,
+                provider_payment_id=coalesce($3, provider_payment_id),
+                updated_at=$4
+              where id=$1 returning *`,
+              [params.paymentId, params.reason, params.providerPaymentId ?? null, new Date().toISOString()],
+            );
+            if (!rows[0]) throw new Error("Payment not found");
+            if (params.webhookEventId) {
+              await query(txClient, "update payment_webhook_events set processed=true where id=$1", [params.webhookEventId]);
+            }
+            if (ownsClient) await txClient.query("COMMIT");
+          } catch (error) {
+            if (ownsClient) await txClient.query("ROLLBACK");
+            throw error;
+          } finally {
+            if (ownsClient) txClient.release();
           }
         },
       },

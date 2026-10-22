@@ -2,7 +2,7 @@
 # Set the Pages root directory to `admin` in the dashboard, then use:
 # Build command: npm ci && npm run build
 # Build output directory: dist
-# API calls should target https://skb-baghel-api-staging.onrender.com via VITE_API_BASE_URL.
+# API calls should target https://api.agraskbagheltourandtravels.com via VITE_API_BASE_URL.
 
 [build]
 command = "npm ci && npm run build"
@@ -13,4 +13,4 @@ NODE_VERSION = "22"
 VITE_BASE_PATH = "/"
 # Set VITE_API_BASE_URL in the CF Pages dashboard (Production + Preview).
 # Do NOT commit real values here — this file is public.
-# VITE_API_BASE_URL = "https://skb-baghel-api-staging.onrender.com"
+# VITE_API_BASE_URL = "https://api.agraskbagheltourandtravels.com"

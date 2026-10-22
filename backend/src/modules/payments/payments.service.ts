@@ -467,7 +467,12 @@ export class PaymentsService {
       return { status: "order_not_found" };
     }
 
-    const booking = await this.deps.bookingsRepo.getById(payment.bookingId);
+    // Accept both repository domain records and legacy database-shaped fixtures during migration.
+    const bookingId = payment.bookingId ?? (payment as unknown as { booking_id?: string }).booking_id;
+    if (!bookingId) {
+      throw new AppError("DATA_CORRUPTION", "Payment is missing its booking relationship", 500);
+    }
+    const booking = await this.deps.bookingsRepo.getById(bookingId);
 
     if (eventType === "payment.captured") {
       const webhookAmount = Number(paymentEntity?.amount ?? 0);
@@ -510,7 +515,7 @@ export class PaymentsService {
       // PM-03: Matching amount and valid state -> payment captured, booking confirmed, one transaction
       await this.deps.paymentsRepo.processCaptured({
         paymentId: payment.id,
-        bookingId: payment.bookingId,
+        bookingId,
         providerPaymentId,
         webhookEventId: recordedEvent?.id,
         paymentMethod: paymentEntity?.method || null,
@@ -518,7 +523,7 @@ export class PaymentsService {
 
       // Post-transaction email voucher dispatch (isolated error boundary)
       try {
-        await this.sendBookingConfirmationEmail(payment.bookingId, providerPaymentId);
+        await this.sendBookingConfirmationEmail(bookingId, providerPaymentId);
       } catch (emailErr: any) {
         console.warn(`[payments] Background confirmation email delivery skipped: ${emailErr?.message || emailErr}`);
       }

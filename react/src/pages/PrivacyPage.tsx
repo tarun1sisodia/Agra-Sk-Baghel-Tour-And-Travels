@@ -9,12 +9,13 @@ export interface PrivacyPageProps {
 const LAST_UPDATED = "22 October 2026";
 
 export function PrivacyPage({ language = "en" }: PrivacyPageProps) {
+  const languagePrefix = language === "hi" ? "/hi" : "/en";
   return (
     <main lang={language} className="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen">
       <header className="bg-sandstone-wash/60 border-b border-border-warm py-8 md:py-12">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm mb-4 text-on-surface-variant">
-            <a className="text-primary hover:underline" href="/">Home</a>
+            <a className="text-primary hover:underline" href={`${languagePrefix}/`}>Home</a>
             <span aria-hidden="true">/</span>
             <span>Privacy Policy</span>
           </nav>
@@ -169,8 +170,8 @@ export function PrivacyPage({ language = "en" }: PrivacyPageProps) {
         </section>
 
         <div className="border-t border-border-warm pt-6 flex flex-wrap gap-4 text-sm">
-          <a className="text-primary underline" href="/terms-and-conditions/">Terms and Conditions</a>
-          <a className="text-primary underline" href="/contact/">Contact the travel desk</a>
+          <a className="text-primary underline" href={`${languagePrefix}/terms/`}>Terms and Conditions</a>
+          <a className="text-primary underline" href={`${languagePrefix}/contact/`}>Contact the travel desk</a>
         </div>
       </article>
     </main>

@@ -7,7 +7,7 @@
 - **Canonical Production Origin:** `https://agraskbagheltourandtravels.com`
 - **Active Staging Origin:** `https://skbagheltravels-customer.coccoder999.workers.dev`
 - **Local Development URL:** `http://localhost:5173`
-- **Backend API Origin:** `https://skb-baghel-api-staging.onrender.com` / `http://localhost:4000`
+- **Backend API Origin:** `https://api.agraskbagheltourandtravels.com` / `http://localhost:4000`
 - **Target Test Automation Engine:** TestSprite (E2E & UI Functional Test Generation)
 
 ---
