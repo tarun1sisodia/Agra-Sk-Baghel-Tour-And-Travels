@@ -113,6 +113,7 @@ import { ReviewsRepository } from "./modules/reviews/reviews.repository.js";
 import { ReviewsService } from "./modules/reviews/reviews.service.js";
 import { registerReviewsRoutes } from "./modules/reviews/reviews.routes.js";
 import { PublicationWorker } from "./modules/publishing/publication-worker.js";
+import { registerLegacyRouteTelemetry } from "./middlewares/legacyRouteTelemetry.js";
 
 export type AppOptions = {
   env: Env;
@@ -141,6 +142,7 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
   });
 
   registerRawBody(app);
+  registerLegacyRouteTelemetry(app);
   registerRequestId(app);
   registerErrorHandler(app);
   registerNetworkHeaders(app);
