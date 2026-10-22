@@ -92,7 +92,7 @@
 | `provider` | TEXT | `razorpay` / `paypal` |
 | `provider_order_id` | TEXT | Razorpay order ID |
 | `provider_payment_id` | TEXT | Razorpay payment ID (after capture) |
-| `amount_paise` | INT | |
+| `amountPaise` | INT | |
 | `status` | TEXT | `pending` / `captured` / `failed` / `needs_review` / `refunded` |
 | `failure_reason` | TEXT | |
 | `payment_method` | TEXT | `upi` / `card` / `netbanking` / `wallet` |
@@ -191,7 +191,7 @@ if (webhookCurrency && webhookCurrency !== "INR") {
   return { status: "needs_review", reason: "currency_mismatch" };
 }
 
-if (webhookAmount !== payment.amount_paise) {
+if (webhookAmount !== payment.amountPaise) {
   await this.deps.paymentsRepo.processNeedsReview({
     paymentId: payment.id,
     reason: "amount_mismatch",

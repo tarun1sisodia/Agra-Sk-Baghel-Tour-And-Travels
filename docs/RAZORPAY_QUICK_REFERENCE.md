@@ -118,7 +118,7 @@ Authorization: Bearer <token>
 
 **Database:**
 ```sql
-INSERT INTO payments (booking_id, provider_order_id, amount_paise, status)
+INSERT INTO payments (booking_id, provider_order_id, amountPaise, status)
 VALUES (..., 'order_XXXX', 420000, 'pending');
 ```
 

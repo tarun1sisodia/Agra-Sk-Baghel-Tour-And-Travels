@@ -130,7 +130,7 @@ async function runTest() {
     }
     const payData = (await payRes.json()) as any;
     const payment = payData.payment;
-    console.log(`  Razorpay Order Created: OrderID = ${payment.order_id}, AmountPaise = ${payment.amount_paise}, KeyID = ${payment.key_id}`);
+    console.log(`  Razorpay Order Created: OrderID = ${payment.order_id}, AmountPaise = ${payment.amountPaise}, KeyID = ${payment.key_id}`);
 
     // Verify key_id matches server test key
     if (!payment.key_id || !payment.key_id.startsWith("rzp_test_")) {
@@ -164,7 +164,7 @@ async function runTest() {
           entity: {
             id: razorpayPaymentId,
             entity: "payment",
-            amount: payment.amount_paise,
+            amount: payment.amountPaise,
             currency: "INR",
             status: "captured",
             order_id: payment.order_id,

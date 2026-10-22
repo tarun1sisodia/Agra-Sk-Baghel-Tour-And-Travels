@@ -306,22 +306,22 @@ class MockPaymentsRepo extends PaymentsRepository {
     const id = `p-${this.payments.size + 1}`;
     const entity: PaymentEntity = {
       id,
-      booking_id: data.booking_id,
+      bookingId: data.booking_id,
       provider: data.provider,
-      provider_order_id: data.provider_order_id,
-      provider_payment_id: null,
-      amount_paise: data.amount_paise,
+      providerOrderId: data.provider_order_id,
+      providerPaymentId: null,
+      amountPaise: data.amountPaise,
       status: "pending",
-      failure_reason: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      failureReason: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     this.payments.set(id, entity);
     return entity;
   }
   override async getPendingByBookingId(bookingId: string): Promise<PaymentEntity | null> {
     for (const p of this.payments.values()) {
-      if (p.booking_id === bookingId && p.status === "pending") return p;
+      if (p.bookingId === bookingId && p.status === "pending") return p;
     }
     return null;
   }
@@ -678,7 +678,7 @@ describe("Section 12.18: Property and matrix tests (PR-01 to PR-11)", () => {
     expect(booking.balance_amount).toBe(quote.balance);
 
     const payment = await paymentsService.createPaymentOrder(booking.id);
-    expect(payment.amount_paise).toBe(quote.advance * 100);
+    expect(payment.amountPaise).toBe(quote.advance * 100);
   });
 
   it("PR-11: POST /quotes/options and POST /quotes agree for every car in every case above", async () => {

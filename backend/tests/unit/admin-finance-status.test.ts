@@ -667,7 +667,7 @@ describe("Admin Finance Visibility & Booking Status Alignment", () => {
           return {
             id: "pay-db-1",
             booking_id: "bkg-db-1",
-            amount_paise: 50000,
+            amountPaise: 50000,
             status: "pending",
           };
         }),

@@ -177,7 +177,7 @@ export class PaymentsService {
       return existing;
     }
 
-    // PM-01: amount_paise = advance_amount * 100
+    // PM-01: amountPaise = advance_amount * 100
     const amountPaise = booking.advance_amount * 100;
     if (!Number.isFinite(amountPaise) || amountPaise <= 0) {
       throw new AppError("VALIDATION_ERROR", "Invalid advance amount", 400);
@@ -242,7 +242,7 @@ export class PaymentsService {
         booking_id: booking.id,
         provider: "razorpay",
         provider_order_id: providerOrderId,
-        amount_paise: amountPaise,
+        amountPaise: amountPaise,
       });
     } catch (err: any) {
       if (err?.code === "23505" || err?.message?.includes("payments_one_pending_per_booking")) {

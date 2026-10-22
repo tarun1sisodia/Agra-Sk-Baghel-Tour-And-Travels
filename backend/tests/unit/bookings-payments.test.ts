@@ -224,15 +224,15 @@ class MockPaymentsRepository extends PaymentsRepository {
     const id = `payment-${this.payments.size + 1}`;
     const entity: PaymentEntity = {
       id,
-      booking_id: data.booking_id,
+      bookingId: data.booking_id,
       provider: data.provider,
-      provider_order_id: data.provider_order_id,
-      provider_payment_id: null,
-      amount_paise: data.amount_paise,
+      providerOrderId: data.provider_order_id,
+      providerPaymentId: null,
+      amountPaise: Number(data.amountPaise),
       status: "pending",
-      failure_reason: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      failureReason: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     this.payments.set(id, entity);
     return entity;
@@ -240,14 +240,14 @@ class MockPaymentsRepository extends PaymentsRepository {
 
   override async getPendingByBookingId(bookingId: string): Promise<PaymentEntity | null> {
     for (const p of this.payments.values()) {
-      if (p.booking_id === bookingId && p.status === "pending") return p;
+      if (p.bookingId === bookingId && p.status === "pending") return p;
     }
     return null;
   }
 
   override async getByProviderOrderId(orderId: string): Promise<PaymentEntity | null> {
     for (const p of this.payments.values()) {
-      if (p.provider_order_id === orderId) return p;
+      if (p.providerOrderId === orderId) return p;
     }
     return null;
   }
@@ -281,8 +281,8 @@ class MockPaymentsRepository extends PaymentsRepository {
     const p = this.payments.get(params.paymentId);
     if (p) {
       p.status = "captured";
-      p.provider_payment_id = params.providerPaymentId;
-      p.updated_at = new Date().toISOString();
+      p.providerPaymentId = params.providerPaymentId;
+      p.updatedAt = new Date().toISOString();
     }
     const b = this.bookingsRepo.bookings.get(params.bookingId);
     if (b && b.status === "pending_payment") {
@@ -298,9 +298,9 @@ class MockPaymentsRepository extends PaymentsRepository {
     const p = this.payments.get(params.paymentId);
     if (p) {
       p.status = "needs_review";
-      p.failure_reason = params.reason;
-      if (params.providerPaymentId) p.provider_payment_id = params.providerPaymentId;
-      p.updated_at = new Date().toISOString();
+      p.failureReason = params.reason;
+      if (params.providerPaymentId) p.providerPaymentId = params.providerPaymentId;
+      p.updatedAt = new Date().toISOString();
     }
     if (params.webhookEventId) {
       await this.markWebhookEventProcessed(params.webhookEventId);
@@ -311,8 +311,8 @@ class MockPaymentsRepository extends PaymentsRepository {
     const p = this.payments.get(params.paymentId);
     if (p) {
       p.status = "failed";
-      p.failure_reason = params.reason;
-      p.updated_at = new Date().toISOString();
+      p.failureReason = params.reason;
+      p.updatedAt = new Date().toISOString();
     }
     if (params.webhookEventId) {
       await this.markWebhookEventProcessed(params.webhookEventId);
@@ -414,14 +414,14 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
     });
 
     const payment = await paymentsService.createPaymentOrder(booking.id);
-    expect(payment.amount_paise).toBe(50000);
+    expect(payment.amountPaise).toBe(50000);
 
     // Update catalog price to 3000
     catalogRepo = createMockFareCatalogRepo({ dzPrice: 3000 });
     const freshBooking = await bookingsRepo.getById(booking.id);
     expect(freshBooking?.total_amount).toBe(2500);
     expect(freshBooking?.advance_amount).toBe(500);
-    expect(payment.amount_paise).toBe(50000);
+    expect(payment.amountPaise).toBe(50000);
   });
 
   it("BK-05: fare_breakdown content contains vehicle, group, capacity, details, lines, messages", async () => {
@@ -538,7 +538,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
     expect(bookingsRepo.bookings.size).toBe(0);
   });
 
-  it("PM-01: Create payment for BK-01 -> amount_paise = 50000; client-supplied amount is ignored", async () => {
+  it("PM-01: Create payment for BK-01 -> amountPaise = 50000; client-supplied amount is ignored", async () => {
     const booking = await bookingsService.createBooking({
       quote: baseQuoteReq,
       quoted_total: 2500,
@@ -548,7 +548,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
     });
 
     const payment = await paymentsService.createPaymentOrder(booking.id);
-    expect(payment.amount_paise).toBe(50000); // 500 advance * 100
+    expect(payment.amountPaise).toBe(50000); // 500 advance * 100
     expect(payment.status).toBe("pending");
     expect(payment.provider).toBe("razorpay");
   });
@@ -566,7 +566,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
     const p2 = await paymentsService.createPaymentOrder(booking.id);
 
     expect(p1.id).toBe(p2.id);
-    expect(p1.provider_order_id).toBe(p2.provider_order_id);
+    expect(p1.providerOrderId).toBe(p2.providerOrderId);
     expect(paymentsRepo.payments.size).toBe(1);
   });
 
@@ -588,7 +588,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
         payment: {
           entity: {
             id: "pay_xyz999",
-            order_id: payment.provider_order_id,
+            order_id: payment.providerOrderId,
             amount: 50000,
             status: "captured",
           },
@@ -604,9 +604,9 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
     const result = await paymentsService.handleWebhook(webhookBody, signature);
     expect(result.status).toBe("captured");
 
-    const updatedPayment = await paymentsRepo.getByProviderOrderId(payment.provider_order_id);
+    const updatedPayment = await paymentsRepo.getByProviderOrderId(payment.providerOrderId);
     expect(updatedPayment?.status).toBe("captured");
-    expect(updatedPayment?.provider_payment_id).toBe("pay_xyz999");
+    expect(updatedPayment?.providerPaymentId).toBe("pay_xyz999");
 
     const updatedBooking = await bookingsRepo.getById(booking.id);
     expect(updatedBooking?.status).toBe("confirmed");
@@ -629,7 +629,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
         payment: {
           entity: {
             id: "pay_repeat_1",
-            order_id: payment.provider_order_id,
+            order_id: payment.providerOrderId,
             amount: 50000,
           },
         },
@@ -662,7 +662,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
         payment: {
           entity: {
             id: "pay_diff",
-            order_id: payment.provider_order_id,
+            order_id: payment.providerOrderId,
             amount: 40000, // differs from 50000!
           },
         },
@@ -674,7 +674,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
     expect(res.status).toBe("needs_review");
     expect(res.reason).toBe("amount_mismatch");
 
-    const updatedPayment = await paymentsRepo.getByProviderOrderId(payment.provider_order_id);
+    const updatedPayment = await paymentsRepo.getByProviderOrderId(payment.providerOrderId);
     expect(updatedPayment?.status).toBe("needs_review");
 
     const updatedBooking = await bookingsRepo.getById(booking.id);
@@ -698,7 +698,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
         payment: {
           entity: {
             id: "pay_bad",
-            order_id: payment.provider_order_id,
+            order_id: payment.providerOrderId,
             amount: 50000,
           },
         },
@@ -708,7 +708,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
     await expect(paymentsService.handleWebhook(webhookBody, "invalid_sig_hex_1234")).rejects.toThrow("Invalid webhook signature");
     expect(paymentsRepo.webhookEvents.size).toBe(0);
 
-    const updatedPayment = await paymentsRepo.getByProviderOrderId(payment.provider_order_id);
+    const updatedPayment = await paymentsRepo.getByProviderOrderId(payment.providerOrderId);
     expect(updatedPayment?.status).toBe("pending");
   });
 
@@ -755,7 +755,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
         payment: {
           entity: {
             id: "pay_late",
-            order_id: payment.provider_order_id,
+            order_id: payment.providerOrderId,
             amount: 50000,
           },
         },
@@ -767,7 +767,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
     expect(res.status).toBe("needs_review");
     expect(res.reason).toBe("booking_cancelled");
 
-    const updatedPayment = await paymentsRepo.getByProviderOrderId(payment.provider_order_id);
+    const updatedPayment = await paymentsRepo.getByProviderOrderId(payment.providerOrderId);
     expect(updatedPayment?.status).toBe("needs_review");
 
     const updatedBooking = await bookingsRepo.getById(booking.id);
@@ -807,7 +807,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
         payment: {
           entity: {
             id: "pay_failed_1",
-            order_id: payment.provider_order_id,
+            order_id: payment.providerOrderId,
             error_description: "Bank declined transaction",
           },
         },
@@ -818,7 +818,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
     const res = await paymentsService.handleWebhook(webhookBody, signature);
     expect(res.status).toBe("failed");
 
-    const updatedPayment = await paymentsRepo.getByProviderOrderId(payment.provider_order_id);
+    const updatedPayment = await paymentsRepo.getByProviderOrderId(payment.providerOrderId);
     expect(updatedPayment?.status).toBe("failed");
 
     const updatedBooking = await bookingsRepo.getById(booking.id);
@@ -905,10 +905,10 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
 
   it("EM-03: sendBookingConfirmationEmail returns false without crashing when Resend returns HTTP 500", async () => {
     const mockFetch = async () =>
-      ({
-        ok: false,
-        text: async () => "Internal Resend Server Error",
-      } as any);
+    ({
+      ok: false,
+      text: async () => "Internal Resend Server Error",
+    } as any);
 
     const emailPaymentsService = new PaymentsService({
       paymentsRepo: paymentsRepo as any,

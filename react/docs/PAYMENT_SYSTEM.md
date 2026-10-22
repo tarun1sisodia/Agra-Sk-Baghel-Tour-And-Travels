@@ -196,7 +196,7 @@ DRAFT  →  PENDING_PAYMENT  →  PAID  →  CONFIRMED
 }
 ```
 
-7. Store `razorpay_order_id`, `amount_paise`, `currency`.
+7. Store `razorpay_order_id`, `amountPaise`, `currency`.
 8. Return `{ key_id, order_id, amount, currency, booking_id, name, description }`.
 
 **Never** let the client pass `amount`.
@@ -290,7 +290,7 @@ Use `payment_capture: 1` (auto-capture) for advance. Authorization-only is extra
 - `id` TEXT PK
 - `booking_id` FK
 - `razorpay_order_id` UNIQUE
-- `amount_paise`, `currency`, `status`
+- `amountPaise`, `currency`, `status`
 - `idempotency_key` UNIQUE
 
 **payments**
@@ -298,18 +298,18 @@ Use `payment_capture: 1` (auto-capture) for advance. Authorization-only is extra
 - `razorpay_payment_id` PK
 - `order_id`, `booking_id`
 - `method` (upi/card/netbanking/wallet)
-- `status`, `amount_paise`, `fee_paise`, `tax_paise`
+- `status`, `amountPaise`, `fee_paise`, `tax_paise`
 - `email`, `contact` (PII — encrypt or truncate)
 - `raw_last_event` JSON (or store in object storage, not git)
 
 **refunds**
 
 - `razorpay_refund_id` PK
-- `payment_id`, `amount_paise`, `status`, `reason`
+- `payment_id`, `amountPaise`, `status`, `reason`
 
 **ledger** (append-only)
 
-- `id`, `booking_id`, `type`, `amount_paise`, `meta_json`, `created_at`
+- `id`, `booking_id`, `type`, `amountPaise`, `meta_json`, `created_at`
 
 **webhook_events**
 
@@ -356,7 +356,7 @@ Lock numbers at order create. Later catalogue price changes **must not** change 
 
 ### 7.5 Amount integrity
 
-- Compare webhook `amount` == `orders.amount_paise`.
+- Compare webhook `amount` == `orders.amountPaise`.
 - Compare `currency == INR`.
 - Compare `order_id` belongs to `booking_id` in notes **and** DB.
 - If mismatch: status `NEEDS_REVIEW`, alert, **do not** auto-confirm.

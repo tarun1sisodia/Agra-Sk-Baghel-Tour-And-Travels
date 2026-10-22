@@ -61,7 +61,7 @@ async function testClientVerification() {
   });
   if (!payRes.ok) throw new Error(`Payment order creation failed: ${await payRes.text()}`);
   const { payment } = (await payRes.json()) as any;
-  console.log(`Payment order created: OrderID = ${payment.order_id}, AmountPaise = ${payment.amount_paise}`);
+  console.log(`Payment order created: OrderID = ${payment.order_id}, AmountPaise = ${payment.amountPaise}`);
 
   // 4. Simulate Client Verification with Razorpay Netbanking Signature
   const razorpayPaymentId = `pay_test_${crypto.randomBytes(6).toString("hex")}`;

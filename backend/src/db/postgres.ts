@@ -403,18 +403,18 @@ function mapBookingIntent(row: Record<string, unknown>): BookingIntentRecord {
 function mapPayment(row: Record<string, unknown>): PaymentRecord {
   // Fail-closed validation on canonical payment columns
   let amountPaise: number;
-  if (row.amount_paise !== undefined && row.amount_paise !== null) {
-    amountPaise = num(row.amount_paise);
+  if (row.amountPaise !== undefined && row.amountPaise !== null) {
+    amountPaise = num(row.amountPaise);
   } else if (row.inr_amount_paise !== undefined && row.inr_amount_paise !== null) {
     amountPaise = num(row.inr_amount_paise);
   } else if (row.amount_minor !== undefined && row.amount_minor !== null) {
     amountPaise = num(row.amount_minor);
   } else {
-    throw new AppError("DATA_CORRUPTION", `Payment ${String(row.id ?? "unknown")} has missing amount_paise`, 500);
+    throw new AppError("DATA_CORRUPTION", `Payment ${String(row.id ?? "unknown")} has missing amountPaise`, 500);
   }
 
   if (isNaN(amountPaise) || amountPaise <= 0) {
-    throw new AppError("DATA_CORRUPTION", `Payment ${String(row.id ?? "unknown")} has non-positive amount_paise: ${amountPaise}`, 500);
+    throw new AppError("DATA_CORRUPTION", `Payment ${String(row.id ?? "unknown")} has non-positive amountPaise: ${amountPaise}`, 500);
   }
   const nowIso = new Date().toISOString();
   return {
@@ -803,8 +803,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
              consumed_at, claimed_user_id, resulting_booking_id)
             values ($1,$2,$3,$4::jsonb,$5::jsonb,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning *`,
             [record.id, record.idempotencyKey, record.resumeSecretHash, JSON.stringify(record.payload), JSON.stringify(record.quote),
-             record.quoteTotalFare, record.quoteAdvanceAmount, record.quoteBalanceAmount, record.fareReconfirmationPending, record.expiresAt, record.createdAt,
-             record.updatedAt, record.consumedAt, record.claimedUserId, record.resultingBookingId]);
+            record.quoteTotalFare, record.quoteAdvanceAmount, record.quoteBalanceAmount, record.fareReconfirmationPending, record.expiresAt, record.createdAt,
+            record.updatedAt, record.consumedAt, record.claimedUserId, record.resultingBookingId]);
           return mapBookingIntent(rows[0]!);
         },
         async update(record: BookingIntentRecord) {
@@ -813,8 +813,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
             quote_balance_amount=$7, expires_at=$8, updated_at=$9, consumed_at=$10,
             claimed_user_id=$11, resulting_booking_id=$12, fare_reconfirmation_pending=$13 where id=$1 returning *`,
             [record.id, record.resumeSecretHash, JSON.stringify(record.payload), JSON.stringify(record.quote), record.quoteTotalFare,
-             record.quoteAdvanceAmount, record.quoteBalanceAmount, record.expiresAt, record.updatedAt,
-             record.consumedAt, record.claimedUserId, record.resultingBookingId, record.fareReconfirmationPending]);
+            record.quoteAdvanceAmount, record.quoteBalanceAmount, record.expiresAt, record.updatedAt,
+            record.consumedAt, record.claimedUserId, record.resultingBookingId, record.fareReconfirmationPending]);
           if (!rows[0]) throw new Error("booking intent update failed");
           return mapBookingIntent(rows[0]);
         },
@@ -834,7 +834,7 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
             client,
             `insert into payments (
               id, booking_id, provider, provider_order_id, provider_payment_id,
-              amount_paise, status, failure_reason, created_at, updated_at
+              amountPaise, status, failure_reason, created_at, updated_at
             ) values (
               $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
             ) returning *`,
@@ -920,8 +920,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
             client,
             `select
                count(*)::int as total,
-               coalesce(sum(case when status='captured' then amount_paise else 0 end), 0)::bigint as total_captured,
-               coalesce(sum(case when status in ('refunded', 'partially_refunded') then amount_paise else 0 end), 0)::bigint +
+               coalesce(sum(case when status='captured' then amountPaise else 0 end), 0)::bigint as total_captured,
+               coalesce(sum(case when status in ('refunded', 'partially_refunded') then amountPaise else 0 end), 0)::bigint +
                coalesce((select coalesce(sum(amount_minor), 0) from refunds where status = 'processed'), 0)::bigint as total_refunded
              from payments ${where}`,
             params,
@@ -941,6 +941,72 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
             totalCapturedPaise: num(aggRows[0]?.total_captured ?? 0),
             totalRefundedPaise: num(aggRows[0]?.total_refunded ?? 0),
           };
+        },
+        async processCaptured(params: {
+          paymentId: string;
+          bookingId: string;
+          providerPaymentId: string;
+          webhookEventId?: string;
+          paymentMethod?: string | null;
+        }) {
+          const rows = await query(
+            client,
+            `update payments set
+              status='captured',
+              provider_payment_id=$3,
+              reconciliation_status='matched',
+              verified_at=$4,
+              payment_method=$5,
+              updated_at=$6
+            where id=$1 returning *`,
+            [
+              params.paymentId,
+              params.providerPaymentId,
+              new Date().toISOString(),
+              params.paymentMethod,
+              new Date().toISOString(),
+            ],
+          );
+          if (!rows[0]) throw new Error("Payment not found");
+
+          // Update booking status if pending_payment
+          await query(
+            client,
+            `update bookings set status='confirmed', updated_at=$2 where id=$1 and status='pending_payment'`,
+            [params.bookingId, new Date().toISOString()],
+          );
+
+          if (params.webhookEventId) {
+            await query(client, "update webhook_events set processed=true where id=$1", [params.webhookEventId]);
+          }
+        },
+        async processNeedsReview(params: {
+          paymentId: string;
+          reason: string;
+          providerPaymentId?: string;
+          webhookEventId?: string;
+        }) {
+          const rows = await query(
+            client,
+            `update payments set
+              status='needs_review',
+              failure_reason=$2,
+              updated_at=$3
+            where id=$1 returning *`,
+            [params.paymentId, params.reason, new Date().toISOString()],
+          );
+          if (!rows[0]) throw new Error("Payment not found");
+
+          if (params.providerPaymentId) {
+            await query(client, "update payments set provider_payment_id=$1 where id=$2", [
+              params.providerPaymentId,
+              params.paymentId,
+            ]);
+          }
+
+          if (params.webhookEventId) {
+            await query(client, "update webhook_events set processed=true where id=$1", [params.webhookEventId]);
+          }
         },
       },
       refunds: {
@@ -1091,8 +1157,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           const durationMins = record.durationText ? parseInt(record.durationText, 10) || null : null;
           const rows = isUuid(record.id)
             ? await query<{ id: string }>(
-                client,
-                `update outstation_routes set
+              client,
+              `update outstation_routes set
                    code = $2,
                    origin_name = $3,
                    destination_name = $4,
@@ -1103,21 +1169,21 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                    updated_at = $9
                  where id = $1::uuid
                  returning id`,
-                [
-                  record.id,
-                  record.slug,
-                  record.sourceCity,
-                  record.destinationCity ?? record.sourceCity,
-                  record.distanceKm,
-                  durationMins,
-                  record.allInclusiveNote,
-                  record.status,
-                  record.updatedAt,
-                ],
-              )
+              [
+                record.id,
+                record.slug,
+                record.sourceCity,
+                record.destinationCity ?? record.sourceCity,
+                record.distanceKm,
+                durationMins,
+                record.allInclusiveNote,
+                record.status,
+                record.updatedAt,
+              ],
+            )
             : await query<{ id: string }>(
-                client,
-                `update outstation_routes set
+              client,
+              `update outstation_routes set
                    origin_name = $2,
                    destination_name = $3,
                    distance_km = $4,
@@ -1127,17 +1193,17 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                    updated_at = $8
                  where code = $1
                  returning id`,
-                [
-                  record.slug,
-                  record.sourceCity,
-                  record.destinationCity ?? record.sourceCity,
-                  record.distanceKm,
-                  durationMins,
-                  record.allInclusiveNote,
-                  record.status,
-                  record.updatedAt,
-                ],
-              );
+              [
+                record.slug,
+                record.sourceCity,
+                record.destinationCity ?? record.sourceCity,
+                record.distanceKm,
+                durationMins,
+                record.allInclusiveNote,
+                record.status,
+                record.updatedAt,
+              ],
+            );
           const routeId = rows[0]?.id ?? record.id;
           if (record.faresInr && typeof record.faresInr === "object" && isUuid(routeId)) {
             for (const [key, amount] of Object.entries(record.faresInr)) {
@@ -1267,8 +1333,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
         async update(record: TourPackageRecord) {
           const rows = isUuid(record.id)
             ? await query<{ id: string }>(
-                client,
-                `update tour_packages set
+              client,
+              `update tour_packages set
                    code = $2,
                    name = $3,
                    duration_text = $4,
@@ -1287,29 +1353,29 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                    updated_at = $17
                  where id = $1::uuid
                  returning id`,
-                [
-                  record.id,
-                  record.packageCode,
-                  record.name,
-                  record.durationText,
-                  record.days,
-                  record.nights,
-                  record.source ?? null,
-                  record.destination ?? null,
-                  record.inclusionsHighlight,
-                  record.inclusionsNote,
-                  JSON.stringify(record.inclusions ?? []),
-                  JSON.stringify(record.exclusions ?? []),
-                  JSON.stringify(record.itinerary ?? []),
-                  record.imageUrl ?? null,
-                  JSON.stringify(record.gallery ?? []),
-                  record.status,
-                  record.updatedAt,
-                ],
-              )
+              [
+                record.id,
+                record.packageCode,
+                record.name,
+                record.durationText,
+                record.days,
+                record.nights,
+                record.source ?? null,
+                record.destination ?? null,
+                record.inclusionsHighlight,
+                record.inclusionsNote,
+                JSON.stringify(record.inclusions ?? []),
+                JSON.stringify(record.exclusions ?? []),
+                JSON.stringify(record.itinerary ?? []),
+                record.imageUrl ?? null,
+                JSON.stringify(record.gallery ?? []),
+                record.status,
+                record.updatedAt,
+              ],
+            )
             : await query<{ id: string }>(
-                client,
-                `update tour_packages set
+              client,
+              `update tour_packages set
                    name = $2,
                    duration_text = $3,
                    days = $4,
@@ -1327,25 +1393,25 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                    updated_at = $16
                  where code = $1
                  returning id`,
-                [
-                  record.packageCode,
-                  record.name,
-                  record.durationText,
-                  record.days,
-                  record.nights,
-                  record.source ?? null,
-                  record.destination ?? null,
-                  record.inclusionsHighlight,
-                  record.inclusionsNote,
-                  JSON.stringify(record.inclusions ?? []),
-                  JSON.stringify(record.exclusions ?? []),
-                  JSON.stringify(record.itinerary ?? []),
-                  record.imageUrl ?? null,
-                  JSON.stringify(record.gallery ?? []),
-                  record.status,
-                  record.updatedAt,
-                ],
-              );
+              [
+                record.packageCode,
+                record.name,
+                record.durationText,
+                record.days,
+                record.nights,
+                record.source ?? null,
+                record.destination ?? null,
+                record.inclusionsHighlight,
+                record.inclusionsNote,
+                JSON.stringify(record.inclusions ?? []),
+                JSON.stringify(record.exclusions ?? []),
+                JSON.stringify(record.itinerary ?? []),
+                record.imageUrl ?? null,
+                JSON.stringify(record.gallery ?? []),
+                record.status,
+                record.updatedAt,
+              ],
+            );
           const pkgId = rows[0]?.id ?? record.id;
           if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(pkgId)) {
             for (const [key, amount] of Object.entries(record.fleetPrices)) {
@@ -1475,8 +1541,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
         async update(record: TransferRouteRecord) {
           const rows = isUuid(record.id)
             ? await query<{ id: string }>(
-                client,
-                `update transfers set
+              client,
+              `update transfers set
                    code = $2,
                    name = $3,
                    pickup_name = $4,
@@ -1486,20 +1552,20 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                    updated_at = $8
                  where id = $1::uuid
                  returning id`,
-                [
-                  record.id,
-                  record.routeCode,
-                  record.name,
-                  record.directionNote?.split(" to ")[0] || record.name,
-                  record.directionNote?.split(" to ")[1] || record.name,
-                  record.directionNote,
-                  record.status,
-                  record.updatedAt,
-                ],
-              )
+              [
+                record.id,
+                record.routeCode,
+                record.name,
+                record.directionNote?.split(" to ")[0] || record.name,
+                record.directionNote?.split(" to ")[1] || record.name,
+                record.directionNote,
+                record.status,
+                record.updatedAt,
+              ],
+            )
             : await query<{ id: string }>(
-                client,
-                `update transfers set
+              client,
+              `update transfers set
                    name = $2,
                    pickup_name = $3,
                    drop_name = $4,
@@ -1508,16 +1574,16 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                    updated_at = $7
                  where code = $1
                  returning id`,
-                [
-                  record.routeCode,
-                  record.name,
-                  record.directionNote?.split(" to ")[0] || record.name,
-                  record.directionNote?.split(" to ")[1] || record.name,
-                  record.directionNote,
-                  record.status,
-                  record.updatedAt,
-                ],
-              );
+              [
+                record.routeCode,
+                record.name,
+                record.directionNote?.split(" to ")[0] || record.name,
+                record.directionNote?.split(" to ")[1] || record.name,
+                record.directionNote,
+                record.status,
+                record.updatedAt,
+              ],
+            );
           const transferId = rows[0]?.id ?? record.id;
           if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(transferId)) {
             for (const [key, amount] of Object.entries(record.fleetPrices)) {
@@ -1639,8 +1705,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
         async update(record: LocalSightseeingPackageRecord) {
           const rows = isUuid(record.id)
             ? await query<{ id: string }>(
-                client,
-                `update local_packages set
+              client,
+              `update local_packages set
                    code = $2,
                    name = $3,
                    duration_hours = $4,
@@ -1651,21 +1717,21 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                    updated_at = $9
                  where id = $1::uuid
                  returning id`,
-                [
-                  record.id,
-                  record.packageCode,
-                  record.name,
-                  record.durationHours,
-                  record.includedKm,
-                  record.covers,
-                  record.parkingNote,
-                  record.status,
-                  record.updatedAt,
-                ],
-              )
+              [
+                record.id,
+                record.packageCode,
+                record.name,
+                record.durationHours,
+                record.includedKm,
+                record.covers,
+                record.parkingNote,
+                record.status,
+                record.updatedAt,
+              ],
+            )
             : await query<{ id: string }>(
-                client,
-                `update local_packages set
+              client,
+              `update local_packages set
                    name = $2,
                    duration_hours = $3,
                    included_km = $4,
@@ -1675,17 +1741,17 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                    updated_at = $8
                  where code = $1
                  returning id`,
-                [
-                  record.packageCode,
-                  record.name,
-                  record.durationHours,
-                  record.includedKm,
-                  record.covers,
-                  record.parkingNote,
-                  record.status,
-                  record.updatedAt,
-                ],
-              );
+              [
+                record.packageCode,
+                record.name,
+                record.durationHours,
+                record.includedKm,
+                record.covers,
+                record.parkingNote,
+                record.status,
+                record.updatedAt,
+              ],
+            );
           const packageId = rows[0]?.id ?? record.id;
           if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(packageId)) {
             for (const [key, amount] of Object.entries(record.fleetPrices)) {

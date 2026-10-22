@@ -6,7 +6,7 @@ Read `docs/PAYMENT_SYSTEM.md` **before any payment work**. These rules override 
 
 1. **Never** put `RAZORPAY_KEY_SECRET`, webhook secret, or live keys in git, HTML, or `js/`.
 2. **Never** trust client `amount`, `advance`, or `promo` for charging. Recompute fare on the server.
-3. **Never** mark a booking `PAID` from Checkout `handler`, query params, or mock timers. Only verified webhook **and** matching `orders.amount_paise`.
+3. **Never** mark a booking `PAID` from Checkout `handler`, query params, or mock timers. Only verified webhook **and** matching `orders.amountPaise`.
 4. **Never** collect PAN/CVV on our forms. Razorpay Checkout / UPI only (PCI).
 5. **Never** create two Razorpay orders for one active booking; use Idempotency-Key + reuse PENDING order.
 6. **Never** confirm ticket if webhook `amount` ≠ locked advance. Status `NEEDS_REVIEW`.

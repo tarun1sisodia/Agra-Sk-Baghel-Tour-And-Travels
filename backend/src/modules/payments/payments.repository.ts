@@ -34,15 +34,15 @@ export class PaymentsRepository {
     booking_id: string;
     provider: string;
     provider_order_id: string;
-    amount_paise: number;
+    amountPaise: number;
   }): Promise<PaymentEntity> {
     const res = await this.pool.query(
       `
-      INSERT INTO payments (booking_id, provider, provider_order_id, amount_paise, status)
+      INSERT INTO payments (booking_id, provider, provider_order_id, amountPaise, status)
       VALUES ($1, $2, $3, $4, 'pending')
       RETURNING *
     `,
-      [data.booking_id, data.provider, data.provider_order_id, data.amount_paise]
+      [data.booking_id, data.provider, data.provider_order_id, data.amountPaise]
     );
     const r = res.rows[0];
     return {
@@ -51,7 +51,7 @@ export class PaymentsRepository {
       provider: r.provider,
       providerOrderId: r.provider_order_id,
       providerPaymentId: r.provider_payment_id,
-      amountPaise: Number(r.amount_paise),
+      amountPaise: Number(r.amountPaise),
       status: r.status,
       failureReason: r.failure_reason,
       paymentMethod: r.payment_method,
@@ -75,7 +75,7 @@ export class PaymentsRepository {
       provider: r.provider,
       providerOrderId: r.provider_order_id,
       providerPaymentId: r.provider_payment_id,
-      amountPaise: Number(r.amount_paise),
+      amountPaise: Number(r.amountPaise),
       status: r.status,
       failureReason: r.failure_reason,
       paymentMethod: r.payment_method,
@@ -99,7 +99,7 @@ export class PaymentsRepository {
       provider: r.provider,
       providerOrderId: r.provider_order_id,
       providerPaymentId: r.provider_payment_id,
-      amountPaise: Number(r.amount_paise),
+      amountPaise: Number(r.amountPaise),
       status: r.status,
       failureReason: r.failure_reason,
       paymentMethod: r.payment_method,

@@ -255,7 +255,7 @@ create table payments (
   provider text not null,
   provider_order_id text not null unique,
   provider_payment_id text unique,
-  amount_paise bigint not null check (amount_paise > 0),
+  amountPaise bigint not null check (amountPaise > 0),
   status text not null default 'pending'
     check (status in ('pending','captured','failed','needs_review')),
   failure_reason text,
