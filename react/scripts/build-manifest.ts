@@ -76,14 +76,28 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   }
 
   async function fetchCatalogJson(url: string): Promise<unknown> {
-    const response = await fetch(url, {
-      headers: { accept: "application/json" },
-      signal: AbortSignal.timeout(15_000),
-    });
-    if (!response.ok) {
-      throw new Error(`Catalog source ${redactCatalogUrl(url)} returned HTTP ${response.status}`);
+    const maxAttempts = 3;
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        const response = await fetch(url, {
+          headers: { accept: "application/json" },
+          signal: AbortSignal.timeout(15_000),
+        });
+        if (!response.ok) {
+          throw new Error(`Catalog source ${redactCatalogUrl(url)} returned HTTP ${response.status}`);
+        }
+        return response.json();
+      } catch (error) {
+        lastError = error;
+        if (attempt < maxAttempts) {
+          const delayMs = attempt * 1_000;
+          console.warn(`⚠️ [Manifest Builder] Catalog request failed (attempt ${attempt}/${maxAttempts}) for ${redactCatalogUrl(url)}; retrying in ${delayMs}ms.`);
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        }
+      }
     }
-    return response.json();
+    throw lastError;
   }
 
   async function loadCatalogSource(name: keyof typeof catalogSources): Promise<unknown | null> {

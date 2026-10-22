@@ -421,7 +421,11 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
       </div>
 
       {/* Group Navigation Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none mb-6 border-b border-border-warm/40">
+      <div
+        className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none mb-6 border-b border-border-warm/40"
+        role="tablist"
+        aria-label="Vehicle category"
+      >
         {(groups.length > 0 ? groups : FALLBACK_GROUPS).map((group) => {
           const isActive = group.code === activeGroupCode;
           return (
@@ -588,7 +592,7 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
                           aria-label={`Book ${vehicle.displayName}`}
                         >
                           <span className="text-white">Book Now</span>
-                          <span className="material-symbols-outlined text-icon-14 text-white">arrow_forward</span>
+                          <span aria-hidden="true" className="material-symbols-outlined text-icon-14 text-white">arrow_forward</span>
                         </a>
                       </div>
                     </div>
