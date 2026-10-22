@@ -1,5 +1,7 @@
-import type { BookingSelectionPayload, CreateDraftBookingPayload, ServerFareBreakdown } from "./api";
+import type { BackendTripType, BackendVehicleTier, BookingSelectionPayload, CreateDraftBookingPayload, ServerFareBreakdown } from "./api";
 import { getApiBaseUrl } from "./api";
+import { fetchBookingById, createBookingPayment, verifyBookingPayment } from "./cleanFareApi";
+import type { BookingDetailResponse } from "../contracts/fare-system";
 
 export class CustomerApiError extends Error {
   readonly status: number;
@@ -156,10 +158,56 @@ export function listMyBookings(accessToken: string, page = 1): Promise<{ items: 
   }));
 }
 
-export function getMyBooking(bookingId: string, accessToken: string): Promise<CustomerBookingDetails> {
-  return apiCall<CustomerBookingDetails>(`/api/v1/me/bookings/${encodeURIComponent(bookingId)}`, { token: accessToken });
+function mapCleanBookingToCustomerDetails(booking: BookingDetailResponse): CustomerBookingDetails {
+  const fareLines = booking.fare_breakdown.lines;
+  const tripType: BackendTripType = booking.category === "outstation"
+    ? (booking.fare_breakdown.details.effective_trip_type === "round_trip" ? "round-trip" : "one-way")
+    : booking.category === "transfer"
+      ? "airport-transfer"
+      : "local-tour";
+  const fare: ServerFareBreakdown = {
+    baseFare: fareLines.filter((line) => line.code === "base_fare").reduce((sum, line) => sum + line.amount, 0),
+    nightAllowance: fareLines.filter((line) => line.code === "night_charge").reduce((sum, line) => sum + line.amount, 0),
+    driverAllowance: fareLines.filter((line) => line.code === "driver_allowance").reduce((sum, line) => sum + line.amount, 0),
+    discountAmount: 0,
+    totalFare: booking.total_amount,
+    advanceAmount: booking.advance_amount,
+    balanceAmount: booking.balance_amount,
+    currency: "INR",
+    fareVersion: "clean-v2",
+    label: booking.product_name,
+    duration: booking.fare_breakdown.details.duration_minutes ? `${booking.fare_breakdown.details.duration_minutes} minutes` : "",
+    distanceKm: booking.fare_breakdown.details.distance_km ?? 0,
+    billedKm: booking.fare_breakdown.details.billable_km ?? 0,
+    alwaysRoundTrip: booking.fare_breakdown.details.effective_trip_type === "round_trip",
+    tripType,
+    vehicleTier: booking.vehicle_model.group_code.replaceAll("_", "-") as BackendVehicleTier,
+    promoCode: null,
+    promoValid: false,
+    roundMultiplierApplied: booking.fare_breakdown.details.effective_trip_type === "round_trip",
+    rules: booking.fare_breakdown.messages,
+  };
+  return {
+    id: booking.booking_id,
+    ticketId: booking.ticket_id,
+    status: booking.status,
+    tripType,
+    vehicleTier: fare.vehicleTier,
+    originName: null,
+    destinationName: null,
+    bookingSelection: null,
+    pickupAddress: booking.pickup_address,
+    dropAddress: booking.drop_address ?? null,
+    pickupDatetime: booking.pickup_at,
+    returnDatetime: booking.return_at ?? null,
+    distanceKm: fare.distanceKm,
+    fare,
+  };
 }
 
+export async function getMyBooking(bookingId: string, accessToken: string): Promise<CustomerBookingDetails> {
+  return mapCleanBookingToCustomerDetails(await fetchBookingById(bookingId, accessToken));
+}
 export interface PaymentCheckoutResponse {
   paymentId: string;
   providerOrderId?: string;
@@ -170,15 +218,18 @@ export interface PaymentCheckoutResponse {
   currency: string;
   status: string;
 }
-
-export function createOwnerPaymentCheckout(ticketId: string, accessToken: string, idempotencyKey: string): Promise<PaymentCheckoutResponse> {
-  return apiCall<PaymentCheckoutResponse>("/api/v1/payments/create-checkout", {
-    method: "POST",
-    token: accessToken,
-    body: { ticketId, idempotencyKey, returnUrl: `${window.location.origin}/payment/resume/`, cancelUrl: `${window.location.origin}/my-bookings/` },
-  });
+export async function createOwnerPaymentCheckout(bookingId: string, accessToken: string, _idempotencyKey: string): Promise<PaymentCheckoutResponse> {
+  const order = await createBookingPayment(bookingId, accessToken);
+  return {
+    paymentId: order.payment_id,
+    providerOrderId: order.order_id,
+    publicClientToken: order.key_id,
+    keyId: order.key_id,
+    amountMinor: order.amount_paise,
+    currency: order.currency,
+    status: "pending",
+  };
 }
-
 export interface PaymentStatusResponse {
   paymentId: string;
   ticketId: string;
@@ -189,19 +240,34 @@ export interface PaymentStatusResponse {
   amountMinor: number;
   bookingStatus: string;
 }
-
-export function getOwnerPaymentStatus(paymentId: string, accessToken: string): Promise<PaymentStatusResponse> {
-  return apiCall<PaymentStatusResponse>(`/api/v1/payments/${encodeURIComponent(paymentId)}/status`, { token: accessToken });
+export async function getOwnerPaymentStatus(bookingId: string, accessToken: string): Promise<PaymentStatusResponse> {
+  const booking = await fetchBookingById(bookingId, accessToken);
+  const confirmed = ["paid_confirmed", "confirmed", "driver_assigned", "in_transit", "completed"].includes(booking.status);
+  return {
+    paymentId: "",
+    ticketId: booking.ticket_id,
+    status: confirmed ? "captured" : booking.status === "cancelled" ? "failed" : "pending",
+    reconciliationStatus: "unknown",
+    provider: "razorpay",
+    currency: "INR",
+    amountMinor: booking.advance_amount * 100,
+    bookingStatus: booking.status,
+  };
 }
-
-export function verifyOwnerPayment(
-  paymentId: string,
+export async function verifyOwnerPayment(
+  bookingId: string,
   accessToken: string,
   payload: { providerOrderId: string; providerPaymentId: string; signature: string },
 ): Promise<{ paymentId: string; status: string; bookingStatus: string }> {
-  return apiCall<{ paymentId: string; status: string; bookingStatus: string }>(`/api/v1/payments/${encodeURIComponent(paymentId)}/verify`, {
-    method: "POST",
-    token: accessToken,
-    body: payload,
-  });
+  const result = await verifyBookingPayment(bookingId, {
+    razorpay_order_id: payload.providerOrderId,
+    razorpay_payment_id: payload.providerPaymentId,
+    razorpay_signature: payload.signature,
+  }, accessToken);
+  const booking = await fetchBookingById(bookingId, accessToken);
+  return {
+    paymentId: "",
+    status: result.status === "captured" || result.status === "already_captured" ? "captured" : result.status,
+    bookingStatus: booking.status,
+  };
 }

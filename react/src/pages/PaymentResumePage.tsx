@@ -15,18 +15,20 @@ function bookingTitle(booking: CustomerBookingDetails): string {
   if (selection?.kind === "package") return `Tour package: ${selection.slug.replaceAll("-", " ")}`;
   if (selection?.kind === "local") return "Local service";
   if (booking.originName && booking.destinationName) return `${booking.originName} → ${booking.destinationName}`;
-  return "Trip details unavailable";
+  return booking.fare.label || "Trip details unavailable";
 }
 function bookingDetails(booking: CustomerBookingDetails): string {
   const selection = booking.bookingSelection;
   if (selection?.kind === "outstation") return `${selection.originName} → ${selection.destinationName}`;
   if (selection?.kind === "local") return `Pickup: ${selection.pickupLocation}${selection.transferTarget ? ` · To: ${selection.transferTarget}` : ""}`;
   if (selection?.kind === "package") return `Package ID: ${selection.id} · ${selection.slug}`;
-  return booking.originName && booking.destinationName ? `${booking.originName} → ${booking.destinationName}` : "Confirmed booking";
+  return booking.originName && booking.destinationName
+    ? `${booking.originName} → ${booking.destinationName}`
+    : booking.fare.label || "Confirmed booking";
 }
 function displayDate(value: string): string {
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });
 }
 
 export function PaymentResumePage() {
@@ -64,7 +66,7 @@ export function PaymentResumePage() {
       handler: async (response) => {
         setStatus("Payment submitted. Waiting for server-side confirmation…");
         try {
-          const verified = await verifyOwnerPayment(checkout.paymentId, accessToken!, {
+          const verified = await verifyOwnerPayment(current.bookingId, accessToken!, {
             providerOrderId: response.razorpay_order_id,
             providerPaymentId: response.razorpay_payment_id,
             signature: response.razorpay_signature,
@@ -80,7 +82,7 @@ export function PaymentResumePage() {
             return;
           }
           for (let attempt = 0; attempt < 10; attempt += 1) {
-            const result = await getOwnerPaymentStatus(checkout.paymentId, accessToken!);
+            const result = await getOwnerPaymentStatus(current.bookingId, accessToken!);
             if (result.status === "captured" && isConfirmed(result.bookingStatus)) {
               try { setConfirmedBooking(await getMyBooking(current.bookingId, accessToken!)); }
               catch { setError("Payment is verified. Your voucher details are not available yet; open My Bookings to retrieve them."); }
@@ -138,7 +140,7 @@ export function PaymentResumePage() {
           setStatus("Payment verified. Your booking is confirmed.");
           return null;
         }
-        return createOwnerPaymentCheckout(reference.ticketId, accessToken, reference.idempotencyKey)
+        return createOwnerPaymentCheckout(reference.bookingId, accessToken, reference.idempotencyKey)
           .then((checkout) => launchCheckout(checkout, reference));
       })
       .catch((cause) => {

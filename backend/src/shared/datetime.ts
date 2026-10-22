@@ -24,5 +24,10 @@ export const IsoDatetimeSchema = z.string().min(10).transform((value, ctx) => {
 });
 
 export function isIsoDatetime(value: string): boolean {
-  return !Number.isNaN(Date.parse(value));
+  try {
+    normalizeToIstIso(value);
+    return true;
+  } catch {
+    return false;
+  }
 }
