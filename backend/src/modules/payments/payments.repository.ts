@@ -17,6 +17,18 @@ export interface PaymentEntity {
   updatedAt: string;
 }
 
+function extractAmountPaise(row: Record<string, unknown>, paymentId: string): number {
+  const raw = row.amount_paise ?? row.amountpaise ?? row.amountPaise ?? row.amount_minor ?? row.inr_amount_paise;
+  const amount = typeof raw === "number" ? raw : Number(raw);
+  if (!Number.isSafeInteger(amount) || amount <= 0) {
+    throw new AppError(
+      "DATA_CORRUPTION",
+      `Payment ${paymentId} has invalid amount_paise: ${String(raw)}`,
+      500,
+    );
+  }
+  return amount;
+}
 export interface PaymentWebhookEventEntity {
   id: string;
   provider: string;
@@ -38,7 +50,7 @@ export class PaymentsRepository {
   }): Promise<PaymentEntity> {
     const res = await this.pool.query(
       `
-      INSERT INTO payments (booking_id, provider, provider_order_id, amountPaise, status)
+      INSERT INTO payments (booking_id, provider, provider_order_id, amount_paise, status)
       VALUES ($1, $2, $3, $4, 'pending')
       RETURNING *
     `,
@@ -51,7 +63,7 @@ export class PaymentsRepository {
       provider: r.provider,
       providerOrderId: r.provider_order_id,
       providerPaymentId: r.provider_payment_id,
-      amountPaise: Number(r.amountPaise),
+      amountPaise: extractAmountPaise(r, String(r.id ?? "unknown")),
       status: r.status,
       failureReason: r.failure_reason,
       paymentMethod: r.payment_method,
@@ -75,7 +87,7 @@ export class PaymentsRepository {
       provider: r.provider,
       providerOrderId: r.provider_order_id,
       providerPaymentId: r.provider_payment_id,
-      amountPaise: Number(r.amountPaise),
+      amountPaise: extractAmountPaise(r, String(r.id ?? "unknown")),
       status: r.status,
       failureReason: r.failure_reason,
       paymentMethod: r.payment_method,
@@ -99,7 +111,7 @@ export class PaymentsRepository {
       provider: r.provider,
       providerOrderId: r.provider_order_id,
       providerPaymentId: r.provider_payment_id,
-      amountPaise: Number(r.amountPaise),
+      amountPaise: extractAmountPaise(r, String(r.id ?? "unknown")),
       status: r.status,
       failureReason: r.failure_reason,
       paymentMethod: r.payment_method,
