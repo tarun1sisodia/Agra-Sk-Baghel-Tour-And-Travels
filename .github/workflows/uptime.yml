@@ -1,9 +1,9 @@
-name: Staging API keepalive and uptime
+name: Custom API keepalive and uptime
 
 on:
   workflow_dispatch:
   schedule:
-    # Keep inbound traffic under Render Free's 15-minute idle window; Actions schedules are best-effort.
+    # Five-minute checks reduce idle spin-down risk on Render Free; GitHub schedules are best-effort.
     - cron: "*/5 * * * *"
 
 permissions:
@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   healthcheck:
-    name: "Staging API + site healthcheck"
+    name: "Custom API + site healthcheck"
     runs-on: ubuntu-latest
     timeout-minutes: 4
     steps:
@@ -28,12 +28,12 @@ jobs:
       - name: Run uptime check
         run: node scripts/healthcheck.mjs
         env:
-          HEALTHCHECK_URLS: "https://skb-baghel-api-staging.onrender.com/health,https://agraskbagheltourandtravels.com/,https://skbagheltravels-admin.coccoder999.workers.dev/"
+          HEALTHCHECK_URLS: "https://api.agraskbagheltourandtravels.com/health,https://agraskbagheltourandtravels.com/,https://skbagheltravels-admin.coccoder999.workers.dev/"
           HEALTHCHECK_TIMEOUT_MS: 45000
           HEALTHCHECK_ATTEMPTS: 2
 
       - name: Publish Healthcheck Summary
         if: always()
         run: |
-          echo "## Staging API keepalive and service health: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-          echo "Checked endpoints: Render staging API, customer site, and admin desk." >> $GITHUB_STEP_SUMMARY
+          echo "## Custom API keepalive and service health: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "Checked endpoints: custom backend API, customer site, and admin desk." >> $GITHUB_STEP_SUMMARY
