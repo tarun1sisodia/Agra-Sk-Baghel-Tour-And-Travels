@@ -1,6 +1,7 @@
 import { createRemoteJWKSet, jwtVerify, decodeProtectedHeader } from "jose";
 import type { FastifyRequest } from "fastify";
 import type { Env } from "../config/env.js";
+import { AppError } from "../shared/errors.js";
 import { Errors } from "../shared/errors.js";
 import { USER_ROLES, type AuthUser, type UserRole } from "../types/domain.js";
 
@@ -78,6 +79,11 @@ export async function authenticateRequest(request: FastifyRequest, env: Env): Pr
       return enforceAdminEmailWhitelist(principalFromPayload(payload as unknown as Record<string, unknown>), env);
     }
   } catch (err) {
+    // A valid token may still fail authorization (for example, a super-admin
+    // email outside ADMIN_EMAIL). Preserve that 403 instead of masking it as 401.
+    if (err instanceof AppError && err.statusCode === 403) {
+      throw err;
+    }
     console.warn("[AUTH] Token verification failed:", err);
     throw Errors.unauthorized("Invalid or expired access token.");
   }
@@ -125,4 +131,3 @@ function enforceAdminEmailWhitelist(user: AuthUser, env: Env): AuthUser {
   }
   return user;
 }
-
