@@ -839,7 +839,7 @@ Agra SK Baghel Tour & Travels
         body: JSON.stringify({
           from: fromAddress,
           to: [customerEmail],
-          subject: `Confirmed: Your Chauffeur Booking Voucher [${ticketId}] — Agra SK Baghel Tour & Travels`,
+          subject: `Confirmed: Your Chauffeur Booking Voucher [${ticketId}] `,
           html: voucherHtml,
           text: voucherText,
           ...(attachments ? { attachments } : {}),
