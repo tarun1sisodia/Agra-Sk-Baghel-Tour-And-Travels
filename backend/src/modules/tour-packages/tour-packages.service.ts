@@ -228,8 +228,6 @@ export function createTourPackagesService(deps: {
             buffer,
             mimeType: input.mimeType,
           });
-          const publicUrl = deps.mediaStorage.getPublicUrl?.(storagePath);
-          if (publicUrl) url = publicUrl;
         } catch (err: any) {
           console.warn(`[TourPackages] Remote media storage upload failed (${err?.message}); using server media endpoint.`);
         }
