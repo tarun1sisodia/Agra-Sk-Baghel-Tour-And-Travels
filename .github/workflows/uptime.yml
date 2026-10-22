@@ -1,19 +1,19 @@
-name: Production uptime
+name: Custom API keepalive and uptime
 
 on:
   workflow_dispatch:
   schedule:
-    # GitHub Actions schedules are best-effort and may be delayed during load.
-    - cron: "*/15 * * * *"
+    # Five-minute checks reduce idle spin-down risk on Render Free; GitHub schedules are best-effort.
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: read
 
 jobs:
   healthcheck:
-    name: "Service Healthcheck"
+    name: "Custom API + site healthcheck"
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 4
     steps:
       - name: Check deployed services
         uses: actions/checkout@v4
@@ -28,12 +28,12 @@ jobs:
       - name: Run uptime check
         run: node scripts/healthcheck.mjs
         env:
-          HEALTHCHECK_TIMEOUT_MS: 15000
-          HEALTHCHECK_ATTEMPTS: 3
+          HEALTHCHECK_URLS: "https://api.agraskbagheltourandtravels.com/health,https://agraskbagheltourandtravels.com/,https://skbagheltravels-admin.coccoder999.workers.dev/"
+          HEALTHCHECK_TIMEOUT_MS: 45000
+          HEALTHCHECK_ATTEMPTS: 2
 
       - name: Publish Healthcheck Summary
         if: always()
         run: |
-          echo "## 🌐 Service Uptime Healthcheck: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-          echo "Checked endpoints: Backend staging, Customer site, and Admin desk." >> $GITHUB_STEP_SUMMARY
-
+          echo "## Custom API keepalive and service health: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "Checked endpoints: custom backend API, customer site, and admin desk." >> $GITHUB_STEP_SUMMARY
