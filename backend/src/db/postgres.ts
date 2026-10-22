@@ -403,7 +403,11 @@ function mapBookingIntent(row: Record<string, unknown>): BookingIntentRecord {
 function mapPayment(row: Record<string, unknown>): PaymentRecord {
   // Fail-closed validation on canonical payment columns
   let amountPaise: number;
-  if (row.amountPaise !== undefined && row.amountPaise !== null) {
+  if (row.amount_paise !== undefined && row.amount_paise !== null) {
+    amountPaise = num(row.amount_paise);
+  } else if (row.amountpaise !== undefined && row.amountpaise !== null) {
+    amountPaise = num(row.amountpaise);
+  } else if (row.amountPaise !== undefined && row.amountPaise !== null) {
     amountPaise = num(row.amountPaise);
   } else if (row.inr_amount_paise !== undefined && row.inr_amount_paise !== null) {
     amountPaise = num(row.inr_amount_paise);
@@ -413,7 +417,7 @@ function mapPayment(row: Record<string, unknown>): PaymentRecord {
     throw new AppError("DATA_CORRUPTION", `Payment ${String(row.id ?? "unknown")} has missing amountPaise`, 500);
   }
 
-  if (isNaN(amountPaise) || amountPaise <= 0) {
+  if (!Number.isSafeInteger(amountPaise) || amountPaise <= 0) {
     throw new AppError("DATA_CORRUPTION", `Payment ${String(row.id ?? "unknown")} has non-positive amountPaise: ${amountPaise}`, 500);
   }
   const nowIso = new Date().toISOString();
@@ -834,7 +838,7 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
             client,
             `insert into payments (
               id, booking_id, provider, provider_order_id, provider_payment_id,
-              amountPaise, status, failure_reason, created_at, updated_at
+              amount_paise, status, failure_reason, created_at, updated_at
             ) values (
               $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
             ) returning *`,
@@ -920,8 +924,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
             client,
             `select
                count(*)::int as total,
-               coalesce(sum(case when status='captured' then amountPaise else 0 end), 0)::bigint as total_captured,
-               coalesce(sum(case when status in ('refunded', 'partially_refunded') then amountPaise else 0 end), 0)::bigint +
+               coalesce(sum(case when status='captured' then amount_paise else 0 end), 0)::bigint as total_captured,
+               coalesce(sum(case when status in ('refunded', 'partially_refunded') then amount_paise else 0 end), 0)::bigint +
                coalesce((select coalesce(sum(amount_minor), 0) from refunds where status = 'processed'), 0)::bigint as total_refunded
              from payments ${where}`,
             params,

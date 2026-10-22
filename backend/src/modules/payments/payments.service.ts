@@ -148,6 +148,9 @@ export class PaymentsService {
     }
     this.assertBookingOwnership(booking, user);
     const payment = await this.createPaymentOrder(bookingId, user);
+    if (!Number.isSafeInteger(payment.amountPaise) || payment.amountPaise <= 0) {
+      throw new AppError("DATA_CORRUPTION", "Payment record contains an invalid amount in paise.", 500);
+    }
     return {
       payment_id: payment.id,
       order_id: payment.providerOrderId,
@@ -344,7 +347,7 @@ export class PaymentsService {
         });
         return { status: "needs_review" };
       }
-      if (typeof body.amount === "number" && body.amount !== payment.amountPaise) {
+      if (!Number.isSafeInteger(body.amount) || body.amount !== payment.amountPaise) {
         await this.deps.paymentsRepo.processNeedsReview({
           paymentId: payment.id,
           reason: "amount_mismatch",
@@ -475,7 +478,7 @@ export class PaymentsService {
     const booking = await this.deps.bookingsRepo.getById(bookingId);
 
     if (eventType === "payment.captured") {
-      const webhookAmount = Number(paymentEntity?.amount ?? 0);
+      const webhookAmount = paymentEntity?.amount;
       const webhookCurrency = String(paymentEntity?.currency || "").toUpperCase();
       const providerPaymentId = String(paymentEntity?.id || "");
 
@@ -491,7 +494,7 @@ export class PaymentsService {
       }
 
       // PM-05: Webhook amount differs -> payment needs_review; booking stays pending_payment
-      if (webhookAmount !== payment.amountPaise) {
+      if (!Number.isSafeInteger(webhookAmount) || webhookAmount !== payment.amountPaise) {
         await this.deps.paymentsRepo.processNeedsReview({
           paymentId: payment.id,
           reason: "amount_mismatch",
