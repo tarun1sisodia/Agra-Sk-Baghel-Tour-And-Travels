@@ -49,7 +49,7 @@ function formatDate(isoString: string): string {
 }
 
 export function BookingConfirmationPage() {
-  const { user, accessToken, loading: authLoading, signInWithGoogle, signInWithSeedCustomer } = useCustomerAuth();
+  const { user, accessToken, loading: authLoading, signInWithGoogle } = useCustomerAuth();
   const [bookingId, setBookingId] = useState<string>("");
   const [booking, setBooking] = useState<BookingDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -339,14 +339,6 @@ export function BookingConfirmationPage() {
               </svg>
               Sign In with Google
             </button>
-            <button
-              type="button"
-              id="btn-confirm-signin-seed"
-              onClick={() => void signInWithSeedCustomer()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gold-soft py-2.5 text-xs font-semibold text-gold-text hover:bg-gold-soft/80 transition-colors cursor-pointer"
-            >
-              Sign In as Test Customer
-            </button>
           </div>
         </div>
       </main>
@@ -391,8 +383,8 @@ export function BookingConfirmationPage() {
         {/* Status Banner */}
         <div
           className={`rounded-2xl p-6 sm:p-8 border shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${isPaid
-              ? "bg-emerald-50/80 border-emerald-200"
-              : "bg-amber-50/80 border-amber-200"
+            ? "bg-emerald-50/80 border-emerald-200"
+            : "bg-amber-50/80 border-amber-200"
             }`}
         >
           <div className="flex items-start sm:items-center gap-4">

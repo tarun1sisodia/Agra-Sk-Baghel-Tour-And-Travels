@@ -31,7 +31,7 @@ function bookingSubtitle(booking: CustomerBookingSummary): string {
 }
 
 export function MyBookingsPage() {
-  const { user, accessToken, loading: authLoading, configured, signInWithGoogle, signInWithSeedCustomer, signOut } = useCustomerAuth();
+  const { user, accessToken, loading: authLoading, configured, signInWithGoogle, signOut } = useCustomerAuth();
   const [items, setItems] = useState<CustomerBookingSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -76,7 +76,6 @@ export function MyBookingsPage() {
         <p className="mt-3 text-on-surface-variant">Sign in to view pending, confirmed, and paid bookings associated with your account.</p>
         <div className="mt-6 flex flex-col gap-3">
           <button type="button" disabled={!configured} onClick={() => void signInWithGoogle("/my-bookings/").catch((cause) => setError(cause.message))} className="w-full rounded-xl bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50 cursor-pointer shadow-xs">Continue with Google</button>
-          <button type="button" onClick={() => void signInWithSeedCustomer().catch((cause) => setError(cause.message))} className="w-full rounded-xl border border-primary/25 bg-sandstone-wash/60 px-5 py-2.5 text-xs font-bold text-primary hover:bg-sandstone-wash transition-colors cursor-pointer">⚡ 1-Click Seed Customer Login</button>
           <a href="/login?returnTo=/my-bookings" className="text-xs text-on-surface-variant hover:text-primary transition-colors underline">Sign in with email & password</a>
         </div>
         <div className="mt-6 border-t border-border-warm/60 pt-4">

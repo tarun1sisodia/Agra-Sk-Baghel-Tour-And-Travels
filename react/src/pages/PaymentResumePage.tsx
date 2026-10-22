@@ -30,7 +30,7 @@ function displayDate(value: string): string {
 }
 
 export function PaymentResumePage() {
-  const { user, accessToken, loading: authLoading, configured, signInWithGoogle, signInWithSeedCustomer } = useCustomerAuth();
+  const { user, accessToken, loading: authLoading, configured, signInWithGoogle } = useCustomerAuth();
   const [reference, setReference] = useState(() => getPaymentResumeReference());
   const [confirmedBooking, setConfirmedBooking] = useState<CustomerBookingDetails | null>(null);
   const [status, setStatus] = useState("Preparing your secure payment…");
@@ -158,7 +158,6 @@ export function PaymentResumePage() {
         <p className="mt-3 text-on-surface-variant">Your booking is saved. Sign in to reopen secure checkout and complete your payment.</p>
         <div className="mt-6 flex flex-col gap-3">
           <button type="button" disabled={!configured} onClick={() => void signInWithGoogle("/payment/resume/").catch((cause) => setError(cause.message))} className="w-full rounded-xl bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50 cursor-pointer shadow-xs">Continue with Google</button>
-          <button type="button" onClick={() => void signInWithSeedCustomer().catch((cause) => setError(cause.message))} className="w-full rounded-xl border border-primary/25 bg-sandstone-wash/60 px-5 py-2.5 text-xs font-bold text-primary hover:bg-sandstone-wash transition-colors cursor-pointer">⚡ 1-Click Seed Customer Login</button>
           <a href="/login?returnTo=/payment/resume/" className="text-xs text-on-surface-variant hover:text-primary transition-colors underline">Sign in with email & password</a>
         </div>
         {error && <p className="mt-3 text-sm text-red-700" role="alert">{error}</p>}

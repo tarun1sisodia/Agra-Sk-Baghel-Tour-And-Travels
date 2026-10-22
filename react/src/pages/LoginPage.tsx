@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from "react";
-import { useCustomerAuth, getCustomerDisplayName, SEED_CUSTOMER_CREDENTIALS, getStoredAuthReturnTo } from "../auth/customerAuth";
+import { useCustomerAuth, getCustomerDisplayName, getStoredAuthReturnTo } from "../auth/customerAuth";
 
 export function LoginPage() {
-  const { user, loading, configured, error: authError, signInWithGoogle, signInWithPassword, signInWithSeedCustomer, signOut } = useCustomerAuth();
+  const { user, loading, configured, error: authError, signInWithGoogle, signInWithPassword, signOut } = useCustomerAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -31,19 +31,6 @@ export function LoginPage() {
       handleReturn();
     } catch (err) {
       setLocalError(err instanceof Error ? err.message : "Unable to sign in with credentials.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleSeedLogin = async () => {
-    setLocalError(null);
-    setBusy(true);
-    try {
-      await signInWithSeedCustomer();
-      handleReturn();
-    } catch (err) {
-      setLocalError(err instanceof Error ? err.message : "Unable to sign in with seed credentials.");
     } finally {
       setBusy(false);
     }
@@ -113,25 +100,6 @@ export function LoginPage() {
             {localError || authError}
           </div>
         )}
-
-        {/* 1-Click Seed Customer Login for Testing */}
-        <div className="mt-6 rounded-xl border border-primary/20 bg-sandstone-wash/40 p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-primary">Testing & Dev Bypass</span>
-            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">Seed</span>
-          </div>
-          <p className="mt-1 text-xs text-on-surface-variant">
-            Use the pre-seeded verified customer account ({SEED_CUSTOMER_CREDENTIALS.email}):
-          </p>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void handleSeedLogin()}
-            className="mt-3 w-full rounded-lg bg-primary px-3 py-2.5 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            {busy ? "Signing in…" : "⚡ 1-Click Seed Customer Login"}
-          </button>
-        </div>
 
         <div className="my-5 flex items-center gap-3">
           <div className="h-px flex-1 bg-border-warm" />
