@@ -21,9 +21,11 @@ export interface LocalPackageItem {
   covers: string;
   parkingNote?: string | null;
   fleetPrices: Record<string, number>;
-  usePerKm: boolean;
+  usePerKm: boolean | null;
   extraRates?: Record<string, LocalPackageExtraRates> | null;
-  nightChargeInr: number;
+  nightChargeInr: number | null;
+  imageUrl?: string | null;
+  gallery?: Array<{ url: string; caption?: string; alt?: string }>;
   status: CatalogStatus;
   isActive: boolean;
   createdAt?: string;

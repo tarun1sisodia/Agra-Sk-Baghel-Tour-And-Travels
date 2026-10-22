@@ -7,8 +7,8 @@ export interface TransferRouteItem {
   distanceText?: string | null;
   directionNote?: string | null;
   fleetPrices: Record<string, number>;
-  usePerKm: boolean;
-  nightChargeInr: number;
+  usePerKm: boolean | null;
+  nightChargeInr: number | null;
   status: CatalogStatus;
   isActive: boolean;
   createdAt?: string;
