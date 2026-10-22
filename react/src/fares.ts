@@ -290,7 +290,7 @@ export type FareQuote = {
 /**
  * Shared indicative browse-time fare helper for display purposes (cards, calculators).
  * Conforms to backend catalogue & Force vehicle round-trip rule (no 300km floor).
- * Final binding fares are calculated exclusively by POST /api/v1/fares/calculate.
+ * Final binding fares come from the Clean v2 quote/options endpoints.
  */
 export function getIndicativeBrowseFare(
   entry: {
@@ -355,7 +355,7 @@ export function getIndicativeBrowseFare(
 
 /**
  * Lightweight indicative browse quote helper.
- * Final binding fares must be retrieved via calculateServerFare() from services/api.
+ * Final binding fares must be retrieved from the Clean v2 quote/options endpoints.
  */
 export function calcFare(params: CalcFareParams): FareQuote | null {
   const {

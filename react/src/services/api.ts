@@ -26,19 +26,6 @@ export type BookingSelectionPayload =
   | { kind: "local"; id: string; source: "catalog" | "curated" | "historical"; slug?: string; tripType: "local-tour" | "airport-transfer"; localPackageKey?: "8hr-80km" | "12hr-120km" | "airport-transfer"; pickupLocation: string; transferTarget?: string; name?: string }
   | { kind: "package"; id: string; source: "catalog" | "curated" | "historical"; slug: string; name?: string; originName?: string; destinationName?: string };
 
-export interface CalculateFarePayload {
-  tripType?: BackendTripType;
-  vehicleTier: BackendVehicleTier;
-  originName?: string;
-  destinationName?: string;
-  bookingSelection?: BookingSelectionPayload;
-  pickupDatetime: string;
-  returnDatetime?: string;
-  promoCode?: string;
-  packageId?: string;
-  localPackageKey?: "8hr-80km" | "12hr-120km" | "airport-transfer";
-}
-
 export interface ServerFareBreakdown {
   baseFare: number;
   nightAllowance: number;
@@ -62,25 +49,6 @@ export interface ServerFareBreakdown {
   rules: string[];
 }
 
-export async function calculateServerFare(
-  payload: CalculateFarePayload,
-): Promise<ServerFareBreakdown> {
-  const baseUrl = getApiBaseUrl();
-  const res = await fetch(`${baseUrl}/api/v1/fares/calculate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const msg = json?.error?.message || `Failed to calculate fare (status ${res.status})`;
-    throw new Error(msg);
-  }
-
-  return json.data as ServerFareBreakdown;
-}
-
 export interface CreateDraftBookingPayload {
   tripType?: BackendTripType;
   vehicleTier: BackendVehicleTier;
@@ -100,121 +68,6 @@ export interface CreateDraftBookingPayload {
   promoCode?: string;
   packageId?: string;
   localPackageKey?: "8hr-80km" | "12hr-120km" | "airport-transfer";
-}
-
-export interface CreateDraftBookingResponse {
-  bookingId: string;
-  ticketId: string;
-  guestAccessToken: string;
-  status: string;
-  fare: {
-    totalFare: number;
-    advanceAmount: number;
-    balanceAmount: number;
-    baseFare: number;
-    driverAllowance: number;
-    nightAllowance: number;
-    discountAmount: number;
-    promoValid: boolean;
-  };
-  next: {
-    action: string;
-    path: string;
-  };
-}
-
-export interface CreateCheckoutPayload {
-  ticketId: string;
-  guestAccessToken: string;
-  idempotencyKey: string;
-  provider?: "razorpay";
-  currency?: "INR";
-  returnUrl?: string;
-  cancelUrl?: string;
-}
-
-export interface CreateCheckoutResponse {
-  paymentId: string;
-  ticketId?: string;
-  provider: string;
-  status: string;
-  amountMinor: number;
-  currency: string;
-  providerOrderId?: string;
-  publicClientToken?: string;
-  keyId?: string;
-  checkoutUrl?: string;
-  expiresAt?: string;
-}
-
-export interface PaymentStatusResponse {
-  paymentId: string;
-  ticketId: string;
-  status: "pending" | "captured" | "failed" | "refunded" | "needs_review";
-  reconciliationStatus: "pending" | "matched" | "needs_review" | "duplicate";
-  provider: string;
-  currency: string;
-  amountMinor: number;
-  bookingStatus: string;
-}
-
-export async function getPaymentStatus(
-  paymentId: string,
-  guestAccessToken: string,
-): Promise<PaymentStatusResponse> {
-  const baseUrl = getApiBaseUrl();
-  const res = await fetch(
-    `${baseUrl}/api/v1/payments/${encodeURIComponent(paymentId)}/status?token=${encodeURIComponent(guestAccessToken)}`,
-    {
-      headers: {
-        "x-booking-token": guestAccessToken,
-      },
-    },
-  );
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const msg = json?.error?.message || `Failed to fetch payment status (status ${res.status})`;
-    throw new Error(msg);
-  }
-  return json.data as PaymentStatusResponse;
-}
-
-export async function createDraftBooking(
-  payload: CreateDraftBookingPayload,
-): Promise<CreateDraftBookingResponse> {
-  const baseUrl = getApiBaseUrl();
-  const res = await fetch(`${baseUrl}/api/v1/bookings/draft`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const msg = json?.error?.message || `Failed to create booking draft (status ${res.status})`;
-    throw new Error(msg);
-  }
-
-  return json.data as CreateDraftBookingResponse;
-}
-
-export async function createPaymentCheckout(
-  payload: CreateCheckoutPayload,
-): Promise<CreateCheckoutResponse> {
-  const baseUrl = getApiBaseUrl();
-  const res = await fetch(`${baseUrl}/api/v1/payments/create-checkout`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const msg = json?.error?.message || `Failed to initiate payment checkout (status ${res.status})`;
-    throw new Error(msg);
-  }
-
-  return json.data as CreateCheckoutResponse;
 }
 
 /**
