@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 4
     steps:
       - name: Check deployed services
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
