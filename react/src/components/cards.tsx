@@ -32,6 +32,7 @@ export function MonumentCard({ monument }: { monument: MonumentCardContract }) {
             src={monument.thumbnail}
             alt={monument.thumbnailAlt ?? monument.name}
             loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover transition-all duration-700
                        saturate-[0.88] group-hover:scale-[1.07] group-hover:saturate-100"
           />

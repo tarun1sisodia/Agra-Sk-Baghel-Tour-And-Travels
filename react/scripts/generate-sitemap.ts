@@ -254,7 +254,7 @@ function getPublishedMonumentEntries(): SitemapEntry[] {
   }
 }
 
-// 9 Hubs
+// Public marketing hubs. Privacy and terms use their standalone canonical URLs below.
 const hubSlugs = [
   "services",
   "routes",
@@ -264,8 +264,6 @@ const hubSlugs = [
   "about",
   "contact",
   "faq",
-  "privacy",
-  "terms",
 ];
 
 // 5 Fleet Vehicles
@@ -436,17 +434,20 @@ export function generateSitemapXml(entries: SitemapEntry[]): string {
   const xmlUrls = entries.map((entry) => {
     const loc = `${CANONICAL_DOMAIN}${entry.path}`;
     const enUrl = entry.enPath ? `${CANONICAL_DOMAIN}${entry.enPath}` : loc;
-    const lastmod = entry.lastmod;
-
-    return `  <url>
-    <loc>${loc}</loc>
-    ${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}
-    <changefreq>${entry.changefreq}</changefreq>
-    <priority>${entry.priority.toFixed(2)}</priority>
-    <xhtml:link rel="alternate" hreflang="en-IN" href="${enUrl}" />
-    ${HINDI_INDEXING_ENABLED && entry.hiPath ? `<xhtml:link rel="alternate" hreflang="hi-IN" href="${CANONICAL_DOMAIN}${entry.hiPath}" />` : ""}
-    <xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}" />
-  </url>`;
+    const lines = [
+      "  <url>",
+      `    <loc>${loc}</loc>`,
+      ...(entry.lastmod ? [`    <lastmod>${entry.lastmod}</lastmod>`] : []),
+      `    <changefreq>${entry.changefreq}</changefreq>`,
+      `    <priority>${entry.priority.toFixed(2)}</priority>`,
+      `    <xhtml:link rel="alternate" hreflang="en-IN" href="${enUrl}" />`,
+      ...(HINDI_INDEXING_ENABLED && entry.hiPath
+        ? [`    <xhtml:link rel="alternate" hreflang="hi-IN" href="${CANONICAL_DOMAIN}${entry.hiPath}" />`]
+        : []),
+      `    <xhtml:link rel="alternate" hreflang="x-default" href="${enUrl}" />`,
+      "  </url>",
+    ];
+    return lines.join("\n");
   }).join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>

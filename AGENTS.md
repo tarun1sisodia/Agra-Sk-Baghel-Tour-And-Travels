@@ -40,6 +40,10 @@ Platform-wide operational docs live in `docs/`; design system and lock rules liv
 npm run verify    # typecheck x3 + backend tests + build x3 (same as CI)
 ```
 
+## Browser end-to-end checks
+
+The repository includes the pinned Kane CLI development dependency and its official agent skill at [`.agents/skills/kane-cli/SKILL.md`](.agents/skills/kane-cli/SKILL.md). Read that skill before any real-browser E2E check, run its read-only preflight first, and use Kane CLI rather than Playwright, Puppeteer, or Selenium. Keep `.testmuai/evidence/`, session outputs, and credentials out of Git.
+
 <!-- beacon:workflow:start -->
 ## Beacon — feature workflow
 

@@ -22,6 +22,7 @@ import { CustomerAuthProvider } from "../auth/customerAuth";
 import { AuthCallbackPage } from "../pages/AuthCallbackPage";
 import { MyBookingsPage } from "../pages/MyBookingsPage";
 import { PaymentResumePage } from "../pages/PaymentResumePage";
+import { BookingConfirmationPage } from "../pages/BookingConfirmationPage";
 import { LoginPage } from "../pages/LoginPage";
 import { ReviewPage } from "../pages/ReviewPage";
 import { MarketingPage } from "../pages/MarketingPage";
@@ -504,17 +505,23 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
   const isAuthCallback = cleanPath === "/auth/callback";
   const isMyBookings = cleanPath === "/my-bookings";
   const isPaymentResume = cleanPath === "/payment/resume";
+  const isBookingConfirmation =
+    cleanPath === "/booking/confirmation" ||
+    cleanPath === "/booking/confirmation.html" ||
+    cleanPath === "/booking-confirmation";
+  const isLegacyLegalAlias = cleanPath === "/en/privacy" || cleanPath === "/en/terms";
   const isLogin = cleanPath === "/login" || cleanPath === "/auth/login";
   const isReview = cleanPath === "/review" || /^\/review\/[^/]+$/i.test(cleanPath);
-  const isPrivateCustomerPage = isAuthCallback || isMyBookings || isPaymentResume || isLogin || isReview;
+  const isPrivateCustomerPage = isAuthCallback || isMyBookings || isPaymentResume || isBookingConfirmation || isLogin || isReview;
   const isBooking =
-    cleanPath.endsWith("book.html") ||
-    section === "book" ||
-    section === "booking" ||
-    cleanPath === "/book" ||
-    cleanPath === "/booking" ||
-    cleanPath === "/en/book" ||
-    cleanPath === "/hi/book";
+    !isBookingConfirmation &&
+    (cleanPath.endsWith("book.html") ||
+      section === "book" ||
+      section === "booking" ||
+      cleanPath === "/book" ||
+      cleanPath === "/booking" ||
+      cleanPath === "/en/book" ||
+      cleanPath === "/hi/book");
 
   const matchedRoute = routes.find((item) => {
     const from = item.from === "agra" && item.to === "agra" ? "agra-sightseeing" : `${item.from}-to-${item.to}`;
@@ -659,7 +666,7 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
           description={pageDescription}
           ogImage={pageOgImage}
           keywords={pageKeywords}
-          noindex={isBooking || isPrivateCustomerPage || is404}
+          noindex={isBooking || isPrivateCustomerPage || isLegacyLegalAlias || is404}
         />
         <SiteLayout currentPath={pathname}>
           {is404 ? (
@@ -670,6 +677,8 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
             <MyBookingsPage />
           ) : isPaymentResume ? (
             <PaymentResumePage />
+          ) : isBookingConfirmation ? (
+            <BookingConfirmationPage />
           ) : isLogin ? (
             <LoginPage />
           ) : isReview ? (

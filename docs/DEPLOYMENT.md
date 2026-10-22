@@ -148,6 +148,18 @@ If the final hosting decision is a VPS instead of Render, use the same `backend/
 10. Add `agraskbagheltourandtravels.com` and `www.agraskbagheltourandtravels.com` under **Custom domains**. Cloudflare will create or request the required DNS records.
 11. Confirm the site loads at `https://agraskbagheltourandtravels.com/`, the Hindi routes load, and `/en/404/` returns the styled 404.
 
+### Canonical www-to-apex redirect
+
+Configure a Cloudflare **Bulk Redirect** from `www.agraskbagheltourandtravels.com` to `https://agraskbagheltourandtravels.com/` with status `301`, **Subpath matching**, **Preserve path suffix**, and **Preserve query string** enabled. Ensure the `www` DNS record is proxied so the redirect rule can run. Cloudflare Pages' `_redirects` file supports path redirects, not domain-level redirects; use a Bulk Redirect rather than adding a request middleware that executes on every page and asset request.
+
+Verify the first response without following redirects and confirm its `Location` header preserves the path and query:
+
+```bash
+curl -sSI 'https://www.agraskbagheltourandtravels.com/routes/example/?source=seo' | sed -n '1,8p'
+```
+
+The response should be `301` with `Location: https://agraskbagheltourandtravels.com/routes/example/?source=seo`. Also verify that the apex host serves the destination normally and that `http://` requests end at HTTPS.
+
 The same settings are recorded in [`react/cloudflare-pages.toml`](../react/cloudflare-pages.toml). For a manual deployment from a machine with Wrangler authentication:
 
 ```bash
