@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { normalizePublicReviewSnapshot } from "./review-snapshot.ts";
 import {
   assertFailClosedCatalogEnv,
   assertSnapshotPolicy,
@@ -587,22 +588,7 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
   let reviewsFetched = false;
   const reviewsPayload = await loadCatalogSource("reviews");
   if (reviewsPayload) {
-    const rawItems = Array.isArray(reviewsPayload)
-      ? reviewsPayload
-      : Array.isArray((reviewsPayload as any)?.data)
-      ? (reviewsPayload as any).data
-      : [];
-    publishedReviews = rawItems
-      .slice(0, 30)
-      .map((r: any) => ({
-        name: r.display_name || r.name,
-        place: r.tour_name || r.route_text || r.place || "Agra & Outstation",
-        rating: Math.min(5, Math.max(1, Number(r.rating) || 5)),
-        quote: r.review_text || r.quote || "",
-        role: r.social_platform && r.social_url ? r.social_platform : r.role,
-        is_verified: Boolean(r.is_verified ?? true),
-      }))
-      .filter((r: any) => Boolean(r.name && r.quote));
+    publishedReviews = normalizePublicReviewSnapshot(reviewsPayload);
     reviewsFetched = true;
     console.log(`✅ [Manifest Builder] Snapshotted ${publishedReviews.length} published reviews from ${redactCatalogUrl(reviewsManifestUrl!)}.`);
   }

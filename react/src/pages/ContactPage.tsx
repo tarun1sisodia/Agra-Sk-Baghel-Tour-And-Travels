@@ -239,14 +239,14 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
 
         <div className="max-w-4xl mx-auto w-full rounded-2xl border border-border-warm bg-surface-container-lowest p-4 sm:p-5 shadow-xs">
           <div className="mb-3">
-            <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">Find the dispatch desk in Taj Ganj</h2>
+            <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">Find the dispatch desk in Nagla, Agra</h2>
             <p className="mt-1 text-body-md text-on-surface-variant">
-              Near Taj East Gate Road, Taj Ganj, Agra. The map shows the nearby area; use Google Maps for directions.
+              1Nandlalpur, Hathras Road, near Khusum, Nagla, Agra, Uttar Pradesh 282006.
             </p>
           </div>
           <iframe
             src={`https://maps.google.com/maps?q=${encodeURIComponent(contact.address)}&output=embed`}
-            title="Map of the Taj Ganj area near Taj East Gate Road in Agra"
+            title="Map of 1Nandlalpur, Hathras Road, Nagla, Agra"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
             className="aspect-video w-full rounded-xl border-0"

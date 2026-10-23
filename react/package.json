@@ -13,7 +13,7 @@
     "test:catalog-sources": "node --experimental-strip-types --test scripts/catalog-sources.test.ts scripts/catalog-fallback.test.ts scripts/home-booking-widget.test.ts scripts/reviews-marquee.test.ts scripts/rental-page.test.ts scripts/dynamic-publishing-e2e.test.ts scripts/booking-date-time.test.ts scripts/canonical-links.test.ts",
     "prerender": "node --experimental-strip-types scripts/prerender.ts",
     "sitemap": "node --experimental-strip-types scripts/generate-sitemap.ts",
-    "test:seo": "node --experimental-strip-types --test scripts/site-origin.test.ts && node --experimental-strip-types scripts/test-seo-lifecycle.ts",
+    "test:seo": "node --experimental-strip-types --test scripts/site-origin.test.ts scripts/review-snapshot.test.ts && node --experimental-strip-types scripts/test-seo-lifecycle.ts",
     "validate:config": "node --experimental-strip-types scripts/validate-site-config.ts",
     "seo:audit": "node --experimental-strip-types scripts/audit-seo.ts",
     "seo:strict-build": "SEO_STRICT=1 npm run build",

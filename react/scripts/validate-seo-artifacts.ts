@@ -232,7 +232,7 @@ async function main(): Promise<void> {
   }
 
   const contactHtml = await readFile(artifactPathForUrl(new URL("/en/contact/", CANONICAL_DOMAIN)), "utf8");
-  assert.match(contactHtml, /<iframe\b[^>]*title="Map of the Taj Ganj area[^\"]*"[^>]*loading="lazy"/i,
+  assert.match(contactHtml, /<iframe\b[^>]*title="Map of 1Nandlalpur, Hathras Road, Nagla, Agra"[^>]*loading="lazy"/i,
     "The contact map must be titled and lazy-loaded.");
 
   const termsHtml = await readFile(artifactPathForUrl(new URL("/terms-and-conditions/", CANONICAL_DOMAIN)), "utf8");

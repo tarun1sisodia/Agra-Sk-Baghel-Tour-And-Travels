@@ -4,7 +4,7 @@ export const contact = {
   whatsapp: "919762817598",
   onlineBooking: "919762817598",
   email: "bookings@agraskbagheltourandtravels.com",
-  address: "Near Taj East Gate Road, Taj Ganj, Agra, Uttar Pradesh 282001",
+  address: "1Nandlalpur, Hathras Rd, near Khusum, Nagla, Agra, Uttar Pradesh 282006",
   hours: "Bookings open 24×7",
-  mapsUrl: "https://maps.google.com/?q=Near+Taj+East+Gate+Road%2C+Taj+Ganj%2C+Agra%2C+Uttar+Pradesh+282001",
+  mapsUrl: "https://maps.google.com/?q=1Nandlalpur%2C+Hathras+Rd%2C+near+Khusum%2C+Nagla%2C+Agra%2C+Uttar+Pradesh+282006",
 } as const;

@@ -51,6 +51,10 @@ export interface SitemapEntry {
   hiPath?: string;
 }
 
+// Legacy redirect stubs must never be advertised as canonical sitemap URLs,
+// even if an old catalog snapshot still contains their slug.
+const REDIRECT_ONLY_PATHS = new Set(["/en/agra-to-mathura-taxi-service/"]);
+
 export function isSitemapSafeSlug(slug: unknown): slug is string {
   if (typeof slug !== "string") return false;
   const s = slug.trim();
@@ -425,9 +429,10 @@ export function getSitemapEntries(): SitemapEntry[] {
     }
   }
 
+  const canonicalEntries = entries.filter((entry) => !REDIRECT_ONLY_PATHS.has(entry.path));
   return HINDI_INDEXING_ENABLED
-    ? entries
-    : entries.map((entry) => ({ ...entry, hiPath: undefined }));
+    ? canonicalEntries
+    : canonicalEntries.map((entry) => ({ ...entry, hiPath: undefined }));
 }
 
 export function generateSitemapXml(entries: SitemapEntry[]): string {

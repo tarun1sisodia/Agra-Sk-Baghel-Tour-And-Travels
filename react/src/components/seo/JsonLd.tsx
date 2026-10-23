@@ -202,7 +202,7 @@ export function buildLocalBusinessSchema(options?: LocalBusinessSchemaOptions) {
       streetAddress: contact.address,
       addressLocality: "Agra",
       addressRegion: "Uttar Pradesh",
-      postalCode: "282001",
+      postalCode: "282006",
       addressCountry: "IN",
     },
     geo: {
