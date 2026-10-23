@@ -145,3 +145,11 @@ component. Specifically:
 
 Future edits to locked components still require the unlock protocol above.
 See `react/docs/07_UI_REPAIR_REPORT.md` for the full root-cause analysis.
+
+### 2026-10-23 — User-authorized homepage review readiness threshold
+
+Per explicit user request, the `LOCK-N06` dual marquee keeps its approved
+two-row opposing infinite animation, but its build-time data snapshot is empty
+until at least 10 approved, consented, homepage-published reviews are available.
+The admin review page reports progress toward that threshold. The client still
+renders only the generated JSON snapshot and does not fetch reviews at runtime.

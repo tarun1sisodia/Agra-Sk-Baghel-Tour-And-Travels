@@ -29,6 +29,10 @@ const publishedReviewsList: readonly Review[] = Array.isArray(rawReviews)
       }))
       .filter((r) => Boolean(r.name && r.quote))
   : [];
+const MIN_REVIEWS_FOR_MARQUEE = 10;
+const homepageReviews = publishedReviewsList.length >= MIN_REVIEWS_FOR_MARQUEE
+  ? publishedReviewsList
+  : [];
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -105,7 +109,7 @@ function ReviewCard({ review }: ReviewCardProps) {
 
 
 export function ReviewsMarquee() {
-  const reviewsList = publishedReviewsList;
+  const reviewsList = homepageReviews;
   const mid = reviewsList.length <= 1 ? 1 : Math.ceil(reviewsList.length / 2);
   const row1 = reviewsList.length <= 1 ? reviewsList : reviewsList.slice(0, mid);
   const row2 = reviewsList.length <= 1 ? reviewsList : reviewsList.slice(mid);
@@ -139,7 +143,7 @@ export function ReviewsMarquee() {
             Customer Reviews
           </h3>
           <p className="font-body-md text-xs text-on-surface-variant max-w-md mx-auto mb-4 leading-relaxed">
-            We publish customer feedback only after admin moderation and explicit public consent. No unapproved reviews are displayed.
+            Customer feedback is displayed after admin moderation and public consent. Our rotating review showcase appears when at least 10 approved reviews are available.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
             <span className="inline-flex items-center gap-1 text-success-jade font-semibold">

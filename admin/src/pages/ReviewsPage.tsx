@@ -45,6 +45,7 @@ function Stars({ n }: { n: number }) {
 }
 
 export type ReviewQueueTab = "pending" | "approved" | "published" | "rejected" | "all";
+const MIN_HOMEPAGE_MARQUEE_REVIEWS = 10;
 
 export function ReviewsPage({ user }: { user: AdminUser }) {
   const reduce = useReducedMotion();
@@ -261,6 +262,20 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
           </div>
         }
       />
+
+      <div
+        className={`mb-4 rounded-md border px-4 py-3 text-[13px] ${
+          publishedCount >= MIN_HOMEPAGE_MARQUEE_REVIEWS
+            ? "border-teal/20 bg-teal-soft text-teal"
+            : "border-gold/20 bg-gold-soft text-ink-soft"
+        }`}
+        role="status"
+      >
+        <strong>Homepage review rotation: {publishedCount}/{MIN_HOMEPAGE_MARQUEE_REVIEWS} published reviews.</strong>{" "}
+        {publishedCount >= MIN_HOMEPAGE_MARQUEE_REVIEWS
+          ? "The review cards are included in the static customer-site snapshot and rotate after the next successful deployment."
+          : `Publish ${MIN_HOMEPAGE_MARQUEE_REVIEWS - publishedCount} more consented, approved reviews to enable the homepage rotation. Reviews remain in the moderation database; fewer than ${MIN_HOMEPAGE_MARQUEE_REVIEWS} are omitted from the customer-site snapshot.`}
+      </div>
 
       {loadError && (
         <div
