@@ -1,0 +1,9 @@
+# Canonical legal URLs
+/en/privacy /privacy-policy/ 301
+/en/privacy/ /privacy-policy/ 301
+/en/terms /terms-and-conditions/ 301
+/en/terms/ /terms-and-conditions/ 301
+
+# Legacy production sitemap URL; consolidate to the canonical route page
+/en/agra-to-mathura-taxi-service /en/agra-to-mathura-taxi/ 301
+/en/agra-to-mathura-taxi-service/ /en/agra-to-mathura-taxi/ 301

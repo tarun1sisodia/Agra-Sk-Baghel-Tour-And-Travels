@@ -237,6 +237,30 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
           </div>
         </div>
 
+        <div className="max-w-4xl mx-auto w-full rounded-2xl border border-border-warm bg-surface-container-lowest p-4 sm:p-5 shadow-xs">
+          <div className="mb-3">
+            <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">Find the dispatch desk in Taj Ganj</h2>
+            <p className="mt-1 text-body-md text-on-surface-variant">
+              Near Taj East Gate Road, Taj Ganj, Agra. The map shows the nearby area; use Google Maps for directions.
+            </p>
+          </div>
+          <iframe
+            src={`https://maps.google.com/maps?q=${encodeURIComponent(contact.address)}&output=embed`}
+            title="Map of the Taj Ganj area near Taj East Gate Road in Agra"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            className="aspect-video w-full rounded-xl border-0"
+          />
+          <a
+            href={contact.mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex min-h-[44px] items-center gap-2 text-primary underline font-label-lg"
+          >
+            Open directions in Google Maps
+          </a>
+        </div>
+
         {/* 3. DISPATCH INQUIRY & RESERVATION FORM */}
         <div className="max-w-4xl mx-auto bg-surface-container-lowest border border-border-warm rounded-2xl p-5 sm:p-8 shadow-xs">
           <div className="mb-6">

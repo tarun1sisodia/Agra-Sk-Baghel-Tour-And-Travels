@@ -136,19 +136,19 @@ export function TermsPage({ language = "en" }: TermsPageProps) {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div className="p-3 sm:p-3.5 rounded-xl bg-surface-container-lowest border border-border-warm">
-              <h4 className="font-bold text-xs text-ink-charcoal">Sedan (Dzire / Etios)</h4>
+              <h3 className="font-bold text-xs text-ink-charcoal">Sedan (Dzire / Etios)</h3>
               <p className="text-label-lg text-on-surface-variant mt-0.5">4 Passengers · 2 Large Bags · ₹10/km outstation baseline.</p>
             </div>
             <div className="p-3 sm:p-3.5 rounded-xl bg-surface-container-lowest border border-border-warm">
-              <h4 className="font-bold text-xs text-ink-charcoal">MPV (Maruti Ertiga)</h4>
+              <h3 className="font-bold text-xs text-ink-charcoal">MPV (Maruti Ertiga)</h3>
               <p className="text-label-lg text-on-surface-variant mt-0.5">6 Passengers · 3 Large Bags · ₹14/km outstation baseline.</p>
             </div>
             <div className="p-3 sm:p-3.5 rounded-xl bg-surface-container-lowest border border-border-warm">
-              <h4 className="font-bold text-xs text-ink-charcoal">Executive SUV (Innova Crysta)</h4>
+              <h3 className="font-bold text-xs text-ink-charcoal">Executive SUV (Innova Crysta)</h3>
               <p className="text-label-lg text-on-surface-variant mt-0.5">6/7 Passengers · 4 Large Bags · ₹18/km outstation baseline.</p>
             </div>
             <div className="p-3 sm:p-3.5 rounded-xl bg-surface-container-lowest border border-border-warm">
-              <h4 className="font-bold text-xs text-ink-charcoal">Group Van (Tempo / Urbania)</h4>
+              <h3 className="font-bold text-xs text-ink-charcoal">Group Van (Tempo / Urbania)</h3>
               <p className="text-label-lg text-on-surface-variant mt-0.5">9 to 26 Passengers · Luggage Hold · ₹25–₹34/km baseline.</p>
             </div>
           </div>
@@ -215,24 +215,29 @@ export function TermsPage({ language = "en" }: TermsPageProps) {
               cabPolicies.map((slab, idx) => (
                 <div
                   key={slab.id || idx}
-                  className={`flex justify-between py-1 ${idx < cabPolicies.length - 1 ? "border-b border-border-warm/40" : ""}`}
+                  className={`py-1 ${idx < cabPolicies.length - 1 ? "border-b border-border-warm/40" : ""}`}
                 >
-                  <span className="font-semibold text-ink-charcoal">{slab.noticePeriodText}:</span>
-                  <span
-                    className={
-                      Number(slab.refundPercent) >= 100
-                        ? "text-success-jade font-bold"
-                        : Number(slab.refundPercent) > 0
-                        ? "text-primary font-bold"
-                        : "text-secondary font-bold"
-                    }
-                  >
-                    {Number(slab.refundPercent) === 100
-                      ? "100% Full Refund of Token"
-                      : Number(slab.refundPercent) === 0
-                      ? (slab.ruleText || "Token retained to cover dispatch fuel")
-                      : `${slab.refundPercent}% Token Refund (${slab.ruleText})`}
-                  </span>
+                  <div className="flex justify-between gap-3">
+                    <span className="font-semibold text-ink-charcoal">{slab.noticePeriodText}:</span>
+                    <span
+                      className={
+                        Number(slab.refundPercent) >= 100
+                          ? "text-success-jade font-bold"
+                          : Number(slab.refundPercent) > 0
+                          ? "text-primary font-bold"
+                          : "text-secondary font-bold"
+                      }
+                    >
+                      {Number(slab.refundPercent) === 100
+                        ? "100% Full Refund of Token"
+                        : Number(slab.refundPercent) === 0
+                        ? (slab.ruleText || "Token retained to cover dispatch fuel")
+                        : `${slab.refundPercent}% Token Refund (${slab.ruleText})`}
+                    </span>
+                  </div>
+                  {Number(slab.refundPercent) > 0 && slab.refundTimelineNote?.trim() && (
+                    <p className="mt-1 text-label-lg text-on-surface-variant">Refund timeline: {slab.refundTimelineNote}</p>
+                  )}
                 </div>
               ))
             ) : (
@@ -258,24 +263,29 @@ export function TermsPage({ language = "en" }: TermsPageProps) {
               {tourPolicies.map((slab, idx) => (
                 <div
                   key={slab.id || idx}
-                  className={`flex justify-between py-1 ${idx < tourPolicies.length - 1 ? "border-b border-border-warm/40" : ""}`}
+                  className={`py-1 ${idx < tourPolicies.length - 1 ? "border-b border-border-warm/40" : ""}`}
                 >
-                  <span className="font-semibold text-ink-charcoal">{slab.noticePeriodText}:</span>
-                  <span
-                    className={
-                      Number(slab.refundPercent) >= 100
-                        ? "text-success-jade font-bold"
-                        : Number(slab.refundPercent) > 0
-                        ? "text-primary font-bold"
-                        : "text-secondary font-bold"
-                    }
-                  >
-                    {Number(slab.refundPercent) === 100
-                      ? "100% Refund"
-                      : Number(slab.refundPercent) === 0
-                      ? (slab.ruleText || "Advance forfeited")
-                      : `${slab.refundPercent}% Refund (${slab.ruleText})`}
-                  </span>
+                  <div className="flex justify-between gap-3">
+                    <span className="font-semibold text-ink-charcoal">{slab.noticePeriodText}:</span>
+                    <span
+                      className={
+                        Number(slab.refundPercent) >= 100
+                          ? "text-success-jade font-bold"
+                          : Number(slab.refundPercent) > 0
+                          ? "text-primary font-bold"
+                          : "text-secondary font-bold"
+                      }
+                    >
+                      {Number(slab.refundPercent) === 100
+                        ? "100% Refund"
+                        : Number(slab.refundPercent) === 0
+                        ? (slab.ruleText || "Advance forfeited")
+                        : `${slab.refundPercent}% Refund (${slab.ruleText})`}
+                    </span>
+                  </div>
+                  {Number(slab.refundPercent) > 0 && slab.refundTimelineNote?.trim() && (
+                    <p className="mt-1 text-label-lg text-on-surface-variant">Refund timeline: {slab.refundTimelineNote}</p>
+                  )}
                 </div>
               ))}
             </div>

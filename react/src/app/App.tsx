@@ -307,6 +307,7 @@ export function App({ pathname: propPathname }: AppProps = {}) {
     cleanPath === "/booking/confirmation" ||
     cleanPath === "/booking/confirmation.html" ||
     cleanPath === "/booking-confirmation";
+  const isLegacyLegalAlias = cleanPath === "/en/privacy" || cleanPath === "/en/terms";
   const isLogin = cleanPath === "/login" || cleanPath === "/auth/login";
   const isReview = cleanPath === "/review" || /^\/review\/[^/]+$/i.test(cleanPath);
   const isPrivateCustomerPage = isAuthCallback || isMyBookings || isPaymentResume || isLogin || isBookingConfirmation || isReview;
@@ -585,7 +586,7 @@ export function App({ pathname: propPathname }: AppProps = {}) {
           description={pageDescription}
           ogImage={pageOgImage}
           keywords={pageKeywords}
-          noindex={isBooking || isPrivateCustomerPage || is404}
+          noindex={isBooking || isPrivateCustomerPage || isLegacyLegalAlias || is404}
         />
         <SiteLayout currentPath={pathname}>
           <Suspense fallback={null}>

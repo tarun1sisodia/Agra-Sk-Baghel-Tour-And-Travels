@@ -12,12 +12,16 @@ export function NotFoundPage({ language = "en" }: NotFoundPageProps) {
 
   const popularLinks = [
     { label: "Taj Mahal Sunrise Tour", url: "/en/packages/taj-mahal-sunrise-tour/" },
-    { label: "Agra to Delhi Taxi", url: "/book?from=Agra&to=Delhi" },
-    { label: "Agra to Jaipur Cab", url: "/book?from=Agra&to=Jaipur" },
-    { label: "Fleet Showroom", url: "/fleet" },
-    { label: "All Tour Packages", url: "/packages" },
-    { label: "24x7 Dispatch Desk", url: "/contact" },
+    { label: "Agra to Delhi Taxi", url: "/en/agra-to-delhi-taxi/" },
+    { label: "Agra to Jaipur Cab", url: "/en/agra-to-jaipur-taxi/" },
+    { label: "Fleet Showroom", url: "/en/fleet/" },
+    { label: "All Tour Packages", url: "/en/packages/" },
+    { label: "24x7 Dispatch Desk", url: "/en/contact/" },
   ];
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredLinks = normalizedSearch
+    ? popularLinks.filter((item) => `${item.label} ${item.url}`.toLowerCase().includes(normalizedSearch))
+    : popularLinks;
 
   return (
     <div className="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-[calc(100vh-80px)] flex flex-col justify-center">
@@ -37,8 +41,8 @@ export function NotFoundPage({ language = "en" }: NotFoundPageProps) {
               </h1>
 
               <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl leading-relaxed">
-                The milestone you followed does not exist or may have been relocated. Don&apos;t worry—our 24×7 Taj Ganj
-                control room is ready to reroute you immediately.
+                The page you followed does not exist or may have moved. Our 24×7 booking support is available by phone
+                to help you find the right route or tour.
               </p>
 
               {/* Instant Search / Recovery */}
@@ -48,25 +52,31 @@ export function NotFoundPage({ language = "en" }: NotFoundPageProps) {
                     search
                   </span>
                   <input
-                    type="text"
+                    type="search"
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(event) => setSearch(event.target.value)}
                     placeholder="Search routes, packages or fleet..."
-                    className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-surface-container-lowest border border-border-warm text-on-surface text-sm focus:outline-none focus:border-primary shadow-xs"
+                    aria-label="Search route, package, or fleet suggestions"
+                    className="w-full min-h-[48px] pl-10 pr-4 py-2.5 rounded-lg bg-surface-container-lowest border border-border-warm text-on-surface text-base focus:outline-none focus:border-primary shadow-xs"
                   />
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <span className="text-xs text-on-surface-variant font-medium">Quick suggestions:</span>
-                  {popularLinks.map((item) => (
+                  {filteredLinks.map((item) => (
                     <a
                       key={item.label}
                       href={item.url}
-                      className="px-2.5 py-1 rounded-md bg-surface-container hover:bg-surface-container-high text-xs text-ink-charcoal font-medium transition-colors"
+                      className="inline-flex min-h-[48px] items-center px-2.5 py-1 rounded-md bg-surface-container hover:bg-surface-container-high text-xs text-ink-charcoal font-medium transition-colors"
                     >
                       {item.label}
                     </a>
                   ))}
+                  {filteredLinks.length === 0 && (
+                    <span role="status" className="text-xs text-on-surface-variant">
+                      No matching quick links. Please call dispatch for help.
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -74,25 +84,32 @@ export function NotFoundPage({ language = "en" }: NotFoundPageProps) {
               <div className="flex items-center gap-3 pt-4">
                 <a
                   href="/"
-                  className="px-5 py-2.5 rounded-lg bg-primary hover:bg-primary-container text-white text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5"
+                  className="min-h-[48px] px-5 py-2.5 rounded-lg bg-primary hover:bg-primary-container text-white text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5"
                 >
                   <span className="material-symbols-outlined text-icon-18">home</span>
                   <span>Return to Home</span>
                 </a>
                 <a
-                  href="https://wa.me/919762817598"
+                  href={`tel:${contact.phone}`}
+                  aria-label={`Call dispatch at ${contact.phoneDisplay}`}
+                  className="min-h-[48px] px-4 py-2.5 rounded-lg border border-primary text-primary text-sm font-semibold transition-colors flex items-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-icon-18">call</span>
+                  <span>Call dispatch</span>
+                </a>
+                <a
+                  href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent("Hello, I need help with a taxi or tour booking in Agra.")}`}
                   target="_blank"
-                  rel="noreferrer"
-                  style={{ color: "#ffffff" }}
-                  className="px-4 py-2.5 rounded-lg bg-black hover:bg-neutral-900 border border-white/10 text-white text-sm font-semibold transition-colors flex items-center gap-2 shadow-xs active:scale-[0.98]"
+                  rel="noopener noreferrer"
+                  className="min-h-[48px] px-4 py-2.5 rounded-lg bg-black hover:bg-neutral-900 border border-white/10 text-white text-sm font-semibold transition-colors flex items-center gap-2 shadow-xs active:scale-[0.98]"
                 >
                   <WhatsAppIcon className="w-[18px] h-[18px] shrink-0 text-white" />
-                  <span className="text-white font-semibold" style={{ color: "#ffffff" }}>WhatsApp</span>
+                  <span className="text-white font-semibold">WhatsApp</span>
                 </a>
               </div>
             </div>
 
-            {/* Right: Architectural Plinth */}
+            {/* Right: Dispatch Support */}
             <div className="lg:col-span-5 relative">
               <div className="relative bg-surface-container-low rounded-2xl p-6 sm:p-8 overflow-hidden shadow-xl border border-border-warm/80">
                 <div className="absolute -right-4 -bottom-8 font-headline-hero text-display-watermark font-bold text-primary/5 select-none leading-none pointer-events-none">
@@ -101,11 +118,11 @@ export function NotFoundPage({ language = "en" }: NotFoundPageProps) {
                 <div className="relative z-10 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-1 rounded bg-primary text-white font-label-caps text-label-lg uppercase font-bold">
-                      Central Dispatch Guarantee
+                      24×7 Dispatch Support
                     </span>
                     <span className="text-xs text-success-jade font-semibold flex items-center gap-1">
-                      <span className="size-2 rounded-full bg-success-jade animate-pulse" />
-                      Active Telemetry
+                      <span className="size-2 rounded-full bg-success-jade" />
+                      Available by phone
                     </span>
                   </div>
 
@@ -113,17 +130,22 @@ export function NotFoundPage({ language = "en" }: NotFoundPageProps) {
                     <img
                       className="w-full h-full object-cover"
                       src="/assets/fleet/innova.webp"
-                      alt="Chauffeur stationed outside Mughal gateway in Agra"
+                      alt="Toyota Innova Crysta tour vehicle"
+                      width={1200}
+                      height={1050}
+                      decoding="async"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight/80 via-transparent to-transparent" />
                     <div className="absolute bottom-3 left-3 right-3 text-ivory-surface">
-                      <span className="font-title-md text-xs font-semibold block">Agra Dispatch Station</span>
-                      <span className="font-body-sm text-label-md text-surface-dim">Taj Ganj Control Room · +91 97628 17598</span>
+                      <span className="font-title-md text-xs font-semibold block">Agra taxi and tour assistance</span>
+                      <a className="font-body-sm text-label-md text-ivory-surface underline" href={`tel:${contact.phone}`}>
+                        {contact.phoneDisplay}
+                      </a>
                     </div>
                   </div>
 
                   <p className="text-xs text-on-surface-variant leading-relaxed">
-                    Need urgent roadside assistance or customized point-to-point dispatch? Call our 24×7 hotline directly.
+                    Need roadside assistance or point-to-point transport? Call our 24×7 dispatch hotline.
                   </p>
                 </div>
               </div>

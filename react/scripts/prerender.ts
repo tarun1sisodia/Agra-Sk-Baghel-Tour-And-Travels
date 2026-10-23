@@ -17,6 +17,7 @@ import { generateSitemapAndRobots, isSitemapSafeSlug, HINDI_INDEXING_ENABLED, CA
 import { assertBuildSafeSeo, inspectSeoHtml } from "./seo-content-guardrails.ts";
 import { SEO_LANDING_SLUGS } from "../src/data/seoLandingSlugs.ts";
 import { FLEETS } from "../src/data/fleets.ts";
+import { HOME_HERO_SLIDES } from "../src/data/homeHeroSlides.ts";
 import assert from "node:assert";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -225,9 +226,12 @@ const routesToRender: string[] = Array.from(new Set([
   "/book.html",
   "/book/",
   "/en/book/",
+  "/login/",
+  "/auth/login/",
   "/auth/callback/",
   "/my-bookings/",
   "/payment/resume/",
+  "/booking/confirmation/",
   "/404.html",
   "/en/404/",
 
@@ -254,6 +258,9 @@ const routesToRender: string[] = Array.from(new Set([
 
 // Compatibility HTML redirect stubs for backward compatibility
 const redirectStubs = [
+  { from: "en/privacy/", to: "/privacy-policy/" },
+  { from: "en/terms/", to: "/terms-and-conditions/" },
+  { from: "en/agra-to-mathura-taxi-service/", to: "/en/agra-to-mathura-taxi/" },
   { from: "services.html", to: "/en/services/" },
   { from: "routes.html", to: "/en/routes/" },
   { from: "packages.html", to: "/en/packages/" },
@@ -387,7 +394,17 @@ export async function prerender(): Promise<void> {
       const normalizedPath = normalizePath(route);
       const canonicalPath = normalizedPath === "/en/" ? "/" : normalizedPath;
       const canonicalUrl = `${CANONICAL_DOMAIN}${canonicalPath}`;
-      const effectiveNoindex = isBooking || is404 || isDisabledHindiPage;
+      const privateUtilityPath = normalizedPath.replace(/\/+$/, "");
+      const isPrivateUtilityPage = [
+        "/auth/callback",
+        "/auth/login",
+        "/booking/confirmation",
+        "/login",
+        "/my-bookings",
+        "/payment/resume",
+      ].includes(privateUtilityPath);
+      const isLegacyLegalAlias = privateUtilityPath === "/en/privacy" || privateUtilityPath === "/en/terms";
+      const effectiveNoindex = isBooking || isPrivateUtilityPage || isLegacyLegalAlias || is404 || isDisabledHindiPage;
       const alternates = resolveHreflangAlternates(route, effectiveNoindex);
       const robotsContent = effectiveNoindex
         ? "noindex, nofollow"
@@ -448,8 +465,17 @@ export async function prerender(): Promise<void> {
       }
       cleanAppHtml = cleanAppHtml.replace(hoistedLinkRegex, "");
 
+      const firstHero = HOME_HERO_SLIDES[0];
+      const isHomepageRoute = ["/", "/en/", "/hi/"].includes(route);
+      const heroPreloadTags = firstHero && isHomepageRoute
+        ? [
+            `<link rel="preload" as="image" href="${escapeHtml(firstHero.avif.small)}" imagesrcset="${escapeHtml(`${firstHero.avif.small} 480w, ${firstHero.avif.medium} 960w`)}" imagesizes="100vw" type="image/avif" media="(max-width: 640px)" fetchpriority="high" />`,
+            `<link rel="preload" as="image" href="${escapeHtml(firstHero.avif.medium)}" imagesrcset="${escapeHtml(`${firstHero.avif.medium} 960w, ${firstHero.avif.desktop ? `${firstHero.avif.desktop} 1280w, ` : ""}${firstHero.avif.large} 1600w`)}" imagesizes="(max-width: 1024px) 100vw, 1280px" type="image/avif" media="(min-width: 641px)" fetchpriority="high" />`,
+          ]
+        : [];
+
       // 2. Replace title and generic meta description with full metadata block
-      const fullHeadTags = [headTags, ...hoistedTags].filter(Boolean).join("\n    ");
+      const fullHeadTags = [headTags, ...hoistedTags, ...heroPreloadTags].filter(Boolean).join("\n    ");
       html = html.replace(/<title>.*?<\/title>/, fullHeadTags);
       html = html.replace(/<meta name="description" content="[^"]*" \/>\s*/, "");
 
