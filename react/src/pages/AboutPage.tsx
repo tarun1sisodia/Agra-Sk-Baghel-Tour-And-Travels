@@ -62,7 +62,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
   )}`;
 
   return (
-    <main className="about-refresh" lang={language}>
+    <div className="about-refresh" lang={language}>
       <div className="about-refresh__breadcrumb">
         <nav aria-label="Breadcrumb" className="about-refresh__container">
           <a href="/">Home</a>
@@ -312,7 +312,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
           </div>
         </motion.div>
       </section>
-    </main>
+    </div>
   );
 }
 
