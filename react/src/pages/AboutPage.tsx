@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import { contact } from "../data/contact";
 import { WhatsAppIcon } from "../components/icons/WhatsAppIcon";
-import "./about-page.css";
+import "../styles/about-page.css";
 
 interface AboutPageProps {
   language?: "en" | "hi";
