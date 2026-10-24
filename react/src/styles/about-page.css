@@ -1,0 +1,815 @@
+/* About page refresh: consistent typography, concise service content and accessible motion. */
+.about-refresh {
+  --about-ink: #201d1b;
+  --about-muted: #625650;
+  --about-brand: #a84422;
+  --about-brand-bright: #c75b35;
+  --about-paper: #fdf8f5;
+  --about-paper-deep: #f6eee8;
+  --about-card: #ffffff;
+  --about-border: #e9dcd2;
+  color: var(--about-ink);
+  background: var(--about-paper);
+  font-family: var(--font-body, "Plus Jakarta Sans", Arial, sans-serif);
+  font-size: 16px;
+  overflow: clip;
+}
+
+.about-refresh *,
+.about-refresh *::before,
+.about-refresh *::after {
+  box-sizing: border-box;
+}
+
+.about-refresh__container {
+  width: min(1200px, calc(100% - 40px));
+  margin-inline: auto;
+}
+
+.about-refresh__breadcrumb {
+  background: rgba(246, 238, 232, 0.96);
+  border-bottom: 1px solid var(--about-border);
+}
+
+.about-refresh__breadcrumb nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  color: var(--about-muted);
+  font-size: 14px;
+}
+
+.about-refresh__breadcrumb a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.about-refresh__breadcrumb a:hover {
+  color: var(--about-brand);
+}
+
+.about-refresh__breadcrumb span[aria-current="page"] {
+  color: var(--about-brand);
+  font-weight: 700;
+}
+
+.about-refresh__hero {
+  position: relative;
+  isolation: isolate;
+  padding-block: clamp(48px, 6vw, 84px);
+  background-color: var(--about-paper);
+  background-image:
+    linear-gradient(100deg, rgba(253, 248, 245, 0.97) 0%, rgba(253, 248, 245, 0.91) 51%, rgba(253, 248, 245, 0.76) 100%),
+    url("/assets/home-hero/agra-fort-1600.webp");
+  background-size: cover;
+  background-position: center;
+}
+
+.about-refresh__hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 340px;
+  height: 340px;
+  right: -150px;
+  bottom: -190px;
+  border-radius: 50%;
+  background: rgba(199, 91, 53, 0.13);
+  filter: blur(14px);
+}
+
+.about-refresh__hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.92fr);
+  align-items: center;
+  gap: clamp(32px, 5vw, 72px);
+}
+
+.about-refresh__hero-copy {
+  min-width: 0;
+}
+
+.about-refresh__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--about-brand);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.about-refresh__eyebrow .material-symbols-outlined {
+  font-size: 19px;
+}
+
+.about-refresh__hero-copy h1 {
+  max-width: 720px;
+  margin: 22px 0 18px;
+  color: var(--about-ink);
+  font-family: var(--font-headline, "EB Garamond", Georgia, serif);
+  font-size: clamp(2.7rem, 4.7vw, 4.75rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+}
+
+.about-refresh__hero-copy h1 span {
+  display: block;
+  color: var(--about-brand-bright);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.about-refresh__lead {
+  max-width: 650px;
+  margin: 0;
+  color: var(--about-muted);
+  font-size: clamp(1.05rem, 1.2vw, 1.2rem);
+  line-height: 1.8;
+}
+
+.about-refresh__quick-points {
+  display: grid;
+  gap: 10px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.about-refresh__quick-points li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--about-ink);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.about-refresh__quick-points .material-symbols-outlined {
+  flex: 0 0 auto;
+  color: #367957;
+  font-size: 21px;
+}
+
+.about-refresh__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.about-refresh__button {
+  display: inline-flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.35;
+  text-align: center;
+  text-decoration: none;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.about-refresh__button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(37, 23, 17, 0.14);
+}
+
+.about-refresh__button .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.about-refresh__button--primary {
+  color: #fff;
+  background: #9f3c16;
+}
+
+.about-refresh__button--primary:hover {
+  color: #fff;
+  background: #802d10;
+}
+
+.about-refresh__button--whatsapp {
+  color: #fff;
+  background: #151515;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.about-refresh__button--whatsapp:hover {
+  color: #fff;
+  background: #282828;
+}
+
+.about-refresh__visual {
+  position: relative;
+  min-height: 470px;
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: 24px;
+  background: #2d2926;
+  box-shadow: 0 24px 60px rgba(49, 33, 23, 0.2);
+  isolation: isolate;
+}
+
+.about-refresh__visual-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+  object-position: center;
+}
+
+.about-refresh__visual-shade {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(16, 19, 22, 0.02) 35%, rgba(16, 19, 22, 0.56) 100%);
+  pointer-events: none;
+}
+
+.about-refresh__visual-label {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  max-width: calc(100% - 36px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  padding: 9px 13px;
+  color: white;
+  background: rgba(30, 28, 26, 0.63);
+  backdrop-filter: blur(12px);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.about-refresh__live-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #8ee0a4;
+  box-shadow: 0 0 0 4px rgba(142, 224, 164, 0.17);
+}
+
+.about-refresh__route-card {
+  position: absolute;
+  right: -18px;
+  bottom: 26px;
+  width: min(330px, calc(100% - 28px));
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 18px;
+  padding: 18px 19px 16px;
+  color: var(--about-ink);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 16px 42px rgba(22, 20, 19, 0.24);
+}
+
+.about-refresh__route-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.about-refresh__route-card-heading .material-symbols-outlined {
+  color: var(--about-brand);
+  font-size: 21px;
+}
+
+.about-refresh__route-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 2px 10px;
+}
+
+.about-refresh__route-stop {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  border: 3px solid var(--about-brand);
+  border-radius: 50%;
+  background: #fff;
+}
+
+.about-refresh__route-stop--end {
+  border-color: #397c59;
+}
+
+.about-refresh__route-dash {
+  height: 3px;
+  flex: 1;
+  background: repeating-linear-gradient(90deg, #c75b35 0 7px, transparent 7px 13px);
+  animation: about-route-flow 1.3s linear infinite;
+}
+
+.about-refresh__route-cities {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--about-muted);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.about-refresh__section {
+  padding-block: clamp(56px, 7vw, 88px);
+}
+
+.about-refresh__services {
+  background: #fff;
+  border-top: 1px solid var(--about-border);
+  border-bottom: 1px solid var(--about-border);
+}
+
+.about-refresh__section-heading {
+  max-width: 760px;
+  margin: 0 auto clamp(28px, 4vw, 42px);
+  text-align: center;
+}
+
+.about-refresh__section-heading h2,
+.about-refresh__expectations-intro h2,
+.about-refresh__location-copy h2,
+.about-refresh__closing h2 {
+  margin: 12px 0 14px;
+  color: var(--about-ink);
+  font-family: var(--font-headline, "EB Garamond", Georgia, serif);
+  font-size: clamp(2rem, 3.2vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+
+.about-refresh__section-heading p,
+.about-refresh__expectations-intro > p,
+.about-refresh__location-copy > p,
+.about-refresh__closing p {
+  margin: 0;
+  color: var(--about-muted);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.about-refresh__service-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.about-refresh__service-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  border: 1px solid var(--about-border);
+  border-radius: 18px;
+  padding: clamp(22px, 2.8vw, 32px);
+  background: var(--about-paper);
+  box-shadow: 0 5px 18px rgba(40, 25, 15, 0.035);
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.about-refresh__service-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(168, 68, 34, 0.35);
+  box-shadow: 0 16px 30px rgba(40, 25, 15, 0.09);
+}
+
+.about-refresh__service-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.about-refresh__service-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border: 1px solid #edd3c6;
+  border-radius: 15px;
+  color: var(--about-brand);
+  background: #f9e8df;
+  font-size: 26px;
+}
+
+.about-refresh__service-number {
+  color: #bc9a88;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.about-refresh__service-card h3 {
+  margin: 0 0 10px;
+  font-family: var(--font-headline, "EB Garamond", Georgia, serif);
+  font-size: clamp(1.35rem, 1.6vw, 1.65rem);
+  font-weight: 650;
+  line-height: 1.15;
+}
+
+.about-refresh__service-card p {
+  flex: 1;
+  margin: 0 0 24px;
+  color: var(--about-muted);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.about-refresh__service-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--about-border);
+  padding-top: 16px;
+  color: var(--about-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.about-refresh__service-footer a,
+.about-refresh__text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--about-brand);
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.about-refresh__service-footer a:hover,
+.about-refresh__text-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.about-refresh__service-footer .material-symbols-outlined,
+.about-refresh__text-link .material-symbols-outlined {
+  font-size: 19px;
+}
+
+.about-refresh__expectations {
+  background: var(--about-paper-deep);
+}
+
+.about-refresh__expectations-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  align-items: start;
+  gap: clamp(38px, 8vw, 100px);
+}
+
+.about-refresh__expectations-intro {
+  position: sticky;
+  top: 110px;
+}
+
+.about-refresh__expectations-intro .about-refresh__text-link {
+  margin-top: 24px;
+}
+
+.about-refresh__expectations-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.about-refresh__expectation {
+  display: flex;
+  gap: 15px;
+  min-width: 0;
+  border: 1px solid rgba(222, 203, 190, 0.85);
+  border-radius: 16px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.about-refresh__expectation-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--about-brand);
+  background: #f9e8df;
+  font-size: 23px;
+}
+
+.about-refresh__expectation h3 {
+  margin: 2px 0 7px;
+  color: var(--about-ink);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.about-refresh__expectation p {
+  margin: 0;
+  color: var(--about-muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.about-refresh__location {
+  padding-block: clamp(56px, 7vw, 88px);
+  background: #fff;
+}
+
+.about-refresh__location-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.76fr) minmax(0, 1.24fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 64px);
+}
+
+.about-refresh__address {
+  display: flex;
+  gap: 13px;
+  margin: 24px 0 22px;
+  border: 1px solid var(--about-border);
+  border-radius: 14px;
+  padding: 18px;
+  background: var(--about-paper);
+}
+
+.about-refresh__address > .material-symbols-outlined {
+  color: var(--about-brand);
+  font-size: 25px;
+}
+
+.about-refresh__address strong {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.about-refresh__address p {
+  margin: 0;
+  color: var(--about-muted);
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.about-refresh__map-card {
+  overflow: hidden;
+  border: 1px solid var(--about-border);
+  border-radius: 20px;
+  background: var(--about-paper);
+  box-shadow: 0 18px 50px rgba(44, 27, 17, 0.1);
+}
+
+.about-refresh__map {
+  display: block;
+  width: 100%;
+  height: clamp(340px, 36vw, 480px);
+  border: 0;
+  background: #eee8e2;
+}
+
+.about-refresh__map-footer {
+  display: flex;
+  min-height: 62px;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 18px;
+  color: var(--about-muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.about-refresh__map-footer > .material-symbols-outlined {
+  color: var(--about-brand);
+  font-size: 21px;
+}
+
+.about-refresh__map-footer span:nth-child(2) {
+  flex: 1;
+}
+
+.about-refresh__map-footer a {
+  color: var(--about-brand);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.about-refresh__map-footer a:hover {
+  text-decoration: underline;
+}
+
+.about-refresh__closing {
+  padding-block: clamp(46px, 6vw, 76px);
+  background: linear-gradient(120deg, #f2e2d5, #fcf6f0 65%, #f4e5dc);
+  border-top: 1px solid var(--about-border);
+}
+
+.about-refresh__closing-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 36px;
+}
+
+.about-refresh__closing-inner > div:first-child {
+  max-width: 650px;
+}
+
+.about-refresh__closing h2 {
+  margin-top: 10px;
+}
+
+.about-refresh__closing .about-refresh__actions {
+  flex: 0 0 auto;
+  margin-top: 0;
+}
+
+@keyframes about-route-flow {
+  from { background-position: 0 0; }
+  to { background-position: 26px 0; }
+}
+
+@media (max-width: 960px) {
+  .about-refresh__hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 0.8fr);
+    gap: 30px;
+  }
+
+  .about-refresh__visual {
+    min-height: 420px;
+  }
+
+  .about-refresh__route-card {
+    right: -8px;
+  }
+
+  .about-refresh__expectations-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-refresh__expectations-intro {
+    position: static;
+    max-width: 720px;
+  }
+
+  .about-refresh__location-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-refresh__location-copy {
+    max-width: 760px;
+  }
+
+  .about-refresh__closing-inner {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 720px) {
+  .about-refresh__container {
+    width: min(100% - 32px, 580px);
+  }
+
+  .about-refresh__hero {
+    padding-block: 42px 52px;
+    background-image:
+      linear-gradient(180deg, rgba(253, 248, 245, 0.94), rgba(253, 248, 245, 0.86)),
+      url("/assets/home-hero/agra-fort-1280.webp");
+  }
+
+  .about-refresh__hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-refresh__hero-copy h1 {
+    font-size: clamp(2.65rem, 10vw, 4rem);
+  }
+
+  .about-refresh__lead {
+    font-size: 17px;
+  }
+
+  .about-refresh__visual {
+    min-height: 370px;
+  }
+
+  .about-refresh__route-card {
+    right: 12px;
+    bottom: 16px;
+  }
+
+  .about-refresh__service-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .about-refresh__service-card {
+    padding: 22px;
+  }
+
+  .about-refresh__expectations-list {
+    grid-template-columns: 1fr;
+  }
+
+  .about-refresh__expectation {
+    padding: 18px;
+  }
+
+  .about-refresh__map {
+    height: 360px;
+  }
+
+  .about-refresh__closing-inner .about-refresh__actions {
+    width: 100%;
+  }
+
+  .about-refresh__button {
+    min-height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-refresh__container {
+    width: calc(100% - 28px);
+  }
+
+  .about-refresh__quick-points li {
+    align-items: flex-start;
+    font-size: 15px;
+  }
+
+  .about-refresh__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .about-refresh__button {
+    width: 100%;
+  }
+
+  .about-refresh__visual {
+    min-height: 330px;
+  }
+
+  .about-refresh__visual-label {
+    top: 12px;
+    left: 12px;
+    font-size: 11px;
+  }
+
+  .about-refresh__route-card {
+    right: 10px;
+    bottom: 12px;
+    padding: 15px;
+  }
+
+  .about-refresh__section-heading p,
+  .about-refresh__expectations-intro > p,
+  .about-refresh__location-copy > p,
+  .about-refresh__closing p {
+    font-size: 16px;
+  }
+
+  .about-refresh__map-footer {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .about-refresh__map-footer span:nth-child(2) {
+    min-width: 150px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-refresh *,
+  .about-refresh *::before,
+  .about-refresh *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
