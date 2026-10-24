@@ -48,8 +48,8 @@ export function ReviewPage() {
     isPreview ? "Preview Mode: Review form is in preview. Submissions will be simulated." : null
   );
   const [fatalError, setFatalError] = useState<string | null>(
-    !token && !draftPreview.customerName && !draftPreview.tourName && !isPreview
-      ? "This review link is incomplete or missing trip details."
+    !token && !isPreview
+      ? "This review link is incomplete or missing its official invitation token."
       : null
   );
   const [submitted, setSubmitted] = useState(false);
@@ -89,13 +89,17 @@ export function ReviewPage() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isPreview || !token) {
-      // In preview or draft mode, simulate successful review submission without crashing
+    if (isPreview) {
+      // In preview mode only, simulate successful review submission without contacting the API
       setSubmitting(true);
       setTimeout(() => {
         setSubmitting(false);
         setSubmitted(true);
       }, 500);
+      return;
+    }
+    if (!token) {
+      setFormError("An official review invitation link is required to submit a review.");
       return;
     }
     setSubmitting(true);

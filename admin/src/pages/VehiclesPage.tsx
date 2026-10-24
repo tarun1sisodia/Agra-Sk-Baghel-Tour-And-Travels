@@ -359,11 +359,11 @@ export const FLEET_IMAGE_OPTIONS = [
   { label: "Force Urbania VIP (urbania.webp)", value: "/assets/fleet/urbania.webp" },
 ];
 
-function isPresetInFleet(preset: FleetPreset, existingModels: CleanVehicleModel[]): boolean {
+function findPresetModel(preset: FleetPreset, existingModels: CleanVehicleModel[]): CleanVehicleModel | undefined {
   const pMake = preset.make.toLowerCase().trim();
   const pModel = preset.model_name.toLowerCase().trim();
   const pDisplay = preset.display_name.toLowerCase().trim();
-  return existingModels.some((m) => {
+  return existingModels.find((m) => {
     const mMake = m.make.toLowerCase().trim();
     const mModel = m.model_name.toLowerCase().trim();
     const mDisplay = m.display_name.toLowerCase().trim();
@@ -374,6 +374,9 @@ function isPresetInFleet(preset: FleetPreset, existingModels: CleanVehicleModel[
       pModel.includes(mModel)
     );
   });
+}
+function isPresetInFleet(preset: FleetPreset, existingModels: CleanVehicleModel[]): boolean {
+  return Boolean(findPresetModel(preset, existingModels));
 }
 
 export function VehiclesPage({ user }: { user: AdminUser }) {
@@ -603,7 +606,7 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
   // Catalog Presets computation
   const catalogStats = useMemo(() => {
     const missing = FLEET_PRESETS.filter((p) => !isPresetInFleet(p, models));
-    const active = FLEET_PRESETS.filter((p) => isPresetInFleet(p, models));
+    const active = FLEET_PRESETS.filter((p) => findPresetModel(p, models)?.is_active === true);
     return { missing, active, all: FLEET_PRESETS };
   }, [models]);
 
@@ -831,13 +834,15 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
                 ) : (
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {displayedCatalog.map((preset) => {
-                      const inFleet = isPresetInFleet(preset, models);
+                      const matchedModel = findPresetModel(preset, models);
+                      const inFleet = Boolean(matchedModel);
+                      const isActiveInFleet = matchedModel?.is_active === true;
                       return (
                         <div
                           key={preset.display_name}
                           className={cn(
                             "group flex flex-col justify-between overflow-hidden rounded-md border border-hairline bg-surface transition-all hover:border-gold/50 hover:shadow-sm",
-                            inFleet && "bg-surface-alt/40 opacity-80 hover:opacity-100"
+                            isActiveInFleet && "bg-surface-alt/40 opacity-80 hover:opacity-100"
                           )}
                         >
                           <div>
@@ -856,10 +861,10 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
                                   {preset.vehicle_group_code.toUpperCase()}
                                 </Badge>
                               </div>
-                              {inFleet && (
+                              {matchedModel && (
                                 <div className="absolute right-2 top-2">
-                                  <Badge tone="success" className="bg-success text-white">
-                                    <Check className="mr-1 h-3 w-3" /> In Fleet
+                                  <Badge tone={isActiveInFleet ? "success" : "neutral"} className={isActiveInFleet ? "bg-success text-white" : "bg-surface text-ink-soft"}>
+                                    {isActiveInFleet ? <><Check className="mr-1 h-3 w-3" /> In Fleet</> : "Inactive in Fleet"}
                                   </Badge>
                                 </div>
                               )}

@@ -36,32 +36,24 @@ export interface FooterProps {
 
 export function Footer({ className = "" }: FooterProps) {
   const fleetLinks = [
-    { name: "Dzire Sedan (4+1)", rate: "From ₹10/km", href: "/fleet" },
-    { name: "Maruti Ertiga MPV (6+1)", rate: "From ₹14/km", href: "/fleet" },
-    { name: "Innova Crysta VIP (6+1)", rate: "From ₹18/km", href: "/fleet" },
-    { name: "Tempo Traveller (12–16s)", rate: "From ₹25/km", href: "/fleet" },
-    { name: "Force Urbania Luxury (16s)", rate: "From ₹34/km", href: "/fleet" },
+    { name: "Explore our vehicles", href: "/fleet" },
+    { name: "Vehicle comfort & capacity", href: "/fleet" },
+    { name: "Chauffeur-driven travel", href: "/services" },
   ];
-
   const routeLinks = [
-    { name: "Agra → Delhi / IGI Airport", fare: "₹3,499", href: "/routes" },
-    { name: "Agra → Jaipur Pink City", fare: "₹3,499", href: "/routes" },
-    { name: "Agra → Mathura Vrindavan", fare: "₹2,200", href: "/routes" },
-    { name: "Agra → Gwalior Fort", fare: "₹3,000", href: "/routes" },
-    { name: "Agra → Fatehpur Sikri", fare: "₹1,800", href: "/routes" },
+    { name: "Plan an intercity journey", href: "/routes" },
+    { name: "Airport transfers", href: "/routes" },
+    { name: "Local Agra travel", href: "/routes" },
   ];
-
   const tourLinks = [
-    { name: "Taj Mahal Sunrise Tour", href: "/en/packages/taj-mahal-sunrise-tour/" },
-    { name: "Mathura-Vrindavan Tour", href: "/en/packages/mathura-vrindavan/" },
-    { name: "Golden Triangle 3-City Tour", href: "/en/packages/golden-triangle/" },
-    { name: "Agra Local Sightseeing (8h/80km)", href: "/en/packages/agra-sightseeing/" },
-    { name: "Driver Standards & Safety", href: "/services" },
+    { name: "Explore sightseeing tours", href: "/en/packages/" },
+    { name: "Heritage experiences", href: "/en/packages/" },
+    { name: "Travel services & safety", href: "/services" },
   ];
-
   return (
     <footer
       className={`w-full bg-surface-container-low text-on-surface-variant border-t border-border-warm pb-24 md:pb-0 ${className}`.trim()}
+      style={{ backgroundImage: "linear-gradient(rgba(32, 25, 20, 0.88), rgba(32, 25, 20, 0.92)), url('/assets/home-hero/agra-fort-1280.webp')", backgroundPosition: "center", backgroundSize: "cover", backgroundColor: "#201914" }}
       role="contentinfo"
     >
 
@@ -71,21 +63,21 @@ export function Footer({ className = "" }: FooterProps) {
           {/* Column 1: Brand & NAP */}
           <div className="flex flex-col gap-space-md">
             <BrandLogo href="/" />
-            <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            <p className="font-body-sm text-body-sm text-white/85 leading-relaxed">
               Reliable taxi service, outstation cabs, and guided sightseeing tours in Agra and across North India. Government-approved tourist fleet operator.
             </p>
             <div className="flex flex-col gap-space-xs mt-space-xs">
-              <span className="font-label-caps text-label-caps text-primary uppercase font-bold tracking-wider">
+              <span className="font-label-caps text-label-caps text-amber-200 uppercase font-bold tracking-wider">
                 Taj Ganj Office
               </span>
-              <p className="font-body-sm text-body-sm text-on-surface">
+              <p className="font-body-sm text-body-sm text-white/85">
                 {contact.address}
               </p>
             <div className="flex flex-col gap-1 pt-1 text-body-sm">
                 <a
                   href={`tel:${contact.phone}`}
                   aria-label={`Call us at ${contact.phoneDisplay}`}
-                  className="inline-flex items-center gap-2 text-on-surface hover:text-primary transition-colors py-2 min-h-[44px]"
+                  className="inline-flex items-center gap-2 text-white/85 hover:text-amber-200 transition-colors py-2 min-h-[44px]"
                 >
                   <span className="material-symbols-outlined text-primary text-icon-18">call</span>
                   <span>{contact.phoneDisplay}</span>
@@ -95,7 +87,7 @@ export function Footer({ className = "" }: FooterProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Contact WhatsApp customer support desk (opens in new window)"
-                  className="inline-flex items-center gap-2 text-on-surface hover:text-primary transition-colors py-2 min-h-[44px]"
+                  className="inline-flex items-center gap-2 text-white/85 hover:text-amber-200 transition-colors py-2 min-h-[44px]"
                 >
                   <WhatsAppIcon className="w-[18px] h-[18px] shrink-0" />
                   <span>WhatsApp Support</span>
@@ -105,7 +97,7 @@ export function Footer({ className = "" }: FooterProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="View Taj Ganj office on Google Maps (opens in new window)"
-                  className="inline-flex items-center gap-space-xs text-primary hover:underline font-label-lg text-label-lg py-2 min-h-[44px]"
+                  className="inline-flex items-center gap-space-xs text-amber-200 hover:underline font-label-lg text-label-lg py-2 min-h-[44px]"
                 >
                   <span className="material-symbols-outlined text-icon-16">map</span>
                   <span>View on Google Maps</span>
@@ -123,7 +115,7 @@ export function Footer({ className = "" }: FooterProps) {
                   rel="noopener noreferrer"
                   aria-label="Agra SK Baghel Tour and Travels on Facebook"
                   title="Facebook"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-warm bg-surface text-on-surface hover:border-primary hover:bg-primary hover:text-on-primary transition-colors"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-black/20 text-white hover:border-amber-200 hover:bg-amber-200 hover:text-black transition-colors"
                 >
                   <SocialIcon name="facebook" />
                 </a>
@@ -133,7 +125,7 @@ export function Footer({ className = "" }: FooterProps) {
                   rel="noopener noreferrer"
                   aria-label="Agra SK Baghel Tour and Travels on Instagram"
                   title="Instagram"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-warm bg-surface text-on-surface hover:border-primary hover:bg-primary hover:text-on-primary transition-colors"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-black/20 text-white hover:border-amber-200 hover:bg-amber-200 hover:text-black transition-colors"
                 >
                   <SocialIcon name="instagram" />
                 </a>
@@ -143,7 +135,7 @@ export function Footer({ className = "" }: FooterProps) {
                   rel="noopener noreferrer"
                   aria-label="Agra SK Baghel Tour and Travels on YouTube"
                   title="YouTube"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-warm bg-surface text-on-surface hover:border-primary hover:bg-primary hover:text-on-primary transition-colors"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-black/20 text-white hover:border-amber-200 hover:bg-amber-200 hover:text-black transition-colors"
                 >
                   <SocialIcon name="youtube" />
                 </a>
@@ -153,19 +145,18 @@ export function Footer({ className = "" }: FooterProps) {
 
           {/* Column 2: Fleet Directory */}
           <div className="flex flex-col gap-space-md">
-            <h3 className="font-title-md text-title-md text-on-surface font-semibold">
+            <h3 className="font-title-md text-title-md text-white font-semibold">
               Our Fleet
             </h3>
-            <ul className="flex flex-col gap-1 font-body-sm text-body-sm">
+            <ul className="flex flex-col gap-1 font-body-sm text-body-sm text-white/85">
               {fleetLinks.map((item) => (
                 <li key={item.name}>
                   <a
                     href={item.href}
                     onMouseEnter={() => prefetchDocument(item.href)}
-                    className="flex items-center justify-between hover:text-primary transition-colors py-2 min-h-[44px]"
+                    className="flex items-center hover:text-amber-200 transition-colors py-2 min-h-[44px]"
                   >
                     <span>{item.name}</span>
-                    <span className="font-label-caps text-label-caps text-primary font-semibold">{item.rate}</span>
                   </a>
                 </li>
               ))}
@@ -174,19 +165,18 @@ export function Footer({ className = "" }: FooterProps) {
 
           {/* Column 3: Intercity Routes */}
           <div className="flex flex-col gap-space-md">
-            <h3 className="font-title-md text-title-md text-on-surface font-semibold">
+            <h3 className="font-title-md text-title-md text-white font-semibold">
               Popular Routes
             </h3>
-            <ul className="flex flex-col gap-1 font-body-sm text-body-sm">
+            <ul className="flex flex-col gap-1 font-body-sm text-body-sm text-white/85">
               {routeLinks.map((item) => (
                 <li key={item.name}>
                   <a
                     href={item.href}
                     onMouseEnter={() => prefetchDocument(item.href)}
-                    className="flex items-center justify-between hover:text-primary transition-colors py-2 min-h-[44px]"
+                    className="flex items-center hover:text-amber-200 transition-colors py-2 min-h-[44px]"
                   >
                     <span>{item.name}</span>
-                    <span className="font-label-caps text-label-caps text-primary font-semibold">{item.fare}</span>
                   </a>
                 </li>
               ))}
@@ -195,16 +185,16 @@ export function Footer({ className = "" }: FooterProps) {
 
           {/* Column 4: Tours */}
           <div className="flex flex-col gap-space-md">
-            <h3 className="font-title-md text-title-md text-on-surface font-semibold">
+            <h3 className="font-title-md text-title-md text-white font-semibold">
               Sightseeing Tours
             </h3>
-            <nav className="flex flex-col gap-1 font-body-sm text-body-sm">
+            <nav className="flex flex-col gap-1 font-body-sm text-body-sm text-white/85">
               {tourLinks.map((item) => (
                 <a
                   key={item.name}
                   href={item.href}
                   onMouseEnter={() => prefetchDocument(item.href)}
-                  className="flex items-center hover:text-primary transition-colors py-2 min-h-[44px]"
+                  className="flex items-center hover:text-amber-200 transition-colors py-2 min-h-[44px]"
                 >
                   {item.name}
                 </a>
@@ -221,11 +211,11 @@ export function Footer({ className = "" }: FooterProps) {
             © {new Date().getFullYear()} Agra SK Baghel Tour and Travels. All rights reserved.
           </p>
           <div className="flex flex-wrap items-center gap-space-md font-body-sm text-body-sm text-title-lg">
-            <a href="/privacy-policy/" className="hover:text-primary transition-colors py-2 min-h-[44px] inline-flex items-center">Privacy Policy</a>
+            <a href="/privacy-policy/" className="hover:text-amber-200 transition-colors py-2 min-h-[44px] inline-flex items-center">Privacy Policy</a>
             <span className="text-border-warm">•</span>
-            <a href="/terms-and-conditions/" className="hover:text-primary transition-colors py-2 min-h-[44px] inline-flex items-center">Terms of Service</a>
+            <a href="/terms-and-conditions/" className="hover:text-amber-200 transition-colors py-2 min-h-[44px] inline-flex items-center">Terms of Service</a>
             <span className="text-border-warm">•</span>
-            <a href="/en/faq/" className="hover:text-primary transition-colors py-2 min-h-[44px] inline-flex items-center">FAQ & Cancellation</a>
+            <a href="/en/faq/" className="hover:text-amber-200 transition-colors py-2 min-h-[44px] inline-flex items-center">FAQ & Cancellation</a>
           </div>
         </div>
       </div>

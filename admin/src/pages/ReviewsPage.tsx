@@ -68,6 +68,7 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
   const [generatingLink, setGeneratingLink] = useState(false);
   const [generatedToken, setGeneratedToken] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const [qrEncodedUrl, setQrEncodedUrl] = useState<string>("");
   const [copiedLink, setCopiedLink] = useState(false);
 
   // Production review links can still be overridden for preview deployments.
@@ -89,27 +90,11 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
     return `${reviewSharingBaseUrl}/review${qs ? `?${qs}` : ""}`;
   }, [generatedToken, customerName, ticketId, chauffeurName, tourName, reviewSharingBaseUrl]);
 
-  useEffect(() => {
-    let active = true;
-    QRCode.toDataURL(activeReviewUrl, {
-      width: 280,
-      margin: 1,
-      color: { dark: "#1a1a1a", light: "#ffffff" },
-    })
-      .then((url) => {
-        if (active) setQrDataUrl(url);
-      })
-      .catch((err) => {
-        console.error("QR Code generation error:", err);
-      });
-    return () => {
-      active = false;
-    };
-  }, [activeReviewUrl]);
-
   async function handleCreateTokenLink() {
     setGeneratingLink(true);
     setActionError(null);
+    setQrDataUrl("");
+    setQrEncodedUrl("");
     try {
       const res = await createAdminReviewLink({
         label: ticketId ? `Ticket ${ticketId}` : `Invite for ${customerName || "Customer"}`,
@@ -123,7 +108,15 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
       if (!res.token || typeof res.token !== "string") {
         throw new Error("The server did not return a review token. No official link was created.");
       }
+      const tokenUrl = `${reviewSharingBaseUrl}/review/${encodeURIComponent(res.token)}`;
+      const qr = await QRCode.toDataURL(tokenUrl, {
+        width: 280,
+        margin: 1,
+        color: { dark: "#1a1a1a", light: "#ffffff" },
+      });
       setGeneratedToken(res.token);
+      setQrDataUrl(qr);
+      setQrEncodedUrl(tokenUrl);
       setActionSuccess("Official review invitation token generated successfully!");
     } catch (err) {
       setActionError(`Could not generate official token: ${err instanceof Error ? err.message : "server error"}`);
@@ -139,7 +132,7 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
   }
 
   function handleDownloadQr() {
-    if (!qrDataUrl) return;
+    if (!generatedToken || !qrDataUrl || qrEncodedUrl !== activeReviewUrl) return;
     const a = document.createElement("a");
     a.href = qrDataUrl;
     a.download = `review-qr-${ticketId.trim() || "sk-baghel"}.png`;
@@ -512,7 +505,7 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
                 variant="outline"
                 size="sm"
                 onClick={handleDownloadQr}
-                disabled={!qrDataUrl}
+                disabled={!generatedToken || !qrDataUrl || qrEncodedUrl !== activeReviewUrl || generatingLink}
                 className="w-full text-xs"
               >
                 <Download className="h-3.5 w-3.5 mr-1" />
