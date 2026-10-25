@@ -4,7 +4,8 @@ import { contact } from "../data/contact";
 import { JsonLd, buildBreadcrumbSchema, buildFaqSchema, buildTouristTripSchema, buildGraphSchema } from "../components/seo/JsonLd";
 import { CANONICAL_DOMAIN } from "../components/seo/SeoHead";
 import { WhatsAppIcon } from "../components/icons";
-import { VEHICLE_TIERS, type VehicleTier } from "../contracts/vehicle-tiers";
+import { GroupedVehicleSection } from "../components/fleet/GroupedVehicleSection";
+import localPackagesData from "../data/generated-published-local-packages.json";
 
 export interface DossierMonumentItem {
   id: string;
@@ -27,14 +28,6 @@ export interface MonumentTemplateProps {
   item: DossierMonumentItem;
 }
 
-const CANONICAL_FLEET_SPECS: Record<VehicleTier, { name: string; seats: string; bags: string; ac: string; fare: number }> = {
-  sedan: { name: "Sedan (Dzire / Etios)", seats: "4 Passengers", bags: "2 Bags", ac: "Dual Climate AC", fare: 800 },
-  ertiga: { name: "Ertiga MPV", seats: "6 Passengers", bags: "3 Bags", ac: "Roof-Mounted AC", fare: 1050 },
-  "innova-crysta": { name: "Toyota Innova Crysta", seats: "6-7 Passengers", bags: "4 Bags", ac: "VIP Climate Cabin", fare: 1400 },
-  "tempo-traveller": { name: "Tempo Traveller", seats: "12–16 Passengers", bags: "Luggage Bay", ac: "Individual AC Vents", fare: 2400 },
-  urbania: { name: "Force Urbania Luxury Van", seats: "10–17 Passengers", bags: "Full Luggage Bay", ac: "Monocoque Luxury AC", fare: 3800 },
-};
-
 function formatFareDate(dateStr?: string | null): string {
   if (!dateStr) return "October 2026";
   try {
@@ -50,9 +43,6 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
 
-  const startingFare = 800;
-  const tokenAdvance = Math.round(startingFare * 0.28);
-  const fareDateFormatted = formatFareDate(item.updatedAt);
   const monumentSlug = item.slug ?? item.monumentCode ?? item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
   const MONUMENT_TO_PACKAGE_MAP: Record<string, string> = {
@@ -70,10 +60,20 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
     "aram-bagh-ram-bagh": "agra-standard-sightseeing",
   };
   const matchedPackageCode = MONUMENT_TO_PACKAGE_MAP[monumentSlug] || "agra-standard-sightseeing";
+  const matchedPkg = (localPackagesData as any[]).find(
+    (p) => p.slug === matchedPackageCode || p.packageCode === matchedPackageCode
+  );
+  const fleetPrices: Record<string, number> = matchedPkg?.fleetPrices || {};
+  const validRates = Object.values(fleetPrices).filter((v) => typeof v === "number" && v > 0);
+  const startingFare = Number(fleetPrices.sedan || (validRates.length > 0 ? Math.min(...validRates) : 0));
+  const tokenAdvance = Math.round(startingFare * 0.28);
+  const fareDateFormatted = formatFareDate(item.updatedAt);
 
-  const bookingUrl = `/book.html?category=local_package&product=${encodeURIComponent(matchedPackageCode)}&from=Agra&to=${encodeURIComponent(item.name)}&car=sedan`;
+  const bookingUrl = `/book.html?category=local_package&product=${encodeURIComponent(matchedPackageCode)}&from=Agra&to=${encodeURIComponent(item.name)}`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-    `Hello Agra SK Baghel Tour & Travels, I want to book a cab transfer or guided tour for "${item.name}".`
+    startingFare > 0
+      ? `Hello Agra SK Baghel Tour & Travels, I want to book a cab transfer or guided tour for "${item.name}" from ₹${startingFare.toLocaleString("en-IN")}.`
+      : `Hello Agra SK Baghel Tour & Travels, I want to book a cab transfer or guided tour for "${item.name}".`
   )}`;
 
   // Default images if none provided in item
@@ -202,8 +202,12 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
                 <div className="flex items-center gap-2 p-space-sm rounded bg-surface-container-low border border-border-warm/40">
                   <span className="material-symbols-outlined text-terracotta-sandstone text-icon-20">verified</span>
                   <div className="flex flex-col">
-                    <span className="font-title-md text-headline-sm text-ink-charcoal font-semibold">₹{startingFare}</span>
-                    <span className="text-label-md text-secondary">Cab Transfer From</span>
+                    <span className="font-title-md text-headline-sm text-ink-charcoal font-semibold">
+                      {startingFare > 0 ? `₹${startingFare}` : "Transparent"}
+                    </span>
+                    <span className="text-label-md text-secondary">
+                      {startingFare > 0 ? "Cab Tour From" : "Direct Cab Booking"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -211,15 +215,27 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
               {/* Direct Booking Bar */}
               <div className="bg-sandstone-wash/80 p-space-lg rounded-xl border border-border-warm shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-space-md mt-space-xs">
                 <div className="flex flex-col">
-                  <span className="font-label-caps text-label-caps text-terracotta-sandstone uppercase">Dedicated Transfer (Sedan)</span>
+                  <span className="font-label-caps text-label-caps text-terracotta-sandstone uppercase">
+                    {startingFare > 0 ? "Sightseeing Tour Package" : "Dedicated Monument Transfer"}
+                  </span>
                   <div className="flex items-baseline gap-1 mt-0.5">
-                    <span className="font-headline-hero text-headline-hero text-ink-charcoal font-serif font-semibold">
-                      ₹{startingFare.toLocaleString("en-IN")}
-                    </span>
-                    <span className="text-body-md text-on-surface-variant font-medium">All-Inclusive</span>
+                    {startingFare > 0 ? (
+                      <>
+                        <span className="font-headline-hero text-headline-hero text-ink-charcoal font-serif font-semibold">
+                          ₹{startingFare.toLocaleString("en-IN")}
+                        </span>
+                        <span className="text-body-md text-on-surface-variant font-medium">All-Inclusive</span>
+                      </>
+                    ) : (
+                      <span className="font-headline-md text-headline-md text-ink-charcoal font-serif font-semibold">
+                        Sightseeing Package
+                      </span>
+                    )}
                   </div>
                   <span className="text-body-sm text-secondary">
-                    Lock with only ₹{tokenAdvance.toLocaleString("en-IN")} (28% advance deposit)
+                    {startingFare > 0
+                      ? `Lock with only ₹${tokenAdvance.toLocaleString("en-IN")} (28% advance deposit)`
+                      : "Verified chauffeurs, clean AC fleet, all parking & monument logistics included"}
                   </span>
                 </div>
 
@@ -291,71 +307,16 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
       {/* Section 2: Dedicated Transport Fleet Options */}
       <section className="w-full bg-surface-container-low py-space-3xl border-t border-b border-border-warm/30">
         <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin">
-          <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-space-2xl">
-            <span className="font-label-caps text-label-caps text-terracotta-sandstone uppercase tracking-widest mb-space-xs">
-              Corridor Transport Options
-            </span>
-            <h2 className="font-headline-lg text-headline-lg text-ink-charcoal font-serif mb-space-sm">
-              Dedicated Taxi Rates to {item.name}
-            </h2>
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              Doorstep hotel pickup in Agra, dedicated chauffeur waiting at authorized parking plazas, and comfortable drop-off.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-md">
-            {VEHICLE_TIERS.map((tier) => {
-              const spec = CANONICAL_FLEET_SPECS[tier];
-              const token = Math.round(spec.fare * 0.28);
-
-              return (
-                <div
-                  key={tier}
-                  className="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm border border-border-warm/60 flex flex-col justify-between hover:shadow-md transition-shadow"
-                >
-                  <div className="flex flex-col gap-space-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone font-label-caps text-label-md uppercase tracking-wider font-semibold">
-                        {tier.replace("-", " ")}
-                      </span>
-                      <span className="text-body-sm text-secondary font-medium">{spec.seats.split(" ")[0]} Seats</span>
-                    </div>
-
-                    <h3 className="font-title-lg text-title-lg text-ink-charcoal font-serif mt-1">{spec.name}</h3>
-
-                    <div className="flex flex-col gap-1 py-space-xs border-y border-border-warm/30 text-body-sm text-on-surface-variant">
-                      <div className="flex items-center justify-between">
-                        <span>Luggage:</span>
-                        <span className="font-medium text-ink-charcoal">{spec.bags}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Climate:</span>
-                        <span className="font-medium text-success-jade">{spec.ac}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col pt-1">
-                      <span className="text-label-md font-label-caps text-secondary uppercase">All-Inclusive Fare</span>
-                      <span className="font-headline-md text-headline-md text-terracotta-sandstone font-serif font-semibold">
-                        ₹{spec.fare.toLocaleString("en-IN")}
-                      </span>
-                      <span className="text-label-md text-secondary">
-                        ₹{token.toLocaleString("en-IN")} token to lock (28%)
-                      </span>
-                    </div>
-                  </div>
-
-                  <a
-                    className="mt-space-md w-full inline-flex items-center justify-center gap-1 bg-terracotta-deep text-white py-2.5 rounded text-label-lg font-label-lg shadow-sm hover:bg-terracotta-sunlit transition-all text-center"
-                    href={`/book.html?category=local_package&product=${encodeURIComponent(matchedPackageCode)}&from=Agra&to=${encodeURIComponent(item.name)}&car=${tier}&step=1`}
-                  >
-                    <span>Select {tier === "innova-crysta" ? "Innova" : tier.split("-")[0]}</span>
-                    <span className="material-symbols-outlined text-icon-16">arrow_forward</span>
-                  </a>
-                </div>
-              );
-            })}
-          </div>
+          <GroupedVehicleSection
+            rates={fleetPrices}
+            category="local_package"
+            productSlug={matchedPackageCode}
+            pickup="Agra"
+            drop={item.name}
+            title={`Fleet Options & Rates for ${item.name}`}
+            subtitle="Doorstep hotel pickup in Agra, dedicated chauffeur waiting at authorized parking plazas, and comfortable drop-off."
+            updatedAt={item.updatedAt}
+          />
         </div>
       </section>
 

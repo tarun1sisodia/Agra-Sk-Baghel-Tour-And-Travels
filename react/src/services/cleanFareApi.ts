@@ -16,17 +16,8 @@ import {
 } from "../contracts/fare-system.js";
 import { z } from "zod";
 
-function isLocalHost(hostname: string): boolean {
-  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "0.0.0.0";
-}
-
-export function getApiBaseUrl(): string {
-  const envUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim().replace(/\/+$/, "");
-  if (typeof window !== "undefined" && isLocalHost(window.location.hostname)) {
-    return envUrl || "http://localhost:4000";
-  }
-  return envUrl || "";
-}
+import { getApiBaseUrl } from "./api";
+export { getApiBaseUrl };
 
 export class CleanFareApiError extends Error {
   code: string;
@@ -115,13 +106,14 @@ export function getFallbackPublishedCatalog(): PublishedCatalogResponse {
   // 1. Outstation Routes
   (generatedPublishedRoutes as any[]).forEach((r, idx) => {
     const rawId = r.id && UUID_REGEX.test(r.id) ? r.id : `c0000000-0000-4000-a000-${String(idx + 1).padStart(12, "0")}`;
+    const startingPrice = r.faresInr?.dzire ?? r.faresInr?.sedan ?? r.faresInr?.city ?? null;
     products.push({
       id: rawId,
       category: "outstation",
       code: r.slug || `outstation-${idx + 1}`,
       name: `${r.sourceCity || "Agra"} to ${r.destinationCity || "Delhi"}`,
       description: `Verified outstation corridor via ${r.highway || "Expressway"}.`,
-      starting_price_inr: r.faresInr?.sedan ?? 2800,
+      starting_price_inr: startingPrice,
       status: "published",
       distance_km: r.distanceKm ?? 210,
       duration_minutes: 210,
@@ -131,13 +123,14 @@ export function getFallbackPublishedCatalog(): PublishedCatalogResponse {
   // 2. Local Sightseeing Packages
   (generatedPublishedLocalPackages as any[]).forEach((lp, idx) => {
     const rawId = lp.id && UUID_REGEX.test(lp.id) ? lp.id : `f0000000-0000-4000-a000-${String(idx + 1).padStart(12, "0")}`;
+    const startingPrice = lp.fleetPrices?.dzire ?? lp.fleetPrices?.sedan ?? null;
     products.push({
       id: rawId,
       category: "local_package",
       code: lp.slug || lp.packageCode || `local-package-${idx + 1}`,
       name: lp.name || "Agra Sightseeing",
       description: lp.covers || lp.description || "Agra local sightseeing charter",
-      starting_price_inr: lp.fleetPrices?.sedan ?? 1900,
+      starting_price_inr: startingPrice,
       status: "published",
       distance_km: lp.includedKm ?? 80,
       duration_minutes: (lp.durationHours || 8) * 60,
@@ -147,13 +140,14 @@ export function getFallbackPublishedCatalog(): PublishedCatalogResponse {
   // 3. Transfers
   (generatedPublishedTransferRoutes as any[]).forEach((tr, idx) => {
     const rawId = tr.id && UUID_REGEX.test(tr.id) ? tr.id : `e0000000-0000-4000-a000-${String(idx + 1).padStart(12, "0")}`;
+    const startingPrice = tr.fleetPrices?.dzire ?? tr.fleetPrices?.sedan ?? null;
     products.push({
       id: rawId,
       category: "transfer",
       code: tr.slug || tr.routeCode || `transfer-${idx + 1}`,
       name: tr.name || "Transfer",
       description: tr.directionNote || "Direct station / airport transfer",
-      starting_price_inr: tr.fleetPrices?.sedan ?? 800,
+      starting_price_inr: startingPrice,
       status: "published",
       distance_km: 20,
       duration_minutes: 45,
@@ -163,13 +157,14 @@ export function getFallbackPublishedCatalog(): PublishedCatalogResponse {
   // 4. Tour Packages
   (generatedPublishedTourPackages as any[]).forEach((tp, idx) => {
     const rawId = tp.id && UUID_REGEX.test(tp.id) ? tp.id : `d0000000-0000-4000-a000-${String(idx + 1).padStart(12, "0")}`;
+    const startingPrice = tp.startingPriceInr ?? (tp.fleetPrices?.dzire ?? tp.fleetPrices?.sedan ?? null);
     products.push({
       id: rawId,
       category: "tour_package",
       code: tp.slug || tp.packageCode || `tour-package-${idx + 1}`,
       name: tp.name || tp.title || "Tour Package",
       description: tp.inclusionsHighlight || tp.shortDescription || "Curated multi-day package",
-      starting_price_inr: tp.startingPriceInr ?? (tp.fleetPrices?.sedan ?? 3499),
+      starting_price_inr: startingPrice,
       status: "published",
       distance_km: null,
       duration_minutes: (tp.days || 1) * 24 * 60,
@@ -185,15 +180,16 @@ export function getFallbackPublishedCatalog(): PublishedCatalogResponse {
       { group_code: "tempo_traveller", name: "Tempo Traveller", driver_allowance_per_day: 800, one_way_night_charge: 600, round_trip_halt_per_night: 800, sort_order: 4 },
     ],
     vehicles: [
-      { id: "a0000000-0000-4000-a000-000000000001", group_code: "sedan", make: "Maruti", model_name: "Dzire", display_name: "Maruti Dzire", passenger_capacity: 4, luggage_capacity: 2, image_url: "/assets/fleet/sedan.webp" },
-      { id: "a0000000-0000-4000-a000-000000000002", group_code: "sedan", make: "Honda", model_name: "Amaze", display_name: "Honda Amaze Sedan", passenger_capacity: 4, luggage_capacity: 2, image_url: "/assets/fleet/honda-amaze-red-sedan-921x519.webp" },
-      { id: "a0000000-0000-4000-a000-000000000003", group_code: "suv", make: "Maruti", model_name: "Ertiga", display_name: "Maruti Ertiga", passenger_capacity: 6, luggage_capacity: 3, image_url: "/assets/fleet/ertiga.webp" },
-      { id: "a0000000-0000-4000-a000-000000000004", group_code: "suv", make: "Toyota", model_name: "Innova Crysta", display_name: "Innova Crysta", passenger_capacity: 6, luggage_capacity: 4, image_url: "/assets/fleet/innova.webp" },
-      { id: "a0000000-0000-4000-a000-000000000005", group_code: "suv", make: "Toyota", model_name: "Fortuner", display_name: "Toyota Fortuner 4x4", passenger_capacity: 7, luggage_capacity: 4, image_url: "/assets/fleet/toyota-fortuner-black-suv-360x536.jpg" },
-      { id: "a0000000-0000-4000-a000-000000000006", group_code: "luxury", make: "Toyota", model_name: "Camry", display_name: "Toyota Camry Hybrid", passenger_capacity: 4, luggage_capacity: 3, image_url: "/assets/fleet/toyota-camry-hybrid-executive-luxury-360x536.jpg" },
-      { id: "a0000000-0000-4000-a000-000000000007", group_code: "luxury", make: "Toyota", model_name: "Vellfire", display_name: "Toyota Vellfire VIP Lounge", passenger_capacity: 6, luggage_capacity: 4, image_url: "/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg" },
-      { id: "a0000000-0000-4000-a000-000000000008", group_code: "tempo_traveller", make: "Force", model_name: "Tempo Traveller 12", display_name: "Tempo Traveller (12S)", passenger_capacity: 12, luggage_capacity: 8, image_url: "/assets/fleet/tempo.webp" },
-      { id: "a0000000-0000-4000-a000-000000000009", group_code: "tempo_traveller", make: "Force", model_name: "Urbania", display_name: "Force Urbania Luxury", passenger_capacity: 10, luggage_capacity: 8, image_url: "/assets/fleet/urbania.webp" },
+      { id: "10000000-0000-0000-0002-000000000001", group_code: "sedan", make: "Maruti", model_name: "Dzire", display_name: "Maruti Dzire", passenger_capacity: 4, luggage_capacity: 2, image_url: "/assets/fleet/sedan.webp" },
+      { id: "10000000-0000-0000-0002-000000000002", group_code: "sedan", make: "Honda", model_name: "City", display_name: "Honda City", passenger_capacity: 4, luggage_capacity: 3, image_url: "/assets/fleet/honda-city-white-sedan-921x519.webp" },
+      { id: "10000000-0000-0000-0002-000000000003", group_code: "suv", make: "Maruti", model_name: "Ertiga", display_name: "Maruti Ertiga", passenger_capacity: 6, luggage_capacity: 3, image_url: "/assets/fleet/ertiga.webp" },
+      { id: "10000000-0000-0000-0002-000000000004", group_code: "suv", make: "Toyota", model_name: "Innova Crysta", display_name: "Innova Crysta", passenger_capacity: 7, luggage_capacity: 4, image_url: "/assets/fleet/innova.webp" },
+      { id: "10000000-0000-0000-0002-000000000005", group_code: "suv", make: "Toyota", model_name: "Fortuner", display_name: "Toyota Fortuner", passenger_capacity: 7, luggage_capacity: 4, image_url: "/assets/fleet/toyota-fortuner-black-suv-360x536.jpg" },
+      { id: "10000000-0000-0000-0002-000000000006", group_code: "luxury", make: "Toyota", model_name: "Camry", display_name: "Toyota Camry", passenger_capacity: 4, luggage_capacity: 3, image_url: "/assets/fleet/toyota-camry-hybrid-executive-luxury-360x536.jpg" },
+      { id: "10000000-0000-0000-0002-000000000007", group_code: "luxury", make: "Toyota", model_name: "Vellfire", display_name: "Toyota Vellfire", passenger_capacity: 6, luggage_capacity: 4, image_url: "/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg" },
+      { id: "10000000-0000-0000-0002-000000000008", group_code: "tempo_traveller", make: "Force", model_name: "Traveller 12", display_name: "Force Traveller 12-seater", passenger_capacity: 12, luggage_capacity: 10, image_url: "/assets/fleet/tempo.webp" },
+      { id: "10000000-0000-0000-0002-000000000009", group_code: "tempo_traveller", make: "Force", model_name: "Traveller 17", display_name: "Force Traveller 17-seater", passenger_capacity: 17, luggage_capacity: 12, image_url: "/assets/fleet/tempo.webp" },
+      { id: "10000000-0000-0000-0002-000000000010", group_code: "tempo_traveller", make: "Force", model_name: "Urbania 13", display_name: "Force Urbania 13-seater", passenger_capacity: 13, luggage_capacity: 10, image_url: "/assets/fleet/urbania.webp" },
     ],
   };
 }

@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import generatedPublishedTourPackages from "../../data/generated-published-tour-packages.json";
 import { resolveCatalogMediaUrl } from "../../services/catalog";
-import { resolveTierKey } from "../../contracts/vehicle-tiers";
+
 
 export interface LatestTourPackageItem {
   id: string;
@@ -84,10 +84,9 @@ export function LatestPackagesSection({
             const duration = p.durationText || p.duration_text || (p.days ? `${p.days} Days / ${p.nights ?? p.days - 1} Nights` : "Full Day Sightseeing");
             const highlight = p.inclusionsHighlight || p.inclusions_highlight || "Private sanitized AC cab, dedicated chauffeur, and curated sightseeing.";
             const fleetPrices = p.fleetPrices || p.fleet_prices || {};
-            const sedanResolved = resolveTierKey(fleetPrices, "sedan");
             const fpValues = Object.values(fleetPrices).filter((v) => typeof v === "number" && v > 0) as number[];
             const minFleetPrice = fpValues.length > 0 ? Math.min(...fpValues) : 0;
-            const startingFare = Number(p.startingPriceInr || p.starting_price_inr || sedanResolved.value || minFleetPrice || 0);
+            const startingFare = Number(p.startingPriceInr || p.starting_price_inr || fleetPrices.sedan || minFleetPrice || 0);
             const token = startingFare > 0 ? Math.round(startingFare * 0.28) : 0;
             const packageUrl = `/packages/${p.slug}/`;
             const bookUrl = `/book.html?category=tour_package&product=${encodeURIComponent(p.slug)}&from=${encodeURIComponent(p.source || "Agra")}&to=${encodeURIComponent(p.destination || p.name)}`;

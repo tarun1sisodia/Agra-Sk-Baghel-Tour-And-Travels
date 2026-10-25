@@ -6,8 +6,10 @@ export type City = {
   code: string;
 };
 
-export type VehicleId = "sedan" | "ertiga" | "innova" | "tempo" | "urbania";
-export type FareByVehicle = Record<VehicleId, number>;
+import type { VehicleTier } from "@/contracts/vehicle-tiers";
+
+export type VehicleId = VehicleTier | "innova" | "tempo" | "urbania";
+export type FareByVehicle = Record<string, number | undefined>;
 
 export type Vehicle = {
   id: VehicleId;

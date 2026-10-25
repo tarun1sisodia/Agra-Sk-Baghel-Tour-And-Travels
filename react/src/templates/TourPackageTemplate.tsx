@@ -5,7 +5,7 @@ import { type TourPackage, type TourPackageGalleryImage } from "../data";
 import { WhatsAppIcon } from "../components/icons";
 import { resolveCatalogMediaUrl } from "../services/catalog";
 import { fetchLiveTourPackageBySlug } from "../services/catalogManifest";
-import { VEHICLE_TIERS, type VehicleTier, resolveTierKey } from "../contracts/vehicle-tiers";
+import { GroupedVehicleSection } from "../components/fleet/GroupedVehicleSection";
 import { JsonLd, buildBreadcrumbSchema, buildFaqSchema, buildTouristTripSchema, buildGraphSchema } from "../components/seo/JsonLd";
 import { CANONICAL_DOMAIN } from "../components/seo/SeoHead";
 
@@ -95,13 +95,6 @@ const TOUR_FAQS = [
   },
 ];
 
-const CANONICAL_FLEET_DESCRIPTIONS: Record<VehicleTier, { name: string; seats: string; bags: string; ac: string; desc: string }> = {
-  sedan: { name: "Sedan (Dzire / Etios)", seats: "4 Passengers", bags: "2-3 Bags", ac: "Dual Climate AC", desc: "Ideal for couples and small families." },
-  ertiga: { name: "Ertiga MPV", seats: "6 Passengers", bags: "3-4 Bags", ac: "Roof-Mounted AC", desc: "Extra legroom and flexible 3rd row seating." },
-  "innova-crysta": { name: "Toyota Innova Crysta", seats: "6-7 Passengers", bags: "4-5 Bags", ac: "VIP Climate Cabin", desc: "Plush captain seats and whisper-quiet suspension." },
-  "tempo-traveller": { name: "Tempo Traveller", seats: "12–16 Passengers", bags: "Luggage Bay", ac: "Individual AC Vents", desc: "Spacious pushback seats for large families and groups." },
-  urbania: { name: "Force Urbania Luxury Van", seats: "10–17 Passengers", bags: "Full Luggage Bay", ac: "Monocoque Luxury AC", desc: "Chauffeur-grade luxury executive travel." },
-};
 
 export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplateProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -110,14 +103,14 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
   const activePkg = livePackage ?? pkg;
 
   useEffect(() => {
-    const slug = pkg.slug || pkg.id;
+    const slug = (activePkg as any).packageCode || (activePkg as any).package_code || pkg.slug || pkg.id;
     if (!slug || typeof window === "undefined") return;
     let mounted = true;
     fetchLiveTourPackageBySlug(String(slug)).then((fresh) => {
       if (mounted && fresh) setLivePackage(fresh);
     });
     return () => { mounted = false; };
-  }, [pkg.slug, pkg.id]);
+  }, [pkg.slug, pkg.id, (pkg as any).packageCode, (pkg as any).package_code]);
 
   // Normalize package properties
   const packageName = activePkg.name || "Signature Heritage Tour";
@@ -149,13 +142,13 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
 
   const secImg1 = galleryItems[1]?.url
     ? resolveCatalogMediaUrl(galleryItems[1].url)
-    : "https://lh3.googleusercontent.com/aida-public/AB6AXuA2yf-yBU3hlsj0yoDvKQuP0oe6WgHmL9Zp1It3UX4nt2DQnx758CLagwRSUfUyxP1x94bKKqwL8EeD-VILb9XhvYHbrj9ajEPX9oXgLEMY_ksbGoFyGii8FeQlpfiDsaJEaBiElqArswBsy-Szo9P1AiuEHzAqAHIBl2U5mryTmHPcxLdKPwyvoEk7Pc17rJDEn76H1pc-eP1-8L2SqkX8sVvPSIZZAjXjDDd2o__BhvpU5Aw0v4WFIw";
-  const secCap1 = galleryItems[1]?.caption || "Grand Amar Singh Gate at Agra Red Fort";
+    : (galleryItems[0]?.url ? resolveCatalogMediaUrl(galleryItems[0].url) : "/assets/places/gallery/taj-mahal-01.jpg");
+  const secCap1 = galleryItems[1]?.caption || (galleryItems[0]?.caption || "Grand Amar Singh Gate at Agra Red Fort");
 
   const secImg2 = galleryItems[2]?.url
     ? resolveCatalogMediaUrl(galleryItems[2].url)
-    : "https://lh3.googleusercontent.com/aida-public/AB6AXuBI1YNHnPOUMAYZXIn-msx_lCMvf_qW2T2cwxbtIVgvOgnUSQ5Es3br-96fv0T8NuwFm4EFi6bGA_QPKTGF6yKCLYfa279a_zZA8U4Dud5Ex6k0QTPqUTiymsfL4UhCGp9nhedjTOV-2Dg9Q4Y4MHN9bs0U-F_FF0lT2CBiiB1gfW0n8kVIE_azmlZqxA6lKnKD5AJXt2lZTxubG2rf9Grv4GXrmpphWD5jUJHc04_9DLcyq3sYwDVQ7Q";
-  const secCap2 = galleryItems[2]?.caption || "Sunset vantage point over Yamuna";
+    : (galleryItems[0]?.url ? resolveCatalogMediaUrl(galleryItems[0].url) : "/assets/places/gallery/agra-fort-01.jpg");
+  const secCap2 = galleryItems[2]?.caption || (galleryItems[0]?.caption || "Sunset vantage point over Yamuna");
 
   // Resolve timeline stops
   const timelineStops = useMemo<ItineraryItem[]>(() => {
@@ -569,90 +562,19 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
         </div>
       </section>
 
-      {/* CANONICAL 5-FLEET PRICE COMPARISON MATRIX */}
+      {/* GROUP-BASED VEHICLE SECTION */}
       <section className="w-full bg-surface-container-low py-space-3xl border-t border-b border-border-warm/30">
         <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin">
-          <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-space-2xl">
-            <span className="font-label-caps text-label-caps text-terracotta-sandstone uppercase tracking-widest mb-space-xs">
-              Vehicle Upgrade Tiers
-            </span>
-            <h2 className="font-headline-lg text-headline-lg text-ink-charcoal font-serif mb-space-sm">
-              Select Fleet Tier for {packageName}
-            </h2>
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              Fixed, guaranteed package rates for all 5 canonical vehicle classes. Includes air-conditioned travel, parking receipts, and chauffeur custody.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-md">
-            {VEHICLE_TIERS.map((tier) => {
-              const spec = CANONICAL_FLEET_DESCRIPTIONS[tier];
-              const resolved = resolveTierKey(activePkg.fleetPrices, tier);
-              let tierFare = Number(resolved.value || 0);
-
-              if (!tierFare && tier === "sedan") {
-                tierFare = grossPrice;
-              }
-
-              const token = Math.round(tierFare * 0.28);
-
-              return (
-                <div
-                  key={tier}
-                  className="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm border border-border-warm/60 flex flex-col justify-between hover:shadow-md transition-shadow"
-                >
-                  <div className="flex flex-col gap-space-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone font-label-caps text-label-md uppercase tracking-wider font-semibold">
-                        {tier.replace("-", " ")}
-                      </span>
-                      <span className="text-body-sm text-secondary font-medium">{spec.seats}</span>
-                    </div>
-
-                    <h3 className="font-title-lg text-title-lg text-ink-charcoal font-serif mt-1">{spec.name}</h3>
-
-                    <div className="flex flex-col gap-1 py-space-xs border-y border-border-warm/30 text-body-sm text-on-surface-variant">
-                      <div className="flex items-center justify-between">
-                        <span>Luggage:</span>
-                        <span className="font-medium text-ink-charcoal">{spec.bags}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Climate:</span>
-                        <span className="font-medium text-success-jade">{spec.ac}</span>
-                      </div>
-                      <p className="text-xs text-secondary mt-1">{spec.desc}</p>
-                    </div>
-
-                    <div className="flex flex-col pt-1">
-                      <span className="text-label-md font-label-caps text-secondary uppercase">
-                        All-Inclusive Fixed Price
-                      </span>
-                      <span className="font-headline-md text-headline-md text-terracotta-sandstone font-serif font-semibold">
-                        {tierFare > 0 ? `₹${tierFare.toLocaleString("en-IN")}` : "On request"}
-                      </span>
-                      {tierFare > 0 ? (
-                        <span className="text-label-md text-secondary">
-                          ₹{token.toLocaleString("en-IN")} token to lock (28%)
-                        </span>
-                      ) : (
-                        <span className="text-label-md text-secondary">
-                          Live quote upon booking
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <a
-                    className="mt-space-md w-full inline-flex items-center justify-center gap-1 bg-terracotta-deep text-white py-2.5 rounded text-label-lg font-label-lg shadow-sm hover:bg-terracotta-sunlit transition-all text-center"
-                    href={`/book.html?category=tour_package&product=${encodeURIComponent(packageSlug)}&car=${tier}&from=${encodeURIComponent(packageSource)}&to=${encodeURIComponent(packageDestination)}`}
-                  >
-                    <span>Select {tier === "innova-crysta" ? "Innova" : tier.split("-")[0]}</span>
-                    <span className="material-symbols-outlined text-icon-16">arrow_forward</span>
-                  </a>
-                </div>
-              );
-            })}
-          </div>
+          <GroupedVehicleSection
+            title={`Select Vehicle for ${packageName}`}
+            subtitle="Transparent group-based package rates. Air-conditioned travel, parking receipts, and dedicated chauffeur custody included."
+            category="tour_package"
+            productCode={packageSlug}
+            productName={packageName}
+            originName={packageSource}
+            destinationName={packageDestination}
+            fares={activePkg.fleetPrices}
+          />
         </div>
       </section>
 

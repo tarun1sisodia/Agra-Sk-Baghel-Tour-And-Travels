@@ -95,7 +95,7 @@ function DetailPage({ detail, language }: { detail: Vehicle | Package | Route; l
     ? detail.blurb
     : isPackage
       ? detail.blurb
-      : `Private AC taxi from ${detail.from} to ${detail.to}. Sample fares from ₹${detail.fares.sedan.toLocaleString("en-IN")}.`;
+      : `Private AC taxi from ${detail.from} to ${detail.to}. ${detail.fares.sedan ? `Sample fares from ₹${detail.fares.sedan.toLocaleString("en-IN")}.` : "Fares available on request."}`;
   const languagePrefix = language === "hi" ? "/hi" : "/en";
 
   return (
@@ -112,7 +112,7 @@ function DetailPage({ detail, language }: { detail: Vehicle | Package | Route; l
       </section>
       {vehicle && <section className="detail-media-section"><img src={vehicle.image} alt={`${vehicle.name} hire in Agra`} width="480" height="300" /><div><p className="eyebrow">{vehicle.klass}</p><h2>Comfort for {vehicle.suitable.toLowerCase()}.</h2><p className="spec-row">{vehicle.tags.join(" · ")}</p><p className="fare">{vehicle.rateRange}</p><ul className="check-list">{vehicle.models.map((model) => <li key={model}>{model}</li>)}</ul></div></section>}
       {tour && <><section className="detail-media-section"><img src={tour.image} alt={`${tour.name} from Agra`} width="480" height="300" /><div><p className="eyebrow">{tour.kicker} · {tour.duration}</p><h2>See the highlights without rushing.</h2><p>{tour.places.join(" → ")}</p><p className="fare">From ₹{tour.from.toLocaleString("en-IN")}</p></div></section><section className="detail-content"><h2>What this journey includes.</h2><div className="detail-columns"><div><h3>Included</h3><ul className="check-list">{tour.includes.map((item) => <li key={item}>{item}</li>)}</ul></div><div><h3>Not included</h3><ul className="cross-list">{tour.excludes.map((item) => <li key={item}>{item}</li>)}</ul></div></div></section></>}
-      {route && <section className="detail-content"><p className="eyebrow">Sample fare</p><h2>Compare vehicles before you book.</h2><p>{route.duration} · {route.km} km · private chauffeur-driven vehicle.</p><div className="fare-table-wrap"><table className="fare-table"><thead><tr><th>Vehicle</th><th>Seats</th><th>One way</th><th>Book</th></tr></thead><tbody>{vehicles.map((candidate) => <tr key={candidate.id}><td><a href={`${languagePrefix}/vehicles/${candidate.id === "innova" ? "innova-crysta" : candidate.id === "tempo" ? "tempo-traveller" : candidate.id}/`}>{candidate.name}</a></td><td>{candidate.seats}</td><td><strong>₹{route.fares[candidate.id].toLocaleString("en-IN")}</strong></td><td><a className="text-link" href={`/book.html?route=${route.id}&vehicle=${candidate.id}`}>Book ↗</a></td></tr>)}</tbody></table></div></section>}
+      {route && <section className="detail-content"><p className="eyebrow">Sample fare</p><h2>Compare vehicles before you book.</h2><p>{route.duration} · {route.km} km · private chauffeur-driven vehicle.</p><div className="fare-table-wrap"><table className="fare-table"><thead><tr><th>Vehicle</th><th>Seats</th><th>One way</th><th>Book</th></tr></thead><tbody>{vehicles.map((candidate) => <tr key={candidate.id}><td><a href={`${languagePrefix}/vehicles/${candidate.id === "innova" ? "innova-crysta" : candidate.id === "tempo" ? "tempo-traveller" : candidate.id}/`}>{candidate.name}</a></td><td>{candidate.seats}</td><td><strong>{route.fares[candidate.id] ? `₹${route.fares[candidate.id]!.toLocaleString("en-IN")}` : "On request"}</strong></td><td><a className="text-link" href={`/book.html?route=${route.id}&vehicle=${candidate.id}`}>Book ↗</a></td></tr>)}</tbody></table></div></section>}
     </main>
   );
 }
@@ -155,7 +155,7 @@ export function MarketingPage({ language, section }: MarketingPageProps) {
               <p className="eyebrow">{route.duration} · {route.km} km</p>
               <h2>{route.from.replace("-", " ")} to {route.to.replace("-", " ")}</h2>
               <p>Private AC taxi with a local driver and clear sample fares.</p>
-              <div className="card-meta"><span>From Agra desk</span><strong>₹{route.fares.sedan.toLocaleString("en-IN")}</strong></div>
+              <div className="card-meta"><span>From Agra desk</span><strong>{route.fares.sedan ? `₹${route.fares.sedan.toLocaleString("en-IN")}` : "On request"}</strong></div>
               <a className="button button-outline" href={`/book.html?route=${route.id}`}>Book this route</a>
             </article>
           ))}

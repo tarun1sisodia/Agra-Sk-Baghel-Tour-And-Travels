@@ -62,7 +62,7 @@ describe("Phase 4: Route Fleet-Price Distance Boundary Test Matrix (DIST-01 to D
   it("DIST-04: 299 km boundary for Tempo Traveller forces round-trip (598 km) and ₹500 DA", () => {
     const result = calculateFare({
       tripType: "one-way",
-      vehicleTier: "tempo-traveller",
+      vehicleTier: "tempo_traveller",
       originName: "Agra",
       destinationName: "Haridwar Boundary",
       pickupDatetime: BASE_PICKUP,
@@ -80,7 +80,7 @@ describe("Phase 4: Route Fleet-Price Distance Boundary Test Matrix (DIST-01 to D
   it("DIST-05: 299.9 km boundary for Force Urbania forces round-trip (599.8 km) and ₹500 DA", () => {
     const result = calculateFare({
       tripType: "one-way",
-      vehicleTier: "urbania",
+      vehicleTier: "urbania-13",
       originName: "Agra",
       destinationName: "Rishikesh Boundary",
       pickupDatetime: BASE_PICKUP,
@@ -98,7 +98,7 @@ describe("Phase 4: Route Fleet-Price Distance Boundary Test Matrix (DIST-01 to D
   it("DIST-06: 300.0 km boundary for Tempo Traveller bills one-way (300 km) and ₹500 DA", () => {
     const result = calculateFare({
       tripType: "one-way",
-      vehicleTier: "tempo-traveller",
+      vehicleTier: "tempo_traveller",
       originName: "Agra",
       destinationName: "Jaipur Express",
       pickupDatetime: BASE_PICKUP,
@@ -116,7 +116,7 @@ describe("Phase 4: Route Fleet-Price Distance Boundary Test Matrix (DIST-01 to D
   it("DIST-07: 300.1 km boundary for Force Urbania bills one-way (300.1 km) and ₹500 DA", () => {
     const result = calculateFare({
       tripType: "one-way",
-      vehicleTier: "urbania",
+      vehicleTier: "urbania-13",
       originName: "Agra",
       destinationName: "Dehradun Outskirts",
       pickupDatetime: BASE_PICKUP,
@@ -134,7 +134,7 @@ describe("Phase 4: Route Fleet-Price Distance Boundary Test Matrix (DIST-01 to D
   it("DIST-08: 350 km long corridor for Tempo Traveller bills one-way (350 km) and ₹500 DA", () => {
     const result = calculateFare({
       tripType: "one-way",
-      vehicleTier: "tempo-traveller",
+      vehicleTier: "tempo_traveller",
       originName: "Agra",
       destinationName: "Chandigarh",
       pickupDatetime: BASE_PICKUP,
@@ -153,7 +153,7 @@ describe("Phase 4: Route Fleet-Price Distance Boundary Test Matrix (DIST-01 to D
     const returnDatetime = "2026-11-02T18:00:00.000Z"; // 2 days in IST
     const result = calculateFare({
       tripType: "round-trip",
-      vehicleTier: "urbania",
+      vehicleTier: "urbania-13",
       originName: "Agra",
       destinationName: "Jaipur",
       pickupDatetime: BASE_PICKUP,

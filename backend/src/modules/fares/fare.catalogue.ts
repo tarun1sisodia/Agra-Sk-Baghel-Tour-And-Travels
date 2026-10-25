@@ -48,8 +48,8 @@ export const VEHICLES: readonly VehicleSpec[] = [
   { id: "sedan", tier: "sedan", name: "Sedan", seats: 4, bags: 2, perKm: 10, alwaysRoundTrip: false },
   { id: "ertiga", tier: "ertiga", name: "Ertiga", seats: 6, bags: 3, perKm: 14, alwaysRoundTrip: false },
   { id: "innova", tier: "innova-crysta", name: "Innova Crysta", seats: 6, bags: 4, perKm: 18, alwaysRoundTrip: false },
-  { id: "tempo", tier: "tempo-traveller", name: "Tempo Traveller", seats: 12, bags: 8, perKm: 25, alwaysRoundTrip: true },
-  { id: "urbania", tier: "urbania", name: "Force Urbania", seats: 16, bags: 10, perKm: 34, alwaysRoundTrip: true },
+  { id: "tempo", tier: "tempo_traveller", name: "Tempo Traveller", seats: 12, bags: 8, perKm: 25, alwaysRoundTrip: true },
+  { id: "urbania", tier: "urbania-13", name: "Force Urbania", seats: 16, bags: 10, perKm: 34, alwaysRoundTrip: true },
 ];
 
 export const PACKAGE_UPGRADES: Record<InternalVehicleId, number> = {

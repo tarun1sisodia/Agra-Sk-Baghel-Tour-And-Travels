@@ -2,78 +2,17 @@ import React, { useState } from "react";
 import { contact } from "../data/contact";
 import { type Route, routeGuidance } from "../data/catalogue";
 import { WhatsAppIcon } from "../components/icons";
-import { VEHICLE_TIERS, type VehicleTier, resolveTierKey } from "../contracts/vehicle-tiers";
+import { GroupedVehicleSection } from "../components/fleet/GroupedVehicleSection";
 import { JsonLd, buildBreadcrumbSchema, buildFaqSchema, buildTaxiServiceSchema, buildGraphSchema } from "../components/seo/JsonLd";
 import { CANONICAL_DOMAIN } from "../components/seo/SeoHead";
 
 export interface RouteTemplateProps {
   language?: "en" | "hi";
   route: Route;
-  onSelectVehicle?: (tier: VehicleTier) => void;
+  onSelectVehicle?: (modelId: string) => void;
 }
 
-interface FleetSpec {
-  tier: VehicleTier;
-  name: string;
-  category: string;
-  seats: string;
-  bags: string;
-  ac: string;
-  chauffeur: string;
-  isAlwaysRoundTrip?: boolean;
-}
-
-const CANONICAL_FLEET_SPECS: Record<VehicleTier, FleetSpec> = {
-  sedan: {
-    tier: "sedan",
-    name: "Sedan (Dzire / Etios)",
-    category: "Comfort Sedan",
-    seats: "4",
-    bags: "2-3",
-    ac: "Verified Dual AC",
-    chauffeur: "Police Verified Chauffeur",
-  },
-  ertiga: {
-    tier: "ertiga",
-    name: "Ertiga MPV",
-    category: "Spacious MPV",
-    seats: "6",
-    bags: "3-4",
-    ac: "Roof-Mounted AC Vents",
-    chauffeur: "Highway Specialist",
-  },
-  "innova-crysta": {
-    tier: "innova-crysta",
-    name: "Toyota Innova Crysta",
-    category: "VIP Executive",
-    seats: "6-7",
-    bags: "4-5",
-    ac: "Multi-Zone Climate AC",
-    chauffeur: "Senior Veteran Chauffeur",
-  },
-  "tempo-traveller": {
-    tier: "tempo-traveller",
-    name: "Tempo Traveller",
-    category: "Group Charter",
-    seats: "12",
-    bags: "8-10",
-    ac: "Individual AC Vents",
-    chauffeur: "Commercial Master Pilot",
-    isAlwaysRoundTrip: true,
-  },
-  urbania: {
-    tier: "urbania",
-    name: "Force Urbania Luxury Van",
-    category: "Ultra-Luxury Van",
-    seats: "16",
-    bags: "10-12",
-    ac: "Monocoque Climate Luxury",
-    chauffeur: "VIP Protocol Chauffeur",
-    isAlwaysRoundTrip: true,
-  },
-};
-
-export function RouteTemplate({ language = "en", route }: RouteTemplateProps) {
+export function RouteTemplate({ language = "en", route, onSelectVehicle }: RouteTemplateProps) {
   const [tripType, setTripType] = useState<"one-way" | "round-trip">(
     route.kind === "local" ? "round-trip" : "one-way"
   );
@@ -159,10 +98,11 @@ export function RouteTemplate({ language = "en", route }: RouteTemplateProps) {
   ];
 
   // Primary starting fare from sedan
-  const sedanResolution = resolveTierKey(route.fares, "sedan");
-  const baseSedanFare = Number(sedanResolution.value || 0);
+  const validRates = Object.values(route.fares || {}).filter((v) => typeof v === "number" && v > 0) as number[];
+  const faresRecord = (route.fares || {}) as Record<string, number | undefined>;
+  const baseSedanFare = Number(faresRecord.sedan || faresRecord.dzire || faresRecord.city || (validRates.length > 0 ? Math.min(...validRates) : 0));
   const primaryFare = baseSedanFare;
-  const advanceToken = primaryFare > 0 ? Math.round(primaryFare * 0.25) : 0;
+  const advanceToken = primaryFare > 0 ? Math.round(primaryFare * 0.28) : 0;
 
   const bookingUrl = `/book.html?category=outstation&product=${encodeURIComponent(route.id)}&trip=${tripType === "round-trip" ? "round_trip" : "one_way"}&from=${encodeURIComponent(fromEn)}&to=${encodeURIComponent(toEn)}&car=sedan`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
@@ -384,101 +324,21 @@ export function RouteTemplate({ language = "en", route }: RouteTemplateProps) {
         </div>
       </section>
 
-      {/* Section 2: Canonical 5-Vehicle Fare Comparison Matrix */}
+      {/* Section 2: Group-Based Available Vehicle Comparison */}
       <section className="w-full bg-surface-container-low py-space-3xl border-t border-b border-border-warm/30">
         <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin">
-          <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-space-2xl">
-            <span className="font-label-caps text-label-caps text-terracotta-sandstone uppercase tracking-widest mb-space-xs">
-              Vehicle Comparison
-            </span>
-            <h2 className="font-headline-lg text-headline-lg text-ink-charcoal font-serif mb-space-sm">
-              Select Your Travel Tier for {fromEn} to {toEn}
-            </h2>
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              Transparent, guaranteed fares across all 5 canonical vehicle categories. Zero hidden meter charges or surprise return toll fees.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-md">
-            {VEHICLE_TIERS.map((tier) => {
-              const spec = CANONICAL_FLEET_SPECS[tier];
-              const resolved = resolveTierKey(route.fares, tier);
-              let rawFare = Number(resolved.value || 0);
-
-              // Fallback calculation if fare is missing
-              if (!rawFare) {
-                if (tier === "sedan") rawFare = baseSedanFare;
-                else if (tier === "ertiga") rawFare = Math.round(baseSedanFare * 1.35);
-                else if (tier === "innova-crysta") rawFare = Math.round(baseSedanFare * 1.7);
-                else if (tier === "tempo-traveller") rawFare = Math.round(baseSedanFare * 2.6);
-                else rawFare = Math.round(baseSedanFare * 3.6);
-              }
-
-              const calculatedFare = tripType === "round-trip" && !isLocal && !spec.isAlwaysRoundTrip
-                ? Math.round(rawFare * 1.8)
-                : rawFare;
-              const token = Math.round(calculatedFare * 0.28);
-              const isForceVehicle = Boolean(spec.isAlwaysRoundTrip);
-
-              return (
-                <div
-                  key={tier}
-                  className="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm border border-border-warm/60 flex flex-col justify-between hover:shadow-md transition-shadow"
-                >
-                  <div className="flex flex-col gap-space-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone font-label-caps text-label-md uppercase tracking-wider font-semibold">
-                        {spec.category}
-                      </span>
-                      <span className="text-body-sm text-secondary font-medium">{spec.seats} Seats</span>
-                    </div>
-
-                    <h3 className="font-title-lg text-title-lg text-ink-charcoal font-serif mt-1">{spec.name}</h3>
-
-                    <div className="flex flex-col gap-1 py-space-xs border-y border-border-warm/30 text-body-sm text-on-surface-variant">
-                      <div className="flex items-center justify-between">
-                        <span>Luggage Capacity:</span>
-                        <span className="font-medium text-ink-charcoal">{spec.bags} Bags</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Air Conditioning:</span>
-                        <span className="font-medium text-success-jade">{spec.ac}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Chauffeur:</span>
-                        <span className="font-medium text-ink-charcoal">{spec.chauffeur}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col pt-1">
-                      <span className="text-label-md font-label-caps text-secondary uppercase">
-                        {isForceVehicle ? "Round-Trip Fare" : tripType === "round-trip" ? "Round-Trip Fare" : "All-Inclusive Fare"}
-                      </span>
-                      <span className="font-headline-md text-headline-md text-terracotta-sandstone font-serif font-semibold">
-                        ₹{calculatedFare.toLocaleString("en-IN")}
-                      </span>
-                      <span className="text-label-md text-secondary">
-                        ₹{token.toLocaleString("en-IN")} token to lock (28%)
-                      </span>
-                      {isForceVehicle && (
-                        <div className="mt-1.5 p-1.5 rounded bg-primary/10 border border-primary/20 text-body-md text-primary font-semibold leading-tight">
-                          This vehicle is always booked as a round trip.
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <a
-                    className="mt-space-md w-full inline-flex items-center justify-center gap-1 bg-terracotta-deep text-white py-2.5 rounded text-label-lg font-label-lg shadow-sm hover:bg-terracotta-sunlit transition-all text-center"
-                    href={`/book?from=${encodeURIComponent(fromEn)}&to=${encodeURIComponent(toEn)}&vehicle=${tier}&route=${encodeURIComponent(route.id)}&tripType=${tripType}`}
-                  >
-                    <span>Select {spec.name.split(" ")[0]}</span>
-                    <span className="material-symbols-outlined text-icon-16">arrow_forward</span>
-                  </a>
-                </div>
-              );
-            })}
-          </div>
+          <GroupedVehicleSection
+            title={`Select Your Travel Vehicle for ${fromEn} to ${toEn}`}
+            subtitle="Transparent group-based vehicles with guaranteed fares. Commercial tolls and state border taxes included."
+            category="outstation"
+            productCode={route.id}
+            productName={`${fromEn} to ${toEn}`}
+            originName={fromEn}
+            destinationName={toEn}
+            tripType={tripType}
+            fares={route.fares}
+            onSelectModel={(model) => onSelectVehicle?.(model.id)}
+          />
         </div>
       </section>
 

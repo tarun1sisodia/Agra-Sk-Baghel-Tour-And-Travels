@@ -147,7 +147,7 @@ export function PopularRoutes() {
                 <div className="pop-route-price">
                   <span className="pop-route-from-label">Sedan from</span>
                   <strong className="pop-route-amount">
-                    {formatInr(route.fares.sedan)}
+                    {route.fares.sedan ? formatInr(route.fares.sedan) : "On request"}
                   </strong>
                 </div>
                 <a

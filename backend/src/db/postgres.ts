@@ -523,7 +523,9 @@ SELECT
     (
       select jsonb_object_agg(sub.k, sub.v)
       from (
-        select lower(replace(vm.model_name, ' ', '-')) as k, fr.amount as v
+        select
+          lower(replace(vm.model_name, ' ', '-')) as k,
+          fr.amount as v
         from fare_rules fr
         join vehicle_models vm on fr.vehicle_model_id = vm.id
         where fr.transfer_id = t.id and fr.category = 'transfer' and fr.is_active = true
@@ -548,7 +550,9 @@ SELECT
     (
       select jsonb_object_agg(sub.k, sub.v)
       from (
-        select lower(replace(vm.model_name, ' ', '-')) as k, fr.amount as v
+        select
+          lower(replace(vm.model_name, ' ', '-')) as k,
+          fr.amount as v
         from fare_rules fr
         join vehicle_models vm on fr.vehicle_model_id = vm.id
         where fr.local_package_id = lp.id and fr.category = 'local_package' and fr.is_active = true
@@ -576,7 +580,9 @@ SELECT
     (
       select jsonb_object_agg(sub.k, sub.v)
       from (
-        select lower(replace(vm.model_name, ' ', '-')) as k, fr.amount as v
+        select
+          lower(replace(vm.model_name, ' ', '-')) as k,
+          fr.amount as v
         from fare_rules fr
         join vehicle_models vm on fr.vehicle_model_id = vm.id
         where fr.tour_package_id = tp.id and fr.category = 'tour_package' and fr.is_active = true

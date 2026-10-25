@@ -496,16 +496,20 @@ export function App({ pathname: propPathname }: AppProps = {}) {
   }, [section, pathname, matchedRoute, isHome, isBooking, isMarketingHub]);
 
   const dossierTourPackage = pathname.includes("/packages/")
-    ? (generatedPublishedTourPackages as any[]).find((item) => pathname.replace(/\/$/, "").endsWith(`/packages/${item.slug}`))
+    ? (generatedPublishedTourPackages as any[]).find((item) => {
+        const itemSlug = item.slug || item.packageCode || item.package_code;
+        return itemSlug && pathname.replace(/\/$/, "").endsWith(`/packages/${itemSlug}`);
+      })
     : undefined;
 
   const matchedPackage = pathname.includes("/packages/") && publishedPackages.find((item) => {
     const p = pathname.replace(/\/$/, "");
-    return p.endsWith(`/${item.slug}`) || p.endsWith(item.slug);
+    const itemSlug = item.slug || (item as any).packageCode || (item as any).package_code;
+    return itemSlug && (p.endsWith(`/${itemSlug}`) || p.endsWith(itemSlug));
   });
 
-  // Live catalog detail: any /packages/<slug> that is not a static package is
-  // resolved against the backend catalog at runtime (single source of trips).
+  // Live catalog detail: any /packages/<slug> that is not in initial lists is
+  // resolved dynamically against the backend catalog at runtime (single source of trips).
   const livePackageSlug =
     !matchedPackage &&
     !dossierTourPackage &&
@@ -610,10 +614,10 @@ export function App({ pathname: propPathname }: AppProps = {}) {
               <HomePage language={language} />
             ) : activeRoute ? (
               <RouteDetailPage language={language} route={activeRoute} />
-            ) : dossierTourPackage ? (
-              <PackageDetailPage language={language} pkg={toDossierTourPackage(dossierTourPackage)} />
             ) : matchedPackage ? (
               <PackageDetailPage language={language} pkg={matchedPackage} />
+            ) : dossierTourPackage ? (
+              <PackageDetailPage language={language} pkg={toDossierTourPackage(dossierTourPackage)} />
             ) : livePackageSlug ? (
               <DynamicPackageDetailPage language={language} slug={livePackageSlug} />
             ) : dossierTransferRoute ? (

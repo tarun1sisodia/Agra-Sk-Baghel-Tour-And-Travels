@@ -4,7 +4,7 @@ import { contact } from "../data/contact";
 import { JsonLd, buildBreadcrumbSchema, buildFaqSchema, buildTaxiServiceSchema, buildGraphSchema } from "../components/seo/JsonLd";
 import { CANONICAL_DOMAIN } from "../components/seo/SeoHead";
 import { WhatsAppIcon } from "../components/icons";
-import { VEHICLE_TIERS, type VehicleTier, resolveTierKey } from "../contracts/vehicle-tiers";
+import { GroupedVehicleSection } from "../components/fleet/GroupedVehicleSection";
 
 export interface DossierTransferRouteItem {
   id: string;
@@ -29,14 +29,6 @@ interface TransferDetailPageProps {
   item: DossierTransferRouteItem;
 }
 
-const FLEET_SPECIFICATIONS: Array<{ id: VehicleTier; name: string; seats: string; bags: string; ac: string; desc: string }> = [
-  { id: "sedan", name: "Sedan (Dzire / Etios)", seats: "4 Passengers", bags: "2 Bags", ac: "Dual Climate AC", desc: "Smooth, air-conditioned point-to-point transit." },
-  { id: "ertiga", name: "Ertiga MPV", seats: "6 Passengers", bags: "3 Bags", ac: "Roof-Mounted AC", desc: "Extra luggage room for families and travelers with baggage." },
-  { id: "innova-crysta", name: "Innova Crysta", seats: "6 Passengers", bags: "4 Bags", ac: "VIP Climate Cabin", desc: "Executive luxury with generous legroom and luggage space." },
-  { id: "tempo-traveller", name: "Tempo Traveller", seats: "12–16 Passengers", bags: "Luggage Bay", ac: "Individual AC Vents", desc: "Dedicated group transfer with dedicated rear luggage bay." },
-  { id: "urbania", name: "Force Urbania", seats: "10–17 Passengers", bags: "Full Luggage Bay", ac: "Monocoque Luxury AC", desc: "Chauffeur-grade luxury executive van transfer." },
-];
-
 function formatFareDate(dateStr?: string | null): string {
   if (!dateStr) return "October 2026";
   try {
@@ -51,12 +43,15 @@ function formatFareDate(dateStr?: string | null): string {
 export function TransferDetailPage({ item }: TransferDetailPageProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
-  const startingFare = Number(item.fleetPrices?.sedan ?? 800);
+  const validRates = Object.values(item.fleetPrices || {}).filter((v) => typeof v === "number" && v > 0);
+  const startingFare = Number(item.fleetPrices?.sedan || (validRates.length > 0 ? Math.min(...validRates) : 0));
   const tokenAdvance = Math.round(startingFare * 0.28);
   const fareDateFormatted = formatFareDate(item.updatedAt);
-  const bookingUrl = `/book.html?category=transfer&product=${encodeURIComponent(item.slug)}&from=${encodeURIComponent(item.pickupName || "Agra")}&to=${encodeURIComponent(item.dropName || item.name)}&car=sedan`;
+  const bookingUrl = `/book.html?category=transfer&product=${encodeURIComponent(item.slug)}&from=${encodeURIComponent(item.pickupName || "Agra")}&to=${encodeURIComponent(item.dropName || item.name)}`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-    `Hello Agra SK Baghel Tour & Travels, I want to book transfer "${item.name}" from ₹${startingFare.toLocaleString("en-IN")}.`
+    startingFare > 0
+      ? `Hello Agra SK Baghel Tour & Travels, I want to book transfer "${item.name}" from ₹${startingFare.toLocaleString("en-IN")}.`
+      : `Hello Agra SK Baghel Tour & Travels, I want to inquire about transfer "${item.name}".`
   )}`;
 
   const faqs = [
@@ -224,16 +219,26 @@ export function TransferDetailPage({ item }: TransferDetailPageProps) {
             {/* Price Callout Card */}
             <div className="lg:col-span-4 bg-sandstone-wash/90 p-space-xl rounded-2xl border border-border-warm shadow-md flex flex-col gap-space-md">
               <span className="font-label-caps text-label-caps text-terracotta-sandstone uppercase tracking-widest font-bold">
-                Starting Transfer Fare (Sedan)
+                {startingFare > 0 ? "Starting Transfer Fare" : "Transfer Fare"}
               </span>
               <div className="flex items-baseline gap-2">
-                <span className="font-headline-hero text-headline-hero text-ink-charcoal font-serif font-bold">
-                  ₹{startingFare.toLocaleString("en-IN")}
-                </span>
-                <span className="text-body-md text-on-surface-variant font-medium">All-Inclusive</span>
+                {startingFare > 0 ? (
+                  <>
+                    <span className="font-headline-hero text-headline-hero text-ink-charcoal font-serif font-bold">
+                      ₹{startingFare.toLocaleString("en-IN")}
+                    </span>
+                    <span className="text-body-md text-on-surface-variant font-medium">All-Inclusive</span>
+                  </>
+                ) : (
+                  <span className="font-headline-lg text-headline-lg text-ink-charcoal font-serif font-bold">
+                    On Request
+                  </span>
+                )}
               </div>
               <p className="text-body-sm text-secondary">
-                Lock your scheduled transfer with a ₹{tokenAdvance.toLocaleString("en-IN")} deposit (28%). The remaining 72% is paid to your chauffeur at your destination.
+                {startingFare > 0
+                  ? `Lock your scheduled transfer with a ₹${tokenAdvance.toLocaleString("en-IN")} deposit (28%). The remaining 72% is paid to your chauffeur at your destination.`
+                  : "All transfer bookings include private sanitized AC vehicle, verified chauffeur, highway FASTag tolls, and parking fees."}
               </p>
               <div className="flex flex-col gap-2 pt-2">
                 <a
@@ -258,97 +263,19 @@ export function TransferDetailPage({ item }: TransferDetailPageProps) {
         </div>
       </section>
 
-      {/* Dated 5-Tier Fare Comparison Matrix */}
+      {/* Group-Based Fleet Rates */}
       <section className="w-full bg-surface-container-low py-space-3xl border-b border-border-warm/30">
         <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin">
-          <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-space-2xl">
-            <span className="font-label-caps text-label-caps text-terracotta-sandstone uppercase tracking-widest mb-space-xs font-bold">
-              Guaranteed Vehicle Fares
-            </span>
-            <h2 className="font-headline-lg text-headline-lg text-ink-charcoal font-serif mb-space-xs font-bold">
-              Fixed Transfer Rates by Fleet Category
-            </h2>
-            {/* Required dated fare table notice */}
-            <p className="font-body-md text-body-md text-primary font-semibold">
-              Fares updated {fareDateFormatted}
-            </p>
-            <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
-              Fixed, guaranteed pricing across all 5 vehicle tiers. Tolls, airport parking permits, and driver allowances included.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-md">
-            {FLEET_SPECIFICATIONS.map((fleet) => {
-              const resolved = resolveTierKey(item.fleetPrices, fleet.id);
-              const tierPrice = resolved.value && Number(resolved.value) > 0
-                ? Number(resolved.value)
-                : fleet.id === "sedan" && startingFare > 0
-                ? startingFare
-                : null;
-              const tierToken = tierPrice ? Math.round(tierPrice * 0.28) : null;
-              const tierBookingUrl = `/book.html?category=transfer&product=${encodeURIComponent(item.slug)}&from=${encodeURIComponent(item.pickupName || "Agra")}&to=${encodeURIComponent(item.dropName || item.name)}&car=${fleet.id}`;
-
-              return (
-                <div
-                  key={fleet.id}
-                  className="bg-surface-container-lowest p-space-lg rounded-xl shadow-xs border border-border-warm/70 flex flex-col justify-between hover:shadow-md transition-shadow"
-                >
-                  <div className="flex flex-col gap-space-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="px-2 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone font-label-caps text-label-md uppercase tracking-wider font-bold">
-                        {fleet.id}
-                      </span>
-                      <span className="text-body-sm text-secondary font-medium">{fleet.seats}</span>
-                    </div>
-                    <h3 className="font-title-lg text-title-lg text-ink-charcoal font-serif mt-1 font-bold">{fleet.name}</h3>
-                    <p className="text-body-sm text-on-surface-variant leading-snug">{fleet.desc}</p>
-
-                    <div className="flex flex-col gap-1 py-space-xs border-y border-border-warm/30 text-body-sm text-on-surface-variant mt-2">
-                      <div className="flex items-center justify-between">
-                        <span>Luggage:</span>
-                        <span className="font-medium text-ink-charcoal">{fleet.bags}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Air Conditioning:</span>
-                        <span className="font-medium text-success-jade">{fleet.ac}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col pt-2">
-                      <span className="text-label-md font-label-caps text-secondary uppercase font-semibold">Fixed Transfer Fare</span>
-                      {tierPrice !== null ? (
-                        <>
-                          <span className="font-headline-md text-headline-md text-terracotta-sandstone font-serif font-bold">
-                            ₹{tierPrice.toLocaleString("en-IN")}
-                          </span>
-                          <span className="text-label-md text-secondary">
-                            ₹{tierToken!.toLocaleString("en-IN")} token to lock
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="font-headline-md text-headline-md text-secondary font-serif font-bold">
-                            On request
-                          </span>
-                          <span className="text-label-md text-secondary">
-                            Contact for customized quote
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  <a
-                    className="mt-space-md w-full inline-flex items-center justify-center gap-1 bg-terracotta-deep text-white py-2.5 rounded text-label-lg font-label-lg shadow-xs hover:bg-terracotta-sunlit transition-all text-center font-semibold"
-                    href={tierBookingUrl}
-                  >
-                    <span>Select {fleet.id}</span>
-                    <span className="material-symbols-outlined text-icon-16">arrow_forward</span>
-                  </a>
-                </div>
-              );
-            })}
-          </div>
+          <GroupedVehicleSection
+            rates={item.fleetPrices}
+            category="transfer"
+            productSlug={item.slug}
+            pickup={item.pickupName || "Agra"}
+            drop={item.dropName || item.name}
+            title="Fixed Transfer Rates by Fleet Category"
+            subtitle="Fixed, guaranteed pricing across verified fleet groups. Tolls, airport parking permits, and driver allowances included."
+            updatedAt={item.updatedAt}
+          />
 
           {/* Transfer Guidance Information Strip */}
           <div className="mt-space-2xl grid grid-cols-1 md:grid-cols-2 gap-space-lg">

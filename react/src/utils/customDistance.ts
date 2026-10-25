@@ -84,7 +84,7 @@ export interface CustomEstimateOptions {
 }
 
 /** Minimum one-way base fares for outstation bookings */
-const MIN_ONE_WAY_FARES: Record<VehicleId, number> = {
+const MIN_ONE_WAY_FARES: Partial<Record<VehicleId, number>> = {
   sedan: 2200,
   ertiga: 2800,
   innova: 3800,

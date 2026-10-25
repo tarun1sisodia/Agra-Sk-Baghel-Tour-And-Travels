@@ -8,65 +8,33 @@ interface VehicleDetailPageProps {
   vehicle: Vehicle;
 }
 
-// Fixed route prices by vehicle tier (aligned with CLIENT_CONFIRMATION_FARES_AND_RULES.md)
-const ONE_WAY_FARES_BY_VEHICLE: Record<string, Array<{ routeId: string; routeEn: string; highway: string; km: number; fare: number }>> = {
-  sedan: [
-    { routeId: "agra-delhi", routeEn: "Agra ⇄ Delhi (or IGI Airport)", highway: "Yamuna Expressway", km: 210, fare: 4999 },
-    { routeId: "agra-jaipur", routeEn: "Agra ⇄ Jaipur (Pink City)", highway: "NH-21 (Agra–Bikaner)", km: 240, fare: 4500 },
-    { routeId: "agra-mathura", routeEn: "Agra ⇄ Mathura / Vrindavan", highway: "NH-19 (Delhi–Agra)", km: 58, fare: 2500 },
-    { routeId: "agra-gwalior", routeEn: "Agra ⇄ Gwalior", highway: "NH-44 (North–South)", km: 120, fare: 3999 },
-    { routeId: "agra-lucknow", routeEn: "Agra ⇄ Lucknow", highway: "Agra–Lucknow Expressway", km: 335, fare: 7500 },
-    { routeId: "delhi-jaipur", routeEn: "Delhi ⇄ Jaipur (Intercity)", highway: "NH-48 / NE-4", km: 280, fare: 5999 },
-  ],
-  ertiga: [
-    { routeId: "agra-delhi", routeEn: "Agra ⇄ Delhi (or IGI Airport)", highway: "Yamuna Expressway", km: 210, fare: 5999 },
-    { routeId: "agra-jaipur", routeEn: "Agra ⇄ Jaipur (Pink City)", highway: "NH-21 (Agra–Bikaner)", km: 240, fare: 6800 },
-    { routeId: "agra-mathura", routeEn: "Agra ⇄ Mathura / Vrindavan", highway: "NH-19 (Delhi–Agra)", km: 58, fare: 3000 },
-    { routeId: "agra-gwalior", routeEn: "Agra ⇄ Gwalior", highway: "NH-44 (North–South)", km: 120, fare: 4500 },
-    { routeId: "agra-lucknow", routeEn: "Agra ⇄ Lucknow", highway: "Agra–Lucknow Expressway", km: 335, fare: 8500 },
-    { routeId: "delhi-jaipur", routeEn: "Delhi ⇄ Jaipur (Intercity)", highway: "NH-48 / NE-4", km: 280, fare: 6999 },
-  ],
-  innova: [
-    { routeId: "agra-delhi", routeEn: "Agra ⇄ Delhi (or IGI Airport)", highway: "Yamuna Expressway", km: 210, fare: 7500 },
-    { routeId: "agra-jaipur", routeEn: "Agra ⇄ Jaipur (Pink City)", highway: "NH-21 (Agra–Bikaner)", km: 240, fare: 8500 },
-    { routeId: "agra-mathura", routeEn: "Agra ⇄ Mathura / Vrindavan", highway: "NH-19 (Delhi–Agra)", km: 58, fare: 4000 },
-    { routeId: "agra-gwalior", routeEn: "Agra ⇄ Gwalior", highway: "NH-44 (North–South)", km: 120, fare: 6899 },
-    { routeId: "agra-lucknow", routeEn: "Agra ⇄ Lucknow", highway: "Agra–Lucknow Expressway", km: 335, fare: 9500 },
-    { routeId: "delhi-jaipur", routeEn: "Delhi ⇄ Jaipur (Intercity)", highway: "NH-48 / NE-4", km: 280, fare: 8499 },
-  ],
-  tempo: [
-    { routeId: "agra-delhi", routeEn: "Agra ⇄ Delhi (or IGI Airport)", highway: "Yamuna Expressway", km: 210, fare: 8500 },
-    { routeId: "agra-jaipur", routeEn: "Agra ⇄ Jaipur (Pink City)", highway: "NH-21 (Agra–Bikaner)", km: 240, fare: 8500 },
-    { routeId: "agra-mathura", routeEn: "Agra ⇄ Mathura / Vrindavan", highway: "NH-19 (Delhi–Agra)", km: 58, fare: 5200 },
-    { routeId: "agra-gwalior", routeEn: "Agra ⇄ Gwalior", highway: "NH-44 (North–South)", km: 120, fare: 7200 },
-    { routeId: "agra-lucknow", routeEn: "Agra ⇄ Lucknow", highway: "Agra–Lucknow Expressway", km: 335, fare: 12800 },
-    { routeId: "delhi-jaipur", routeEn: "Delhi ⇄ Jaipur (Intercity)", highway: "NH-48 / NE-4", km: 280, fare: 10500 },
-  ],
-  urbania: [
-    { routeId: "agra-delhi", routeEn: "Agra ⇄ Delhi (or IGI Airport)", highway: "Yamuna Expressway", km: 210, fare: 11500 },
-    { routeId: "agra-jaipur", routeEn: "Agra ⇄ Jaipur (Pink City)", highway: "NH-21 (Agra–Bikaner)", km: 240, fare: 11500 },
-    { routeId: "agra-mathura", routeEn: "Agra ⇄ Mathura / Vrindavan", highway: "NH-19 (Delhi–Agra)", km: 58, fare: 7200 },
-    { routeId: "agra-gwalior", routeEn: "Agra ⇄ Gwalior", highway: "NH-44 (North–South)", km: 120, fare: 9800 },
-    { routeId: "agra-lucknow", routeEn: "Agra ⇄ Lucknow", highway: "Agra–Lucknow Expressway", km: 335, fare: 16500 },
-    { routeId: "delhi-jaipur", routeEn: "Delhi ⇄ Jaipur (Intercity)", highway: "NH-48 / NE-4", km: 280, fare: 14200 },
-  ],
-};
-
-// Local Sightseeing & Transfer rates by vehicle
-const LOCAL_RATES: Record<string, { standard8h: number; fullDay: number; agraCantt: number; agraAirport: number; delAirport: number }> = {
-  sedan: { standard8h: 2200, fullDay: 3000, agraCantt: 1200, agraAirport: 900, delAirport: 4999 },
-  ertiga: { standard8h: 2900, fullDay: 4000, agraCantt: 1500, agraAirport: 1050, delAirport: 5999 },
-  innova: { standard8h: 4150, fullDay: 5499, agraCantt: 2000, agraAirport: 1250, delAirport: 7500 },
-  tempo: { standard8h: 7500, fullDay: 8500, agraCantt: 3500, agraAirport: 2400, delAirport: 8500 },
-  urbania: { standard8h: 9500, fullDay: 11500, agraCantt: 4500, agraAirport: 3800, delAirport: 11500 },
-};
-
 export function VehicleDetailPage({ vehicle }: VehicleDetailPageProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   const vehicleSlug = vehicle.id === "innova" ? "innova-crysta" : vehicle.id === "tempo" ? "tempo-traveller" : vehicle.id;
-  const rates = LOCAL_RATES[vehicle.id] || LOCAL_RATES.sedan;
-  const oneWayRoutes = ONE_WAY_FARES_BY_VEHICLE[vehicle.id] || ONE_WAY_FARES_BY_VEHICLE.sedan;
+
+  const rates = useMemo(() => {
+    return {
+      standard8h: null as number | null,
+      fullDay: null as number | null,
+      agraCantt: null as number | null,
+      agraAirport: null as number | null,
+    };
+  }, []);
+
+  const oneWayRoutes = useMemo(() => {
+    return routes.slice(0, 6).map((r) => {
+      const rawFares = (r.fares || {}) as Record<string, number | undefined>;
+      const fare = rawFares[vehicleSlug] ?? rawFares[vehicle.id];
+      return {
+        routeId: r.id,
+        routeEn: `${r.from} ⇄ ${r.to}`,
+        highway: r.corridor || "Direct Highway Corridor",
+        km: r.km,
+        fare: typeof fare === "number" && fare > 0 ? fare : null,
+      };
+    });
+  }, [vehicleSlug, vehicle.id]);
 
   const faqItems = useMemo(
     () => [
@@ -363,19 +331,27 @@ export function VehicleDetailPage({ vehicle }: VehicleDetailPageProps) {
                 <div className="flex flex-col gap-space-xs pt-space-xs divide-y divide-border-warm/30">
                   <div className="flex items-center justify-between py-2 text-body-sm">
                     <span className="text-ink-charcoal font-medium">8 Hours / 80 km</span>
-                    <span className="font-semibold text-terracotta-sandstone font-serif text-headline-md">₹{rates.standard8h}</span>
+                    <span className="font-semibold text-terracotta-sandstone font-serif text-headline-md">
+                      {rates.standard8h != null ? `₹${rates.standard8h.toLocaleString("en-IN")}` : "On request"}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between py-2 text-body-sm">
                     <span className="text-ink-charcoal font-medium">Full Day Sightseeing (12h)</span>
-                    <span className="font-semibold text-terracotta-sandstone font-serif text-headline-md">₹{rates.fullDay}</span>
+                    <span className="font-semibold text-terracotta-sandstone font-serif text-headline-md">
+                      {rates.fullDay != null ? `₹${rates.fullDay.toLocaleString("en-IN")}` : "On request"}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between py-2 text-body-sm">
                     <span className="text-ink-charcoal font-medium">Agra Cantt Railway Drop</span>
-                    <span className="font-semibold text-terracotta-sandstone font-serif text-headline-md">₹{rates.agraCantt}</span>
+                    <span className="font-semibold text-terracotta-sandstone font-serif text-headline-md">
+                      {rates.agraCantt != null ? `₹${rates.agraCantt.toLocaleString("en-IN")}` : "On request"}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between py-2 text-body-sm">
                     <span className="text-ink-charcoal font-medium">Agra Airport (AGR) Transfer</span>
-                    <span className="font-semibold text-terracotta-sandstone font-serif text-headline-md">₹{rates.agraAirport}</span>
+                    <span className="font-semibold text-terracotta-sandstone font-serif text-headline-md">
+                      {rates.agraAirport != null ? `₹${rates.agraAirport.toLocaleString("en-IN")}` : "On request"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -409,10 +385,16 @@ export function VehicleDetailPage({ vehicle }: VehicleDetailPageProps) {
                         <span className="text-label-md text-secondary">{r.highway} • {r.km} km</span>
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="font-headline-sm text-headline-md text-terracotta-sandstone font-serif font-semibold">
-                          ₹{r.fare.toLocaleString("en-IN")}
-                        </span>
-                        <span className="text-label-lg text-secondary">One-Way</span>
+                        {r.fare != null ? (
+                          <>
+                            <span className="font-headline-sm text-headline-md text-terracotta-sandstone font-serif font-semibold">
+                              ₹{r.fare.toLocaleString("en-IN")}
+                            </span>
+                            <span className="text-label-lg text-secondary">One-Way</span>
+                          </>
+                        ) : (
+                          <span className="font-title-md text-terracotta-sandstone font-medium">On request</span>
+                        )}
                       </div>
                     </div>
                   ))}

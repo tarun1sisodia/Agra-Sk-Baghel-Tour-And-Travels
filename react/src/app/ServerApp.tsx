@@ -542,15 +542,22 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
 
   const matchedPackage = pathname.includes("/packages/") && packages.find((item) => {
     const p = pathname.replace(/\/$/, "");
-    return p.endsWith(`/${item.slug}`) || p.endsWith(item.slug);
+    const itemSlug = item.slug || (item as any).packageCode || (item as any).package_code;
+    return itemSlug && (p.endsWith(`/${itemSlug}`) || p.endsWith(itemSlug));
   });
   const dynamicPackage = pathname.includes("/packages/")
-    ? publishedCatalog.find((item) => pathname.replace(/\/$/, "").endsWith(`/packages/${item.slug}`))
+    ? publishedCatalog.find((item) => {
+        const itemSlug = item.slug || (item as any).packageCode || (item as any).package_code;
+        return itemSlug && pathname.replace(/\/$/, "").endsWith(`/packages/${itemSlug}`);
+      })
     : undefined;
 
   // Phase 6 Dossier Resolvers
   const dossierTourPackage = pathname.includes("/packages/")
-    ? publishedTourPackages.find((item) => pathname.replace(/\/$/, "").endsWith(`/packages/${item.slug}`))
+    ? publishedTourPackages.find((item) => {
+        const itemSlug = item.slug || (item as any).packageCode || (item as any).package_code;
+        return itemSlug && pathname.replace(/\/$/, "").endsWith(`/packages/${itemSlug}`);
+      })
     : undefined;
 
   const dossierTransferRoute = pathname.includes("/transfers/")
@@ -691,10 +698,10 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
             <RouteDetailPage language={language} route={matchedRoute} />
           ) : dynamicRoute ? (
             <RouteDetailPage language={language} route={dynamicRoute} />
-          ) : dossierTourPackage ? (
-            <PackageDetailPage language={language} pkg={toDossierTourPackage(dossierTourPackage)} />
           ) : matchedPackage ? (
             <PackageDetailPage language={language} pkg={matchedPackage} />
+          ) : dossierTourPackage ? (
+            <PackageDetailPage language={language} pkg={toDossierTourPackage(dossierTourPackage)} />
           ) : dynamicPackage ? (
             <LivePackageDetailPage slug={dynamicPackage.slug} initialItem={dynamicPackage as unknown as PublicCatalogItem} />
           ) : dossierTransferRoute ? (

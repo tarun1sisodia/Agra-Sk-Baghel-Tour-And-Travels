@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { Input, Label, NumberInput, Select } from "@/components/ui/Input";
 import { LocationAutocompleteInput } from "@/components/admin/LocationAutocompleteInput";
-import { CanonicalFleetPricingGrid, FLEET_KEYS, CANONICAL_FLEET_SPECS } from "@/modules/fleets";
+import { CanonicalFleetPricingGrid, FLEET_KEYS, getFleetSpec } from "@/modules/fleets";
 import type { LocalPackageFormState, LocalPackageItem } from "./local-packages.types";
 
 interface LocalPackageFormDialogProps {
@@ -171,7 +171,7 @@ export function LocalPackageFormDialog({
           <Label>Extra KM &amp; Extra Hour Rates (₹)</Label>
           <div className="grid gap-3 sm:grid-cols-5">
             {FLEET_KEYS.map((k) => {
-              const spec = CANONICAL_FLEET_SPECS[k];
+              const spec = getFleetSpec(k);
               const extra = form.extraRates[k] ?? { per_km: 12, per_hr: 150 };
               return (
                 <div key={k} className="p-2.5 rounded border border-hairline bg-surface space-y-2">

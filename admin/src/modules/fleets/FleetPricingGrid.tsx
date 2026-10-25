@@ -1,6 +1,6 @@
 import { Label, NumberInput } from "@/components/ui/Input";
 import type { VehicleTier } from "@/contracts/vehicle-tiers";
-import { FLEET_KEYS, CANONICAL_FLEET_SPECS } from "./fleets.constants";
+import { FLEET_KEYS, getFleetSpec } from "./fleets.constants";
 
 interface FleetPricingGridProps {
   prices: Record<string, number | undefined>;
@@ -14,7 +14,7 @@ interface FleetPricingGridProps {
 export function FleetPricingGrid({
   prices,
   onChange,
-  title = "5 Canonical Fleet Fares (₹ INR)",
+  title = "Group-Based Fleet Fares (₹ INR)",
   description,
   currencyPrefix = "₹",
   disabled = false,
@@ -28,9 +28,9 @@ export function FleetPricingGrid({
         )}
       </div>
 
-      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
         {FLEET_KEYS.map((k) => {
-          const spec = CANONICAL_FLEET_SPECS[k];
+          const spec = getFleetSpec(k);
           const val = prices[k] ?? 0;
 
           return (

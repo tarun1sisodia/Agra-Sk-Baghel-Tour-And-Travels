@@ -8,14 +8,8 @@ export const TRIP_TYPES = [
 ] as const;
 export type TripType = (typeof TRIP_TYPES)[number];
 
-export const VEHICLE_TIERS = [
-  "sedan",
-  "ertiga",
-  "innova-crysta",
-  "tempo-traveller",
-  "urbania",
-] as const;
-export type VehicleTier = (typeof VEHICLE_TIERS)[number];
+import { VEHICLE_TIERS, type VehicleTier } from "../contracts/vehicle-tiers.js";
+export { VEHICLE_TIERS, type VehicleTier };
 
 export const INTERNAL_VEHICLE_IDS = [
   "sedan",

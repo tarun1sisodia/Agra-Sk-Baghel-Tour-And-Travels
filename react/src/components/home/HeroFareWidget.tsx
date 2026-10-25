@@ -25,7 +25,7 @@ const LOCAL_PACKAGE_OPTIONS: { key: LocalPackageKey; shortLabel: string }[] = [
   { key: "airport-transfer", shortLabel: "Airport / Station" },
 ];
 
-const VEHICLE_ICONS: Record<VehicleId, string> = {
+const VEHICLE_ICONS: Partial<Record<VehicleId, string>> = {
   sedan: "🚗",
   ertiga: "🚙",
   innova: "🛻",

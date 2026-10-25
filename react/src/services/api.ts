@@ -13,7 +13,10 @@ export function getApiBaseUrl(): string {
   ) {
     return envUrl || "http://localhost:4000";
   }
-  return envUrl || "";
+  if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
+    return envUrl;
+  }
+  return "https://api.agraskbagheltourandtravels.com";
 }
 
 import { toCanonicalTierKey, type VehicleTier } from "../contracts/vehicle-tiers";

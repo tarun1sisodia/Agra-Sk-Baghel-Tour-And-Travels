@@ -4,7 +4,7 @@ import { contact } from "../data/contact";
 import { JsonLd, buildBreadcrumbSchema, buildFaqSchema, buildTaxiServiceSchema, buildGraphSchema } from "../components/seo/JsonLd";
 import { CANONICAL_DOMAIN } from "../components/seo/SeoHead";
 import { WhatsAppIcon } from "../components/icons";
-import { VEHICLE_TIERS, type VehicleTier, resolveTierKey } from "../contracts/vehicle-tiers";
+import { GroupedVehicleSection } from "../components/fleet/GroupedVehicleSection";
 
 export interface DossierLocalPackageItem {
   id: string;
@@ -32,21 +32,12 @@ export interface LocalTourTemplateProps {
   item: DossierLocalPackageItem;
 }
 
-const CANONICAL_FLEET_SPECS: Record<VehicleTier, { name: string; seats: string; bags: string; ac: string; desc: string }> = {
-  sedan: { name: "Sedan (Dzire / Etios)", seats: "4 Passengers", bags: "2 Bags", ac: "Dual Climate AC", desc: "Nimble city navigation for couples and small families." },
-  ertiga: { name: "Ertiga MPV", seats: "6 Passengers", bags: "3 Bags", ac: "Roof-Mounted AC", desc: "Spacious seating and elevated ride height for families." },
-  "innova-crysta": { name: "Toyota Innova Crysta", seats: "6-7 Passengers", bags: "4 Bags", ac: "VIP Climate Cabin", desc: "VIP comfort with individual reclining captain armchairs." },
-  "tempo-traveller": { name: "Tempo Traveller", seats: "12–16 Passengers", bags: "Luggage Bay", ac: "Individual AC Vents", desc: "Spacious group sightseeing charter for extended families." },
-  urbania: { name: "Force Urbania Luxury Van", seats: "10–17 Passengers", bags: "Full Luggage Bay", ac: "Monocoque Luxury AC", desc: "Chauffeur-grade luxury executive van charter." },
-};
-
-const DEFAULT_EXTRA_RATES: Record<VehicleTier, { per_km: number; per_hr: number }> = {
-  sedan: { per_km: 10, per_hr: 150 },
-  ertiga: { per_km: 14, per_hr: 200 },
-  "innova-crysta": { per_km: 18, per_hr: 250 },
-  "tempo-traveller": { per_km: 25, per_hr: 400 },
-  urbania: { per_km: 34, per_hr: 600 },
-};
+const VEHICLE_GROUPS_EXTRA_RATES = [
+  { group: "Sedan (Dzire, City)", seats: "4 Passengers", perKm: 10, perHr: 150 },
+  { group: "SUV (Ertiga, Innova Crysta)", seats: "6-7 Passengers", perKm: 14, perHr: 200 },
+  { group: "Tempo Traveller (12/17 Seater)", seats: "12–16 Passengers", perKm: 25, perHr: 400 },
+  { group: "Luxury Executive (Camry, Vellfire)", seats: "4–6 Passengers", perKm: 34, perHr: 600 },
+];
 
 function formatFareDate(dateStr?: string | null): string {
   if (!dateStr) return "October 2026";
@@ -62,14 +53,16 @@ function formatFareDate(dateStr?: string | null): string {
 export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
-  const startingFareResolution = resolveTierKey(item.fleetPrices, "sedan");
-  const startingFare = Number(startingFareResolution.value ?? 1900);
+  const validRates = Object.values(item.fleetPrices || {}).filter((v) => typeof v === "number" && v > 0);
+  const startingFare = Number(item.fleetPrices?.sedan || (validRates.length > 0 ? Math.min(...validRates) : 0));
   const tokenAdvance = Math.round(startingFare * 0.28);
   const fareDateFormatted = formatFareDate(item.updatedAt);
 
-  const bookingUrl = `/book.html?category=local_package&product=${encodeURIComponent(item.slug)}&from=Agra&to=${encodeURIComponent(item.name)}&car=sedan`;
+  const bookingUrl = `/book.html?category=local_package&product=${encodeURIComponent(item.slug)}&from=Agra&to=${encodeURIComponent(item.name)}`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-    `Hello Agra SK Baghel Tour & Travels, I want to book local sightseeing package "${item.name}" from ₹${startingFare.toLocaleString("en-IN")}.`
+    startingFare > 0
+      ? `Hello Agra SK Baghel Tour & Travels, I want to book local sightseeing package "${item.name}" from ₹${startingFare.toLocaleString("en-IN")}.`
+      : `Hello Agra SK Baghel Tour & Travels, I want to book local sightseeing package "${item.name}".`
   )}`;
 
   const faqs = [
@@ -268,86 +261,19 @@ export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
         </div>
       </section>
 
-      {/* Section 2: Canonical 5-Vehicle Pricing Comparison */}
+      {/* Section 2: Group-Based Vehicle Selection */}
       <section className="w-full bg-surface-container-low py-space-3xl border-t border-b border-border-warm/30">
         <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin">
-          <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-space-2xl">
-            <span className="font-label-caps text-label-caps text-terracotta-sandstone uppercase tracking-widest mb-space-xs">
-              Vehicle Comparison
-            </span>
-            <h2 className="font-headline-lg text-headline-lg text-ink-charcoal font-serif mb-space-sm">
-              Select Fleet Tier for {item.name}
-            </h2>
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              Guaranteed fixed rates for {item.durationHours} Hours and {item.includedKm} KM. Verified commercial yellow-plate vehicles with air-conditioning.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-md">
-            {VEHICLE_TIERS.map((tier) => {
-              const spec = CANONICAL_FLEET_SPECS[tier];
-              const resolved = resolveTierKey(item.fleetPrices, tier);
-              let fare = Number(resolved.value || 0);
-
-              if (!fare) {
-                if (tier === "sedan") fare = startingFare;
-                else if (tier === "ertiga") fare = Math.round(startingFare * 1.35);
-                else if (tier === "innova-crysta") fare = Math.round(startingFare * 1.7);
-                else if (tier === "tempo-traveller") fare = Math.round(startingFare * 2.6);
-                else fare = Math.round(startingFare * 3.6);
-              }
-
-              const token = Math.round(fare * 0.28);
-
-              return (
-                <div
-                  key={tier}
-                  className="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm border border-border-warm/60 flex flex-col justify-between hover:shadow-md transition-shadow"
-                >
-                  <div className="flex flex-col gap-space-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded bg-sandstone-wash text-terracotta-sandstone font-label-caps text-label-md uppercase tracking-wider font-semibold">
-                        {tier.replace("-", " ")}
-                      </span>
-                      <span className="text-body-sm text-secondary font-medium">{spec.seats.split(" ")[0]} Seats</span>
-                    </div>
-
-                    <h3 className="font-title-lg text-title-lg text-ink-charcoal font-serif mt-1">{spec.name}</h3>
-
-                    <div className="flex flex-col gap-1 py-space-xs border-y border-border-warm/30 text-body-sm text-on-surface-variant">
-                      <div className="flex items-center justify-between">
-                        <span>Luggage:</span>
-                        <span className="font-medium text-ink-charcoal">{spec.bags}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Air Conditioning:</span>
-                        <span className="font-medium text-success-jade">{spec.ac}</span>
-                      </div>
-                      <p className="text-xs text-secondary mt-1">{spec.desc}</p>
-                    </div>
-
-                    <div className="flex flex-col pt-1">
-                      <span className="text-label-md font-label-caps text-secondary uppercase">Package Tariff</span>
-                      <span className="font-headline-md text-headline-md text-terracotta-sandstone font-serif font-semibold">
-                        ₹{fare.toLocaleString("en-IN")}
-                      </span>
-                      <span className="text-label-md text-secondary">
-                        ₹{token.toLocaleString("en-IN")} token to lock (28%)
-                      </span>
-                    </div>
-                  </div>
-
-                  <a
-                    className="mt-space-md w-full inline-flex items-center justify-center gap-1 bg-terracotta-deep text-white py-2.5 rounded text-label-lg font-label-lg shadow-sm hover:bg-terracotta-sunlit transition-all text-center"
-                    href={`/book.html?category=local_package&product=${encodeURIComponent(item.slug)}&from=Agra&to=${encodeURIComponent(item.name)}&car=${tier}&step=1`}
-                  >
-                    <span>Select {tier === "innova-crysta" ? "Innova" : tier.split("-")[0]}</span>
-                    <span className="material-symbols-outlined text-icon-16">arrow_forward</span>
-                  </a>
-                </div>
-              );
-            })}
-          </div>
+          <GroupedVehicleSection
+            title={`Select Vehicle for ${item.name}`}
+            subtitle={`Guaranteed fixed rates for ${item.durationHours} Hours and ${item.includedKm} KM. Verified commercial yellow-plate vehicles with air-conditioning.`}
+            category="local_package"
+            productCode={item.slug}
+            productName={item.name}
+            originName="Agra"
+            destinationName={item.name}
+            fares={item.fleetPrices}
+          />
         </div>
       </section>
 
@@ -378,24 +304,17 @@ export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-warm/30 text-body-md text-on-surface-variant">
-                {VEHICLE_TIERS.map((tier) => {
-                  const spec = CANONICAL_FLEET_SPECS[tier];
-                  const rates = item.extraRates?.[tier] || DEFAULT_EXTRA_RATES[tier];
-                  const perKm = rates?.per_km ?? DEFAULT_EXTRA_RATES[tier].per_km;
-                  const perHr = rates?.per_hr ?? DEFAULT_EXTRA_RATES[tier].per_hr;
-
-                  return (
-                    <tr key={tier} className="hover:bg-sandstone-wash/20 transition-colors">
-                      <td className="py-3.5 px-4 font-semibold text-ink-charcoal">{spec.name}</td>
-                      <td className="py-3.5 px-4 text-secondary">{spec.seats}</td>
-                      <td className="py-3.5 px-4 text-ink-charcoal font-medium">₹{perKm} / km</td>
-                      <td className="py-3.5 px-4 text-ink-charcoal font-medium">₹{perHr} / hr</td>
-                      <td className="py-3.5 px-4 text-success-jade font-semibold">
-                        {item.nightChargeInr && item.nightChargeInr > 0 ? `₹${item.nightChargeInr}` : "₹0 (Day Tours)"}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {VEHICLE_GROUPS_EXTRA_RATES.map((g) => (
+                  <tr key={g.group} className="hover:bg-sandstone-wash/20 transition-colors">
+                    <td className="py-3.5 px-4 font-semibold text-ink-charcoal">{g.group}</td>
+                    <td className="py-3.5 px-4 text-secondary">{g.seats}</td>
+                    <td className="py-3.5 px-4 text-ink-charcoal font-medium">₹{g.perKm} / km</td>
+                    <td className="py-3.5 px-4 text-ink-charcoal font-medium">₹{g.perHr} / hr</td>
+                    <td className="py-3.5 px-4 text-success-jade font-semibold">
+                      {item.nightChargeInr && item.nightChargeInr > 0 ? `₹${item.nightChargeInr}` : "₹0 (Day Tours)"}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

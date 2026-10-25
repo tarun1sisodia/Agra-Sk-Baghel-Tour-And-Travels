@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import generatedPublishedRoutes from "../../data/generated-published-routes.json";
-import { resolveTierKey } from "../../contracts/vehicle-tiers";
+
 
 export interface LatestRouteItem {
   id?: string;
@@ -81,11 +81,11 @@ export function LatestRoutesSection({
             const distance = r.distanceKm ?? r.distance_km ?? 0;
             const duration = r.durationText || r.duration_text || "3h 30m";
             const fares = r.faresInr || r.fares_inr || {};
-            const sedanResolved = resolveTierKey(fares, "sedan");
-            const startingFare = Number(sedanResolved.value || 0);
-            const token = startingFare > 0 ? Math.round(startingFare * 0.25) : 0;
+            const validRates = Object.values(fares).filter((v) => typeof v === "number" && v > 0);
+            const startingFare = Number(fares.sedan || fares.dzire || fares.city || (validRates.length > 0 ? Math.min(...validRates) : 0));
+            const token = startingFare > 0 ? Math.round(startingFare * 0.28) : 0;
             const routeUrl = `/routes/${r.slug}/`;
-            const bookUrl = `/book?from=${encodeURIComponent(origin)}&to=${encodeURIComponent(dest)}&vehicle=sedan&route=${encodeURIComponent(r.slug)}`;
+            const bookUrl = `/book?from=${encodeURIComponent(origin)}&to=${encodeURIComponent(dest)}&route=${encodeURIComponent(r.slug)}`;
 
             return (
               <div

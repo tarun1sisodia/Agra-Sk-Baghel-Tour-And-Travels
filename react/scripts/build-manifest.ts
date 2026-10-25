@@ -27,7 +27,7 @@ const __filename = fileURLToPath(import.meta.url);
 const scriptsDir = dirname(__filename);
 const reactRoot = join(scriptsDir, "..");
 const repoRoot = join(reactRoot, "..");
-const backendCatalogPath = join(repoRoot, "backend", "src", "modules", "fares", "catalog.data.json");
+
 
 export type PricingModelType = "oneway" | "day120" | "tempo" | "tour" | "custom";
 
@@ -60,10 +60,6 @@ function deduplicateItemsBySlug<T>(items: T[], getSlug: (item: T) => string | un
 }
 
 export async function buildRouteCatalogAndManifest(): Promise<void> {
-  // Read backend single-source-of-truth catalog
-  const rawCatalog = readFileSync(backendCatalogPath, "utf-8");
-  const catalogRoutes: Record<string, any> = JSON.parse(rawCatalog);
-
   const manifest: Record<string, CompressedRoute> = {};
   const routesMap = new Map<string, any>();
   const publishedRouteItems: any[] = [];
@@ -149,110 +145,79 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
     writeFileSync(path, JSON.stringify(value, null, 2), "utf-8");
   }
 
-  for (const [slug, item] of Object.entries(catalogRoutes)) {
-    const fs = item.fares?.sedan != null ? Number(item.fares.sedan) : null;
-    const fe = item.fares?.ertiga != null ? Number(item.fares.ertiga) : null;
-    const fi = item.fares?.innova != null ? Number(item.fares.innova) : null;
-    const ft = item.fares?.tempo != null ? Number(item.fares.tempo) : null;
-    const fu = item.fares?.urbania != null ? Number(item.fares.urbania) : null;
+  // 1. Load published routes from live route-catalog manifest (or existing published routes snapshot if offline)
+  const manifestUrl = catalogSources["route-catalog"]?.url;
+  const routeCatalogPayload = await loadCatalogSource("route-catalog");
+  let rawRouteList: any[] = [];
+  if (routeCatalogPayload) {
+    const payload = routeCatalogPayload as { data?: Array<any> };
+    rawRouteList = payload.data ?? [];
+    console.log(`✅ [Manifest Builder] Fetched ${rawRouteList.length} routes from ${redactCatalogUrl(manifestUrl!)}.`);
+  } else {
+    const localSnapshotPath = join(reactRoot, "src", "data", "generated-published-routes.json");
+    if (existsSync(localSnapshotPath)) {
+      try {
+        rawRouteList = JSON.parse(readFileSync(localSnapshotPath, "utf-8"));
+        console.log(`ℹ️ [Manifest Builder] Using ${rawRouteList.length} local published routes from snapshot.`);
+      } catch {
+        rawRouteList = [];
+      }
+    }
+  }
 
-    manifest[slug] = {
-      o: item.origin,
-      d: item.destination,
-      km: item.km,
-      m: item.durationMins || Math.round((item.km / 55) * 60),
+  for (const item of rawRouteList) {
+    if (item.status && item.status !== "published") continue;
+    publishedRouteItems.push(item);
+    const fares = item.faresInr ?? item.fares_inr ?? item.fares ?? {};
+    const routeSlug = String(item.slug || item.id);
+    const distanceKm = Number(item.distanceKm ?? item.distance_km ?? item.km ?? 0);
+    const durationText = String(item.durationText ?? item.duration_text ?? item.duration ?? "");
+    const durationMins = Number(durationText.match(/(\d+(?:\.\d+)?)\s*h/i)?.[1] ?? 0) * 60 || Math.round((distanceKm / 55) * 60);
+    const sourceCity = String(item.sourceCity ?? item.source_city ?? item.origin ?? item.from ?? "Agra");
+    const destCity = String(item.destinationCity ?? item.destination_city ?? item.destination ?? item.to ?? "Outstation");
+
+    const fs = fares.sedan != null ? Number(fares.sedan) : (fares.dzire != null ? Number(fares.dzire) : (fares.city != null ? Number(fares.city) : null));
+    const fe = fares.ertiga != null ? Number(fares.ertiga) : null;
+    const fi = fares.innova != null ? Number(fares.innova) : (fares["innova-crysta"] != null ? Number(fares["innova-crysta"]) : (fares.crysta != null ? Number(fares.crysta) : null));
+    const ft = fares.tempo != null ? Number(fares.tempo) : (fares["tempo-traveller"] != null ? Number(fares["tempo-traveller"]) : null);
+    const fu = fares.urbania != null ? Number(fares.urbania) : null;
+
+    manifest[routeSlug] = {
+      o: sourceCity,
+      d: destCity,
+      km: distanceKm,
+      m: durationMins,
       fs,
       fe,
       fi,
       ft,
       fu,
-      pm: item.pricingModel || "oneway",
-      c: item.corridor || "Direct Highway Corridor",
-      toll: item.toll === 1 ? 1 : 0,
+      pm: item.tripType === "round-trip" ? "day120" : item.tripType === "local-tour" ? "tour" : "oneway",
+      c: item.sourceDetail ?? item.corridor ?? "Direct Highway Corridor",
+      toll: item.tollIncluded === false ? 0 : 1,
     };
 
-    routesMap.set(slug, {
-      id: slug,
-      from: item.from,
-      to: item.to,
-      origin: item.origin,
-      destination: item.destination,
-      corridor: item.corridor,
-      km: item.km,
-      duration: item.duration,
-      kind: item.kind,
-      localLabel: item.localLabel,
-      pricingModel: item.pricingModel,
-      toll: item.toll === 1 ? 1 : 0,
+    routesMap.set(routeSlug, {
+      id: routeSlug,
+      from: sourceCity,
+      to: destCity,
+      origin: sourceCity,
+      destination: destCity,
+      corridor: item.sourceDetail ?? item.corridor ?? "Direct Highway Corridor",
+      km: distanceKm,
+      duration: durationText,
+      kind: item.tripType || "one-way",
+      pricingModel: item.tripType === "round-trip" ? "day120" : item.tripType === "local-tour" ? "tour" : "oneway",
+      toll: item.tollIncluded === false ? 0 : 1,
       fares: {
         sedan: fs,
         ertiga: fe,
         innova: fi,
         tempo: ft,
         urbania: fu,
+        ...fares,
       },
     });
-  }
-
-  // Published admin routes become the customer site's source of truth on the
-  // next frontend rebuild. Static JSON remains the safe fallback for local
-  // builds and environments where the backend is not reachable.
-  const manifestUrl = catalogSources["route-catalog"]?.url;
-  const routeCatalogPayload = await loadCatalogSource("route-catalog");
-  if (routeCatalogPayload) {
-    const payload = routeCatalogPayload as { data?: Array<any> };
-    for (const item of payload.data ?? []) {
-      if (item.status !== "published") continue;
-      publishedRouteItems.push(item);
-      const fares = item.faresInr ?? item.fares_inr ?? {};
-      const routeSlug = String(item.slug);
-      const distanceKm = Number(item.distanceKm ?? item.distance_km ?? 0);
-      const durationText = String(item.durationText ?? item.duration_text ?? "");
-      const durationMins = Number(durationText.match(/(\d+(?:\.\d+)?)\s*h/i)?.[1] ?? 0) * 60 || Math.round((distanceKm / 55) * 60);
-      const sourceCity = String(item.sourceCity ?? item.source_city ?? "");
-      const destCity = String(item.destinationCity ?? item.destination_city ?? "Local sightseeing");
-
-      const fs = fares.sedan != null ? Number(fares.sedan) : null;
-      const fe = fares.ertiga != null ? Number(fares.ertiga) : null;
-      const fi = fares.innova != null ? Number(fares.innova) : null;
-      const ft = fares.tempo != null ? Number(fares.tempo) : null;
-      const fu = fares.urbania != null ? Number(fares.urbania) : null;
-
-      manifest[routeSlug] = {
-        o: sourceCity,
-        d: destCity,
-        km: distanceKm,
-        m: durationMins,
-        fs,
-        fe,
-        fi,
-        ft,
-        fu,
-        pm: item.tripType === "round-trip" ? "day120" : item.tripType === "local-tour" ? "tour" : "oneway",
-        c: item.sourceDetail ?? "Direct Highway Corridor",
-        toll: item.tollIncluded === false ? 0 : 1,
-      };
-      routesMap.set(routeSlug, {
-        id: routeSlug,
-        from: sourceCity,
-        to: destCity,
-        origin: sourceCity,
-        destination: destCity,
-        km: distanceKm,
-        duration: durationText,
-        kind: item.tripType,
-        pricingModel: item.tripType === "round-trip" ? "day120" : item.tripType === "local-tour" ? "tour" : "oneway",
-        toll: item.tollIncluded === false ? 0 : 1,
-        fares: {
-          sedan: fs,
-          ertiga: fe,
-          innova: fi,
-          tempo: ft,
-          urbania: fu,
-        },
-      });
-    }
-    console.log(`✅ [Manifest Builder] Merged published admin route catalog from ${redactCatalogUrl(manifestUrl!)}.`);
   }
 
   // 1. Emit react/public/routes-manifest.json
@@ -405,16 +370,16 @@ export async function buildRouteCatalogAndManifest(): Promise<void> {
     Boolean(routeCatalogPayload)
   );
 
-  // Fleet prices sanitizer: canonical 5-key tier mapping (sedan, ertiga, innova, tempo, urbania). No crysta.
-  const CANONICAL_FLEET_TIERS = ["sedan", "ertiga", "innova", "tempo", "urbania"] as const;
+  // Fleet prices sanitizer: preserve all valid positive model and group prices
   const sanitizeFleetPrices = (raw: any): Record<string, number> => {
     const sanitized: Record<string, number> = {};
     if (!raw || typeof raw !== "object") return sanitized;
-    for (const tier of CANONICAL_FLEET_TIERS) {
-      if (typeof raw[tier] === "number") {
-        sanitized[tier] = raw[tier];
-      } else if (raw[tier] !== undefined && raw[tier] !== null && !Number.isNaN(Number(raw[tier]))) {
-        sanitized[tier] = Number(raw[tier]);
+    for (const [key, val] of Object.entries(raw)) {
+      if (typeof val === "number" && val > 0) {
+        sanitized[key] = val;
+      } else if (val !== undefined && val !== null && !Number.isNaN(Number(val))) {
+        const numVal = Number(val);
+        if (numVal > 0) sanitized[key] = numVal;
       }
     }
     return sanitized;

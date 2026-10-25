@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import generatedPublishedLocalPackages from "../../data/generated-published-local-packages.json";
-import { resolveTierKey } from "../../contracts/vehicle-tiers";
+
 
 export interface LatestLocalPackageItem {
   id: string;
@@ -74,9 +74,9 @@ export function LatestToursSection({
             const hours = t.durationHours || t.duration_hours || 8;
             const km = t.includedKm || t.included_km || 80;
             const fleetPrices = t.fleetPrices || t.fleet_prices || {};
-            const sedanResolved = resolveTierKey(fleetPrices, "sedan");
-            const startingFare = Number(sedanResolved.value || 1900);
-            const token = Math.round(startingFare * 0.28);
+            const validRates = Object.values(fleetPrices).filter((v) => typeof v === "number" && v > 0);
+            const startingFare = Number(fleetPrices.sedan || (validRates.length > 0 ? Math.min(...validRates) : 0));
+            const token = startingFare > 0 ? Math.round(startingFare * 0.28) : 0;
             const tourUrl = `/local-packages/${t.slug}/`;
             const bookUrl = `/book.html?category=local_package&product=${encodeURIComponent(t.slug)}&from=Agra&to=${encodeURIComponent(t.name)}`;
 

@@ -18,10 +18,10 @@ interface FleetVehicle {
   description: string;
   image: string;
   rates: {
-    outstationPerKm: number;
-    local8h80km: number;
+    outstationPerKm: number | null;
+    local8h80km: number | null;
     minimum?: number;
-    fullDayYamuna: number;
+    fullDayYamuna: number | null;
   };
   specs: {
     seats: string;
@@ -44,9 +44,9 @@ const FLEET_DATA: FleetVehicle[] = [
       "Agile, highly comfortable, and ideal for couples, solo business executives, and rapid airport transfers across the Yamuna Expressway and Delhi NCR.",
     image: "/assets/fleet/sedan.webp",
     rates: {
-      outstationPerKm: 10,
-      local8h80km: 1900,
-      fullDayYamuna: 3499,
+      outstationPerKm: null,
+      local8h80km: null,
+      fullDayYamuna: null,
     },
     specs: {
       seats: "4 Pax + Chauffeur",
@@ -72,9 +72,9 @@ const FLEET_DATA: FleetVehicle[] = [
       "A versatile, fuel-efficient 6-passenger transporter designed for nuclear families, pilgrimage circles to Mathura-Vrindavan, and intercity sightseeing.",
     image: "/assets/fleet/ertiga.webp",
     rates: {
-      outstationPerKm: 14,
-      local8h80km: 2600,
-      fullDayYamuna: 4800,
+      outstationPerKm: null,
+      local8h80km: null,
+      fullDayYamuna: null,
     },
     specs: {
       seats: "6 Pax + Chauffeur",
@@ -100,9 +100,9 @@ const FLEET_DATA: FleetVehicle[] = [
       "The undisputed emperor of Indian highway touring. Featuring deep plush captain seats, independent climate control, and unmatched sound insulation.",
     image: "/assets/fleet/innova.webp",
     rates: {
-      outstationPerKm: 18,
-      local8h80km: 3500,
-      fullDayYamuna: 6499,
+      outstationPerKm: null,
+      local8h80km: null,
+      fullDayYamuna: null,
     },
     specs: {
       seats: "6/7 Pax + Chauffeur",
@@ -128,9 +128,9 @@ const FLEET_DATA: FleetVehicle[] = [
       "Presidential-class luxury travel with whisper-quiet cabin acoustics, ottoman reclining seating, and elite executive presentation.",
     image: "/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg",
     rates: {
-      outstationPerKm: 40,
-      local8h80km: 9500,
-      fullDayYamuna: 16500,
+      outstationPerKm: null,
+      local8h80km: null,
+      fullDayYamuna: null,
     },
     specs: {
       seats: "4–6 Executive Seats",
@@ -156,10 +156,10 @@ const FLEET_DATA: FleetVehicle[] = [
       "Roomy, high-roof touring van for large family groups, corporate offsites, and multi-city tourist parties who travel together in high comfort.",
     image: "/assets/fleet/tempo.webp",
     rates: {
-      outstationPerKm: 25,
-      local8h80km: 5500,
+      outstationPerKm: null,
+      local8h80km: null,
       minimum: 300,
-      fullDayYamuna: 9500,
+      fullDayYamuna: null,
     },
     specs: {
       seats: "12 to 26 Reclining Seats",
@@ -185,10 +185,10 @@ const FLEET_DATA: FleetVehicle[] = [
       "State-of-the-art European monocoque architecture delivering whisper-quiet highway ride, plush passenger lounge, and wide panoramic windows.",
     image: "/assets/fleet/urbania.webp",
     rates: {
-      outstationPerKm: 34,
-      local8h80km: 7500,
+      outstationPerKm: null,
+      local8h80km: null,
       minimum: 300,
-      fullDayYamuna: 12500,
+      fullDayYamuna: null,
     },
     specs: {
       seats: "10 to 17 Luxury Captain Seats",
@@ -647,28 +647,48 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                         Outstation Rate
                       </span>
                       <div className="flex items-baseline justify-center gap-0.5 mt-0.5">
-                        <span className="font-price-display text-base sm:text-lg text-terracotta-sandstone font-bold">
-                          ₹{veh.rates.outstationPerKm}
-                        </span>
-                        <span className="font-body-sm text-body-sm text-on-surface-variant font-medium">/ km</span>
+                        {veh.rates.outstationPerKm ? (
+                          <>
+                            <span className="font-price-display text-base sm:text-lg text-terracotta-sandstone font-bold">
+                              ₹{veh.rates.outstationPerKm}
+                            </span>
+                            <span className="font-body-sm text-body-sm text-on-surface-variant font-medium">/ km</span>
+                          </>
+                        ) : (
+                          <span className="font-body-sm text-label-md text-terracotta-sandstone font-semibold">
+                            On request
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="bg-surface-container-high/40 rounded py-0.5 px-1 sm:border-x sm:border-border-warm/40">
                       <span className="block font-label-caps text-label-caps text-secondary uppercase font-semibold">
                         8h/80Km Local
                       </span>
-                      <span className="block font-price-display text-base text-ink-charcoal font-bold mt-0.5">
-                        ₹{veh.rates.local8h80km.toLocaleString("en-IN")}
-                      </span>
+                      {veh.rates.local8h80km ? (
+                        <span className="block font-price-display text-base text-ink-charcoal font-bold mt-0.5">
+                          ₹{veh.rates.local8h80km.toLocaleString("en-IN")}
+                        </span>
+                      ) : (
+                        <span className="block font-body-sm text-label-md text-ink-charcoal font-semibold mt-0.5">
+                          On request
+                        </span>
+                      )}
                       <span className="block font-body-sm text-label-caps text-on-surface-variant">Standard Day</span>
                     </div>
                     <div className="py-0.5">
                       <span className="block font-label-caps text-label-caps text-secondary uppercase font-semibold">
                         Full Day Agra
                       </span>
-                      <span className="block font-price-display text-base text-ink-charcoal font-bold mt-0.5">
-                        ₹{veh.rates.fullDayYamuna.toLocaleString("en-IN")}
-                      </span>
+                      {veh.rates.fullDayYamuna ? (
+                        <span className="block font-price-display text-base text-ink-charcoal font-bold mt-0.5">
+                          ₹{veh.rates.fullDayYamuna.toLocaleString("en-IN")}
+                        </span>
+                      ) : (
+                        <span className="block font-body-sm text-label-md text-ink-charcoal font-semibold mt-0.5">
+                          On request
+                        </span>
+                      )}
                       <span className="block font-body-sm text-label-caps text-success-jade font-semibold">Tolls Included</span>
                     </div>
                   </div>
@@ -859,96 +879,28 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-surface-container">
-                <tr className="hover:bg-sandstone-wash/20 transition-colors">
-                  <td className="py-2.5 px-3.5 align-middle">
-                    <span className="block font-title-md text-title-md text-ink-charcoal font-semibold">Maruti Dzire / Etios</span>
-                    <span className="font-body-sm text-body-sm text-secondary font-normal">Executive Sedan</span>
-                  </td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant font-medium whitespace-nowrap">4 + 1 Pax</td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant">2 Large Bags</td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant">Dual Front/Rear Vents</td>
-                  <td className="py-2.5 px-3.5 align-middle font-bold text-terracotta-sandstone text-sm whitespace-nowrap">₹10 / km</td>
-                  <td className="py-2.5 px-3.5 align-middle text-right whitespace-nowrap">
-                    <a
-                      className="inline-block px-2.5 py-1 rounded bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-caps text-body-sm tracking-wider transition-all shadow-xs font-bold"
-                      href="/book.html?category=outstation&car=sedan"
-                    >
-                      Select Sedan
-                    </a>
-                  </td>
-                </tr>
-                <tr className="hover:bg-sandstone-wash/20 transition-colors">
-                  <td className="py-2.5 px-3.5 align-middle">
-                    <span className="block font-title-md text-title-md text-ink-charcoal font-semibold">Maruti Suzuki Ertiga</span>
-                    <span className="font-body-sm text-body-sm text-secondary font-normal">Smart Hybrid MPV</span>
-                  </td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant font-medium whitespace-nowrap">6 + 1 Pax</td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant">3 Medium + 3 Cabin</td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant">Roof Blower Airflow</td>
-                  <td className="py-2.5 px-3.5 align-middle font-bold text-terracotta-sandstone text-sm whitespace-nowrap">₹14 / km</td>
-                  <td className="py-2.5 px-3.5 align-middle text-right whitespace-nowrap">
-                    <a
-                      className="inline-block px-2.5 py-1 rounded bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-caps text-body-sm tracking-wider transition-all shadow-xs font-bold"
-                      href="/book.html?category=outstation&car=ertiga"
-                    >
-                      Select MPV
-                    </a>
-                  </td>
-                </tr>
-                <tr className="hover:bg-sandstone-wash/20 transition-colors bg-sandstone-wash/10">
-                  <td className="py-2.5 px-3.5 align-middle">
-                    <span className="block font-title-md text-title-md text-ink-charcoal font-semibold">Toyota Innova Crysta</span>
-                    <span className="font-body-sm text-body-sm text-terracotta-sandstone font-semibold">Executive Touring</span>
-                  </td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant font-medium whitespace-nowrap">6/7 + 1 Pax</td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant">4 Large + Handbags</td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant">Dual-Zone Auto Digital</td>
-                  <td className="py-2.5 px-3.5 align-middle font-bold text-terracotta-sandstone text-sm whitespace-nowrap">₹18 / km</td>
-                  <td className="py-2.5 px-3.5 align-middle text-right whitespace-nowrap">
-                    <a
-                      className="inline-block px-2.5 py-1 rounded bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-caps text-body-sm tracking-wider transition-all shadow-xs font-bold"
-                      href="/book.html?category=outstation&car=innova"
-                    >
-                      Select Crysta
-                    </a>
-                  </td>
-                </tr>
-                <tr className="hover:bg-sandstone-wash/20 transition-colors">
-                  <td className="py-2.5 px-3.5 align-middle">
-                    <span className="block font-title-md text-title-md text-ink-charcoal font-semibold">Force Tempo Traveller</span>
-                    <span className="font-body-sm text-body-sm text-secondary font-normal">Luxury Minibus</span>
-                  </td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant font-medium whitespace-nowrap">12 to 26 Pax</td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant">15+ Bags + Deep Boot</td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant">Commercial Dual AC</td>
-                  <td className="py-2.5 px-3.5 align-middle font-bold text-terracotta-sandstone text-sm whitespace-nowrap">₹25 / km</td>
-                  <td className="py-2.5 px-3.5 align-middle text-right whitespace-nowrap">
-                    <a
-                      className="inline-block px-2.5 py-1 rounded bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-caps text-body-sm tracking-wider transition-all shadow-xs font-bold"
-                      href="/book.html?category=outstation&car=tempo"
-                    >
-                      Select Minibus
-                    </a>
-                  </td>
-                </tr>
-                <tr className="hover:bg-sandstone-wash/20 transition-colors">
-                  <td className="py-2.5 px-3.5 align-middle">
-                    <span className="block font-title-md text-title-md text-ink-charcoal font-semibold">Force Urbania VIP</span>
-                    <span className="font-body-sm text-body-sm text-secondary font-normal">Monocoque Executive Van</span>
-                  </td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant font-medium whitespace-nowrap">9 to 17 Pax</td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant">12+ Suitcases Hold</td>
-                  <td className="py-2.5 px-3.5 align-middle text-on-surface-variant">Individual Jet AC Louvers</td>
-                  <td className="py-2.5 px-3.5 align-middle font-bold text-terracotta-sandstone text-sm whitespace-nowrap">₹34 / km</td>
-                  <td className="py-2.5 px-3.5 align-middle text-right whitespace-nowrap">
-                    <a
-                      className="inline-block px-2.5 py-1 rounded bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-caps text-body-sm tracking-wider transition-all shadow-xs font-bold"
-                      href="/book.html?category=outstation&car=urbania"
-                    >
-                      Select Urbania
-                    </a>
-                  </td>
-                </tr>
+                {fleet.map((v) => (
+                  <tr key={v.id} className="hover:bg-sandstone-wash/20 transition-colors">
+                    <td className="py-2.5 px-3.5 align-middle">
+                      <span className="block font-title-md text-title-md text-ink-charcoal font-semibold">{v.name}</span>
+                      <span className="font-body-sm text-body-sm text-secondary font-normal">{v.classTag}</span>
+                    </td>
+                    <td className="py-2.5 px-3.5 align-middle text-on-surface-variant font-medium whitespace-nowrap">{v.specs.seats}</td>
+                    <td className="py-2.5 px-3.5 align-middle text-on-surface-variant">{v.specs.luggage}</td>
+                    <td className="py-2.5 px-3.5 align-middle text-on-surface-variant">{v.specs.climate}</td>
+                    <td className="py-2.5 px-3.5 align-middle font-bold text-terracotta-sandstone text-sm whitespace-nowrap">
+                      {v.rates.outstationPerKm ? `₹${v.rates.outstationPerKm} / km` : "On request"}
+                    </td>
+                    <td className="py-2.5 px-3.5 align-middle text-right whitespace-nowrap">
+                      <a
+                        className="inline-block px-2.5 py-1 rounded bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-caps text-body-sm tracking-wider transition-all shadow-xs font-bold"
+                        href={`/book.html?category=outstation&car=${v.id}`}
+                      >
+                        Select {v.name.split(" ")[0]}
+                      </a>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

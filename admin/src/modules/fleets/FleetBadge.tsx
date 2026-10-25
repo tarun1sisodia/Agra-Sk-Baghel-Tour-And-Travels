@@ -1,5 +1,5 @@
 import type { VehicleTier } from "@/contracts/vehicle-tiers";
-import { CANONICAL_FLEET_SPECS } from "./fleets.constants";
+import { getFleetSpec } from "./fleets.constants";
 
 interface FleetBadgeProps {
   tier: VehicleTier | string;
@@ -8,7 +8,7 @@ interface FleetBadgeProps {
 }
 
 export function FleetBadge({ tier, className = "", showSeats = false }: FleetBadgeProps) {
-  const spec = CANONICAL_FLEET_SPECS[tier as VehicleTier];
+  const spec = getFleetSpec(tier as VehicleTier);
   const label = spec ? spec.label : tier;
   const seats = spec?.seats;
 

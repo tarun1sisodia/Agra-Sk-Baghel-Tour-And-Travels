@@ -1,21 +1,25 @@
 [
   {
-    "id": "d0000000-0000-4000-a000-000000000001",
-    "packageCode": "same-day-agra-taj-mahal-tour",
-    "name": "Same Day Agra Taj Mahal Tour",
-    "durationText": "1 day",
+    "id": "86643e3f-51f1-4582-b65d-3bf19889d63e",
+    "packageCode": "same-day-agra-to-mathura-tour",
+    "name": "Same Day Agra To Mathura Tour",
+    "durationText": "1 Day",
     "days": 1,
     "nights": 0,
     "baseTierCode": null,
-    "startingPriceInr": 3499,
+    "startingPriceInr": 6200,
     "fleetPrices": {
-      "ertiga": 4299
+      "city": 6200,
+      "camry": 10000,
+      "dzire": 6200,
+      "ertiga": 6500,
+      "traveller-12": 15000
     },
     "nightChargeInr": null,
-    "inclusionsHighlight": "Dedicated AC Cab, Uniformed Chauffeur, Highway Tolls & Chilled Water",
-    "inclusionsNote": "Doorstep hotel or railway station pickup anywhere in Agra.",
+    "inclusionsHighlight": "Private AC Cab, Chauffeur Allowance, Fuel & State Taxes",
+    "inclusionsNote": null,
     "source": "Agra",
-    "destination": "Same Day Agra Taj Mahal Tour",
+    "destination": "Mathura, Mathura, Uttar Pradesh",
     "inclusions": [
       "Private AC Cab dedicated exclusively to your group",
       "Police-verified professional chauffeur & fuel charges",
@@ -30,190 +34,7 @@
       "Special temple VIP pooja / express darshan passes",
       "Personal shopping & handicraft purchases"
     ],
-    "itinerary": [
-      {
-        "desc": "Private pickup from hotel or station; seamless entry at East Gate.",
-        "time": "06:00 AM",
-        "title": "Taj Mahal Sunrise Departure"
-      },
-      {
-        "desc": "Explore the UNESCO red sandstone fortress and Mughal courtyards.",
-        "time": "09:30 AM",
-        "title": "Agra Fort Royal Palaces"
-      },
-      {
-        "desc": "Authentic lunch halt followed by pietra dura inlay craftsmanship.",
-        "time": "01:00 PM",
-        "title": "Lunch Break & Inlay Marble"
-      },
-      {
-        "desc": "Panoramic sunset view across Yamuna River with iconic silhouette.",
-        "time": "04:30 PM",
-        "title": "Mehtab Bagh Sunset Vantage"
-      },
-      {
-        "desc": "Doorstep drop to your hotel or Agra Cantt Railway Station.",
-        "time": "06:30 PM",
-        "title": "Chauffeured Return Drop"
-      }
-    ],
-    "imageUrl": "/assets/places/gallery/taj-mahal-01.jpg",
-    "gallery": [
-      {
-        "url": "/assets/places/gallery/taj-mahal-01.jpg",
-        "alt": "Taj Mahal dawn reflection Agra",
-        "caption": "Taj Mahal reflection pool at dawn",
-        "sortOrder": 0
-      },
-      {
-        "url": "/assets/places/gallery/agra-fort-01.jpg",
-        "alt": "Amar Singh Gate Agra Red Fort",
-        "caption": "Grand Amar Singh Gate at Agra Red Fort",
-        "sortOrder": 1
-      },
-      {
-        "url": "/assets/places/gallery/mehtab-bagh-01.jpg",
-        "alt": "Sunset vantage point over Yamuna",
-        "caption": "Sunset vantage point over Yamuna",
-        "sortOrder": 2
-      },
-      {
-        "url": "/assets/places/gallery/taj-mahal-02.jpg",
-        "alt": "Taj Mahal marble archways",
-        "caption": "Taj Mahal marble archways & minarets",
-        "sortOrder": 3
-      }
-    ],
-    "status": "published",
-    "isActive": true,
-    "createdAt": "2026-10-17T13:32:27.081Z",
-    "updatedAt": "2026-10-17T13:32:27.081Z",
-    "upgrades": [],
-    "slug": "same-day-agra-taj-mahal-tour",
-    "image": "/assets/places/gallery/taj-mahal-01.jpg"
-  },
-  {
-    "id": "d0000000-0000-4000-a000-000000000002",
-    "packageCode": "taj-mahal-sunrise-tour",
-    "name": "Taj Mahal Sunrise Tour",
-    "durationText": "1 day",
-    "days": 1,
-    "nights": 0,
-    "baseTierCode": null,
-    "startingPriceInr": 3999,
-    "fleetPrices": {
-      "ertiga": 4799
-    },
-    "nightChargeInr": null,
-    "inclusionsHighlight": "Pre-Dawn Hotel Pickup, Chauffeur Allowance & Sanitized AC Cab",
-    "inclusionsNote": "Optimal pre-dawn timing avoids midday tourist crowds.",
-    "source": "Agra",
-    "destination": "Taj Mahal & Baby Taj",
-    "inclusions": [
-      "Private AC Cab dedicated exclusively to your group",
-      "Police-verified chauffeur & early-morning fuel allowance",
-      "All state road taxes & toll permits",
-      "Doorstep hotel pickup by 05:30 AM"
-    ],
-    "exclusions": [
-      "Monument entry permits",
-      "Meals & refreshments",
-      "Personal expenditures"
-    ],
-    "itinerary": [
-      {
-        "desc": "Direct hotel pickup to arrive before sunrise at Taj Mahal.",
-        "time": "05:30 AM",
-        "title": "Early Pre-Dawn Pickup"
-      },
-      {
-        "desc": "Leisure breakfast break in Agra city.",
-        "time": "08:30 AM",
-        "title": "Breakfast & Relaxation"
-      },
-      {
-        "desc": "Exquisite precursor to Taj Mahal on Yamuna riverfront.",
-        "time": "10:30 AM",
-        "title": "Baby Taj (Itmad-ud-Daulah)"
-      }
-    ],
-    "imageUrl": "/assets/places/gallery/taj-mahal-02.jpg",
-    "gallery": [
-      {
-        "url": "/assets/places/gallery/taj-mahal-02.jpg",
-        "alt": "Taj Mahal dome architecture",
-        "caption": "Taj Mahal marble archways & minarets",
-        "sortOrder": 0
-      },
-      {
-        "url": "/assets/places/gallery/taj-mahal-01.jpg",
-        "alt": "Taj Mahal dawn reflection Agra",
-        "caption": "Taj Mahal reflection pool at dawn",
-        "sortOrder": 1
-      },
-      {
-        "url": "/assets/places/gallery/agra-fort-02.jpg",
-        "alt": "Diwan-i-Khas Agra Fort",
-        "caption": "Diwan-i-Khas marble royal pavilion",
-        "sortOrder": 2
-      }
-    ],
-    "status": "published",
-    "isActive": true,
-    "createdAt": "2026-10-17T13:32:27.081Z",
-    "updatedAt": "2026-10-17T13:32:27.081Z",
-    "upgrades": [],
-    "slug": "taj-mahal-sunrise-tour",
-    "image": "/assets/places/gallery/taj-mahal-02.jpg"
-  },
-  {
-    "id": "d0000000-0000-4000-a000-000000000003",
-    "packageCode": "mathura-vrindavan",
-    "name": "Mathura & Vrindavan Spiritual Darshan",
-    "durationText": "1 day",
-    "days": 1,
-    "nights": 0,
-    "baseTierCode": null,
-    "startingPriceInr": 3200,
-    "fleetPrices": {
-      "ertiga": 3900
-    },
-    "nightChargeInr": null,
-    "inclusionsHighlight": "Dedicated Chauffeur, Interstate Permits, Parking & Fuel",
-    "inclusionsNote": "Seamless temple coordination for Banke Bihari & Prem Mandir.",
-    "source": "Agra",
-    "destination": "Mathura & Vrindavan",
-    "inclusions": [
-      "Dedicated sanitized AC cab for full day (10 hrs)",
-      "Police-verified chauffeur & fuel",
-      "Toll taxes and state permits"
-    ],
-    "exclusions": [
-      "Special VIP pooja tickets",
-      "Meals & prasad items"
-    ],
-    "itinerary": [
-      {
-        "desc": "Expressway drive to Mathura holy land.",
-        "time": "07:30 AM",
-        "title": "Departure from Agra"
-      },
-      {
-        "desc": "Sacred temple complex and prison cell birth sanctum.",
-        "time": "09:00 AM",
-        "title": "Krishna Janmabhoomi Darshan"
-      },
-      {
-        "desc": "Heartfelt darshan at Vrindavan's most revered shrine.",
-        "time": "02:00 PM",
-        "title": "Banke Bihari Mandir"
-      },
-      {
-        "desc": "Illuminated marble complex before return to Agra.",
-        "time": "06:30 PM",
-        "title": "Prem Mandir Evening Light Show"
-      }
-    ],
+    "itinerary": [],
     "imageUrl": "/assets/places/gallery/mathura-vrindavan-01.jpg",
     "gallery": [
       {
@@ -223,41 +44,38 @@
         "sortOrder": 0
       },
       {
-        "url": "/assets/places/gallery/fatehpur-sikri-01.jpg",
-        "alt": "Buland Darwaza Fatehpur Sikri",
-        "caption": "Buland Darwaza imperial gate",
+        "url": "/assets/places/gallery/taj-mahal-01.jpg",
+        "alt": "Taj Mahal dawn reflection Agra",
+        "caption": "Taj Mahal reflection pool at dawn",
         "sortOrder": 1
-      },
-      {
-        "url": "/assets/places/gallery/mehtab-bagh-01.jpg",
-        "alt": "Mehtab Bagh across Yamuna River",
-        "caption": "Mehtab Bagh sunset vantage point",
-        "sortOrder": 2
       }
     ],
     "status": "published",
     "isActive": true,
-    "createdAt": "2026-10-17T13:32:27.081Z",
-    "updatedAt": "2026-10-17T13:32:27.081Z",
+    "createdAt": "2026-10-23T11:46:23.671Z",
+    "updatedAt": "2026-10-23T12:22:04.516Z",
     "upgrades": [],
-    "slug": "mathura-vrindavan",
+    "slug": "same-day-agra-to-mathura-tour",
     "image": "/assets/places/gallery/mathura-vrindavan-01.jpg"
   },
   {
-    "id": "33c61479-e652-472e-9b0f-ffeae6591bb4",
-    "packageCode": "qa-draft-package",
-    "name": "QA Draft Package",
-    "durationText": "1 Day",
-    "days": 1,
-    "nights": 0,
+    "id": "6b042408-f4f0-46a2-b17a-c8e4f90e960e",
+    "packageCode": "himachal-tour-2-day",
+    "name": "Himachal Tour 2 Day",
+    "durationText": "2 Day",
+    "days": 2,
+    "nights": 1,
     "baseTierCode": null,
-    "startingPriceInr": 1200,
-    "fleetPrices": {},
+    "startingPriceInr": 20000,
+    "fleetPrices": {
+      "ertiga": 20000,
+      "traveller-12": 40000
+    },
     "nightChargeInr": null,
     "inclusionsHighlight": "Private AC Cab, Chauffeur Allowance, Fuel & State Taxes",
     "inclusionsNote": null,
     "source": "Agra",
-    "destination": "Jaipur",
+    "destination": "",
     "inclusions": [
       "Private AC Cab dedicated exclusively to your group",
       "Police-verified professional chauffeur & fuel charges",
@@ -271,21 +89,105 @@
       "Chauffeur / guide discretionary tips & gratuities"
     ],
     "itinerary": [],
-    "imageUrl": "/assets/places/gallery/taj-mahal-01.jpg",
+    "imageUrl": "/api/v1/tour-packages/media/dea3dc6c-b29e-4d6b-b68d-7b3fedb50fff.webp",
     "gallery": [
       {
-        "url": "/assets/places/gallery/taj-mahal-01.jpg",
-        "alt": "Taj Mahal dawn reflection Agra",
-        "caption": "Taj Mahal reflection pool at dawn",
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/959515a3-d370-4dd0-84a9-9a5d88724323.webp",
+        "alt": "pexels balvir singh 1121494947 20848215",
+        "caption": "pexels balvir singh 1121494947 20848215",
         "sortOrder": 0
+      },
+      {
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/dea3dc6c-b29e-4d6b-b68d-7b3fedb50fff.webp",
+        "alt": "Travel Cash Voucher Template With Watermark",
+        "caption": "Travel Cash Voucher Template With Watermark",
+        "sortOrder": 1
+      },
+      {
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/3fa119e0-9bf7-471e-b7d0-d90178e58f84.webp",
+        "alt": "pexels ibrahim poonawala 53441506 8046592",
+        "caption": "pexels ibrahim poonawala 53441506 8046592",
+        "sortOrder": 2
+      },
+      {
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/d224ba80-c878-4c3a-a56f-9b1e30ba5784.webp",
+        "alt": "pexels chalta phirta 307182428 15404469",
+        "caption": "pexels chalta phirta 307182428 15404469",
+        "sortOrder": 3
       }
     ],
     "status": "published",
     "isActive": true,
-    "createdAt": "2026-10-17T14:23:55.216Z",
-    "updatedAt": "2026-10-17T14:24:36.708Z",
+    "createdAt": "2026-10-24T14:48:26.922Z",
+    "updatedAt": "2026-10-24T14:50:54.456Z",
     "upgrades": [],
-    "slug": "qa-draft-package",
-    "image": "/assets/places/gallery/taj-mahal-01.jpg"
+    "slug": "himachal-tour-2-day",
+    "image": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/dea3dc6c-b29e-4d6b-b68d-7b3fedb50fff.webp"
+  },
+  {
+    "id": "60423a16-4df0-4424-b77a-c7b7b8d13360",
+    "packageCode": "exclusive-tour-of-agra-for-1-day",
+    "name": "Exclusive Tour of Agra for 1 Day",
+    "durationText": "1 Day",
+    "days": 1,
+    "nights": 0,
+    "baseTierCode": null,
+    "startingPriceInr": 5000,
+    "fleetPrices": {
+      "dzire": 5000,
+      "ertiga": 6500
+    },
+    "nightChargeInr": null,
+    "inclusionsHighlight": "Ram bagh, Sikandra, Taj Mahal, Agra Fort, Sahid Park",
+    "inclusionsNote": null,
+    "source": "Agra",
+    "destination": "Agra, Agra, Uttar Pradesh",
+    "inclusions": [
+      "Private AC Cab dedicated exclusively to your group",
+      "Police-verified professional chauffeur & fuel charges",
+      "All highway toll taxes & state border permits",
+      "Doorstep hotel / railway station pickup & drop",
+      "Chilled packaged drinking water bottles"
+    ],
+    "exclusions": [
+      "Monument entry tickets & camera/drone permits",
+      "Meals, buffet lunches & personal snacks/dining",
+      "Chauffeur / guide discretionary tips & gratuities"
+    ],
+    "itinerary": [],
+    "imageUrl": "/api/v1/tour-packages/media/b191edb7-ffcd-4d8d-bc5d-876fd9fc3031.jpg",
+    "gallery": [
+      {
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/b191edb7-ffcd-4d8d-bc5d-876fd9fc3031.jpg",
+        "alt": "pexels akshatrai 5367202",
+        "caption": "pexels akshatrai 5367202",
+        "sortOrder": 0
+      },
+      {
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/86e949ef-5ab8-4af8-95dc-91d6ea98c503.webp",
+        "alt": "pexels balvir singh 1121494947 20848215",
+        "caption": "pexels balvir singh 1121494947 20848215",
+        "sortOrder": 1
+      },
+      {
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/45829528-dcb6-432f-b6b0-3955e914b378.webp",
+        "alt": "pexels chalta phirta 307182428 15404469",
+        "caption": "pexels chalta phirta 307182428 15404469",
+        "sortOrder": 2
+      },
+      {
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/0117f81d-504c-44d6-9f47-156afe1afad0.webp",
+        "alt": "pexels ibrahim poonawala 53441506 8046592",
+        "caption": "pexels ibrahim poonawala 53441506 8046592",
+        "sortOrder": 3
+      }
+    ],
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-10-25T14:21:28.695Z",
+    "updatedAt": "2026-10-25T14:21:36.118Z",
+    "upgrades": [],
+    "slug": "exclusive-tour-of-agra-for-1-day",
+    "image": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/b191edb7-ffcd-4d8d-bc5d-876fd9fc3031.jpg"
   }
 ]

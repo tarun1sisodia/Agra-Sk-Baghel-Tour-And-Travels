@@ -312,7 +312,7 @@ export function getIndicativeBrowseFare(
   billedKm: number;
   alwaysRoundTrip: boolean;
   isIndicative: true;
-} {
+} | null {
   const vehicle = vehicleLookup(vehicleId) || vehicles[0];
   const isForce = Boolean(vehicle.alwaysRoundTrip);
   const distanceKm = entry.km || 100;
@@ -331,8 +331,10 @@ export function getIndicativeBrowseFare(
     base = entry.ft;
   } else if (vehicleId === "urbania" && entry.fu) {
     base = entry.fu;
-  } else {
-    base = billedKm * vehicle.perKm;
+  }
+
+  if (base <= 0) {
+    return null;
   }
 
   let total = base;
@@ -395,6 +397,7 @@ export function calcFare(params: CalcFareParams): FareQuote | null {
   if (localPackageKey && localPackages[localPackageKey]) {
     const lp = localPackages[localPackageKey];
     const total = lp.fares[vehicle.id] ?? lp.fares.sedan;
+    if (total == null || total <= 0) return null;
     const advance = advanceOf(total);
     return {
       total,
@@ -420,6 +423,7 @@ export function calcFare(params: CalcFareParams): FareQuote | null {
     vehicleId,
     tripType
   );
+  if (!indicative) return null;
 
   const origin = cityLookup(route.from);
   const dest = cityLookup(route.to);

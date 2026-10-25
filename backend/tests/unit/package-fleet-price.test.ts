@@ -23,8 +23,8 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
       sedan: 18500,
       ertiga: 19300,
       "innova-crysta": 20300,
-      "tempo-traveller": 22000,
-      urbania: 24000,
+      tempo_traveller: 22000,
+      "urbania-13": 24000,
     },
     nightChargeInr: 300,
     inclusionsHighlight: "Delhi, Agra & Jaipur circuit with highway tolls",
@@ -47,8 +47,8 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
       { tier: "sedan", expectedFare: 18500, expectedAdvance: 5200, expectedBalance: 13300 },
       { tier: "ertiga", expectedFare: 19300, expectedAdvance: 5400, expectedBalance: 13900 },
       { tier: "innova-crysta", expectedFare: 20300, expectedAdvance: 5700, expectedBalance: 14600 },
-      { tier: "tempo-traveller", expectedFare: 22000, expectedAdvance: 6200, expectedBalance: 15800 },
-      { tier: "urbania", expectedFare: 24000, expectedAdvance: 6700, expectedBalance: 17300 },
+      { tier: "tempo_traveller", expectedFare: 22000, expectedAdvance: 6200, expectedBalance: 15800 },
+      { tier: "urbania-13", expectedFare: 24000, expectedAdvance: 6700, expectedBalance: 17300 },
     ];
 
     tiers.forEach(({ tier, expectedFare, expectedAdvance, expectedBalance }) => {
@@ -81,8 +81,8 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
         sedan: 0,
         ertiga: 1200,
         "innova-crysta": 2500,
-        "tempo-traveller": 4000,
-        urbania: 6000,
+        tempo_traveller: 4000,
+        "urbania-13": 6000,
       };
 
       const resultSedan = resolvePackageFleetPrice(
@@ -96,7 +96,7 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
 
       const resultTempo = resolvePackageFleetPrice(
         "taj-sunrise-custom",
-        "tempo-traveller",
+        "tempo_traveller",
         packageWithoutFleetPrices,
         customUpgrades,
       );
@@ -138,7 +138,7 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
           originName: "Agra",
           destinationName: "Delhi",
           distanceKm,
-          vehicleTier: "tempo-traveller",
+          vehicleTier: "tempo_traveller",
           tripType: "round-trip",
           pickupDatetime: "2026-10-20T10:00:00Z",
           returnDatetime: "2026-10-22T18:00:00Z",
@@ -147,7 +147,7 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
             usePerKm: false,
             packageBasePrice: 18500,
             fleetPrices: {
-              "tempo-traveller": 22000,
+              tempo_traveller: 22000,
             },
           },
         });
@@ -167,14 +167,14 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
         originName: "Agra",
         destinationName: "Jaipur",
         distanceKm: 240,
-        vehicleTier: "urbania",
+        vehicleTier: "urbania-13",
         tripType: "one-way",
         pickupDatetime: "2026-10-20T10:00:00Z",
         ruleOverrides: {
           catalogItemType: "tour",
           usePerKm: false,
           fleetPrices: {
-            urbania: 24000,
+            "urbania-13": 24000,
           },
         },
       });
@@ -183,7 +183,7 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
         originName: "Agra",
         destinationName: "Jaipur",
         distanceKm: 240,
-        vehicleTier: "urbania",
+        vehicleTier: "urbania-13",
         tripType: "round-trip",
         pickupDatetime: "2026-10-20T10:00:00Z",
         returnDatetime: "2026-10-22T18:00:00Z",
@@ -191,7 +191,7 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
           catalogItemType: "tour",
           usePerKm: false,
           fleetPrices: {
-            urbania: 24000,
+            "urbania-13": 24000,
           },
         },
       });
@@ -206,7 +206,7 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
     it("offline calculateTourPackageFare ensures fixed price for commercial group vehicles", () => {
       const spec = {
         id: "tempo" as const,
-        tier: "tempo-traveller" as const,
+        tier: "tempo_traveller" as const,
         name: "Tempo Traveller",
         seats: 12,
         bags: 8,
@@ -219,7 +219,7 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
           originName: "Agra",
           destinationName: "Delhi",
           distanceKm: 200,
-          vehicleTier: "tempo-traveller",
+          vehicleTier: "tempo_traveller",
           tripType: "round-trip",
           pickupDatetime: "2026-10-20T10:00:00Z",
           packageId: "golden-triangle",
@@ -241,7 +241,7 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
       await db.tourPackages.update(sampleTourPackage);
 
       const service = createFareService("2026-09-13", db);
-      const quote = await service.resolvePackageFleetPrice("golden-triangle", "tempo-traveller");
+      const quote = await service.resolvePackageFleetPrice("golden-triangle", "tempo_traveller");
 
       expect(quote.totalFare).toBe(22000);
       expect(quote.advanceAmount).toBe(6200);
@@ -249,7 +249,7 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
       expect(quote.packageName).toBe("Golden Triangle Tour");
 
       // Verify code lookup works by UUID as well
-      const quoteByUuid = await service.resolvePackageFleetPrice(sampleTourPackage.id, "urbania");
+      const quoteByUuid = await service.resolvePackageFleetPrice(sampleTourPackage.id, "urbania-13");
       expect(quoteByUuid.totalFare).toBe(24000);
       expect(quoteByUuid.advanceAmount).toBe(6700);
     });
@@ -265,7 +265,7 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
         config: {
           vehicles: [
             { tier: "sedan", perKm: 50, active: true },
-            { tier: "tempo-traveller", perKm: 100, active: true },
+            { tier: "tempo_traveller", perKm: 100, active: true },
           ],
         },
         isActive: true,
@@ -290,7 +290,7 @@ describe("Phase 5: Package Fleet-Price Resolver & Route Rate Isolation", () => {
       const tempoQuote = await service.calculate({
         originName: "Agra",
         destinationName: "Delhi",
-        vehicleTier: "tempo-traveller",
+        vehicleTier: "tempo_traveller",
         tripType: "round-trip",
         pickupDatetime: "2026-10-20T10:00:00Z",
         packageId: "golden-triangle",
