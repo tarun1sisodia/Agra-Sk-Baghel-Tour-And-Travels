@@ -1,5 +1,5 @@
 import { loadEnv } from "../src/config/env.js";
-import { createMediaStorage, mimeTypeForPath } from "../src/modules/catalog/media.storage.js";
+import { createMediaStorage } from "../src/modules/catalog/media.storage.js";
 import { S3Client, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { createSupabaseAdmin } from "../src/config/supabase.js";
 

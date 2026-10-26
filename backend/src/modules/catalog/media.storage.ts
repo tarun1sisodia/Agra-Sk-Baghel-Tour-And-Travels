@@ -124,9 +124,9 @@ export function createS3MediaStorage(env: Env, customBucket?: string): MediaStor
         );
       } catch (err) {
         throw new Error(
-          `Could not upload the image to the "${bucket}" S3 bucket at ${env.S3_ENDPOINT}: ${
+          `Could not upload the image to the S3 bucket: ${
             err instanceof Error ? err.message : "unknown error"
-          }. Check the endpoint, region, access key and that the bucket exists.`,
+          }. Check credentials and bucket existence.`,
         );
       }
     },

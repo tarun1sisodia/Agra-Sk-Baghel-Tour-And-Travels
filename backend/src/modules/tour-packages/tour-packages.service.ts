@@ -243,8 +243,8 @@ export function createTourPackagesService(deps: {
       };
     },
     async getMedia(filename: string) {
-      // Security: Prevent path traversal attacks
-      if (filename.includes("..") || filename.includes("/")) {
+      // Security: Prevent path traversal attacks and ensure valid filename format
+      if (!/^[a-zA-Z0-9_\-\.]+$/.test(filename) || filename.includes("..")) {
         return null;
       }
 
