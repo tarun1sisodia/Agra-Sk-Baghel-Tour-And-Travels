@@ -22,6 +22,8 @@
     "migrate": "tsx scripts/migrate.ts",
     "seed": "tsx scripts/seed.ts",
     "test:db": "tsx scripts/test-db.ts",
+    "test:r2": "tsx scripts/test-r2-connection.ts",
+    "audit:env": "tsx scripts/audit-env-keys.ts",
     "sync-contracts": "tsx ../contracts/scripts/sync-contracts.ts"
   },
   "dependencies": {

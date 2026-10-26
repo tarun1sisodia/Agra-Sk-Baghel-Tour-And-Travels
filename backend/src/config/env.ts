@@ -33,12 +33,21 @@ const EnvSchema = z.object({
   SUPABASE_JWT_SECRET: z.string().optional().default(""),
   // Supabase Storage bucket the admin CMS uploads catalog images into.
   // Falls back to inline DB storage when neither storage backend below is configured.
-  CATALOG_MEDIA_BUCKET: z.string().trim().min(1).default("documents"),
+  CATALOG_MEDIA_BUCKET: z
+    .string()
+    .trim()
+    .optional()
+    .transform((val) => val || process.env.S3_BUCKET_NAME || "documents"),
+  S3_BUCKET_NAME: z.string().trim().optional(),
   // S3 protocol connection (preferred) — Supabase Storage's S3-compatible
   // endpoint, or any other S3-compatible provider (AWS S3, R2, MinIO...).
   // Find this under Supabase Dashboard -> Storage -> S3 Connection.
   S3_ENDPOINT: z.string().optional().default(""),
-  S3_REGION: z.string().optional().default(""),
+  S3_REGION: z
+    .string()
+    .trim()
+    .optional()
+    .transform((val) => val || (process.env.S3_ENDPOINT?.includes("r2.cloudflarestorage.com") ? "auto" : "us-east-1")),
   S3_ACCESS_KEY_ID: z.string().optional().default(""),
   S3_SECRET_ACCESS_KEY: z.string().optional().default(""),
 
