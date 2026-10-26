@@ -152,7 +152,7 @@ export function createCatalogController(service: ReturnType<typeof createCatalog
       reply.header("content-type", content.mimeType);
       reply.header("content-length", content.buffer.length);
       if (content.isPublished) {
-        reply.header("cache-control", "public, max-age=31536000, immutable");
+        reply.header("cache-control", "public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=86400, stale-if-error=604800, immutable");
       } else {
         reply.header("cache-control", "private, no-cache, no-store");
       }

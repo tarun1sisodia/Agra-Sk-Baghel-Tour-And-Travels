@@ -59,7 +59,7 @@ export function registerReviewsRoutes(app: FastifyInstance, reviewsService: Revi
     if (!image.storage_key.startsWith("reviews/") || image.storage_key.includes("..")) return reply.status(404).send({ error: "MEDIA_NOT_FOUND" });
     try {
       const buffer = await mediaStorage.download(image.storage_key);
-      reply.header("content-type", mimeTypeForPath(image.storage_key) ?? "image/jpeg").header("cache-control", "public, max-age=31536000, immutable").header("x-content-type-options", "nosniff");
+      reply.header("content-type", mimeTypeForPath(image.storage_key) ?? "image/jpeg").header("cache-control", "public, max-age=31536000, s-maxage=31536000, stale-while-revalidate=86400, stale-if-error=604800, immutable").header("x-content-type-options", "nosniff");
       return reply.send(buffer);
     } catch { return reply.status(404).send({ error: "MEDIA_NOT_FOUND" }); }
   };
