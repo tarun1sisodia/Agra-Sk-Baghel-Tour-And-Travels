@@ -652,11 +652,11 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
                 </span>
               </div>
               <h1 className="font-headline-hero text-headline-hero text-ink-charcoal leading-[1.12]">
-                Handcrafted North India journeys. <br className="hidden sm:inline" />
-                <span className="italic font-normal text-terracotta-sandstone">Thoughtfully chauffeured.</span>
+                Agra Local Sightseeing Taxi <br className="hidden sm:inline" />
+                <span className="italic font-normal text-terracotta-sandstone">&amp; Tour Packages</span>
               </h1>
               <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
-                Private, doorstep-pickup itineraries covering the Taj Mahal, sacred Braj temples, imperial Mughal ruins, and the Golden Triangle. Complete fare transparency, verified English &amp; Hindi-speaking commercial chauffeurs, and zero commission-shop traps.
+                Hire a local sightseeing taxi in Agra. Low-cost customized day packages covering Taj Mahal, Agra Fort, Baby Taj, and Mehtab Bagh with professional local driver-guides.
               </p>
             </div>
 
@@ -690,6 +690,32 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
               <div>
                 <div className="font-title-sm text-xs font-bold text-ink-charcoal">Doorstep Pickup</div>
                 <div className="font-body-sm text-body-sm text-on-surface-variant">Hotel &amp; Cantt Station</div>
+              </div>
+            </div>
+          </div>
+
+          {/* High-Intent Local Sightseeing Editorial Section (Phase 9) */}
+          <div className="mt-8 pt-6 border-t border-border-warm/40 grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
+            <div className="p-space-lg rounded-xl bg-surface border border-border-warm/60 shadow-xs flex flex-col gap-2">
+              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">
+                Custom Same Day Taj Mahal Tour Package by Car
+              </h2>
+              <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                Maximize your time in the city with our curated <strong className="text-on-surface font-semibold">local sightseeing taxi in agra</strong> packages. Skip the chaotic local transport and enjoy a personalized, chauffeur-driven journey around the region's architectural marvels. Our custom itineraries are crafted to give you a stress-free experience, starting directly from your location in Agra.
+              </p>
+            </div>
+            <div className="p-space-lg rounded-xl bg-surface border border-border-warm/60 shadow-xs flex flex-col gap-2">
+              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">
+                Comprehensive Cab Booking Agra Fort and Taj Mahal
+              </h2>
+              <div className="font-body-md text-body-md text-on-surface-variant leading-relaxed space-y-1.5">
+                <p>Our tour plans cover all core attractions with flexible timings:</p>
+                <ul className="space-y-1 text-on-surface text-sm">
+                  <li>• <strong className="text-primary font-semibold">Taj Mahal Sunrise Tour Package by Car:</strong> Witness the morning light over the ivory monument with convenient early doorstep pickup from any Agra hotel.</li>
+                  <li>• <strong className="text-primary font-semibold">Historic Fort Tours:</strong> Reliable <strong className="font-semibold">cab booking agra fort and taj mahal</strong> including drops to the lesser-known gems like Baby Taj.</li>
+                  <li>• <strong className="text-primary font-semibold">Panoramic Sunset Views:</strong> Experience the perfect <strong className="font-semibold">mehtab bagh sunset taxi agra</strong> itinerary from across the Yamuna River.</li>
+                  <li>• <strong className="text-primary font-semibold">Station Pickups:</strong> Direct, reliable <strong className="font-semibold">agra cantt railway station taxi service</strong> timed with Gatimaan and Shatabdi arrivals.</li>
+                </ul>
               </div>
             </div>
           </div>

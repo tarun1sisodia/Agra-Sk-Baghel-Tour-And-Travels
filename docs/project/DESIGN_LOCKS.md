@@ -153,3 +153,12 @@ two-row opposing infinite animation, but its build-time data snapshot is empty
 until at least 10 approved, consented, homepage-published reviews are available.
 The admin review page reports progress toward that threshold. The client still
 renders only the generated JSON snapshot and does not fetch reviews at runtime.
+
+### 2026-10-27 — User-authorized Google Mobile Usability & Typography Scale Migration
+
+Per explicit user authorization on 2026-10-27 (Agra-Hub SEO Architecture & Google Usability Plan), the frontend design tokens and typography hierarchy are updated to eliminate Googlebot "Text Too Small to Read" and "Clickable Elements Too Close Together" mobile usability penalties:
+1. **Typography Base:** Global base font size is elevated to 16px (`1rem`), with body copy scaled from sub-12px compact tokens to Google-compliant 16px (1rem, line-height 1.6) and secondary disclaimers to 14px (`0.875rem`).
+2. **Heading Scale:** Page hero H1 is aligned to 36px (`2.25rem`), H2 to 28px (`1.75rem`), H3 to 22px (`1.375rem`), and H4 to 18px (`1.125rem`).
+3. **Touch Targets:** All primary buttons, CTAs, and mobile interactive navigation links are enforced to minimum 48px touch heights.
+4. **Preserved Invariants:** The Mughal Terracotta color palette (`#9F3C16`, `#C85A32`, `#0F131A`, `#FDF8F5`, `#D99A3E`), font families (`EB Garamond` display, `Plus Jakarta Sans` body), 28% advance deposit guarantee, and zero tourist trap commitments remain strictly immutable.
+

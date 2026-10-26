@@ -282,14 +282,12 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-end mb-space-xl">
             <div className="lg:col-span-8">
               <h1 className="font-headline-hero text-headline-hero text-ink-charcoal tracking-tight max-w-3xl">
-                Point-to-point intercity cabs.{" "}
-                <span className="italic font-normal text-terracotta-sandstone">Zero hidden return fares.</span>
+                Reliable Outstation Taxi Service from Agra
               </h1>
             </div>
             <div className="lg:col-span-4">
               <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                Transparent one-way and round-trip chauffeurs connecting Agra directly to Delhi NCR, Jaipur, Mathura, Gwalior,
-                Lucknow, and Rajasthan circuits. Every fare includes toll clearance options, verified commercial drivers.
+                Book a comfortable outstation taxi service from Agra. Safe one-way and round-trip transfers from Agra to Delhi, Jaipur, Mathura, Vrindavan, and Lucknow at lowest rates.
               </p>
             </div>
           </div>
@@ -330,6 +328,32 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
               <div>
                 <div className="font-title-md text-xs sm:text-title-lg text-ink-charcoal font-bold">Zero Empty</div>
                 <div className="font-body-sm text-body-sm text-on-surface-variant">Return Surcharges</div>
+              </div>
+            </div>
+          </div>
+
+          {/* High-Intent Outstation Editorial Architecture (Phase 12) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-lg mb-space-xl">
+            <div className="p-space-lg rounded-xl bg-surface border border-border-warm/60 shadow-xs flex flex-col gap-2">
+              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">
+                Affordable Outstation Cab Booking from Agra to Major Cities
+              </h2>
+              <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                Planning a trip outside the city limits? <strong className="text-on-surface font-semibold">Agra SK Baghel Tour and Travels</strong> offers premium <strong className="text-on-surface font-semibold">outstation taxi service from agra</strong> to popular destinations across neighboring states. Avoid the crowds of public transport and commute comfortably with our dedicated intercity transit options starting from any location in Agra.
+              </p>
+            </div>
+            <div className="p-space-lg rounded-xl bg-surface border border-border-warm/60 shadow-xs flex flex-col gap-2">
+              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">
+                Popular Intercity Cab Routes &amp; Tour Packages
+              </h2>
+              <div className="font-body-md text-body-md text-on-surface-variant leading-relaxed space-y-1.5">
+                <p>We provide predictable pricing and experienced highway drivers for all major regional routes:</p>
+                <ul className="space-y-1 text-on-surface text-sm">
+                  <li>• <strong className="text-primary font-semibold">Agra to Delhi Taxi One Way:</strong> Quick airport drops via the Yamuna Expressway with our direct <strong className="font-semibold">agra to delhi airport cab booking</strong> option.</li>
+                  <li>• <strong className="text-primary font-semibold">Agra to Jaipur Cab Fare Deals:</strong> Seamless travel across the historic <strong className="font-semibold">Golden Triangle tour from agra by car</strong>.</li>
+                  <li>• <strong className="text-primary font-semibold">Agra to Mathura Vrindavan Tour Taxi:</strong> Spiritual day trips customized for families and elderly travelers.</li>
+                  <li>• <strong className="text-primary font-semibold">Expanding Routes:</strong> Reliable transit services including <strong className="font-semibold">agra to lucknow one way taxi</strong> and <strong className="font-semibold">agra to gwalior cab service</strong> bookings.</li>
+                </ul>
               </div>
             </div>
           </div>

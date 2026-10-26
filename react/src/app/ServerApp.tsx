@@ -27,7 +27,7 @@ import { LoginPage } from "../pages/LoginPage";
 import { ReviewPage } from "../pages/ReviewPage";
 import { MarketingPage } from "../pages/MarketingPage";
 import { SeoLandingPage } from "../pages/SeoLandingPage";
-import { SEO_LANDING_SLUGS, type SeoLandingSlug } from "../data/seoLandingSlugs";
+import { SEO_LANDING_SLUGS, SEO_ROUTE_METADATA, type SeoLandingSlug } from "../data/seoLandingSlugs";
 import { titleCaseSlug } from "../utils/format";
 import { marketingHubs } from "./routes";
 import { SeoHead } from "../components/seo/SeoHead";
@@ -166,6 +166,15 @@ function getSeoBase(
   dossierMonument?: DossierMonumentItem,
 ): SeoMetadata {
   if (SEO_LANDING_SLUGS.includes(section as SeoLandingSlug)) {
+    const customMeta = SEO_ROUTE_METADATA[section];
+    if (customMeta) {
+      return {
+        title: customMeta.title,
+        description: customMeta.description,
+        ogImage: "/assets/brand/og-banner.webp",
+        keywords: [customMeta.title, `${section.replace(/-/g, " ")}`, "Agra taxi", "Agra cab booking"],
+      };
+    }
     const labels: Record<string, string> = {
       "tempo-traveller-on-rent-agra": "Tempo Traveller on Rent in Agra | 12–24 Seater, ₹25/km",
       "same-day-agra-tour-from-delhi": "Same Day Agra Tour from Delhi | Private Car",

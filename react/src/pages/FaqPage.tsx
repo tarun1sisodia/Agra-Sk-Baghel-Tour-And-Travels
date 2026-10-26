@@ -25,6 +25,12 @@ const FAQS_DATA: FaqItem[] = [
     a: "Yes. All our published one-way fares (e.g., Agra to Delhi NCR ₹3,499, Agra to Jaipur ₹3,499) include 100% of state highway and Yamuna Expressway toll charges. Chauffeurs carry registered FASTag cards with zero roadside toll deductions asked from guests.",
   },
   {
+    id: "fares-tour-cost",
+    category: "fares",
+    q: "How much does an Agra tour cost?",
+    a: "An Agra tour ranges from ₹450 per person for budget DIY travel to ₹1,800–₹2,500 for a private full-day chauffeur-driven cab (covering Taj Mahal, Agra Fort, Baby Taj, and Mehtab Bagh). Same-day outstation packages from Delhi start at ₹4,999 in a private sedan (all expressway tolls included), while luxury overnight heritage packages with 5-star lodging range between ₹12,000 and ₹25,000+.",
+  },
+  {
     id: "fares-2",
     category: "fares",
     q: "How does the 300 km/day minimum outstation rule work?",
@@ -89,6 +95,18 @@ const FAQS_DATA: FaqItem[] = [
     category: "sightseeing",
     q: "Is the Taj Mahal closed on any day of the week?",
     a: "Yes. The Taj Mahal is strictly closed every Friday to general tourists for congregational prayers. All other Agra monuments—including Agra Fort, Fatehpur Sikri, Itimad-ud-Daulah (Baby Taj), and Mehtab Bagh—remain open 7 days a week.",
+  },
+  {
+    id: "sightseeing-tickets",
+    category: "sightseeing",
+    q: "What are the entry ticket prices for Taj Mahal and Agra Fort?",
+    a: "Taj Mahal entry tickets are ₹50 for Indian citizens, ₹540 for SAARC/BIMSTEC visitors, and ₹1,100 for foreign international tourists (plus an optional ₹200 ticket for the main mausoleum interior dome). Agra Fort entry tickets are ₹50 for Indian nationals and ₹650 for foreign tourists. Entry is completely free for children under 15 years across all ASI protected monuments.",
+  },
+  {
+    id: "sightseeing-package-inclusions",
+    category: "sightseeing",
+    q: "What is included in an Agra local sightseeing taxi package?",
+    a: "Our private Agra local sightseeing taxi packages include: dedicated private air-conditioned vehicle for 8 Hours / 80 Km (or 12 Hours / 100 Km), commercial chauffeur with extensive local heritage route knowledge, fuel expenses, and monument parking charges. Monument entrance fees, licensed guide fees, and food/beverages are billed separately.",
   },
   {
     id: "sightseeing-2",
@@ -186,7 +204,7 @@ export function FaqPage({ language = "en" }: FaqPageProps) {
 
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
               {[
-                { id: "all", label: "All Questions (14)" },
+                { id: "all", label: `All Questions (${FAQS_DATA.length})` },
                 { id: "fares", label: "Tolls & Fares" },
                 { id: "booking", label: "Booking & Payments" },
                 { id: "fleet", label: "Fleet & Luggage" },

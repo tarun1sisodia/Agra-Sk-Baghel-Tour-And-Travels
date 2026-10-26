@@ -40,7 +40,7 @@ import generatedPublishedContent from "../data/generated-published-content.json"
 import type { DossierTransferRouteItem } from "../pages/TransferDetailPage";
 import type { DossierLocalPackageItem } from "../pages/LocalPackageDetailPage";
 import type { DossierMonumentItem } from "../pages/MonumentDetailPage";
-import { SEO_LANDING_SLUGS, type SeoLandingSlug } from "../data/seoLandingSlugs";
+import { SEO_LANDING_SLUGS, SEO_ROUTE_METADATA, type SeoLandingSlug } from "../data/seoLandingSlugs";
 import { titleCaseSlug } from "../utils/format";
 import { marketingHubs } from "./routes";
 import { SeoHead } from "../components/seo/SeoHead";
@@ -81,6 +81,15 @@ export function getSeo(
   activeRoute?: Route | null,
 ): SeoMetadata {
   if (SEO_LANDING_SLUGS.includes(section as SeoLandingSlug)) {
+    const customMeta = SEO_ROUTE_METADATA[section];
+    if (customMeta) {
+      return {
+        title: customMeta.title,
+        description: customMeta.description,
+        ogImage: "/assets/brand/og-banner.webp",
+        keywords: [customMeta.title, `${section.replace(/-/g, " ")}`, "Agra taxi", "Agra cab booking"],
+      };
+    }
     const title = `${titleCaseSlug(section)} | Agra SK Baghel Tour and Travels`;
     return { title, description: `${title}. Verified drivers, transparent fare confirmation and easy phone or WhatsApp booking.`, ogImage: "/assets/brand/og-banner.webp", keywords: [title, "Agra taxi", "Agra cab booking"] };
   }
@@ -152,10 +161,10 @@ export function getSeo(
 
   if (section === "home") {
     return {
-      title: "Agra Taxi & Cab Booking | Agra SK Baghel Tour and Travels",
-      description: "Book an Agra taxi, Tempo Traveller or Innova. Agra to Delhi from ₹3,500. Call or WhatsApp to confirm. Transparent fares and clear booking terms.",
+      title: "Taxi Service in Agra | Agra SK Baghel Tour and Travels",
+      description: "Book reliable taxi service in Agra for local sightseeing & outstation tours. Chauffeur-driven Sedans, Ertiga, Innova Crysta & Tempo Travellers from Agra at lowest per km rates. Contact +91 97628 17598 for instant outstation cab booking.",
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: ["Agra taxi service", "Agra cab booking", "Agra to Delhi cab", "Tempo Traveller Agra", "Taj Mahal tours", "Agra SK Baghel Tour and Travels"],
+      keywords: ["taxi service in agra", "cab booking in agra", "car rental in agra", "agra tour and travels", "local sightseeing taxi in agra", "agra cantt railway station taxi service", "best taxi in agra tour", "agra car rental with driver", "Agra SK Baghel Tour and Travels"],
     };
   }
 
@@ -185,19 +194,19 @@ export function getSeo(
 
   if (section === "routes") {
     return {
-      title: "Agra Outstation Taxi Routes & Fares Directory | Agra SK Baghel Tour and Travels",
-      description: "Outstation cab network from Agra to Delhi, Jaipur, Mathura, Gwalior & Lucknow. Live route calculator, distance matrix, expressway tolls included from ₹3,499.",
+      title: "Outstation Taxi Service from Agra | Agra to Delhi, Jaipur & Mathura",
+      description: "Book a comfortable outstation taxi service from agra. Safe one-way and round-trip transfers from Agra to Delhi, Jaipur, Mathura, Vrindavan, and Lucknow at lowest rates.",
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: ["Agra outstation taxi routes", "Agra to Delhi taxi fare", "Agra to Jaipur cab", "highway tolls included"],
+      keywords: ["outstation taxi service from agra", "agra to delhi taxi one way", "agra to jaipur cab fare", "agra to mathura vrindavan tour taxi", "agra to delhi airport cab booking", "outstation cab booking agra", "agra to lucknow one way taxi", "agra to gwalior cab service", "golden triangle tour from agra by car"],
     };
   }
 
   if (section === "packages") {
     return {
-      title: "Agra Tour Packages & Taj Mahal Sightseeing Circuits | Agra SK Baghel Tour and Travels",
-      description: "Curated private tour packages: Taj Mahal Sunrise tour, Mathura Vrindavan, Gatimaan train package & Golden Triangle. Multi-currency switcher, transparent all-inclusive fares.",
+      title: "Agra Local Sightseeing Taxi | Same Day Taj Mahal Tour Package",
+      description: "Hire a local sightseeing taxi in agra. Low-cost customized day packages covering Taj Mahal, Agra Fort, Baby Taj, and Mehtab Bagh with professional local driver-guides.",
       ogImage: "/assets/packages/taj-dawn.webp",
-      keywords: ["Agra tour packages", "Taj Mahal sunrise tour", "Mathura Vrindavan tour", "Golden Triangle package", "private tour guide"],
+      keywords: ["agra local sightseeing taxi", "same day taj mahal tour package", "taj mahal sunrise tour package by car", "agra one day tour taxi fare", "agra tour and travels local package", "cab booking agra fort and taj mahal", "agra cantt railway station taxi service", "best car rental for agra tour"],
     };
   }
 
@@ -212,10 +221,10 @@ export function getSeo(
 
   if (section === "fleet") {
     return {
-      title: "Our Fleet — Sedan, Ertiga, Innova Crysta & Tempo Traveller | Agra SK Baghel Tour and Travels",
-      description: "Explore our sanitized, chauffeur-driven Agra cab fleet: Dzire sedan, Ertiga MPV, Innova Crysta, Tempo Traveller & Urbania van. Transparent per-km rates & flat transfers.",
+      title: "Tempo Traveller Booking Agra | Innova Crysta Rental in Agra",
+      description: "Rent spacious Tempo Travellers (9-26 seats) or hire an Innova Crysta in Agra for family tours and weddings. Chauffeur-driven luxury fleet at budget-friendly rates.",
       ogImage: "/assets/fleet/innova.webp",
-      keywords: ["Agra cab fleet", "Dzire taxi Agra", "Ertiga rental", "Innova Crysta Agra", "Tempo Traveller", "Force Urbania"],
+      keywords: ["innova crysta rental in agra", "tempo traveller booking agra", "9 12 16 seater tempo traveller agra", "ertiga taxi booking agra", "luxury car rental for wedding in agra", "suv cab service agra"],
     };
   }
 

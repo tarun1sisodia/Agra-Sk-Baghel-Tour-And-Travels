@@ -434,14 +434,10 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md mb-space-lg">
             <div className="max-w-3xl">
               <h1 className="font-headline-hero text-headline-hero-mobile sm:text-headline-lg lg:text-headline-hero text-ink-charcoal leading-tight tracking-tight mt-1.5">
-                Clean, modern vehicles. Verified drivers.{" "}
-                <span className="text-terracotta-sandstone italic block sm:inline">
-                  Transparent rates per kilometer.
-                </span>
+                Fleet &amp; Group Luxury Car Rental in Agra
               </h1>
               <p className="font-body-lg text-body-md sm:text-body-lg text-on-surface-variant mt-space-sm leading-relaxed">
-                Explore our clean,
-                Zero hidden charges, 100% AC performance guaranteed.
+                Rent spacious Tempo Travellers (9–26 seats) or hire an Innova Crysta in Agra for family tours and weddings. Chauffeur-driven luxury fleet at budget-friendly rates.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
@@ -466,13 +462,13 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
           </div>
 
           {/* Trust Proof Ribbon (Compact -20%) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mb-space-lg">
             <div className="bg-surface-container-lowest p-2.5 sm:p-3 rounded-lg shadow-xs border border-border-warm/70 flex items-start gap-2 h-full">
               <div className="w-8 h-8 rounded bg-sandstone-wash flex items-center justify-center text-terracotta-sandstone shrink-0">
                 <span className="material-symbols-outlined text-icon-18">verified</span>
               </div>
               <div>
-                <h2 className="font-title-md text-title-md text-ink-charcoal leading-snug font-bold">100% Commercial Plates</h2>
+                <h3 className="font-title-md text-title-md text-ink-charcoal leading-snug font-bold">100% Commercial Plates</h3>
                 <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
                   All-India Tourist Permit with pre-cleared interstate taxes.
                 </p>
@@ -483,7 +479,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                 <span className="material-symbols-outlined text-icon-18">speed</span>
               </div>
               <div>
-                <h2 className="font-title-md text-title-md text-ink-charcoal leading-snug font-bold">Speed Governed</h2>
+                <h3 className="font-title-md text-title-md text-ink-charcoal leading-snug font-bold">Speed Governed</h3>
                 <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
                   Strict adherence to 80/100 km/h expressway security benchmarks.
                 </p>
@@ -494,7 +490,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                 <span className="material-symbols-outlined text-icon-18">airline_seat_recline_extra</span>
               </div>
               <div>
-                <h2 className="font-title-md text-title-md text-ink-charcoal leading-snug font-bold">Clean, Sanitized Cabins</h2>
+                <h3 className="font-title-md text-title-md text-ink-charcoal leading-snug font-bold">Clean, Sanitized Cabins</h3>
                 <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
                   Vacuumed and cleaned before every single guest pickup.
                 </p>
@@ -505,10 +501,36 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                 <span className="material-symbols-outlined text-icon-18">receipt_long</span>
               </div>
               <div>
-                <h2 className="font-title-md text-title-md text-ink-charcoal leading-snug font-bold">Official Tax Invoice</h2>
+                <h3 className="font-title-md text-title-md text-ink-charcoal leading-snug font-bold">Official Tax Invoice</h3>
                 <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
                   Instant tax invoice for corporate &amp; family travel.
                 </p>
+              </div>
+            </div>
+          </div>
+
+          {/* High-Intent Fleet & Group Rental Architecture (Phase 17) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
+            <div className="p-space-lg rounded-xl bg-surface border border-border-warm/60 shadow-xs flex flex-col gap-2">
+              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">
+                Hire Innova Crysta, Ertiga, or Tempo Traveller in Agra for Family Tours
+              </h2>
+              <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                Traveling with a large family group or corporate team requires unmatched comfort and ample luggage space. At <strong className="text-on-surface font-semibold">Agra SK Baghel Tour and Travels</strong>, we manage a diverse, well-maintained commercial fleet tailored specifically to your group size.
+              </p>
+            </div>
+            <div className="p-space-lg rounded-xl bg-surface border border-border-warm/60 shadow-xs flex flex-col gap-2">
+              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">
+                Choose Your Perfect Vehicle Tier
+              </h2>
+              <div className="font-body-md text-body-md text-on-surface-variant leading-relaxed space-y-1.5">
+                <p>Select from our widely requested vehicle configurations:</p>
+                <ul className="space-y-1 text-on-surface text-sm">
+                  <li>• <strong className="text-primary font-semibold">Executive SUVs:</strong> Enjoy premium comfort with an elite <strong className="font-semibold">innova crysta rental in agra</strong>, ideal for corporate travelers or small families of 6–7 passengers.</li>
+                  <li>• <strong className="text-primary font-semibold">Value Multi-Purpose Vehicles:</strong> Access an economical <strong className="font-semibold">ertiga taxi booking agra</strong> option for smart group travel without compromising on air-conditioned space.</li>
+                  <li>• <strong className="text-primary font-semibold">Minivans &amp; Group Coaches:</strong> Secure spacious luxury configurations through our premium <strong className="font-semibold">tempo traveller booking agra</strong> options (9, 12, 16, and up to 26-seater varieties).</li>
+                  <li>• <strong className="text-primary font-semibold">Special Occasions:</strong> Premium <strong className="font-semibold">luxury car rental for wedding in agra</strong> requirements to make your celebrations memorable.</li>
+                </ul>
               </div>
             </div>
           </div>

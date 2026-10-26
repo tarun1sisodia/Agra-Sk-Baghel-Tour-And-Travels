@@ -46,31 +46,36 @@ This document is the **single authoritative operating standard** for the SK Bagh
 - Never hardcode hex values in component classes or inline styles.
 - Additional global styles live in `react/src/styles/global.css` (large utility stylesheet) and `react/src/styles/heritage-animations.css`.
 
-### Law 2: Refined Editorial Typography Hierarchy
+### Law 2: Google Mobile Usability & Refined Editorial Typography Hierarchy
+
+*(Updated 2026-10-27 per client authorization to eliminate Googlebot "Text Too Small to Read" penalties while preserving Mughal Terracotta editorial refinement)*
 
 **Headings — EB Garamond (serif):**
 
 | Token | Size (desktop) | Size (mobile) | Line-height | Usage |
 |---|---|---|---|---|
-| `font-headline-hero text-headline-hero` | 26px | 20px | 34px / 26px | Page `<h1>` Hero |
-| `font-headline-lg text-headline-lg` | 20px | 17px | 26px / 22px | Section `<h2>` |
-| `font-headline-md text-headline-md` | 15px | 15px | 20px | Card `<h3>` |
-| `font-headline-sm text-headline-sm` | 13.5px | 13.5px | 18px | Sub-headings |
-| `font-price-display text-price-display` | 18px | 18px | 22px | Currency figures |
+| `font-headline-hero text-headline-hero` | 36px (2.25rem) | 28px (1.75rem) | 44px / 34px | Page `<h1>` Hero |
+| `font-headline-lg text-headline-lg` | 28px (1.75rem) | 24px (1.5rem) | 36px / 30px | Section `<h2>` |
+| `font-headline-md text-headline-md` | 22px (1.375rem) | 20px (1.25rem) | 30px / 26px | Card `<h3>` / Feature Titles |
+| `font-headline-sm text-headline-sm` | 18px (1.125rem) | 16px (1.0rem) | 26px / 22px | Sub-headings `<h4>` |
+| `font-price-display text-price-display` | 24px (1.5rem) | 20px (1.25rem) | 28px / 24px | Currency figures |
 
-**Body — Plus Jakarta Sans:**
+**Body & UI — Plus Jakarta Sans:**
 
 | Token | Size | Line-height | Usage |
 |---|---|---|---|
-| `font-body-lg text-body-lg` | 12px | 18px | Hero lead paragraphs |
-| `font-body-md text-body-md` | 10.5px | 16px | Standard descriptions |
-| `font-body-sm text-body-sm` | 9.5px | 14px | Specs, captions, itinerary |
-| `font-label-lg text-label-lg` | 10px | 14px | Buttons, primary links |
-| `font-label-caps text-label-caps` | 8.5px | 11px | Category pills, status badges (uppercase) |
+| `font-body-lg text-body-lg` | 18px (1.125rem) | 28px (1.55) | Hero lead paragraphs, primary CTAs |
+| `font-body-md text-body-md` | 16px (1.0rem) | 26px (1.6) | Standard descriptions, body copy (Google baseline) |
+| `font-body-sm text-body-sm` | 14px (0.875rem) | 22px (1.55) | Technical specs, itinerary stops, metadata |
+| `font-label-lg text-label-lg` | 15px (0.9375rem) | 20px (1.33) | Buttons (min 48px height), form inputs |
+| `font-label-caps text-label-caps` | 12px (0.75rem) | 16px (1.33) | Category pills, status badges (uppercase tracking) |
 
-**Hard rules:**
-- Hero `<h1>` NEVER exceeds 26px desktop / 20px mobile.
-- No font-size above 26px anywhere on any page.
+**Googlebot Usability Rules:**
+- Global baseline body font is strictly `1rem` (`16px`) with min line-height `1.6` on `<p>` and `<li>`.
+- Interactive buttons, mobile navigation links, and touch targets must meet the minimum `48px × 48px` tap boundary.
+- Minor disclaimers (`<small>`) must never drop below `14px` (`0.875rem`).
+- Exactly ONE `<h1>` per page reflecting primary search intent.
+
 
 ### Law 3: Financial & Fare Display Precision
 

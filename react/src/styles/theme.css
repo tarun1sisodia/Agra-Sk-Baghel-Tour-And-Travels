@@ -110,35 +110,35 @@
   --font-label-lg: "Plus Jakarta Sans", sans-serif;
   --font-label-caps: "Plus Jakarta Sans", sans-serif;
 
-  /* Refined Headline Tokens (Compact & Balanced Luxury Editorial) */
-  --text-headline-hero: 26px;
-  --text-headline-hero--line-height: 34px;
-  --text-headline-hero-mobile: 20px;
-  --text-headline-hero-mobile--line-height: 26px;
-  --text-headline-lg: 20px;
-  --text-headline-lg--line-height: 26px;
-  --text-headline-lg-mobile: 17px;
-  --text-headline-lg-mobile--line-height: 22px;
-  --text-headline-md: 15px;
-  --text-headline-md--line-height: 20px;
-  --text-headline-sm: 13.5px;
-  --text-headline-sm--line-height: 18px;
-  --text-price-display: 18px;
-  --text-price-display--line-height: 22px;
-  --text-title-lg: 13px;
-  --text-title-lg--line-height: 17px;
-  --text-title-md: 12px;
-  --text-title-md--line-height: 16px;
-  --text-body-lg: 12px;
-  --text-body-lg--line-height: 18px;
-  --text-body-md: 10.5px;
-  --text-body-md--line-height: 16px;
-  --text-body-sm: 9.5px;
-  --text-body-sm--line-height: 14px;
-  --text-label-lg: 10px;
-  --text-label-lg--line-height: 14px;
-  --text-label-caps: 8.5px;
-  --text-label-caps--line-height: 11px;
+  /* Google Mobile Usability & Refined Editorial Typography Tokens (Updated 2026-10-27) */
+  --text-headline-hero: 36px;
+  --text-headline-hero--line-height: 44px;
+  --text-headline-hero-mobile: 28px;
+  --text-headline-hero-mobile--line-height: 34px;
+  --text-headline-lg: 28px;
+  --text-headline-lg--line-height: 36px;
+  --text-headline-lg-mobile: 24px;
+  --text-headline-lg-mobile--line-height: 30px;
+  --text-headline-md: 22px;
+  --text-headline-md--line-height: 30px;
+  --text-headline-sm: 18px;
+  --text-headline-sm--line-height: 26px;
+  --text-price-display: 24px;
+  --text-price-display--line-height: 28px;
+  --text-title-lg: 18px;
+  --text-title-lg--line-height: 24px;
+  --text-title-md: 16px;
+  --text-title-md--line-height: 22px;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-md: 16px;
+  --text-body-md--line-height: 26px;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 22px;
+  --text-label-lg: 15px;
+  --text-label-lg--line-height: 20px;
+  --text-label-caps: 12px;
+  --text-label-caps--line-height: 16px;
 
   /* Type-scale infill — added 2026-10-01 (typography sync).
      Named tokens absorbing ad-hoc text-[Npx] usages found across the app.
@@ -218,3 +218,34 @@
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
 }
+
+/* Google Mobile Accessibility Touch Targets & Typography Baseline (Phases 2 & 3) */
+:root {
+  --font-base-size: 16px;
+}
+
+html {
+  font-size: var(--font-base-size, 16px);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Touch Target Minimum Dimensions (Google Mobile-First Requirement: min 48px height) */
+.cta-button,
+.nav-link-mobile,
+a.button,
+button.button,
+.btn-primary,
+.btn-gold,
+.hero-actions a {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+

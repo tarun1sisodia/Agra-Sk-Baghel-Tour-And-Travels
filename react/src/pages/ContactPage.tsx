@@ -237,28 +237,115 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto w-full rounded-2xl border border-border-warm bg-surface-container-lowest p-4 sm:p-5 shadow-xs">
-          <div className="mb-3">
-            <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">Find the dispatch desk in Nagla, Agra</h2>
-            <p className="mt-1 text-body-md text-on-surface-variant">
-              1Nandlalpur, Hathras Road, near Khusum, Nagla, Agra, Uttar Pradesh 282006.
+        {/* Dual-Office Hub Showcase (Phase 24 NAP Alignment) */}
+        <div className="max-w-4xl mx-auto w-full space-y-6">
+          <div className="text-center sm:text-left">
+            <span className="text-terracotta-sandstone font-label-caps uppercase tracking-wider text-xs font-bold block mb-1">
+              Dual-Hub Physical Locations
+            </span>
+            <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">
+              Our Dispatch Desk &amp; Commercial Fleet Garage
+            </h2>
+            <p className="mt-1 text-body-md text-on-surface-variant max-w-2xl">
+              We operate two dedicated facilities in Agra to provide swift chauffeur response times at hotels and ensure rigorous commercial vehicle maintenance.
             </p>
           </div>
-          <iframe
-            src={`https://maps.google.com/maps?q=${encodeURIComponent(contact.address)}&output=embed`}
-            title="Map of 1Nandlalpur, Hathras Road, Nagla, Agra"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="aspect-video w-full rounded-xl border-0"
-          />
-          <a
-            href={contact.mapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 inline-flex min-h-[44px] items-center gap-2 text-primary underline font-label-lg"
-          >
-            Open directions in Google Maps
-          </a>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Primary Tourism Dispatch Office */}
+            <div className="rounded-2xl border border-border-warm bg-surface-container-lowest p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-sandstone-wash text-terracotta-deep font-label-caps text-xs font-bold mb-3">
+                  <span className="material-symbols-outlined text-sm">explore</span>
+                  Primary Tourism Dispatch
+                </div>
+                <h3 className="font-headline-sm text-lg font-bold text-ink-charcoal mb-1">
+                  {contact.dispatchOffice.name}
+                </h3>
+                <p className="text-xs text-primary font-medium mb-3">
+                  {contact.dispatchOffice.role}
+                </p>
+                <p className="text-body-md text-on-surface-variant mb-4">
+                  <strong>Address:</strong> {contact.dispatchOffice.address}
+                </p>
+                <div className="space-y-1.5 text-xs text-on-surface-variant mb-4">
+                  <p className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm text-terracotta-sandstone">schedule</span>
+                    <span><strong>Operating Hours:</strong> {contact.dispatchOffice.hours}</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm text-terracotta-sandstone">location_city</span>
+                    <span><strong>Landmark:</strong> 450m from Taj Mahal Eastern Gate, Taj Ganj</span>
+                  </p>
+                </div>
+              </div>
+              <div>
+                <iframe
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(contact.dispatchOffice.address)}&output=embed`}
+                  title="Map of Primary Tourism Dispatch Office, Taj Ganj, Agra"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="aspect-video w-full rounded-xl border border-border-warm mb-3"
+                />
+                <a
+                  href={contact.dispatchOffice.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-ink-charcoal font-label-lg text-xs font-semibold py-2 px-3 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">directions</span>
+                  <span>Navigate to Taj Ganj Dispatch Desk</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Registered Commercial Fleet Garage */}
+            <div className="rounded-2xl border border-border-warm bg-surface-container-lowest p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container text-ink-charcoal font-label-caps text-xs font-bold mb-3">
+                  <span className="material-symbols-outlined text-sm">build</span>
+                  Commercial Fleet Garage
+                </div>
+                <h3 className="font-headline-sm text-lg font-bold text-ink-charcoal mb-1">
+                  {contact.registeredGarage.name}
+                </h3>
+                <p className="text-xs text-secondary font-medium mb-3">
+                  {contact.registeredGarage.role}
+                </p>
+                <p className="text-body-md text-on-surface-variant mb-4">
+                  <strong>Address:</strong> {contact.registeredGarage.address}
+                </p>
+                <div className="space-y-1.5 text-xs text-on-surface-variant mb-4">
+                  <p className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm text-terracotta-sandstone">schedule</span>
+                    <span><strong>Operating Hours:</strong> {contact.registeredGarage.hours}</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm text-terracotta-sandstone">local_shipping</span>
+                    <span><strong>Facility:</strong> Fleet Maintenance &amp; Commercial Vehicle Yard</span>
+                  </p>
+                </div>
+              </div>
+              <div>
+                <iframe
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(contact.registeredGarage.address)}&output=embed`}
+                  title="Map of 1Nandlalpur, Hathras Road, Nagla, Agra"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="aspect-video w-full rounded-xl border border-border-warm mb-3"
+                />
+                <a
+                  href={contact.registeredGarage.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-ink-charcoal font-label-lg text-xs font-semibold py-2 px-3 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-sm">directions</span>
+                  <span>Navigate to Commercial Garage</span>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* 3. DISPATCH INQUIRY & RESERVATION FORM */}

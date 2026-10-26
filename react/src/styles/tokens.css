@@ -21,11 +21,12 @@
   --motion-medium: 400ms;
   --motion-slow: 1200ms;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-base-size: 16px;
   --container: 1140px;
   --gutter: 24px;
   --header: 48px;
   --header-mobile: 44px;
-  --touch: 44px;
+  --touch: 48px;
   --radius: 6px;
   --radius-card: 10px;
   --radius-pill: 999px;

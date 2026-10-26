@@ -317,7 +317,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
 
                 <h1 className="font-headline-hero text-headline-hero font-normal leading-[1.14] w-full">
                   {/* Semantic HTML text for search crawlers & screen readers */}
-                  <span className="sr-only">Agra to anywhere, in first-class comfort.</span>
+                  <span className="sr-only">Premium Taxi Service & Tour Packages in Agra</span>
 
                   <div aria-hidden="true" className="select-none flex flex-col gap-1 w-full">
                     {/* Static, crawlable hero headline */}
@@ -373,8 +373,8 @@ export function HomePage({ language = "en" }: HomePageProps) {
                   </div>
                 </h1>
               </div>
-              <p className="font-body-lg text-body-lg text-ivory-surface max-w-lg leading-relaxed drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
-                Verified drivers, fixed fares, and all expressway tolls included. Direct pickup across Agra. Book online or on WhatsApp in 2 minutes.
+              <p className="font-body-lg text-body-lg text-ivory-surface max-w-xl leading-relaxed drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
+                Explore local monuments or plan outstation trips with Agra's trusted travel partner. Doorstep pickup across Agra, Taj Mahal sunrise tours by car, and transparent per-km billing.
               </p>
               <div className="flex flex-wrap items-center gap-space-sm">
                 <a
@@ -431,6 +431,43 @@ export function HomePage({ language = "en" }: HomePageProps) {
         <section className="w-full py-space-2xl" aria-label="Book your taxi">
           <div className="max-w-[1280px] mx-auto px-margin-mobile lg:px-margin">
             <HomeBookingWidget />
+          </div>
+        </section>
+
+        {/* ── BRAND AUTHORITY & LOCAL AGRA HUB SECTION ── */}
+        <section className="w-full py-space-3xl bg-surface-container-low border-y border-border-warm/40" aria-labelledby="brand-overview-heading">
+          <div className="max-w-[1280px] mx-auto px-margin-mobile lg:px-margin">
+            <div className="max-w-3xl mx-auto text-center mb-space-xl">
+              <span className="font-label-caps text-label-caps uppercase tracking-wider text-primary font-bold">Trusted Local Operator</span>
+              <h2 id="brand-overview-heading" className="font-headline-lg text-headline-lg text-on-surface mt-2">
+                Your Trusted Partner for Local Sightseeing and Outstation Cab Booking in Agra
+              </h2>
+              <p className="font-body-md text-body-md text-on-surface-variant mt-2">
+                Direct origin-Agra transport services with verified chauffeurs, transparent per-km billing, and 24/7 client dispatch.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-space-lg max-w-5xl mx-auto text-on-surface-variant font-body-md text-body-md leading-relaxed">
+              <div className="p-space-xl rounded-2xl bg-surface border border-border-warm/60 shadow-xs flex flex-col justify-between">
+                <p>
+                  Welcome to <strong className="text-on-surface font-semibold">Agra SK Baghel Tour and Travels</strong>, your premier companion for local sightseeing and outstation cab booking in Agra. Whether you need a hassle-free drop from <strong className="text-on-surface font-semibold">Agra Cantt railway station taxi service</strong>, an early morning <strong className="text-on-surface font-semibold">taj mahal sunrise tour package by car</strong>, or a comfortable family outstation trip, our well-maintained fleet and expert local chauffeurs ensure a smooth ride. We specialize in custom travel itineraries originating from Agra to anywhere across India, delivering unmatched safety, pocket-friendly transparent billing, and 24/7 client support.
+                </p>
+                <div className="mt-4 pt-4 border-t border-border-warm/40 flex items-center justify-between text-primary font-semibold">
+                  <a href="/en/packages/" className="inline-flex items-center gap-1 hover:underline">
+                    Explore Local Sightseeing Packages <span className="material-symbols-outlined text-icon-16">east</span>
+                  </a>
+                </div>
+              </div>
+              <div className="p-space-xl rounded-2xl bg-surface border border-border-warm/60 shadow-xs flex flex-col justify-between">
+                <p>
+                  Finding a reliable <strong className="text-on-surface font-semibold">car rental in agra with a driver</strong> shouldn't be complicated. We offer clean, air-conditioned options ranging from economical family cars to luxury executive vehicles. As a leading name in <strong className="text-on-surface font-semibold">agra tour and travels</strong>, we prioritize punctuality, clean vehicle cabins, and professional local driver-guides who know the routes perfectly. Book your <strong className="text-on-surface font-semibold">local sightseeing taxi in agra</strong> today and experience the city of love without transit stress.
+                </p>
+                <div className="mt-4 pt-4 border-t border-border-warm/40 flex items-center justify-between text-primary font-semibold">
+                  <a href="/en/routes/" className="inline-flex items-center gap-1 hover:underline">
+                    Explore Outstation Taxi Routes <span className="material-symbols-outlined text-icon-16">east</span>
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 

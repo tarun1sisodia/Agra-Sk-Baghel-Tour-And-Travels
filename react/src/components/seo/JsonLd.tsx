@@ -199,17 +199,39 @@ export function buildLocalBusinessSchema(options?: LocalBusinessSchemaOptions) {
     ],
     address: {
       "@type": "PostalAddress",
-      streetAddress: contact.address,
-      addressLocality: "Agra",
-      addressRegion: "Uttar Pradesh",
-      postalCode: "282006",
-      addressCountry: "IN",
+      streetAddress: contact.dispatchOffice.streetAddress,
+      addressLocality: contact.dispatchOffice.locality,
+      addressRegion: contact.dispatchOffice.region,
+      postalCode: contact.dispatchOffice.postalCode,
+      addressCountry: contact.dispatchOffice.country,
     },
     geo: {
       "@type": "GeoCoordinates",
-      latitude: 27.1632,
-      longitude: 78.0322,
+      latitude: contact.dispatchOffice.latitude,
+      longitude: contact.dispatchOffice.longitude,
     },
+    department: [
+      {
+        "@type": "AutoRepair",
+        name: "Agra SK Baghel Commercial Fleet Garage",
+        description: "Commercial Fleet Maintenance & Operations Garage",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: contact.registeredGarage.streetAddress,
+          addressLocality: contact.registeredGarage.locality,
+          addressRegion: contact.registeredGarage.region,
+          postalCode: contact.registeredGarage.postalCode,
+          addressCountry: contact.registeredGarage.country,
+        },
+        geo: {
+          "@type": "GeoCoordinates",
+          latitude: contact.registeredGarage.latitude,
+          longitude: contact.registeredGarage.longitude,
+        },
+        telephone: contact.phone,
+        openingHours: "Mo-Su 00:00-23:59",
+      },
+    ],
     openingHours: "Mo-Su 00:00-23:59",
   };
 
