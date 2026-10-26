@@ -21,7 +21,6 @@ import { createAdminController } from "./modules/admin/admin.controller.js";
 import { registerAdminRoutes } from "./modules/admin/admin.routes.js";
 import { createAdminService } from "./modules/admin/admin.service.js";
 import { createBookingController } from "./modules/bookings/booking.controller.js";
-import { registerBookingRoutes } from "./modules/bookings/booking.routes.js";
 import { createBookingService } from "./modules/bookings/booking.service.js";
 import { createBookingIntentController } from "./modules/booking-intents/booking-intent.controller.js";
 import { createBookingIntentService } from "./modules/booking-intents/booking-intent.service.js";
@@ -30,8 +29,6 @@ import { createCatalogController } from "./modules/catalog/catalog.controller.js
 import { registerCatalogRoutes } from "./modules/catalog/catalog.routes.js";
 import { createCatalogService } from "./modules/catalog/catalog.service.js";
 import { createMediaStorage } from "./modules/catalog/media.storage.js";
-import { createFareController } from "./modules/fares/fare.controller.js";
-import { registerFareRoutes } from "./modules/fares/fare.routes.js";
 import { createFareService } from "./modules/fares/fare.service.js";
 import { CURATED_PLACES } from "./modules/fares/fare.catalogue.js";
 import { createInquiryController } from "./modules/inquiries/inquiry.controller.js";
@@ -44,11 +41,7 @@ import { createLocationController } from "./modules/locations/location.controlle
 import { registerLocationRoutes } from "./modules/locations/location.routes.js";
 import { createLocationService } from "./modules/locations/location.service.js";
 import { createNotificationService } from "./modules/notifications/notification.service.js";
-import { createPaymentController } from "./modules/payments/payment.controller.js";
-import { registerPaymentRoutes } from "./modules/payments/payment.routes.js";
 import { createPaymentService } from "./modules/payments/payment.service.js";
-import { createReviewController } from "./modules/reviews/review.controller.js";
-import { registerReviewRoutes } from "./modules/reviews/review.routes.js";
 import { createRouteController } from "./modules/routes/route.controller.js";
 import { registerRouteRoutes } from "./modules/routes/route.routes.js";
 import { createRouteService } from "./modules/routes/route.service.js";
@@ -80,7 +73,6 @@ import { createPromosController } from "./modules/promos/promos.controller.js";
 import { registerPromosRoutes } from "./modules/promos/promos.routes.js";
 import { createPromosService } from "./modules/promos/promos.service.js";
 import { registerContentManifestRoutes } from "./modules/content/content.routes.js";
-import { createReviewService } from "./modules/reviews/review.service.js";
 import {
   createNoopEmail,
   createNoopMessaging,
@@ -297,7 +289,6 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
     (env.DATABASE_URL ? new pg.Pool(createPoolConfig(env.DATABASE_URL)) : null);
   const fareCatalogRepo = farePool ? new FareCatalogRepository(farePool) : null;
   const catalogService = createCatalogService({ db, clock, mediaStorage, fareCatalogRepo });
-  const reviewService = createReviewService({ db, clock });
   const locationService = createLocationService({ db, clock, geocoding });
   const inquiryService = createInquiryService({ db, clock });
   const rentalEnquiryService = createRentalEnquiryService({ db, clock, fareCatalogRepo });
@@ -333,14 +324,23 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
   app.get("/ready", readyHandler);
   app.get("/api/v1/ready", readyHandler);
 
-  await registerFareRoutes(app, createFareController(fareService));
+  // Canonical live fleet endpoint (consumed by customer fleet view and catalog manifests)
+  app.get("/api/v1/fleet", { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } }, async (_req, reply) => {
+    const data = await fareService.getFleet();
+    return sendSuccess(reply, data);
+  });
+
   await registerLocationRoutes(app, createLocationController(locationService));
-  await registerBookingRoutes(app, createBookingController(bookingService, env.CUSTOMER_AUTH_REQUIRED_FOR_NEW_BOOKINGS));
+
+  // Canonical customer profile and bookings management routes
+  const bookingController = createBookingController(bookingService, env.CUSTOMER_AUTH_REQUIRED_FOR_NEW_BOOKINGS);
+  app.get("/api/v1/me/profile", { config: { rateLimit: { max: 30, timeWindow: "1 minute" } } }, bookingController.getMyProfile);
+  app.get("/api/v1/me/bookings", { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } }, bookingController.listMine);
+  app.get("/api/v1/me/bookings/:bookingId", { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } }, bookingController.getMine);
+
   const bookingIntentService = createBookingIntentService({ db, clock, fareService, bookingService });
   await registerBookingIntentRoutes(app, createBookingIntentController(bookingIntentService));
-  await registerPaymentRoutes(app, createPaymentController(paymentService));
   await registerCatalogRoutes(app, createCatalogController(catalogService));
-  await registerReviewRoutes(app, createReviewController(reviewService));
   await registerRouteRoutes(app, createRouteController(routeService));
   await registerTourPackagesRoutes(app, createTourPackagesController(tourPackagesService));
   await registerTransferRoutesRoutes(app, createTransferRoutesController(transferRoutesService));

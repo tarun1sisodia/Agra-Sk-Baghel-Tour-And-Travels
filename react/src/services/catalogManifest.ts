@@ -53,7 +53,7 @@ export function invalidateCatalogManifestCache(): void {
   if (typeof window !== "undefined") {
     try {
       window.localStorage.removeItem(CACHE_STORAGE_KEY);
-    } catch {}
+    } catch { }
   }
 }
 
@@ -108,7 +108,7 @@ export async function fetchCatalogManifest(): Promise<CatalogManifestData | null
             CACHE_STORAGE_KEY,
             JSON.stringify({ ...localEnvelope, cachedAt: Date.now() }),
           );
-        } catch {}
+        } catch { }
         return inMemoryManifest;
       }
 
@@ -254,39 +254,46 @@ export function toTourPackage(item: any): TourPackage {
   const inclusions = Array.isArray(item.inclusions) && item.inclusions.length > 0
     ? item.inclusions
     : [
-        "Private AC vehicle & dedicated verified chauffeur",
-        "All highway tolls & monument parking fees included",
-        "Doorstep pickup & drop-off from hotel or station",
-      ];
+      "Private AC vehicle & dedicated verified chauffeur",
+      "All highway tolls & monument parking fees included",
+      "Doorstep pickup & drop-off from hotel or station",
+    ];
   const exclusions = Array.isArray(item.exclusions) && item.exclusions.length > 0
     ? item.exclusions
     : [
-        "Monument entry tickets",
-        "Meals & personal expenses",
-      ];
+      "Monument entry tickets",
+      "Meals & personal expenses",
+    ];
   const source = item.source || "Agra";
   const destination = item.destination || item.name;
 
   const rawImage = item.imageUrl || item.image_url || item.image || (item.gallery?.[0]?.url || item.gallery?.[0]) || "";
   const image = rawImage ? resolveCatalogMediaUrl(rawImage) : "";
+  console.log("[toTourPackage] Raw image URL:", rawImage, "-> Resolved:", image);
 
   const rawGallery = Array.isArray(item.gallery) ? item.gallery : [];
+  console.log("[toTourPackage] Raw gallery:", rawGallery);
   const gallery = rawGallery
     .filter(Boolean)
     .map((g: any, i: number) => {
       if (typeof g === "string") {
+        const resolved = resolveCatalogMediaUrl(g);
+        console.log(`[toTourPackage] Gallery item ${i} (string):`, g, "->", resolved);
         return {
-          url: resolveCatalogMediaUrl(g),
+          url: resolved,
           alt: `${item.name || "Tour"} photo ${i + 1}`,
           caption: `${item.name || "Tour"} view ${i + 1}`,
         };
       }
+      const resolved = resolveCatalogMediaUrl(g.url);
+      console.log(`[toTourPackage] Gallery item ${i} (object):`, g.url, "->", resolved);
       return {
-        url: resolveCatalogMediaUrl(g.url),
+        url: resolved,
         alt: g.alt || `${item.name || "Tour"} photo ${i + 1}`,
         caption: g.caption || `${item.name || "Tour"} view ${i + 1}`,
       };
     });
+  console.log("[toTourPackage] Processed gallery:", gallery);
 
   return {
     id: slug,
@@ -345,14 +352,24 @@ export async function fetchTourPackageBySlug(slug: string): Promise<TourPackage 
 export async function fetchLiveTourPackageBySlug(slug: string): Promise<TourPackage | null> {
   try {
     const apiBase = getApiBaseUrl();
-    const res = await fetch(`${apiBase}/api/v1/tour-packages/by-code/${encodeURIComponent(slug.trim().toLowerCase())}?live=${Date.now()}`, {
+    const url = `${apiBase}/api/v1/tour-packages/by-code/${encodeURIComponent(slug.trim().toLowerCase())}?live=${Date.now()}`;
+    console.log("[fetchLiveTourPackageBySlug] Fetching from:", url);
+    const res = await fetch(url, {
       headers: { Accept: "application/json" },
       cache: "no-store",
     });
-    if (!res.ok) return null;
+    console.log("[fetchLiveTourPackageBySlug] Response status:", res.status, res.statusText);
+    if (!res.ok) {
+      console.log("[fetchLiveTourPackageBySlug] Response not ok, returning null");
+      return null;
+    }
     const json = await res.json();
-    return json?.data ? toDossierTourPackage(json.data) : null;
-  } catch {
+    console.log("[fetchLiveTourPackageBySlug] Raw API response:", json);
+    const result = json?.data ? toDossierTourPackage(json.data) : null;
+    console.log("[fetchLiveTourPackageBySlug] Processed result:", result);
+    return result;
+  } catch (err) {
+    console.error("[fetchLiveTourPackageBySlug] Error:", err);
     return null;
   }
 }

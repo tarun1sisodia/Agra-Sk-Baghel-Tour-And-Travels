@@ -6,30 +6,13 @@ export async function registerDossierSignoffsRoutes(
   app: FastifyInstance,
   controller: ReturnType<typeof createDossierSignoffsController>
 ): Promise<void> {
-  // Public - Canonical & Compatibility
-  app.get("/api/v1/product-signoffs", {
-    config: { rateLimit: { max: 120, timeWindow: "1 minute" } },
-    handler: controller.publicList,
-  });
+  // Public - Canonical
   app.get("/api/v1/dossier-signoffs", {
     config: { rateLimit: { max: 120, timeWindow: "1 minute" } },
     handler: controller.publicList,
   });
 
-  // Admin - Canonical & Compatibility
-  app.get("/api/v1/ops/admin/product-signoffs", {
-    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
-    handler: controller.list,
-  });
-  app.get("/api/v1/ops/admin/product-signoffs/:id", {
-    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
-    handler: controller.get,
-  });
-  app.patch("/api/v1/ops/admin/product-signoffs/:id", {
-    config: { rateLimit: { max: 30, timeWindow: "1 minute" } },
-    handler: controller.update,
-  });
-
+  // Admin Operations - Canonical
   app.get("/api/v1/ops/admin/dossier-signoffs", {
     config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     handler: controller.list,

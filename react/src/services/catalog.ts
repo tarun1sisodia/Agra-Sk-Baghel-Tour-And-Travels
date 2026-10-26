@@ -77,11 +77,17 @@ export function resolveCatalogMediaUrl(url: string | null | undefined): string {
   if (!url) return "";
   const trimmed = url.trim();
   if (!trimmed) return "";
-  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("data:")) return trimmed;
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("data:")) {
+    console.log("[resolveCatalogMediaUrl] Already absolute URL, returning as-is:", trimmed);
+    return trimmed;
+  }
   const normalized = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
   if (normalized.startsWith("/api/")) {
-    return `${getApiBaseUrl()}${normalized}`;
+    const result = `${getApiBaseUrl()}${normalized}`;
+    console.log("[resolveCatalogMediaUrl] Resolved /api/ path:", trimmed, "->", result);
+    return result;
   }
+  console.log("[resolveCatalogMediaUrl] Returning trimmed:", trimmed);
   return trimmed;
 }
 
@@ -104,7 +110,7 @@ async function getJson<T>(path: string): Promise<T> {
           return parsed.data as T;
         }
       }
-    } catch {}
+    } catch { }
   }
 
   const controller = new AbortController();
@@ -131,7 +137,7 @@ async function getJson<T>(path: string): Promise<T> {
           `arenaai:cat:${path}`,
           JSON.stringify({ data: result, timestamp: Date.now() }),
         );
-      } catch {}
+      } catch { }
     }
     return result;
   } catch (err) {
@@ -144,20 +150,20 @@ async function getJson<T>(path: string): Promise<T> {
 function normalizeItem(raw: Record<string, unknown>): PublicCatalogItem {
   const gallery = Array.isArray(raw.gallery)
     ? (raw.gallery as Record<string, unknown>[])
-        .filter((g) => g && typeof g === "object")
-        .map((g) => {
-          const url = typeof g.url === "string" ? g.url.trim() : "";
-          return {
-            id: String(g.id ?? ""),
-            mediaType: (g.mediaType as "image" | "video") ?? "image",
-            altText: String(g.altText ?? ""),
-            caption: g.caption ? String(g.caption) : null,
-            sortOrder: Number(g.sortOrder) || 0,
-            url,
-          };
-        })
-        .filter((g) => Boolean(g.url))
-        .sort((a, b) => a.sortOrder - b.sortOrder)
+      .filter((g) => g && typeof g === "object")
+      .map((g) => {
+        const url = typeof g.url === "string" ? g.url.trim() : "";
+        return {
+          id: String(g.id ?? ""),
+          mediaType: (g.mediaType as "image" | "video") ?? "image",
+          altText: String(g.altText ?? ""),
+          caption: g.caption ? String(g.caption) : null,
+          sortOrder: Number(g.sortOrder) || 0,
+          url,
+        };
+      })
+      .filter((g) => Boolean(g.url))
+      .sort((a, b) => a.sortOrder - b.sortOrder)
     : [];
   return {
     id: String(raw.id ?? ""),

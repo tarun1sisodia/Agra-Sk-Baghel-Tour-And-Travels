@@ -29,14 +29,4 @@ export async function registerRouteRoutes(
 
   // --- Backward Compatibility Aliases for route-catalog Endpoints ---
   app.get("/api/v1/route-catalog/manifest", { config: { rateLimit: { max: 120, timeWindow: "1 minute" } } }, controller.manifest);
-  app.get("/api/v1/route-catalog/fleets", { config: { rateLimit: { max: 120, timeWindow: "1 minute" } } }, controller.fleets);
-  app.get("/api/v1/ops/admin/route-catalog", { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } }, controller.list);
-  app.get("/api/v1/ops/admin/route-catalog/slug-check", { config: { rateLimit: { max: 120, timeWindow: "1 minute" } } }, controller.slugCheck);
-  app.get("/api/v1/ops/admin/route-catalog/:id", { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } }, controller.get);
-  app.post("/api/v1/ops/admin/route-catalog", { config: { rateLimit: { max: 30, timeWindow: "1 minute" } } }, controller.create);
-  app.patch("/api/v1/ops/admin/route-catalog/:id", { config: { rateLimit: { max: 30, timeWindow: "1 minute" } } }, controller.update);
-  app.post("/api/v1/ops/admin/route-catalog/:id/publish", { config: { rateLimit: { max: 20, timeWindow: "1 minute" } } }, controller.publish);
-  app.post("/api/v1/ops/admin/route-catalog/:id/archive", { config: { rateLimit: { max: 20, timeWindow: "1 minute" } } }, controller.archive);
-  app.delete("/api/v1/ops/admin/route-catalog/:id", { config: { rateLimit: { max: 20, timeWindow: "1 minute" } } }, controller.remove);
-  app.post("/api/v1/ops/admin/route-catalog/suggest-fares", { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } }, controller.suggestFares);
 }

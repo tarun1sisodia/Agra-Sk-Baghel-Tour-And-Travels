@@ -107,7 +107,11 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
     if (!slug || typeof window === "undefined") return;
     let mounted = true;
     fetchLiveTourPackageBySlug(String(slug)).then((fresh) => {
-      if (mounted && fresh) setLivePackage(fresh);
+      if (mounted && fresh) {
+        console.log("[TourPackageTemplate] Fresh package received:", fresh);
+        console.log("[TourPackageTemplate] Gallery from fresh package:", fresh.gallery);
+        setLivePackage(fresh);
+      }
     });
     return () => { mounted = false; };
   }, [pkg.slug, pkg.id, (pkg as any).packageCode, (pkg as any).package_code]);
@@ -129,7 +133,10 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
   // Normalized gallery list
   const galleryItems = useMemo<TourPackageGalleryImage[]>(() => {
     if (activePkg.gallery && Array.isArray(activePkg.gallery) && activePkg.gallery.length > 0) {
-      return activePkg.gallery.map((item: any) => typeof item === "string" ? { url: item, caption: "Tour View" } : item);
+      const items = activePkg.gallery.map((item: any) => typeof item === "string" ? { url: item, caption: "Tour View" } : item);
+      console.log("[TourPackageTemplate] Gallery items from activePkg:", activePkg.gallery);
+      console.log("[TourPackageTemplate] Processed galleryItems:", items);
+      return items;
     }
     if (activePkg.image) return [{ url: activePkg.image, caption: "Signature Tour View" }];
     return [];
@@ -362,9 +369,8 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
                     key={idx}
                     type="button"
                     onClick={() => setSelectedImageIndex(idx)}
-                    className={`relative w-24 h-16 rounded-lg overflow-hidden shrink-0 border transition-all cursor-pointer ${
-                      isSelected ? "border-primary ring-2 ring-primary/50 scale-102" : "border-border-warm opacity-80 hover:opacity-100"
-                    } shadow-xs`}
+                    className={`relative w-24 h-16 rounded-lg overflow-hidden shrink-0 border transition-all cursor-pointer ${isSelected ? "border-primary ring-2 ring-primary/50 scale-102" : "border-border-warm opacity-80 hover:opacity-100"
+                      } shadow-xs`}
                   >
                     <img
                       src={url}

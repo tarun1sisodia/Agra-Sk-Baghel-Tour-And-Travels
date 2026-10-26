@@ -48,6 +48,12 @@ function nextCorrelationId(): string {
 
 export async function apiFetch(path: string, init?: RequestInit): Promise<any> {
   const correlationId = nextCorrelationId();
+  const method = init?.method || "GET";
+  console.log(`[Admin API -> Request] ${method} ${path}`, {
+    correlationId,
+    timestamp: new Date().toISOString(),
+  });
+
   const res = await fetch(`${env.API_BASE_URL}${path}`, {
     ...init,
     headers: {
@@ -59,8 +65,17 @@ export async function apiFetch(path: string, init?: RequestInit): Promise<any> {
     },
   });
 
+  if (res.headers.get("X-API-Deprecated") === "true" || res.headers.get("Deprecation") === "true") {
+    console.warn(`[Admin API ! Deprecated Route Warning] Endpoint ${path} is marked as deprecated by server.`);
+  }
+
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
+    console.warn(`[Admin API ! Response Error] ${method} ${path} -> HTTP ${res.status}`, {
+      status: res.status,
+      error: json?.error || json?.message || json,
+      correlationId,
+    });
     if (res.status === 401 || res.status === 403) {
       expireSession();
     }
@@ -79,6 +94,8 @@ export async function apiFetch(path: string, init?: RequestInit): Promise<any> {
     }
     throw new Error(message);
   }
+
+  console.log(`[Admin API <- Response] ${method} ${path} -> HTTP ${res.status}`);
   return json;
 }
 
@@ -535,6 +552,80 @@ export async function createAdminBooking(payload: {
   returnDatetime?: string;
   specialNotes?: string;
 }): Promise<any> {
+  try {
+    // 1. Fetch published catalog to locate matching route and active vehicle models
+    const catalogRes = await apiFetch(`/api/v1/catalog`, { method: "GET" }).catch(() => null);
+    const products: any[] = catalogRes?.products || [];
+    const vehicles: any[] = catalogRes?.vehicles || [];
+
+    const originLower = payload.originName.trim().toLowerCase();
+    const destLower = payload.destinationName.trim().toLowerCase();
+
+    let matchedRoute = products.find((p) => {
+      const name = (p.name || "").toLowerCase();
+      const slug = (p.slug || p.code || "").toLowerCase();
+      return (
+        (name.includes(originLower) && name.includes(destLower)) ||
+        (slug.includes(originLower) && slug.includes(destLower))
+      );
+    });
+
+    if (!matchedRoute && products.length > 0) {
+      matchedRoute = products.find((p) => p.category === "routes" || p.category === "outstation") || products[0];
+    }
+
+    const requestedTier = (payload.vehicleTier || "sedan").toLowerCase();
+    let matchedVehicle = vehicles.find((v) => {
+      const code = (v.model_code || v.group_code || v.name || "").toLowerCase();
+      return code.includes(requestedTier);
+    });
+    if (!matchedVehicle && vehicles.length > 0) {
+      matchedVehicle = vehicles[0];
+    }
+
+    if (matchedRoute && matchedVehicle) {
+      const trip_type = payload.tripType === "round-trip" ? "round_trip" : "one_way";
+      const quotePayload = {
+        category: "outstation" as const,
+        route_id: matchedRoute.id,
+        vehicle_model_id: matchedVehicle.id,
+        trip_type,
+        pickup_at: new Date(payload.pickupDatetime).toISOString(),
+        return_at: payload.returnDatetime ? new Date(payload.returnDatetime).toISOString() : undefined,
+        passenger_count: 2,
+      };
+
+      const quote = await apiFetch(`/api/v1/quotes`, {
+        method: "POST",
+        body: JSON.stringify(quotePayload),
+      });
+
+      if (quote?.total) {
+        const cleanBookingRes = await apiFetch(`/api/v1/bookings`, {
+          method: "POST",
+          body: JSON.stringify({
+            quote: quotePayload,
+            quoted_total: quote.total,
+            customer_name: payload.customerName.trim(),
+            customer_phone: payload.customerPhone.trim(),
+            customer_email: payload.customerEmail?.trim() || undefined,
+            pickup_address: payload.pickupAddress.trim(),
+            drop_address: payload.dropAddress?.trim() || undefined,
+            special_notes: payload.specialNotes?.trim() || undefined,
+          }),
+        });
+
+        const b = cleanBookingRes?.booking || cleanBookingRes?.data || cleanBookingRes;
+        return {
+          ...b,
+          ticketId: b.ticket_id || b.ticketId || b.id,
+        };
+      }
+    }
+  } catch (err: any) {
+    console.warn("[Admin API] Clean booking creation fallback to draft:", err);
+  }
+
   const json = await apiFetch(`/api/v1/bookings/draft`, {
     method: "POST",
     body: JSON.stringify(payload),

@@ -57,6 +57,9 @@ async function apiRequest<T>(
     ...customHeaders,
   };
 
+  const method = options?.method || "GET";
+  console.log(`[Customer API -> Request] ${method} ${path}`);
+
   const res = await fetch(url, {
     ...options,
     headers,
@@ -65,6 +68,10 @@ async function apiRequest<T>(
   const body = await res.json().catch(() => ({}));
 
   if (!res.ok) {
+    console.warn(`[Customer API ! Error] ${method} ${path} -> HTTP ${res.status}`, {
+      status: res.status,
+      error: body?.error || body?.message || body,
+    });
     throw new CleanFareApiError(
       body.error || "API_ERROR",
       body.message || res.statusText,
@@ -72,6 +79,8 @@ async function apiRequest<T>(
       body.details || body
     );
   }
+
+  console.log(`[Customer API <- Response] ${method} ${path} -> HTTP ${res.status}`);
 
   if (schema) {
     const parseResult = schema.safeParse(body);
