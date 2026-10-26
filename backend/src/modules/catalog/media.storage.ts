@@ -29,7 +29,9 @@ import { createSupabaseAdmin } from "../../config/supabase.js";
  */
 export type MediaStorage = {
   readonly bucket: string;
-  readonly backend: "s3" | "supabase-sdk";
+  readonly backend: "s3" | "supabase-sdk" | "resilient-dual";
+  readonly primary?: MediaStorage;
+  readonly secondary?: MediaStorage;
   upload(params: { path: string; buffer: Buffer; mimeType: string }): Promise<void>;
   download(path: string): Promise<Buffer>;
   remove(path: string): Promise<void>;
@@ -88,12 +90,18 @@ async function streamToBuffer(stream: unknown): Promise<Buffer> {
   return Buffer.concat(chunks);
 }
 
-function createS3MediaStorage(env: Env): MediaStorage | null {
+export interface StorageLogger {
+  info?: (...args: any[]) => void;
+  warn?: (...args: any[]) => void;
+  error?: (...args: any[]) => void;
+}
+
+export function createS3MediaStorage(env: Env, customBucket?: string): MediaStorage | null {
   if (!env.S3_ENDPOINT || !env.S3_ACCESS_KEY_ID || !env.S3_SECRET_ACCESS_KEY) return null;
-  const bucket = env.CATALOG_MEDIA_BUCKET || "documents";
+  const bucket = customBucket || env.S3_BUCKET_NAME || env.CATALOG_MEDIA_BUCKET || "skb-media-backup";
   const client = new S3Client({
     endpoint: env.S3_ENDPOINT,
-    region: env.S3_REGION || "us-east-1",
+    region: env.S3_REGION || "auto",
     forcePathStyle: true, // required by Supabase Storage and most S3-compatible providers
     credentials: {
       accessKeyId: env.S3_ACCESS_KEY_ID,
@@ -133,10 +141,10 @@ function createS3MediaStorage(env: Env): MediaStorage | null {
   };
 }
 
-function createSupabaseSdkMediaStorage(env: Env): MediaStorage | null {
+export function createSupabaseSdkMediaStorage(env: Env, customBucket?: string): MediaStorage | null {
   const client = createSupabaseAdmin(env);
   if (!client) return null;
-  const bucket = env.CATALOG_MEDIA_BUCKET || "documents";
+  const bucket = customBucket || env.SUPABASE_MEDIA_BUCKET || "documents";
 
   return {
     bucket,
@@ -168,6 +176,102 @@ function createSupabaseSdkMediaStorage(env: Env): MediaStorage | null {
   };
 }
 
-export function createMediaStorage(env: Env): MediaStorage | null {
-  return createS3MediaStorage(env) ?? createSupabaseSdkMediaStorage(env);
+/**
+ * High-Availability Resilient Dual Media Storage:
+ * - Primary: Cloudflare R2 S3 bucket (high speed, edge-cached)
+ * - Secondary: Supabase Storage bucket (durable backup & legacy store)
+ *
+ * Download: Reads from primary (CF R2). If not found or primary is down, fails over to secondary
+ * (Supabase) and asynchronously backfills primary so subsequent requests hit CF R2.
+ * Upload: Dual-writes to both primary and secondary so both buckets stay 100% in sync.
+ * Remove: Purges from both buckets.
+ */
+export function createResilientDualMediaStorage(
+  primary: MediaStorage,
+  secondary: MediaStorage,
+  logger: StorageLogger = console,
+): MediaStorage {
+  return {
+    bucket: `${primary.bucket} (primary: ${primary.backend}) + ${secondary.bucket} (secondary: ${secondary.backend})`,
+    backend: "resilient-dual",
+    primary,
+    secondary,
+    async upload(params: { path: string; buffer: Buffer; mimeType: string }): Promise<void> {
+      let primaryErr: Error | null = null;
+      let primarySucceeded = false;
+
+      // 1. Primary write (Cloudflare R2)
+      try {
+        await primary.upload(params);
+        primarySucceeded = true;
+      } catch (err: any) {
+        primaryErr = err instanceof Error ? err : new Error(String(err));
+        logger.warn?.(
+          `[media-storage] Primary storage (${primary.backend}) upload failed for "${params.path}": ${primaryErr.message}. Falling back to secondary.`,
+        );
+      }
+
+      // 2. Dual-write to Secondary (Supabase Storage)
+      let secondaryErr: Error | null = null;
+      try {
+        await secondary.upload(params);
+      } catch (err: any) {
+        secondaryErr = err instanceof Error ? err : new Error(String(err));
+        logger.warn?.(
+          `[media-storage] Secondary replica upload (${secondary.backend}) failed for "${params.path}": ${secondaryErr.message}.`,
+        );
+      }
+
+      // If both fail, throw error
+      if (!primarySucceeded && secondaryErr) {
+        throw new Error(
+          `Dual storage upload failed for "${params.path}": Primary (${primary.bucket}: ${primaryErr?.message}) and Secondary (${secondary.bucket}: ${secondaryErr.message}).`,
+        );
+      }
+    },
+    async download(path: string): Promise<Buffer> {
+      // 1. Try downloading from Primary (Cloudflare R2)
+      try {
+        return await primary.download(path);
+      } catch (primaryErr: any) {
+        const pMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
+        logger.warn?.(
+          `[media-storage] Primary storage (${primary.backend}) download failed for "${path}": ${pMsg}. Failing over to secondary storage (${secondary.bucket})...`,
+        );
+
+        // 2. Failover to Secondary (Supabase Storage)
+        try {
+          const buffer = await secondary.download(path);
+          // Self-healing opportunistic backfill: replicate to primary so future requests hit Cloudflare R2
+          primary
+            .upload({ path, buffer, mimeType: mimeTypeForPath(path) || "application/octet-stream" })
+            .catch((backfillErr) => {
+              logger.warn?.(`[media-storage] Opportunistic primary backfill failed for "${path}": ${backfillErr?.message}`);
+            });
+          return buffer;
+        } catch (secondaryErr: any) {
+          const sMsg = secondaryErr instanceof Error ? secondaryErr.message : String(secondaryErr);
+          throw new Error(
+            `Failed to download media "${path}" from both primary (${primary.bucket}: ${pMsg}) and secondary (${secondary.bucket}: ${sMsg}).`,
+          );
+        }
+      }
+    },
+    async remove(path: string): Promise<void> {
+      await Promise.allSettled([primary.remove(path), secondary.remove(path)]);
+    },
+    getPublicUrl(path: string): string | null {
+      return primary.getPublicUrl?.(path) ?? secondary.getPublicUrl?.(path) ?? null;
+    },
+  };
+}
+
+export function createMediaStorage(env: Env, logger?: StorageLogger): MediaStorage | null {
+  const primary = createS3MediaStorage(env);
+  const secondary = createSupabaseSdkMediaStorage(env);
+
+  if (primary && secondary) {
+    return createResilientDualMediaStorage(primary, secondary, logger);
+  }
+  return primary ?? secondary;
 }

@@ -37,8 +37,9 @@ const EnvSchema = z.object({
     .string()
     .trim()
     .optional()
-    .transform((val) => val || process.env.S3_BUCKET_NAME || "documents"),
+    .transform((val) => val || process.env.S3_BUCKET_NAME || "skb-media-backup"),
   S3_BUCKET_NAME: z.string().trim().optional(),
+  SUPABASE_MEDIA_BUCKET: z.string().trim().optional().default("documents"),
   // S3 protocol connection (preferred) — Supabase Storage's S3-compatible
   // endpoint, or any other S3-compatible provider (AWS S3, R2, MinIO...).
   // Find this under Supabase Dashboard -> Storage -> S3 Connection.

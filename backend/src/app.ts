@@ -276,11 +276,15 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
   });
   const paymentService = createPaymentService({ db, clock, env, providers, notifications });
   const adminService = createAdminService({ db, clock });
-  const mediaStorage = createMediaStorage(env);
+  const mediaStorage = createMediaStorage(env, app.log);
   app.log.info(
     mediaStorage
       ? `Catalog media uploads → "${mediaStorage.bucket}" bucket via ${
-          mediaStorage.backend === "s3" ? "S3 protocol" : "Supabase Storage SDK"
+          mediaStorage.backend === "resilient-dual"
+            ? "Resilient Dual Storage (Primary: Cloudflare R2 S3, Secondary: Supabase Storage)"
+            : mediaStorage.backend === "s3"
+            ? "S3 protocol"
+            : "Supabase Storage SDK"
         }`
       : "Catalog media uploads → inline DB storage (no S3_* or SUPABASE_SERVICE_ROLE_KEY configured)",
   );
