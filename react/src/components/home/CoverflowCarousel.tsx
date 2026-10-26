@@ -198,6 +198,12 @@ export function CoverflowCarousel() {
                         alt={`${pkg.name} — ${pkg.places.slice(0, 3).join(" · ")}`}
                         loading={index === 0 ? "eager" : "lazy"}
                         draggable={false}
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          if (!target.src.includes("/assets/packages/taj-dawn.webp")) {
+                            target.src = "/assets/packages/taj-dawn.webp";
+                          }
+                        }}
                       />
 
                       {/* Bottom glass reflection gradient */}

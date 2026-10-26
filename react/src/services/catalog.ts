@@ -78,16 +78,16 @@ export function resolveCatalogMediaUrl(url: string | null | undefined): string {
   const trimmed = url.trim();
   if (!trimmed) return "";
   if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("data:")) {
-    console.log("[resolveCatalogMediaUrl] Already absolute URL, returning as-is:", trimmed);
+    const localhostMatch = trimmed.match(/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(\/api\/.*)$/i);
+    if (localhostMatch) {
+      return `${getApiBaseUrl()}${localhostMatch[1]}`;
+    }
     return trimmed;
   }
   const normalized = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
   if (normalized.startsWith("/api/")) {
-    const result = `${getApiBaseUrl()}${normalized}`;
-    console.log("[resolveCatalogMediaUrl] Resolved /api/ path:", trimmed, "->", result);
-    return result;
+    return `${getApiBaseUrl()}${normalized}`;
   }
-  console.log("[resolveCatalogMediaUrl] Returning trimmed:", trimmed);
   return trimmed;
 }
 
