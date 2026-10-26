@@ -621,16 +621,13 @@ export async function createAdminBooking(payload: {
           ticketId: b.ticket_id || b.ticketId || b.id,
         };
       }
+      throw new Error("Unable to obtain valid quote for selected route and vehicle");
     }
+    throw new Error("Unable to resolve route or vehicle for booking creation");
   } catch (err: any) {
-    console.warn("[Admin API] Clean booking creation fallback to draft:", err);
+    console.error("[Admin API] Failed to create booking via canonical API:", err);
+    throw new Error(err.message || "Failed to create booking");
   }
-
-  const json = await apiFetch(`/api/v1/bookings/draft`, {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-  return json?.data;
 }
 
 /* ── Review moderation ────────────────────────────────────────────────────── */
