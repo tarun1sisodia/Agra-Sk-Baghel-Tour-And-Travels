@@ -5,6 +5,7 @@ import { contact } from "../../data/contact";
 import { prefetchDocument } from "../../app/prefetch";
 import { WhatsAppIcon } from "../icons/WhatsAppIcon";
 import { getCustomerDisplayName, getCustomerAvatarUrl, getCustomerInitials, useCustomerAuth } from "../../auth/customerAuth";
+import { LiquidNavbar, NimbusIcons } from "../ui/liquid-glass-navbar";
 
 export interface HeaderProps {
   currentPath?: string;
@@ -92,14 +93,14 @@ export function Header({
   }, []);
 
   const navLinks = [
-    { label: "Home", href: "/" },
-    { label: "About", href: "/en/about/" },
-    { label: "Services", href: "/en/services/" },
-    { label: "Taxi Rental", href: "/en/taxis/rent/" },
-    { label: "Routes", href: "/en/routes/" },
-    { label: "Packages", href: "/en/packages/" },
-    { label: "Fleet", href: "/en/fleet/" },
-    { label: "Contact", href: "/en/contact/" },
+    { label: "Home", href: "/", icon: NimbusIcons.home, fx: "glow" as const },
+    { label: "About", href: "/en/about/", icon: NimbusIcons.user, fx: "pop" as const },
+    { label: "Services", href: "/en/services/", icon: NimbusIcons.badge, fx: "wave" as const },
+    { label: "Taxi Rental", href: "/en/taxis/rent/", icon: NimbusIcons.car, fx: "drop" as const },
+    { label: "Routes", href: "/en/routes/", icon: NimbusIcons.route, fx: "plane" as const },
+    { label: "Packages", href: "/en/packages/", icon: NimbusIcons.globe, fx: "spin" as const },
+    { label: "Fleet", href: "/en/fleet/", icon: NimbusIcons.car, fx: "wave" as const },
+    { label: "Contact", href: "/en/contact/", icon: NimbusIcons.phone, fx: "pop" as const },
   ];
 
   const normalizeNavPath = (path: string): string => {
@@ -135,6 +136,8 @@ export function Header({
     [activePath]
   );
 
+  const activeIndex = navLinks.findIndex((link) => isLinkActive(link.href));
+
   return (
     <>
       <header
@@ -144,42 +147,26 @@ export function Header({
           }`}
         id="site-header"
       >
-        <div className="h-12 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
+        <div className="h-16 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
           {/* Logo & Brand Mark */}
           <div className="flex items-center gap-2 shrink-0">
             <BrandLogo href="/" />
           </div>
 
-          {/* Desktop Primary Navigation */}
-          <nav className="hidden xl:flex items-center gap-1" aria-label="Primary">
-            {navLinks.map((link) => {
-              const active = isLinkActive(link.href);
-              return (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onMouseEnter={() => prefetchDocument(link.href)}
-                  aria-current={active ? "page" : undefined}
-                  style={
-                    active
-                      ? { backgroundColor: "#792410", color: "#ffffff" }
-                      : undefined
-                  }
-                  className={`px-2.5 py-1 text-xs font-semibold transition-colors rounded-md ${active
-                      ? "bg-[#792410] !text-white shadow-xs"
-                      : "text-on-surface-variant hover:text-on-surface hover:bg-sandstone-wash"
-                    }`}
-                >
-                  <span
-                    style={active ? { color: "#ffffff" } : undefined}
-                    className={active ? "!text-white" : undefined}
-                  >
-                    {link.label}
-                  </span>
-                </a>
-              );
-            })}
-          </nav>
+          {/* Desktop Primary Navigation with Liquid Glass Navbar */}
+          <div className="hidden xl:flex items-center">
+            <LiquidNavbar
+              items={navLinks.map((link) => ({
+                label: link.label,
+                href: link.href,
+                icon: link.icon,
+                fx: link.fx,
+                onMouseEnter: () => prefetchDocument(link.href),
+              }))}
+              active={activeIndex >= 0 ? activeIndex : 0}
+              tone="luxury"
+            />
+          </div>
 
           {/* Actions: Phone, WhatsApp, and Mobile Menu */}
           <div className="flex items-center gap-2 shrink-0">

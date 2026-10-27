@@ -14,7 +14,7 @@ export function BrandLogo({
     <a
       href={href}
       className={`flex shrink-0 items-center select-none group ${className}`.trim()}
-      aria-label="Agra SK Baghel Tour and Travels"
+      aria-label="Agra SK Baghel Tour & Travels"
       onClick={onClick}
     >
       <img

@@ -14,7 +14,7 @@ export function SiteLayout({ children, currentPath }: SiteLayoutProps) {
       <SkipLink />
       <OAuthErrorBanner />
       <Header currentPath={currentPath} />
-      <div className="pt-12">
+      <div className="pt-16">
         {children}
       </div>
       <LeadBar />

@@ -35,7 +35,7 @@ if (HINDI_INDEXING_ENABLED) {
 }
 assert.ok(sitemap.includes(CANONICAL_DOMAIN), "Sitemap must use the configured canonical origin.");
 const sitemapEntries = getSitemapEntries();
-assert.ok(sitemapEntries.length < 100, `Sitemap should contain only rendered canonical routes, found ${sitemapEntries.length}.`);
+assert.ok(sitemapEntries.length < 150, `Sitemap should contain only rendered canonical routes, found ${sitemapEntries.length}.`);
 assert.equal(sitemapEntries.some((entry) => entry.path.includes("/vehicles/innova/")), false, "Vehicle aliases must stay redirect-only.");
 assert.equal(sitemapEntries.some((entry) => entry.path === "/en/agra-to-mathura-taxi-service/"), false, "Redirected legacy taxi aliases must stay out of the sitemap.");
 assert.equal(

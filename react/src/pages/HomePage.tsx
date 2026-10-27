@@ -300,139 +300,139 @@ export function HomePage({ language = "en" }: HomePageProps) {
 
       {/* ── MAIN HOMEPAGE CONTENT ── */}
       <main id="main-content" className="w-full relative z-20">
-        {/* ── HERO ── Taj Mahal sunrise background, text left / booking dock right */}
-        <section className="relative w-full min-h-[580px] lg:min-h-[640px] flex items-center pt-20 sm:pt-28 pb-16 bg-ink-midnight text-on-primary overflow-hidden">
+        {/* ── HERO ── Full-Bleed Cinematic Taj Mahal Hero (100vw edge-to-edge) with Centered Typography */}
+        <section className="relative w-full min-h-[520px] lg:min-h-[580px] flex flex-col justify-center items-center pt-24 sm:pt-32 pb-20 bg-ink-midnight text-on-primary overflow-hidden">
           <HomeHeroSlideshow />
-          {/* Subtle gradient overlay to ensure text and booking form legibility while leaving ~80% of the image vividly visible */}
-          <div className="absolute inset-0 bg-gradient-to-r from-ink-midnight/65 via-ink-midnight/10 to-ink-midnight/10 z-0 pointer-events-none" />
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink-midnight to-transparent z-0 pointer-events-none" />
+          {/* Cinematic lighting gradient overlay: ensures 100% crisp text legibility while keeping the majestic monument vividly visible */}
+          <div className="absolute inset-0 bg-gradient-to-b from-ink-midnight/70 via-ink-midnight/35 to-ink-midnight/80 z-0 pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-surface via-surface/40 to-transparent z-0 pointer-events-none" />
 
-          <div className="relative z-10 w-full max-w-[1280px] mx-auto px-margin-mobile lg:px-margin grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            {/* Left — headline + two CTAs only (hero stack discipline: 3 elements max) */}
-            <div className="lg:col-span-12 max-w-3xl flex flex-col items-start gap-space-md">
-
-              {/* 100% SEO-Safe Headline with Letter-by-Letter Handwriting Reveal */}
-              <div className="flex flex-col items-start gap-1 w-full max-w-[640px]">
-                {/* Prestige Heritage Pill Badge */}
-
-                <h1 className="font-headline-hero text-headline-hero font-normal leading-[1.14] w-full">
-                  {/* Semantic HTML text for search crawlers & screen readers */}
-                  <span className="sr-only">Premium Taxi Service & Tour Packages in Agra</span>
-
-                  <div aria-hidden="true" className="select-none flex flex-col gap-1 w-full">
-                    {/* Static, crawlable hero headline */}
-                    <div
-                      className="text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)] overflow-visible pb-0.5"
-                      aria-label={text}
-                    >
-                      {text.split("").map((letter, index) => (
-                        <span
-                          key={`${letter}-${index}`}
-                          className="inline-block font-serif italic text-4xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/80"
-                        >
-                          {letter === " " ? "\u00A0" : letter}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Static Line 2: in first-class comfort. in luminous light white/champagne */}
-                    <div className="relative w-full max-w-[560px] mt-0.5">
-                      <div
-                        className="font-serif italic tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-white/95 to-white/80 drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)] text-3xl sm:text-4xl md:text-5xl"
-                        style={{
-                          lineHeight: 1.18,
-                          fontFamily: "'Playfair Display', 'EB Garamond', Georgia, serif",
-                        }}
-                      >
-                        in first-class comfort.
-                      </div>
-
-                      {/* Cursive flourish underline stroke in luminous white silk */}
-                      <svg
-                        viewBox="0 0 520 24"
-                        className="w-full max-w-[480px] h-auto overflow-visible mt-0.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)]"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M4 14 C120 18, 300 6, 500 12"
-                          stroke="url(#underlineWhiteSilk)"
-                          strokeWidth="2.8"
-                          strokeLinecap="round"
-                        />
-                        <defs>
-                          <linearGradient id="underlineWhiteSilk" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.15" />
-                            <stop offset="25%" stopColor="#FFFFFF" stopOpacity="0.95" />
-                            <stop offset="75%" stopColor="#F5F2EB" stopOpacity="0.9" />
-                            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.1" />
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                    </div>
-                  </div>
-                </h1>
-              </div>
-              <p className="font-body-lg text-body-lg text-ivory-surface max-w-xl leading-relaxed drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
-                Explore local monuments or plan outstation trips with Agra's trusted travel partner. Doorstep pickup across Agra, Taj Mahal sunrise tours by car, and transparent per-km billing.
-              </p>
-              <div className="flex flex-wrap items-center gap-space-sm">
-                <a
-                  className="inline-flex items-center gap-space-xs px-space-lg py-3 rounded-lg bg-primary hover:bg-primary-container text-white font-label-lg text-label-lg shadow-md transition-all font-semibold active:scale-[0.98]"
-                  href="tel:+919762817598"
-                >
-                  <span className="material-symbols-outlined text-icon-18">call</span>
-                  <span className="text-white">Call +91 97628 17598</span>
-                </a>
-                <a
-                  className="inline-flex items-center gap-space-xs px-space-lg py-3 rounded-lg bg-black hover:bg-neutral-900 text-white font-label-lg text-label-lg shadow-md transition-all font-semibold active:scale-[0.98] border border-white/10"
-                  style={{ color: "#ffffff" }}
-                  href={`https://wa.me/${contact.whatsapp}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="Book taxi directly on WhatsApp (opens in new window)"
-                >
-                  <WhatsAppIcon className="w-[18px] h-[18px] shrink-0 text-white" />
-                  <span className="text-white font-semibold" style={{ color: "#ffffff" }}>WhatsApp</span>
-                </a>
-              </div>
+          <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center gap-5">
+            {/* Live Operational Dispatch Glass Pill Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-xs font-semibold shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Agra Hub Dispatch • 24/7 Verified Chauffeur Fleet</span>
             </div>
 
+            {/* 100% SEO-Safe Headline with Handwriting Flourish */}
+            <h1 className="font-headline-hero text-headline-hero font-normal leading-[1.12] w-full max-w-4xl">
+              {/* Semantic HTML text for search crawlers & screen readers */}
+              <span className="sr-only">Premium Taxi Service & Tour Packages in Agra</span>
+
+              <div aria-hidden="true" className="select-none flex flex-col items-center gap-1.5 w-full">
+                {/* Line 1: Agra to Anywhere */}
+                <div
+                  className="text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)] drop-shadow-[0_6px_28px_rgba(0,0,0,0.7)] overflow-visible pb-0.5"
+                  aria-label={text}
+                >
+                  {text.split("").map((letter, index) => (
+                    <span
+                      key={`${letter}-${index}`}
+                      className="inline-block font-serif italic text-4xl sm:text-6xl md:text-7xl text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/85"
+                    >
+                      {letter === " " ? "\u00A0" : letter}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Line 2: in first-class comfort. in luminous light white/champagne */}
+                <div className="relative w-full max-w-xl mt-1 flex flex-col items-center">
+                  <div
+                    className="font-serif italic tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-white/95 to-white/80 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] text-3xl sm:text-5xl md:text-6xl"
+                    style={{
+                      lineHeight: 1.15,
+                      fontFamily: "'Playfair Display', 'EB Garamond', Georgia, serif",
+                    }}
+                  >
+                    in first-class comfort.
+                  </div>
+
+                  {/* Cursive flourish underline stroke in luminous white silk */}
+                  <svg
+                    viewBox="0 0 520 24"
+                    className="w-full max-w-[420px] h-auto overflow-visible mt-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M4 14 C120 18, 300 6, 500 12"
+                      stroke="url(#underlineWhiteSilk)"
+                      strokeWidth="2.8"
+                      strokeLinecap="round"
+                    />
+                    <defs>
+                      <linearGradient id="underlineWhiteSilk" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.15" />
+                        <stop offset="25%" stopColor="#FFFFFF" stopOpacity="0.95" />
+                        <stop offset="75%" stopColor="#F5F2EB" stopOpacity="0.9" />
+                        <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.1" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+              </div>
+            </h1>
+
+            <p className="font-body-lg text-body-lg text-ivory-surface max-w-2xl leading-relaxed drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+              Explore local monuments or plan outstation trips with Agra's trusted travel partner. Doorstep pickup across Agra, Taj Mahal sunrise tours by car, and transparent per-km billing.
+            </p>
+
+            {/* Direct CTAs with 48px touch targets */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <a
+                className="inline-flex items-center gap-2 px-6 py-3.5 min-h-[48px] rounded-full bg-primary hover:bg-primary-container text-white font-label-lg shadow-lg hover:shadow-xl transition-all font-semibold active:scale-[0.98] border border-white/20"
+                href="tel:+919762817598"
+              >
+                <span className="material-symbols-outlined text-icon-18">call</span>
+                <span className="text-white">Call +91 97628 17598</span>
+              </a>
+              <a
+                className="inline-flex items-center gap-2 px-6 py-3.5 min-h-[48px] rounded-full bg-black/80 hover:bg-black text-white font-label-lg shadow-lg hover:shadow-xl transition-all font-semibold active:scale-[0.98] border border-white/25 backdrop-blur-md"
+                style={{ color: "#ffffff" }}
+                href={`https://wa.me/${contact.whatsapp}`}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Book taxi directly on WhatsApp (opens in new window)"
+              >
+                <WhatsAppIcon className="w-[18px] h-[18px] shrink-0 text-white" />
+                <span className="text-white font-semibold" style={{ color: "#ffffff" }}>WhatsApp Booking</span>
+              </a>
+            </div>
           </div>
         </section>
 
-        {/* ── TRUST TICKER ── Directly below hero with smooth fade-in/out masks */}
-        <div className="w-full bg-ink-charcoal border-y border-border-warm/15 py-3 overflow-hidden relative z-20">
-          {/* Left edge fade gradient mask */}
-          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-ink-charcoal via-ink-charcoal/90 to-transparent z-10" />
-          {/* Right edge fade gradient mask */}
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-ink-charcoal via-ink-charcoal/90 to-transparent z-10" />
+        {/* ── FLOATING FROSTED GLASS BOOKING DOCK ── */}
+        <section className="relative z-30 w-full -mt-12 sm:-mt-16 px-3 sm:px-6 lg:px-8 max-w-6xl mx-auto" aria-label="Book your taxi">
+          <div className="rounded-3xl glass-card-frosted p-2.5 sm:p-5 shadow-[0_20px_50px_rgba(15,19,26,0.12)] border border-white/80">
+            <HomeBookingWidget />
+          </div>
+        </section>
 
-          <div className="animate-marquee flex items-center gap-10 text-ivory-surface whitespace-nowrap">
+        {/* ── GLASS TRUST BANNER ── Spans 100% full width with smooth marquee */}
+        <div className="w-full bg-surface-container-low/90 backdrop-blur-md border-y border-border-warm/50 py-3.5 overflow-hidden relative z-20 mt-8">
+          {/* Left edge fade gradient mask */}
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-surface-container-low via-surface-container-low/90 to-transparent z-10" />
+          {/* Right edge fade gradient mask */}
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-surface-container-low via-surface-container-low/90 to-transparent z-10" />
+
+          <div className="animate-marquee flex items-center gap-10 text-on-surface whitespace-nowrap">
             {[...Array(2)].flatMap(() => [
               { icon: "verified_user", title: "Govt-Registered", sub: "Tourist Vehicle Permit" },
               { icon: "badge", title: "Verified Chauffeurs", sub: "Police Background Check" },
-              { icon: "receipt_long", title: "Tax Invoice", sub: "Tax invoice available on request" },
+              { icon: "receipt_long", title: "Tax Invoice", sub: "Available on request" },
               { icon: "verified", title: "Top-Rated Service", sub: "Verified Customer Reviews" },
               { icon: "support_agent", title: "24×7 Dispatch", sub: "Live Agra Control Desk" },
             ]).map((item, idx) => (
               <div key={idx} className="flex items-center gap-2.5 shrink-0 px-4">
-                <span className="material-symbols-outlined text-gold-accent text-icon-20">{item.icon}</span>
+                <span className="material-symbols-outlined text-primary text-icon-20">{item.icon}</span>
                 <div className="flex flex-col">
-                  <span className="font-title-md text-title-lg font-semibold leading-tight text-ivory-surface">{item.title}</span>
-                  <span className="font-label-caps text-label-lg text-surface-dim">{item.sub}</span>
+                  <span className="font-title-md text-title-md font-bold leading-tight text-ink-midnight">{item.title}</span>
+                  <span className="font-label-caps text-label-sm text-on-surface-variant">{item.sub}</span>
                 </div>
               </div>
             ))}
           </div>
         </div>
-
-        {/* ── BOOKING WIDGET ── Horizontal bar; Popular Routes moved directly below per client request */}
-        <section className="w-full py-space-2xl" aria-label="Book your taxi">
-          <div className="max-w-[1280px] mx-auto px-margin-mobile lg:px-margin">
-            <HomeBookingWidget />
-          </div>
-        </section>
 
         {/* ── BRAND AUTHORITY & LOCAL AGRA HUB SECTION ── */}
         <section className="w-full py-space-3xl bg-surface-container-low border-y border-border-warm/40" aria-labelledby="brand-overview-heading">
@@ -447,7 +447,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-space-lg max-w-5xl mx-auto text-on-surface-variant font-body-md text-body-md leading-relaxed">
-              <div className="p-space-xl rounded-2xl bg-surface border border-border-warm/60 shadow-xs flex flex-col justify-between">
+              <div className="p-space-xl rounded-3xl glass-card-frosted shadow-md flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                 <p>
                   Welcome to <strong className="text-on-surface font-semibold">Agra SK Baghel Tour and Travels</strong>, your premier companion for local sightseeing and outstation cab booking in Agra. Whether you need a hassle-free drop from <strong className="text-on-surface font-semibold">Agra Cantt railway station taxi service</strong>, an early morning <strong className="text-on-surface font-semibold">taj mahal sunrise tour package by car</strong>, or a comfortable family outstation trip, our well-maintained fleet and expert local chauffeurs ensure a smooth ride. We specialize in custom travel itineraries originating from Agra to anywhere across India, delivering unmatched safety, pocket-friendly transparent billing, and 24/7 client support.
                 </p>
@@ -457,7 +457,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                   </a>
                 </div>
               </div>
-              <div className="p-space-xl rounded-2xl bg-surface border border-border-warm/60 shadow-xs flex flex-col justify-between">
+              <div className="p-space-xl rounded-3xl glass-card-frosted shadow-md flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                 <p>
                   Finding a reliable <strong className="text-on-surface font-semibold">car rental in agra with a driver</strong> shouldn't be complicated. We offer clean, air-conditioned options ranging from economical family cars to luxury executive vehicles. As a leading name in <strong className="text-on-surface font-semibold">agra tour and travels</strong>, we prioritize punctuality, clean vehicle cabins, and professional local driver-guides who know the routes perfectly. Book your <strong className="text-on-surface font-semibold">local sightseeing taxi in agra</strong> today and experience the city of love without transit stress.
                 </p>
@@ -483,7 +483,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
             </p>
 
             {/* One-Way vs Round-Trip Selector */}
-            <div className="inline-flex items-center p-1 rounded-full bg-surface-container border border-border-warm/60 mt-4">
+            <div className="inline-flex items-center p-1.5 rounded-full glass-pill bg-surface-container/80 border border-border-warm/60 mt-4 shadow-xs">
               <button
                 type="button"
                 onClick={() => setPopularTripMode("oneway")}
@@ -507,8 +507,8 @@ export function HomePage({ language = "en" }: HomePageProps) {
             </div>
           </div>
 
-          {/* Horizontal route rows */}
-          <div className="divide-y divide-border-warm/40">
+          {/* Horizontal route rows wrapped in Frosted Glass */}
+          <div className="p-4 sm:p-6 rounded-3xl glass-card-frosted shadow-md divide-y divide-border-warm/40">
             {routesLoading && popularRoutesList.length === 0 ? (
               [1, 2, 3, 4].map((i) => (
                 <div key={i} className="py-4 animate-pulse flex items-center justify-between">
