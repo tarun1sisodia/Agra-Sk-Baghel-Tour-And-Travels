@@ -292,38 +292,38 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
             </div>
           </div>
 
-          {/* Trust Stats Strip (Compact -20%) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-lg bg-surface-container shadow-xs mb-space-lg border border-border-warm/50">
-            <div className="flex items-center gap-2 p-1">
-              <div className="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-primary shrink-0 shadow-xs">
-                <span className="material-symbols-outlined text-icon-18">signpost</span>
+          {/* Trust Stats Strip (Frosted Glass Bento) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 p-4 sm:p-5 rounded-3xl glass-card-frosted shadow-md mb-space-lg border border-white/60">
+            <div className="flex items-center gap-3 p-1">
+              <div className="w-10 h-10 rounded-xl bg-sandstone-wash flex items-center justify-center text-primary shrink-0 shadow-xs">
+                <span className="material-symbols-outlined text-icon-20">signpost</span>
               </div>
               <div>
                 <div className="font-title-md text-xs sm:text-title-lg text-ink-charcoal font-bold">{allRoutes.length} Corridors</div>
                 <div className="font-body-sm text-body-sm text-on-surface-variant">Verified Intercity Drops</div>
               </div>
             </div>
-            <div className="flex items-center gap-2 p-1">
-              <div className="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-success-jade shrink-0 shadow-xs">
-                <span className="material-symbols-outlined text-icon-18">verified_user</span>
+            <div className="flex items-center gap-3 p-1">
+              <div className="w-10 h-10 rounded-xl bg-sandstone-wash flex items-center justify-center text-success-jade shrink-0 shadow-xs">
+                <span className="material-symbols-outlined text-icon-20">verified_user</span>
               </div>
               <div>
                 <div className="font-title-md text-xs sm:text-title-lg text-ink-charcoal font-bold">100% Fastag</div>
                 <div className="font-body-sm text-body-sm text-on-surface-variant">&amp; Toll Clarity</div>
               </div>
             </div>
-            <div className="flex items-center gap-2 p-1">
-              <div className="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-gold-accent shrink-0 shadow-xs">
-                <span className="material-symbols-outlined text-icon-18">speed</span>
+            <div className="flex items-center gap-3 p-1">
+              <div className="w-10 h-10 rounded-xl bg-sandstone-wash flex items-center justify-center text-gold-accent shrink-0 shadow-xs">
+                <span className="material-symbols-outlined text-icon-20">speed</span>
               </div>
               <div>
                 <div className="font-title-md text-xs sm:text-title-lg text-ink-charcoal font-bold">300 KM/Day</div>
                 <div className="font-body-sm text-body-sm text-on-surface-variant">Round-Trip Baseline</div>
               </div>
             </div>
-            <div className="flex items-center gap-2 p-1">
-              <div className="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center text-terracotta-sunlit shrink-0 shadow-xs">
-                <span className="material-symbols-outlined text-icon-18">money_off</span>
+            <div className="flex items-center gap-3 p-1">
+              <div className="w-10 h-10 rounded-xl bg-sandstone-wash flex items-center justify-center text-terracotta-sunlit shrink-0 shadow-xs">
+                <span className="material-symbols-outlined text-icon-20">money_off</span>
               </div>
               <div>
                 <div className="font-title-md text-xs sm:text-title-lg text-ink-charcoal font-bold">Zero Empty</div>
@@ -334,16 +334,16 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
 
           {/* High-Intent Outstation Editorial Architecture (Phase 12) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-lg mb-space-xl">
-            <div className="p-space-lg rounded-xl bg-surface border border-border-warm/60 shadow-xs flex flex-col gap-2">
-              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">
+            <div className="glass-card-frosted p-6 sm:p-8 rounded-3xl border border-white/60 shadow-xs flex flex-col gap-2.5">
+              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal font-bold">
                 Affordable Outstation Cab Booking from Agra to Major Cities
               </h2>
               <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
                 Planning a trip outside the city limits? <strong className="text-on-surface font-semibold">Agra SK Baghel Tour and Travels</strong> offers premium <strong className="text-on-surface font-semibold">outstation taxi service from agra</strong> to popular destinations across neighboring states. Avoid the crowds of public transport and commute comfortably with our dedicated intercity transit options starting from any location in Agra.
               </p>
             </div>
-            <div className="p-space-lg rounded-xl bg-surface border border-border-warm/60 shadow-xs flex flex-col gap-2">
-              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">
+            <div className="glass-card-frosted p-6 sm:p-8 rounded-3xl border border-white/60 shadow-xs flex flex-col gap-2.5">
+              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal font-bold">
                 Popular Intercity Cab Routes &amp; Tour Packages
               </h2>
               <div className="font-body-md text-body-md text-on-surface-variant leading-relaxed space-y-1.5">
@@ -500,7 +500,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
               {paginatedRoutes.map((route) => (
                 <div
                   key={route.id}
-                  className="bg-surface-container-lowest rounded-xl p-3.5 sm:p-4.5 shadow-xs border border-border-warm/70 flex flex-col justify-between hover:shadow-md transition-all"
+                  className="glass-card-frosted rounded-3xl p-5 sm:p-6 shadow-sm border border-white/60 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">

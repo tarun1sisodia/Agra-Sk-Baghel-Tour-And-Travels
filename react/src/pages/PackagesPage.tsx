@@ -662,31 +662,31 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
 
           </div>
 
-          {/* Trust Ribbon Mosaic (Compact -20%) */}
-          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 pt-3">
-            <div className="bg-surface-container-lowest p-2.5 sm:p-3 rounded-lg flex items-center gap-2 shadow-xs border border-border-warm/60">
-              <span className="material-symbols-outlined text-primary text-icon-20">explore</span>
+          {/* Trust Ribbon Mosaic (Frosted Glass Bento) */}
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-3">
+            <div className="glass-card-frosted p-3.5 sm:p-4 rounded-2xl flex items-center gap-3 shadow-xs border border-white/60">
+              <span className="material-symbols-outlined text-primary text-icon-22">explore</span>
               <div>
                 <div className="font-title-sm text-xs font-bold text-ink-charcoal">6 Signature Packages</div>
                 <div className="font-body-sm text-body-sm text-on-surface-variant">Same-Day to Multi-Day</div>
               </div>
             </div>
-            <div className="bg-surface-container-lowest p-2.5 sm:p-3 rounded-lg flex items-center gap-2 shadow-xs border border-border-warm/60">
-              <span className="material-symbols-outlined text-success-jade text-icon-20">verified_user</span>
+            <div className="glass-card-frosted p-3.5 sm:p-4 rounded-2xl flex items-center gap-3 shadow-xs border border-white/60">
+              <span className="material-symbols-outlined text-success-jade text-icon-22">verified_user</span>
               <div>
                 <div className="font-title-sm text-xs font-bold text-ink-charcoal">0% Shopping Traps</div>
                 <div className="font-body-sm text-body-sm text-on-surface-variant">Direct monuments only</div>
               </div>
             </div>
-            <div className="bg-surface-container-lowest p-2.5 sm:p-3 rounded-lg flex items-center gap-2 shadow-xs border border-border-warm/60">
-              <span className="material-symbols-outlined text-primary text-icon-20">badge</span>
+            <div className="glass-card-frosted p-3.5 sm:p-4 rounded-2xl flex items-center gap-3 shadow-xs border border-white/60">
+              <span className="material-symbols-outlined text-primary text-icon-22">badge</span>
               <div>
                 <div className="font-title-sm text-xs font-bold text-ink-charcoal">Govt-Approved Guides</div>
                 <div className="font-body-sm text-body-sm text-on-surface-variant">Licensed ASI historians</div>
               </div>
             </div>
-            <div className="bg-surface-container-lowest p-2.5 sm:p-3 rounded-lg flex items-center gap-2 shadow-xs border border-border-warm/60">
-              <span className="material-symbols-outlined text-primary text-icon-20">directions_car</span>
+            <div className="glass-card-frosted p-3.5 sm:p-4 rounded-2xl flex items-center gap-3 shadow-xs border border-white/60">
+              <span className="material-symbols-outlined text-primary text-icon-22">directions_car</span>
               <div>
                 <div className="font-title-sm text-xs font-bold text-ink-charcoal">Doorstep Pickup</div>
                 <div className="font-body-sm text-body-sm text-on-surface-variant">Hotel &amp; Cantt Station</div>
@@ -696,16 +696,16 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
 
           {/* High-Intent Local Sightseeing Editorial Section (Phase 9) */}
           <div className="mt-8 pt-6 border-t border-border-warm/40 grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
-            <div className="p-space-lg rounded-xl bg-surface border border-border-warm/60 shadow-xs flex flex-col gap-2">
-              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">
+            <div className="glass-card-frosted p-6 sm:p-8 rounded-3xl border border-white/60 shadow-xs flex flex-col gap-2.5">
+              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal font-bold">
                 Custom Same Day Taj Mahal Tour Package by Car
               </h2>
               <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
                 Maximize your time in the city with our curated <strong className="text-on-surface font-semibold">local sightseeing taxi in agra</strong> packages. Skip the chaotic local transport and enjoy a personalized, chauffeur-driven journey around the region's architectural marvels. Our custom itineraries are crafted to give you a stress-free experience, starting directly from your location in Agra.
               </p>
             </div>
-            <div className="p-space-lg rounded-xl bg-surface border border-border-warm/60 shadow-xs flex flex-col gap-2">
-              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal">
+            <div className="glass-card-frosted p-6 sm:p-8 rounded-3xl border border-white/60 shadow-xs flex flex-col gap-2.5">
+              <h2 className="font-headline-lg text-headline-lg text-ink-charcoal font-bold">
                 Comprehensive Cab Booking Agra Fort and Taj Mahal
               </h2>
               <div className="font-body-md text-body-md text-on-surface-variant leading-relaxed space-y-1.5">
@@ -874,7 +874,7 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
             return (
               <article
                 key={pkg.id}
-                className="flex flex-col bg-surface-container-lowest rounded-xl shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden border border-border-warm"
+                className="flex flex-col glass-card-frosted rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden border border-white/60"
               >
                 {/* Main Image Showcase Stage */}
                 <div className="relative aspect-[16/10] sm:h-48 w-full bg-surface-container overflow-hidden group">

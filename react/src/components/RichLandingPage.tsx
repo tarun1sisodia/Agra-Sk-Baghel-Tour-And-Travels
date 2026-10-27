@@ -187,20 +187,20 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
 
           {/* Route Key Specifications Badges */}
           <div className="flex flex-wrap gap-2.5 sm:gap-3 mb-8">
-            <div className="inline-flex items-center gap-2 rounded-xl bg-surface-container-lowest border border-border-warm px-3.5 py-2 shadow-2xs">
+            <div className="inline-flex items-center gap-2 rounded-xl glass-card-frosted border border-white/60 px-4 py-2 shadow-xs">
               <span className="material-symbols-outlined text-terracotta-sandstone text-base">alt_route</span>
               <span className="text-ink-charcoal text-xs sm:text-sm font-semibold">
                 <strong>Distance:</strong> {route.distance}
               </span>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-xl bg-surface-container-lowest border border-border-warm px-3.5 py-2 shadow-2xs">
+            <div className="inline-flex items-center gap-2 rounded-xl glass-card-frosted border border-white/60 px-4 py-2 shadow-xs">
               <span className="material-symbols-outlined text-terracotta-sandstone text-base">schedule</span>
               <span className="text-ink-charcoal text-xs sm:text-sm font-semibold">
                 <strong>Duration:</strong> {route.duration}
               </span>
             </div>
             {route.expressway && (
-              <div className="inline-flex items-center gap-2 rounded-xl bg-surface-container-lowest border border-border-warm px-3.5 py-2 shadow-2xs">
+              <div className="inline-flex items-center gap-2 rounded-xl glass-card-frosted border border-white/60 px-4 py-2 shadow-xs">
                 <span className="material-symbols-outlined text-terracotta-sandstone text-base">speed</span>
                 <span className="text-ink-charcoal text-xs sm:text-sm font-semibold">
                   <strong>Corridor:</strong> {route.expressway}
@@ -244,7 +244,7 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
       {/* MAIN CONTENT CONTAINER */}
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14 space-y-12">
         {/* 2. TRANSPARENT FARE TABLE (Section Heading <h2> at 28px / 1.75rem) */}
-        <section className="bg-surface-container-lowest border border-border-warm rounded-2xl p-5 sm:p-8 shadow-xs">
+        <section className="glass-card-frosted border border-white/60 rounded-3xl p-6 sm:p-10 shadow-xl">
           <div className="mb-6">
             <span className="text-terracotta-sandstone font-label-caps uppercase tracking-wider text-xs font-bold block mb-1">
               Guaranteed Upfront Pricing
@@ -257,7 +257,7 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-xl border border-border-warm">
+          <div className="overflow-x-auto rounded-2xl border border-white/60 bg-white/40 backdrop-blur-sm shadow-xs">
             <table className="w-full border-collapse text-left text-sm sm:text-base">
               <thead>
                 <tr className="bg-surface-container border-b border-border-warm text-ink-charcoal font-semibold">

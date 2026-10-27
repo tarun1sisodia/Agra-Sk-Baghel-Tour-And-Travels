@@ -61,24 +61,24 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                 />
               </div>
 
-              {/* Trust Badges Strip (Compact -20%) */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-space-md">
-                <div className="flex flex-col bg-surface-container-low p-2.5 sm:p-3 rounded-lg shadow-xs border border-border-warm/40">
+              {/* Trust Badges Strip */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-space-md">
+                <div className="flex flex-col glass-card-frosted p-3.5 rounded-2xl shadow-xs transition-all hover:-translate-y-0.5">
                   <span className="font-headline-md text-base sm:text-lg text-terracotta-sandstone font-serif font-bold">15+</span>
                   <span className="font-body-sm text-label-md text-on-surface font-semibold">Years in Taj Ganj</span>
                   <span className="text-body-sm text-secondary">Family-run local heritage</span>
                 </div>
-                <div className="flex flex-col bg-surface-container-low p-2.5 sm:p-3 rounded-lg shadow-xs border border-border-warm/40">
+                <div className="flex flex-col glass-card-frosted p-3.5 rounded-2xl shadow-xs transition-all hover:-translate-y-0.5">
                   <span className="font-headline-md text-base sm:text-lg text-terracotta-sandstone font-serif font-bold">3,800+</span>
                   <span className="font-body-sm text-label-md text-on-surface font-semibold">Verified Expeditions</span>
                   <span className="text-body-sm text-secondary">4.9 / 5 Guest Satisfaction</span>
                 </div>
-                <div className="flex flex-col bg-surface-container-low p-2.5 sm:p-3 rounded-lg shadow-xs border border-border-warm/40">
+                <div className="flex flex-col glass-card-frosted p-3.5 rounded-2xl shadow-xs transition-all hover:-translate-y-0.5">
                   <span className="font-headline-md text-base sm:text-lg text-terracotta-sandstone font-serif font-bold">100%</span>
                   <span className="font-body-sm text-label-md text-on-surface font-semibold">Yellow-Plate Fleet</span>
                   <span className="text-body-sm text-secondary">Zero illegal white plates</span>
                 </div>
-                <div className="flex flex-col bg-surface-container-low p-2.5 sm:p-3 rounded-lg shadow-xs border border-border-warm/40">
+                <div className="flex flex-col glass-card-frosted p-3.5 rounded-2xl shadow-xs transition-all hover:-translate-y-0.5">
                   <span className="font-headline-md text-base sm:text-lg text-terracotta-sandstone font-serif font-bold">0</span>
                   <span className="font-body-sm text-label-md text-on-surface font-semibold">Emporium Detours</span>
                   <span className="text-body-sm text-secondary">Zero commission traps</span>
@@ -88,27 +88,27 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
 
             {/* Visual Column with Asymmetric Editorial Overlay */}
             <div className="lg:col-span-5 relative">
-              <div className="relative rounded-xl overflow-hidden shadow-lg bg-surface-container border border-border-warm/60">
+              <div className="relative rounded-3xl overflow-hidden shadow-xl glass-card-frosted p-2 border border-white/60">
                 <img
-                  className="w-full h-[340px] sm:h-[380px] object-cover"
+                  className="w-full h-[340px] sm:h-[380px] object-cover rounded-2xl"
                   alt="A pristine Toyota Innova Crysta luxury touring vehicle parked on a scenic road with historic sandstone monuments in the background"
                   src="/assets/fleet/innova.webp"
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src = "/assets/fleet/innova.webp";
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight/80 via-ink-midnight/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight/80 via-ink-midnight/20 to-transparent rounded-2xl" />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Section 2: The 6 Pillars of the Baghel Standard (Compact -20%) */}
-      <section className="w-full bg-surface-container-low py-8 sm:py-space-xl border-t border-b border-border-warm/30">
+      {/* Section 2: The 6 Pillars of the Baghel Standard */}
+      <section className="w-full bg-surface-container-low/60 py-10 sm:py-space-xl border-t border-b border-border-warm/30">
         <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin">
           {/* Section Title Header */}
-          <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-6 sm:mb-space-lg">
+          <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-8 sm:mb-space-lg">
             <span className={`${EDITORIAL_TYPOGRAPHY.eyebrowSandstone} mb-1`}>
               The Chauffeur Ethics Protocol
             </span>
@@ -121,10 +121,10 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
             </p>
           </div>
 
-          {/* 6 Pillars Bento Grid (Compact -20%) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          {/* 6 Pillars Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {/* Pillar 01 */}
-            <div className="bg-surface-container-lowest p-3.5 sm:p-4.5 rounded-lg shadow-xs hover:shadow-sm transition-all duration-300 flex flex-col justify-between border border-border-warm/50">
+            <div className="glass-card-frosted p-5 sm:p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between border border-white/60">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="font-headline-md text-lg sm:text-xl font-serif text-terracotta-sandstone font-bold">01</span>
@@ -137,14 +137,14 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                   refunded on the spot.
                 </p>
               </div>
-              <div className="mt-3 pt-2 bg-sandstone-wash/50 p-2 rounded">
+              <div className="mt-4 pt-2.5 bg-sandstone-wash/60 p-2.5 rounded-xl border border-border-warm/40">
                 <span className={`${EDITORIAL_TYPOGRAPHY.eyebrowSandstone} text-label-caps mb-0.5`}>Guest Protection</span>
                 <span className="font-body-sm text-body-md text-ink-charcoal font-medium">100% Uncompromised Itinerary Integrity</span>
               </div>
             </div>
 
             {/* Pillar 02 */}
-            <div className="bg-surface-container-lowest p-3.5 sm:p-4.5 rounded-lg shadow-xs hover:shadow-sm transition-all duration-300 flex flex-col justify-between border border-border-warm/50">
+            <div className="glass-card-frosted p-5 sm:p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between border border-white/60">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="font-headline-md text-lg sm:text-xl font-serif text-terracotta-sandstone font-bold">02</span>
@@ -157,14 +157,14 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                   vestibule.
                 </p>
               </div>
-              <div className="mt-3 pt-2 bg-sandstone-wash/50 p-2 rounded">
+              <div className="mt-4 pt-2.5 bg-sandstone-wash/60 p-2.5 rounded-xl border border-border-warm/40">
                 <span className={`${EDITORIAL_TYPOGRAPHY.eyebrowSandstone} text-label-caps mb-0.5`}>Buffer Guarantee</span>
                 <span className="font-body-sm text-body-md text-ink-charcoal font-medium">Zero Surcharge for Flight or Rail Delays</span>
               </div>
             </div>
 
             {/* Pillar 03 */}
-            <div className="bg-surface-container-lowest p-3.5 sm:p-4.5 rounded-lg shadow-xs hover:shadow-sm transition-all duration-300 flex flex-col justify-between border border-border-warm/50">
+            <div className="glass-card-frosted p-5 sm:p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between border border-white/60">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="font-headline-md text-lg sm:text-xl font-serif text-terracotta-sandstone font-bold">03</span>
@@ -177,14 +177,14 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                   age.
                 </p>
               </div>
-              <div className="mt-3 pt-2 bg-sandstone-wash/50 p-2 rounded">
+              <div className="mt-4 pt-2.5 bg-sandstone-wash/60 p-2.5 rounded-xl border border-border-warm/40">
                 <span className={`${EDITORIAL_TYPOGRAPHY.eyebrowSandstone} text-label-caps mb-0.5`}>Legal Verification</span>
                 <span className="font-body-sm text-body-md text-ink-charcoal font-medium">All India Tourist Permit (AITP) Certified</span>
               </div>
             </div>
 
             {/* Pillar 04 */}
-            <div className="bg-surface-container-lowest p-3.5 sm:p-4.5 rounded-lg shadow-xs hover:shadow-sm transition-all duration-300 flex flex-col justify-between border border-border-warm/50">
+            <div className="glass-card-frosted p-5 sm:p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between border border-white/60">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="font-headline-md text-lg sm:text-xl font-serif text-terracotta-sandstone font-bold">04</span>
@@ -196,14 +196,14 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                   7+ years highway mastery, fluent in Hindi &amp; English, trained in discreet guest hospitality.
                 </p>
               </div>
-              <div className="mt-3 pt-2 bg-sandstone-wash/50 p-2 rounded">
+              <div className="mt-4 pt-2.5 bg-sandstone-wash/60 p-2.5 rounded-xl border border-border-warm/40">
                 <span className={`${EDITORIAL_TYPOGRAPHY.eyebrowSandstone} text-label-caps mb-0.5`}>Chauffeur Standard</span>
                 <span className="font-body-sm text-body-md text-ink-charcoal font-medium">Bilingual, Courteous &amp; Tobacco-Free</span>
               </div>
             </div>
 
             {/* Pillar 05 */}
-            <div className="bg-surface-container-lowest p-3.5 sm:p-4.5 rounded-lg shadow-xs hover:shadow-sm transition-all duration-300 flex flex-col justify-between border border-border-warm/50">
+            <div className="glass-card-frosted p-5 sm:p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between border border-white/60">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="font-headline-md text-lg sm:text-xl font-serif text-terracotta-sandstone font-bold">05</span>
@@ -215,28 +215,28 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                   Yamuna Expressway and Eastern Peripheral tolls are transparently bundled. Zero surprise return fees.
                 </p>
               </div>
-              <div className="mt-3 pt-2 bg-sandstone-wash/50 p-2 rounded">
+              <div className="mt-4 pt-2.5 bg-sandstone-wash/60 p-2.5 rounded-xl border border-border-warm/40">
                 <span className={`${EDITORIAL_TYPOGRAPHY.eyebrowSandstone} text-label-caps mb-0.5`}>Financial Safety</span>
                 <span className="font-body-sm text-body-md text-ink-charcoal font-medium">booking receipt Invoiced • No Cash Shakedowns</span>
               </div>
             </div>
 
             {/* Pillar 06 */}
-            <div className="bg-surface-container-lowest p-3.5 sm:p-4.5 rounded-lg shadow-xs hover:shadow-sm transition-all duration-300 flex flex-col justify-between border border-border-warm/50">
+            <div className="glass-card-frosted p-5 sm:p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between border border-white/60">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="font-headline-md text-lg sm:text-xl font-serif text-terracotta-sandstone font-bold">06</span>
                   <span className="material-symbols-outlined text-primary text-icon-22">support_agent</span>
                 </div>
-                <h3 className={EDITORIAL_TYPOGRAPHY.subH4}>24×7 Human Taj Ganj Dispatch Desk</h3>
+                <h3 className={EDITORIAL_TYPOGRAPHY.subH4}>24/7 Taj Ganj Central Control Desk</h3>
                 <p className={EDITORIAL_TYPOGRAPHY.compact}>
-                  Zero automated phone menus. Direct access to experienced dispatchers physically based in Taj Ganj,
-                  Agra. Need to alter a morning sunrise pickup time at 11:30 PM? We answer within two telephone rings.
+                  Never get stranded on an automated voicemail robot. Our central garage control desk in Taj Ganj is staffed
+                  24 hours a day by human dispatch managers with direct phone and live WhatsApp link to every vehicle.
                 </p>
               </div>
-              <div className="mt-3 pt-2 bg-sandstone-wash/50 p-2 rounded">
-                <span className={`${EDITORIAL_TYPOGRAPHY.eyebrowSandstone} text-label-caps mb-0.5`}>Instant Human Voice</span>
-                <span className="font-body-sm text-body-md text-ink-charcoal font-medium">Direct Telephone &amp; Live WhatsApp Desk</span>
+              <div className="mt-4 pt-2.5 bg-sandstone-wash/60 p-2.5 rounded-xl border border-border-warm/40">
+                <span className={`${EDITORIAL_TYPOGRAPHY.eyebrowSandstone} text-label-caps mb-0.5`}>Live Operational Desk</span>
+                <span className="font-body-sm text-body-md text-ink-charcoal font-medium">Instant WhatsApp &amp; Call Escalation</span>
               </div>
             </div>
           </div>
@@ -476,9 +476,9 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Testimonial 1 */}
-            <div className="bg-surface-container-lowest p-3.5 sm:p-4.5 rounded-lg shadow-xs flex flex-col justify-between border border-border-warm/50">
+            <div className="glass-card-frosted p-5 sm:p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between border border-white/60">
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between text-gold-accent">
                   <div className="flex gap-0.5">
@@ -510,7 +510,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
             </div>
 
             {/* Testimonial 2 */}
-            <div className="bg-surface-container-lowest p-3.5 sm:p-4.5 rounded-lg shadow-xs flex flex-col justify-between border border-border-warm/50">
+            <div className="glass-card-frosted p-5 sm:p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between border border-white/60">
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between text-gold-accent">
                   <div className="flex gap-0.5">
@@ -542,7 +542,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
             </div>
 
             {/* Testimonial 3 */}
-            <div className="bg-surface-container-lowest p-3.5 sm:p-4.5 rounded-lg shadow-xs flex flex-col justify-between border border-border-warm/50">
+            <div className="glass-card-frosted p-5 sm:p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between border border-white/60">
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between text-gold-accent">
                   <div className="flex gap-0.5">
@@ -593,15 +593,15 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                 historical bypasses in real time.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                <div className="bg-surface-container-lowest p-2.5 sm:p-3 rounded flex items-start gap-2 shadow-xs border border-border-warm/50">
-                  <span className="material-symbols-outlined text-terracotta-sandstone mt-0.5 text-icon-18">pin_drop</span>
+                <div className="glass-card-frosted p-3.5 sm:p-4 rounded-2xl flex items-start gap-3 shadow-xs border border-white/60">
+                  <span className="material-symbols-outlined text-terracotta-sandstone mt-0.5 text-icon-20">pin_drop</span>
                   <div className="flex flex-col">
                     <span className="font-title-md text-xs text-on-surface font-serif font-bold">Taj Ganj Station</span>
                     <span className="text-label-lg text-secondary">{contact.address}</span>
                   </div>
                 </div>
-                <div className="bg-surface-container-lowest p-2.5 sm:p-3 rounded flex items-start gap-2 shadow-xs border border-border-warm/50">
-                  <span className="material-symbols-outlined text-terracotta-sandstone mt-0.5 text-icon-18">alarm_on</span>
+                <div className="glass-card-frosted p-3.5 sm:p-4 rounded-2xl flex items-start gap-3 shadow-xs border border-white/60">
+                  <span className="material-symbols-outlined text-terracotta-sandstone mt-0.5 text-icon-20">alarm_on</span>
                   <div className="flex flex-col">
                     <span className="font-title-md text-xs text-on-surface font-serif font-bold">Agra Cantt Backup</span>
                     <span className="text-label-lg text-secondary">Dedicated station coordinator on platform 1 arrival</span>
@@ -611,7 +611,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
             </div>
             <div className="lg:col-span-6">
               <div
-                className="w-full h-80 rounded-xl bg-cover bg-center shadow-lg relative overflow-hidden border border-border-warm/50"
+                className="w-full h-80 rounded-3xl bg-cover bg-center shadow-xl relative overflow-hidden border border-white/40"
                 style={{
                   backgroundImage:
                     'url("/assets/places/gallery/taj-mahal-01-1600.webp")',
@@ -624,7 +624,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                       <p className="text-body-sm text-sandstone-wash/80">Active 24 Hours • 7 Days A Week</p>
                     </div>
                     <a
-                      className="bg-terracotta-deep text-white px-3 py-1.5 rounded text-label-caps font-label-caps uppercase hover:bg-terracotta-sunlit transition-colors"
+                      className="bg-terracotta-deep text-white px-3 py-1.5 rounded-xl text-label-caps font-label-caps uppercase hover:bg-terracotta-sunlit transition-colors shadow-md"
                       href={contact.mapsUrl}
                       rel="noopener noreferrer"
                       target="_blank"
@@ -642,7 +642,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
       {/* Section 7: Grand Call-to-Action Strip */}
       <section className="w-full bg-sandstone-wash py-space-3xl">
         <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin">
-          <div className="bg-surface-container-lowest rounded-xl p-6 sm:p-8 md:p-12 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8 w-full border border-border-warm">
+          <div className="glass-card-frosted rounded-3xl p-8 sm:p-10 md:p-12 shadow-2xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 sm:gap-8 w-full border border-white/80">
             <div className="flex flex-col gap-space-xs max-w-xl text-left w-full">
               <span className={`${EDITORIAL_TYPOGRAPHY.eyebrowSandstone} text-body-sm`}>
                 Unrivaled Hospitality Awaits

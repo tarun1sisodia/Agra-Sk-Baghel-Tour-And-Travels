@@ -146,92 +146,92 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 items-stretch">
-          {/* Card 1: Immediate Call Dispatch (Compact -20%) */}
-          <div className="bg-surface-container-lowest border border-border-warm rounded-xl p-3.5 sm:p-4.5 flex flex-col justify-between shadow-xs hover:shadow-sm transition-shadow relative overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-stretch">
+          {/* Card 1: Immediate Call Dispatch (Frosted Glass Bento) */}
+          <div className="glass-card-frosted border border-white/60 rounded-3xl p-5 sm:p-6 flex flex-col justify-between shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all relative overflow-hidden">
             <div className="absolute top-0 right-0">
-              <span className="bg-terracotta-deep text-white font-label-caps text-label-caps px-2.5 py-0.5 rounded-bl uppercase tracking-wider font-semibold">
+              <span className="bg-terracotta-deep text-white font-label-caps text-label-caps px-3 py-1 rounded-bl-2xl uppercase tracking-wider font-semibold shadow-xs">
                 Average Pick-up: 2 Rings
               </span>
             </div>
             <div>
-              <div className="w-9 h-9 rounded-full bg-sandstone-wash flex items-center justify-center text-terracotta-sandstone mb-3 mt-1">
-                <span className="material-symbols-outlined text-lg">phone_in_talk</span>
+              <div className="w-12 h-12 rounded-2xl bg-sandstone-wash flex items-center justify-center text-terracotta-sandstone mb-4 mt-2 shadow-xs">
+                <span className="material-symbols-outlined text-2xl">phone_in_talk</span>
               </div>
-              <h3 className="font-headline-sm text-ink-charcoal text-base mb-1 font-semibold">Immediate Call Dispatch (24×7)</h3>
-              <p className="font-title-lg text-terracotta-sandstone mb-2 font-bold text-sm sm:text-base">+91 97628 17598</p>
-              <p className="text-on-surface-variant font-body-sm leading-relaxed mb-4 text-body-md">
+              <h3 className="font-headline-sm text-ink-charcoal text-lg mb-1 font-semibold">Immediate Call Dispatch (24×7)</h3>
+              <p className="font-title-lg text-terracotta-sandstone mb-2 font-bold text-base sm:text-lg">+91 97628 17598</p>
+              <p className="text-on-surface-variant font-body-sm leading-relaxed mb-6 text-body-md">
                 Immediate taxi allocation, late-night expressway emergencies, 3:00 AM airport pickups, and instant driver
                 assignment.
               </p>
             </div>
             <a
-              className="w-full inline-flex items-center justify-center gap-1.5 bg-terracotta-deep hover:bg-primary text-white font-label-lg py-2 px-3 rounded-lg transition-colors text-center text-xs font-semibold shadow-xs"
+              className="w-full inline-flex items-center justify-center gap-2 bg-terracotta-deep hover:bg-primary text-white font-label-lg py-3 px-4 rounded-xl transition-all text-center text-xs font-semibold shadow-md active:scale-[0.98]"
               href="tel:+919762817598"
             >
-              <span className="material-symbols-outlined text-icon-16">call</span>
+              <span className="material-symbols-outlined text-icon-18">call</span>
               <span>Call Dispatch Now</span>
             </a>
           </div>
 
-          {/* Card 2: WhatsApp Desk (Compact -20%) */}
-          <div className="bg-surface-container-lowest border border-border-warm rounded-xl p-3.5 sm:p-4.5 flex flex-col justify-between shadow-xs hover:shadow-sm transition-shadow relative overflow-hidden">
+          {/* Card 2: WhatsApp Desk (Frosted Glass Bento) */}
+          <div className="glass-card-frosted border border-white/60 rounded-3xl p-5 sm:p-6 flex flex-col justify-between shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all relative overflow-hidden">
             <div className="absolute top-0 right-0">
-              <span className="bg-success-jade text-white font-label-caps text-label-caps px-2.5 py-0.5 rounded-bl uppercase tracking-wider font-semibold">
+              <span className="bg-success-jade text-white font-label-caps text-label-caps px-3 py-1 rounded-bl-2xl uppercase tracking-wider font-semibold shadow-xs">
                 Typical Reply: &lt; 5 mins
               </span>
             </div>
             <div>
-              <div className="w-9 h-9 rounded-full bg-black flex items-center justify-center mb-3 mt-1 shadow-sm">
-                <WhatsAppIcon className="w-5 h-5 shrink-0" />
+              <div className="w-12 h-12 rounded-2xl bg-black flex items-center justify-center mb-4 mt-2 shadow-md">
+                <WhatsAppIcon className="w-6 h-6 shrink-0 text-white" />
               </div>
-              <h3 className="font-headline-sm text-ink-charcoal text-base mb-1 font-semibold">
+              <h3 className="font-headline-sm text-ink-charcoal text-lg mb-1 font-semibold">
                 WhatsApp Desk (Fastest)
               </h3>
-              <p className="font-title-lg text-ink-charcoal mb-2 font-bold text-sm sm:text-base">+91 97628 17598</p>
-              <p className="text-on-surface-variant font-body-sm leading-relaxed mb-4 text-body-md">
+              <p className="font-title-lg text-ink-charcoal mb-2 font-bold text-base sm:text-lg">+91 97628 17598</p>
+              <p className="text-on-surface-variant font-body-sm leading-relaxed mb-6 text-body-md">
                 Send itinerary details, receive vehicle photos, driver credentials, live location tracking, and instant quote
                 cards with UPI advance links.
               </p>
             </div>
             <a
-              className="w-full inline-flex items-center justify-center gap-2 bg-black hover:bg-neutral-900 border border-white/10 text-white font-label-lg py-2.5 px-3 rounded-lg transition-colors text-center text-xs font-semibold shadow-xs active:scale-[0.98]"
+              className="w-full inline-flex items-center justify-center gap-2 bg-black hover:bg-neutral-900 border border-white/10 text-white font-label-lg py-3 px-4 rounded-xl transition-all text-center text-xs font-semibold shadow-md active:scale-[0.98]"
               style={{ color: "#ffffff" }}
               href="https://wa.me/919762817598"
               target="_blank"
               rel="noreferrer"
             >
-              <WhatsAppIcon className="w-4 h-4 shrink-0 text-white" />
+              <WhatsAppIcon className="w-5 h-5 shrink-0 text-white" />
               <span className="text-white" style={{ color: "#ffffff" }}>Chat on WhatsApp ↗</span>
             </a>
           </div>
 
-          {/* Card 3: Corporate & Tour Desk (Compact -20%) */}
-          <div className="bg-surface-container-lowest border border-border-warm rounded-xl p-3.5 sm:p-4.5 flex flex-col justify-between shadow-xs hover:shadow-sm transition-shadow relative overflow-hidden">
+          {/* Card 3: Corporate & Tour Desk (Frosted Glass Bento) */}
+          <div className="glass-card-frosted border border-white/60 rounded-3xl p-5 sm:p-6 flex flex-col justify-between shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all relative overflow-hidden">
             <div className="absolute top-0 right-0">
-              <span className="bg-secondary text-white font-label-caps text-label-caps px-2.5 py-0.5 rounded-bl uppercase tracking-wider font-semibold">
+              <span className="bg-secondary text-white font-label-caps text-label-caps px-3 py-1 rounded-bl-2xl uppercase tracking-wider font-semibold shadow-xs">
                 Corporate Rates &amp; booking receipt
               </span>
             </div>
             <div>
-              <div className="w-9 h-9 rounded-full bg-sandstone-wash flex items-center justify-center text-terracotta-sandstone mb-3 mt-1">
-                <span className="material-symbols-outlined text-lg">business_center</span>
+              <div className="w-12 h-12 rounded-2xl bg-sandstone-wash flex items-center justify-center text-terracotta-sandstone mb-4 mt-2 shadow-xs">
+                <span className="material-symbols-outlined text-2xl">business_center</span>
               </div>
-              <h3 className="font-headline-sm text-ink-charcoal text-base mb-1 font-semibold">Corporate &amp; Tour Desk</h3>
+              <h3 className="font-headline-sm text-ink-charcoal text-lg mb-1 font-semibold">Corporate &amp; Tour Desk</h3>
               <p className="font-title-md text-ink-charcoal mb-0.5 font-semibold text-xs break-all">
                 bookings@agraskbagheltourandtravels.com
               </p>
               <p className="text-on-surface-variant font-body-sm mb-2 text-label-lg break-all">dispatch@agraskbagheltourandtravels.com</p>
-              <p className="text-on-surface-variant font-body-sm leading-relaxed mb-4 text-body-md">
+              <p className="text-on-surface-variant font-body-sm leading-relaxed mb-6 text-body-md">
                 Multi-day Golden Triangle itineraries, wedding group transit in Tempo Travellers/Urbania, and B2B booking receipt tax
                 invoices.
               </p>
             </div>
             <a
-              className="w-full inline-flex items-center justify-center gap-1.5 bg-surface-container-high hover:bg-surface-container-highest text-ink-charcoal font-label-lg py-2 px-3 rounded-lg transition-colors border border-outline-variant text-center text-xs font-semibold"
+              className="w-full inline-flex items-center justify-center gap-2 bg-surface-container-high hover:bg-surface-container-highest text-ink-charcoal font-label-lg py-3 px-4 rounded-xl transition-colors border border-outline-variant text-center text-xs font-semibold"
               href="mailto:bookings@agraskbagheltourandtravels.com"
             >
-              <span className="material-symbols-outlined text-icon-16">mail</span>
+              <span className="material-symbols-outlined text-icon-18">mail</span>
               <span>Email Itinerary</span>
             </a>
           </div>
@@ -253,9 +253,9 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Primary Tourism Dispatch Office */}
-            <div className="rounded-2xl border border-border-warm bg-surface-container-lowest p-5 shadow-xs flex flex-col justify-between">
+            <div className="rounded-3xl border border-white/60 glass-card-frosted p-6 shadow-md flex flex-col justify-between">
               <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-sandstone-wash text-terracotta-deep font-label-caps text-xs font-bold mb-3">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-sandstone-wash text-terracotta-deep font-label-caps text-xs font-bold mb-3 shadow-xs">
                   <span className="material-symbols-outlined text-sm">explore</span>
                   Primary Tourism Dispatch
                 </div>
@@ -285,13 +285,13 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
                   title="Map of Primary Tourism Dispatch Office, Taj Ganj, Agra"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  className="aspect-video w-full rounded-xl border border-border-warm mb-3"
+                  className="aspect-video w-full rounded-2xl border border-white/60 mb-3 shadow-xs"
                 />
                 <a
                   href={contact.dispatchOffice.mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-ink-charcoal font-label-lg text-xs font-semibold py-2 px-3 transition-colors"
+                  className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-ink-charcoal font-label-lg text-xs font-semibold py-2 px-3 transition-colors shadow-xs"
                 >
                   <span className="material-symbols-outlined text-sm">directions</span>
                   <span>Navigate to Taj Ganj Dispatch Desk</span>
@@ -300,9 +300,9 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
             </div>
 
             {/* Registered Commercial Fleet Garage */}
-            <div className="rounded-2xl border border-border-warm bg-surface-container-lowest p-5 shadow-xs flex flex-col justify-between">
+            <div className="rounded-3xl border border-white/60 glass-card-frosted p-6 shadow-md flex flex-col justify-between">
               <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container text-ink-charcoal font-label-caps text-xs font-bold mb-3">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface-container text-ink-charcoal font-label-caps text-xs font-bold mb-3 shadow-xs">
                   <span className="material-symbols-outlined text-sm">build</span>
                   Commercial Fleet Garage
                 </div>
@@ -332,13 +332,13 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
                   title="Map of 1Nandlalpur, Hathras Road, Nagla, Agra"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  className="aspect-video w-full rounded-xl border border-border-warm mb-3"
+                  className="aspect-video w-full rounded-2xl border border-white/60 mb-3 shadow-xs"
                 />
                 <a
                   href={contact.registeredGarage.mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-ink-charcoal font-label-lg text-xs font-semibold py-2 px-3 transition-colors"
+                  className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant text-ink-charcoal font-label-lg text-xs font-semibold py-2 px-3 transition-colors shadow-xs"
                 >
                   <span className="material-symbols-outlined text-sm">directions</span>
                   <span>Navigate to Commercial Garage</span>
@@ -349,7 +349,7 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
         </div>
 
         {/* 3. DISPATCH INQUIRY & RESERVATION FORM */}
-        <div className="max-w-4xl mx-auto bg-surface-container-lowest border border-border-warm rounded-2xl p-5 sm:p-8 shadow-xs">
+        <div className="max-w-4xl mx-auto glass-card-frosted border border-white/60 rounded-3xl p-6 sm:p-10 shadow-xl">
           <div className="mb-6">
             <span className="text-terracotta-sandstone font-label-caps uppercase tracking-wider text-xs font-bold block mb-1">
               Dispatch Reservation Form
