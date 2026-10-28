@@ -90,7 +90,8 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
   const totalFare = item.startingPriceInr != null && item.startingPriceInr > 0 ? item.startingPriceInr : 0;
   const advanceFare = Math.round(totalFare * 0.28);
   const balanceFare = totalFare - advanceFare;
-  const galleryImages = item.gallery.filter((g) => g.mediaType === "image");
+  const galleryImages = (item.gallery || []).filter((g) => g && g.mediaType === "image");
+  const stops = Array.isArray(item.stops) ? item.stops : [];
   const active = galleryImages[Math.min(activeImage, Math.max(0, galleryImages.length - 1))];
   const heroSrc = active ? resolveCatalogMediaUrl(active.url) : null;
 
@@ -104,7 +105,7 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
         description: item.shortDescription,
         image: item.coverImage ? resolveCatalogMediaUrl(item.coverImage.url) : undefined,
         touristType: [item.tripType ? TRIP_TYPE_LABEL[item.tripType] : "Private tour"],
-        itinerary: item.stops.map((stop) => ({ name: stop, description: `Stop on ${item.title}` })),
+        itinerary: stops.map((stop) => ({ name: stop, description: `Stop on ${item.title}` })),
         ...(item.availability === "unavailable" || item.startingPriceInr == null || item.startingPriceInr <= 0
           ? {}
           : { offers: { price: item.startingPriceInr, priceCurrency: "INR", availability: item.availability === "limited" ? "LimitedAvailability" as const : "InStock" as const } }),
@@ -310,11 +311,11 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
             </p>
           </div>
 
-          {item.stops.length > 0 && (
+          {stops.length > 0 && (
             <div className="lg:col-span-5 flex flex-col gap-space-md">
               <h2 className="font-headline-md text-headline-md text-on-surface">Stops on this trip</h2>
               <ol className="relative pl-6 space-y-3 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-border-warm">
-                {item.stops.map((stop, idx) => (
+                {stops.map((stop, idx) => (
                   <li key={stop} className="relative group">
                     <div className="absolute -left-6 top-1 w-3 h-3 rounded-full bg-primary border-2 border-surface group-hover:scale-125 transition-transform" />
                     <div className="bg-surface-container-low p-3 rounded-xl border border-border-warm/60">
