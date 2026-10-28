@@ -277,7 +277,11 @@ function getSeoBase(
   if (resolvedDynamicItem) {
     return {
       title: `${resolvedDynamicItem.title} — Private Tour & Fares | Agra SK Baghel Tour and Travels`,
-      description: resolvedDynamicItem.shortDescription,
+      // shortDescription is optional in the live catalog (all 3 items lack it
+      // as of 2026-10-28); never hand undefined to clampSeoText.
+      description:
+        resolvedDynamicItem.shortDescription ||
+        "Private tour with transparent fares, verified drivers and easy phone or WhatsApp booking.",
       ogImage: resolvedDynamicItem.coverImage?.url || "/assets/brand/og-banner.webp",
       keywords: [resolvedDynamicItem.title, "Agra tour package", "private taxi Agra", "Agra SK Baghel Tour and Travels"],
     };
@@ -458,6 +462,9 @@ function getSeoBase(
 }
 
 function clampSeoText(value: string, max: number): string {
+  // Live catalog data is untrusted: a missing title/description must degrade
+  // to an empty string, never crash the whole SSG build.
+  if (!value) return "";
   if (value.length <= max) return value;
   return `${value.slice(0, max - 1).trimEnd()}…`;
 }
