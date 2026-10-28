@@ -112,103 +112,203 @@
   "monuments": [
     {
       "id": "105c7743-6086-43c9-936c-0390996f5ca2",
+      "slug": "taj-mahal",
       "name": "Taj Mahal",
       "visitingHours": "06:00 – 18:30 (Sunrise to Sunset)",
       "closedNote": "Closed on Fridays",
-      "historicalContext": "Crown jewel of Mughal architecture, UNESCO World Heritage site built by Shah Jahan.",
+      "metaTitle": "Taj Mahal Agra Tour & Cab Booking | SK Baghel",
+      "metaDescription": "Plan your Taj Mahal visit with verified Agra taxi service. Sunrise timings, entry tickets, Pietra Dura architecture & AC cab packages from ₹800.",
+      "historicalContext": "The Taj Mahal stands as the world's most celebrated testament to romantic devotion and the crowning masterpiece of Mughal architecture. Commissioned in 1631 by Mughal Emperor Shah Jahan to enshrine the mortal remains of his cherished empress Mumtaz Mahal, this UNESCO World Heritage monument required over two decades and 20,000 master artisans to complete. Built from pristine translucent white Makrana marble quarried in Rajasthan, the mausoleum is set symmetrically within an expansive Persian Charbagh garden representing paradise on Earth. The central tomb features exquisite Pietra Dura (parchin kari) floral inlays crafted from semi-precious gemstones including lapis lazuli, turquoise, carnelian, and jade. Four freestanding 40-meter minarets flank the elevated marble plinth, deliberately angled slightly outward to protect the central dome in the event of an earthquake. The ethereal marble subtly transforms hues throughout the day, shifting from gentle pink at dawn to brilliant white under afternoon sun and luminous gold at dusk.",
+      "visitorGuide": "Taj Mahal gates open 30 minutes before sunrise and close 30 minutes before sunset every day except Friday. Foreign tourists receive complimentary shoe covers and a water bottle with their entry ticket. To avoid long security queues, advance electronic tickets can be secured through the ASI ticketing portal (asi.payumoney.com). Shilpgram parking plaza accommodates private taxis, where pollution-free battery-operated electric golf carts transfer guests the remaining 500 meters to the East Gate. Commercial chauffeurs from Agra SK Baghel Tour & Travels wait at the plaza until your tour concludes.",
+      "architectureHighlights": [
+        "Pure white Makrana marble mausoleum with symmetrical octagonal plinth",
+        "World-famous Pietra Dura gemstone floral inlays (Parchin Kari)",
+        "Four 40-meter minarets engineered with intentional outward tilt",
+        "Persian Charbagh (four-fold paradise garden) with central reflecting pool"
+      ],
       "sortOrder": 1,
       "createdAt": "2026-10-22T03:38:41.408Z",
-      "updatedAt": "2026-10-22T03:38:41.408Z"
+      "updatedAt": "2026-10-28T12:00:00.000Z"
     },
     {
       "id": "e258f4ee-7d83-4678-8aa9-971a59f24761",
+      "slug": "agra-red-fort",
       "name": "Agra Red Fort",
-      "visitingHours": "06:00 – 18:00",
+      "visitingHours": "06:00 – 18:00 (Sunrise to Sunset)",
       "closedNote": "Open all days",
-      "historicalContext": "Main residence of the emperors of the Mughal Dynasty until 1638.",
+      "metaTitle": "Agra Fort Heritage Guide & Cabs | SK Baghel",
+      "metaDescription": "Explore UNESCO Agra Red Fort with private chauffeur transfers. Timings, Jahangiri Mahal, Diwan-i-Khas & Shah Jahan's Musamman Burj history.",
+      "historicalContext": "The Agra Red Fort is a formidable 16th-century fortress and UNESCO World Heritage monument standing on the banks of the Yamuna River. Originally constructed as a brick fortress known as Badalgarh, it was completely reconstructed in imperial red sandstone by Emperor Akbar the Great beginning in 1565. The fortress served as the epicenter of Mughal imperial governance for four generations—Akbar, Jahangir, Shah Jahan, and Aurangzeb—until the imperial capital relocated to Delhi in 1638. Spanning a massive 2.5-kilometer double-curtain perimeter wall rising over 70 feet high, the fort encompasses a vast complex of palaces, court pavilions, and grand mosques. Inside, Akbar's Jahangiri Mahal illustrates traditional Hindu-Islamic fusion woodwork, while Shah Jahan's white marble additions—including the Khas Mahal, Diwan-i-Khas, and Diwan-i-Aam—display opulent royal craftsmanship. The octagonal Musamman Burj tower holds historic resonance as the serene balcony where Emperor Shah Jahan lived out his final eight years in captivity, gazing across the river at the Taj Mahal.",
+      "visitorGuide": "The fort is open daily from sunrise to sunset with entry through the stately Amar Singh Gate. Exploring the grand halls, gardens, and royal courtyards typically takes 2 to 3 hours. Licensed Ministry of Tourism guides are stationed near the ticket booth. Due to active Indian Army jurisdiction over the northern sectors, tourist access is concentrated in the southern palaces. Agra Fort is located just 2.5 km northwest of the Taj Mahal, making it ideal to combine both in a morning private cab charter.",
+      "architectureHighlights": [
+        "Massive 2.5 km red sandstone double-walled ramparts with deep moat",
+        "Jahangiri Mahal showcasing trans-cultural Rajput-Mughal architectural design",
+        "Diwan-i-Khas with historic marble throne pedestals overlooking the river",
+        "Musamman Burj octagonal marble tower with direct view of the Taj Mahal"
+      ],
       "sortOrder": 2,
       "createdAt": "2026-10-22T03:38:41.408Z",
-      "updatedAt": "2026-10-22T03:38:41.408Z"
+      "updatedAt": "2026-10-28T12:00:00.000Z"
     },
     {
       "id": "7f5b00fc-04b3-49a9-9701-1ba329a81e41",
+      "slug": "fatehpur-sikri",
       "name": "Fatehpur Sikri",
-      "visitingHours": "06:00 – 18:00",
+      "visitingHours": "06:00 – 18:00 (Sunrise to Sunset)",
       "closedNote": "Open all days",
-      "historicalContext": "Imperial red sandstone city founded by Emperor Akbar in 1571.",
+      "metaTitle": "Fatehpur Sikri Tour & Taxi Fares | SK Baghel",
+      "metaDescription": "Visit Akbar's UNESCO ghost city Fatehpur Sikri. Buland Darwaza, Salim Chishti tomb & Panch Mahal. Outstation AC cabs from Agra with transparent fares.",
+      "historicalContext": "Fatehpur Sikri, known across the globe as Emperor Akbar's imperial ghost city, is a preserved UNESCO World Heritage wonder located 37 kilometers west of Agra. Commissioned in 1571 by Emperor Akbar to commemorate the Sufi mystic Sheikh Salim Chishti—who accurately prophesied the birth of Akbar's heir Prince Salim (Jahangir)—the city served as the vibrant capital of the Mughal Empire for fourteen years before being abandoned in 1585 due to acute water scarcity. Built entirely from local Sikri red sandstone, the complex fuses Islamic, Hindu, Jain, and Persian architectural idioms. The monument is anchored by the awe-inspiring Buland Darwaza (Gate of Magnificence), rising 54 meters as the highest gateway in the world, built to commemorate Akbar's victory over Gujarat. Within the expansive courtyard stands the white marble Tomb of Sheikh Salim Chishti, renowned for its delicate pierced lattice (jali) marble screens where pilgrims tie sacred red threads for answered prayers.",
+      "visitorGuide": "Fatehpur Sikri is divided into two adjacent zones: the religious Jama Masjid complex containing the Salim Chishti shrine (free access once through the gate) and the Royal Palace enclosure (ASI ticketed). Private taxis from Agra take approximately 50 minutes along the smooth NH-21 highway. Vehicles park at the designated municipal parking lot, where green eco-shuttle buses transport visitors 1 km up the ridge to the gateway. Modest dress and head coverings are required inside the Chishti shrine.",
+      "architectureHighlights": [
+        "Buland Darwaza: 54-meter grand triumphal gateway, the highest in the world",
+        "Tomb of Sheikh Salim Chishti with intricate serpentine brackets and jali screens",
+        "Panch Mahal: 5-storey tiered columnar palace engineered for natural breezes",
+        "Diwan-i-Khas with a carved central lotus pillar connecting four elevated walkways"
+      ],
       "sortOrder": 3,
       "createdAt": "2026-10-22T03:38:41.408Z",
-      "updatedAt": "2026-10-22T03:38:41.408Z"
+      "updatedAt": "2026-10-28T12:00:00.000Z"
     },
     {
       "id": "fb862f89-6cb9-413f-af77-ed04c0655944",
+      "slug": "itmad-ud-daulah-baby-taj",
       "name": "Itmad-Ud-Daulah (Baby Taj)",
-      "visitingHours": "08:00 – 00:00 (Midnight)",
+      "visitingHours": "08:00 – 18:00 (Sunrise to Sunset)",
       "closedNote": "Open all days",
-      "historicalContext": "Tomb of Mirza Ghiyas Beg, precursor to the Taj Mahal with intricate pietra dura inlay.",
+      "metaTitle": "Baby Taj Itmad-ud-Daulah Tour & Cabs | SK Baghel",
+      "metaDescription": "Discover the jewel-box Baby Taj in Agra. Intricate Pietra Dura marble work, Persian Charbagh gardens & private hotel taxi transfers from ₹800.",
+      "historicalContext": "Affectionately celebrated as the 'Baby Taj' or the 'Jewel Box' of Agra, the Tomb of Itmad-ud-Daulah holds a pivotal place in the evolutionary chronology of Mughal architecture. Commissioned between 1622 and 1628 by Empress Nur Jahan for her father, Mirza Ghiyas Beg (who served as Akbar and Jahangir's prime minister and received the esteemed court title Itmad-ud-Daulah, or 'Pillar of the Empire'), this monument represents the crucial transition from stout red sandstone buildings to delicate, luminous white marble. It was the first Mughal structure built entirely from white Rajasthani marble embellished with intricate Pietra Dura inlays depicting wine flasks, cypress trees, and Persian vases using onyx, jasper, and topaz. Situated on the eastern bank of the Yamuna River, the tomb is flanked by four hexagonal 13-meter corner towers and enclosed by a classical four-quadrant walled Persian Charbagh garden.",
+      "visitorGuide": "Itmad-ud-Daulah is often far quieter and more peaceful than the Taj Mahal, offering travelers an intimate encounter with sublime Mughal stonework without heavy tourist crowds. Late afternoon provides golden light reflecting off the river and marble walls. Visitors must remove shoes or put on disposable covers at the entrance. Pair your visit with nearby Mehtab Bagh for an unforgettable half-day eastern bank heritage tour.",
+      "architectureHighlights": [
+        "Pioneering full white marble facade pre-dating the construction of the Taj Mahal",
+        "Intricate Pietra Dura inlays featuring Persian motifs, wine decanters, and fruit bowls",
+        "Delicate lattice marble screens (jalis) casting geometric shadow patterns",
+        "Peaceful riverside Charbagh garden setting with historic water channels"
+      ],
       "sortOrder": 4,
       "createdAt": "2026-10-22T03:38:41.408Z",
-      "updatedAt": "2026-10-22T03:38:41.408Z"
+      "updatedAt": "2026-10-28T12:00:00.000Z"
     },
     {
       "id": "b481a328-a589-4a72-80bc-78caa89e66e4",
+      "slug": "mehtab-bagh",
       "name": "Mehtab Bagh",
-      "visitingHours": "06:00 – 21:00",
+      "visitingHours": "06:00 – 18:30 (Sunrise to Sunset)",
       "closedNote": "Open all days",
-      "historicalContext": "Moonlight garden providing sunset views of the Taj Mahal across the Yamuna River.",
+      "metaTitle": "Mehtab Bagh Sunset Taj View & Cabs | SK Baghel",
+      "metaDescription": "Sunset views of the Taj Mahal across the Yamuna from Mehtab Bagh. Chauffeur-driven cab transfers, photo vantage points & zero hassle booking from Agra.",
+      "historicalContext": "Mehtab Bagh, or the 'Moonlight Garden', is an authentic 25-acre Mughal pleasure garden situated directly across the Yamuna River from the Taj Mahal. Originally conceived and built by Emperor Babur as the ultimate in a series of eleven riverfront gardens, the site was later meticulously realigned by Emperor Shah Jahan to serve as the ideal nocturnal promenade to admire the Taj Mahal's marble reflection under moonlight. Archaeological Survey of India excavations in the 1990s uncovered a massive octagonal sandstone pool with twenty-five fountains, interconnected water channels, and perimeter pavilions designed to capture gentle breezes off the river. Mythological local legend often associated Mehtab Bagh with the site for Shah Jahan's rumored 'Black Taj Mahal', though archaeological studies proved it was always designed as an imperial riverside botanical sanctuary filled with citrus groves and aromatic flowering plants.",
+      "visitorGuide": "Mehtab Bagh is universally acknowledged as Agra's premier sunset vantage point. As the sun descends, the white marble of the Taj Mahal across the river turns amber, pink, and deep gold. Visiting hours run from sunrise to sunset. A dedicated car parking plaza right outside the entry gates allows our chauffeurs to wait conveniently. Tripods and commercial camera rigs require prior ASI permissions, but mobile phones and handheld cameras are welcomed.",
+      "architectureHighlights": [
+        "Perfect symmetrical alignment with the central axis of the Taj Mahal across Yamuna",
+        "Restored octagonal sandstone reflecting basin with 25 heritage fountain spouts",
+        "Shaded walking paths flanked by pomegranate, guava, and hibiscus plantations",
+        "Unobstructed panoramic viewpoint for Taj Mahal sunset and silhouette photography"
+      ],
       "sortOrder": 5,
       "createdAt": "2026-10-22T03:38:41.408Z",
-      "updatedAt": "2026-10-22T03:38:41.408Z"
+      "updatedAt": "2026-10-28T12:00:00.000Z"
     },
     {
       "id": "cdef4d79-8916-42bf-a222-a486f19b0bb8",
+      "slug": "sikandra-akbar-tomb",
       "name": "Sikandra (Akbar Tomb)",
-      "visitingHours": "08:00 – 18:00",
+      "visitingHours": "08:00 – 18:00 (Sunrise to Sunset)",
       "closedNote": "Open all days",
-      "historicalContext": "Final resting place of Mughal Emperor Akbar, blending Islamic, Hindu, and Buddhist motifs.",
+      "metaTitle": "Sikandra Akbar's Tomb Tour & Cabs | SK Baghel",
+      "metaDescription": "Visit Akbar the Great's tomb at Sikandra on NH-19. Syncretic Mughal architecture, deer park, visiting hours & highway cab booking with SK Baghel.",
+      "historicalContext": "Sikandra houses the majestic mausoleum of Emperor Akbar the Great, the third Mughal emperor whose visionary reign unified northern India. Located 10 kilometers northwest of Agra on the historic Delhi-Agra highway (NH-19), the complex was planned and initiated by Akbar himself and brought to final completion in 1613 by his son Jahangir. The architecture stands out as a bold philosophical statement of Akbar's syncretic Din-i-Ilahi worldview, harmoniously weaving Islamic calligraphy, Hindu floral carvings, Buddhist stepped tiers, and Persian geometric patterns into a singular five-level pyramidical edifice. The grand southern gateway is crowned by four soaring white marble minarets, mirroring the gates of Isfahan. The lower tiers are constructed of deep red sandstone adorned with intricate marble panels, while the open top terrace is sculpted entirely in white marble with an open-air cenotaph inscribed with the 99 names of Allah.",
+      "visitorGuide": "Sikandra sits peacefully inside a sprawling 119-acre walled parkland inhabited by graceful blackbuck antelopes, peacocks, and langurs that roam freely among visitors. Its location on the main highway to Delhi makes it an ideal heritage stop when taking an outstation taxi between Delhi NCR and Agra or returning from Mathura-Vrindavan. Entry lines are consistently short, allowing for an unhurried, relaxing heritage stroll.",
+      "architectureHighlights": [
+        "Unique 5-tier pyramidical tomb design blending Islamic, Hindu, and Buddhist motifs",
+        "Magnificent South Gateway featuring 4 tall freestanding white marble minarets",
+        "Open-air uppermost marble courtyard enshrining Akbar's intricately carved cenotaph",
+        "Sprawling forested Charbagh sanctuary home to native Indian blackbuck deer"
+      ],
       "sortOrder": 6,
       "createdAt": "2026-10-22T03:38:41.408Z",
-      "updatedAt": "2026-10-22T03:38:41.408Z"
+      "updatedAt": "2026-10-28T12:00:00.000Z"
     },
     {
       "id": "30a0bdb9-d03f-49d7-99a0-52ada85518fc",
+      "slug": "jama-masjid-agra",
       "name": "Jama Masjid Agra",
       "visitingHours": "08:00 – 18:00",
       "closedNote": "Open all days (Prayer hours restricted)",
-      "historicalContext": "Opposite Agra Fort, built by Jahanara Begum in 1648.",
+      "metaTitle": "Jama Masjid Agra Heritage Guide & Cabs | SK Baghel",
+      "metaDescription": "Visit Agra's historic Friday Mosque built by Jahanara Begum. Red sandstone architecture, Kinari Bazaar location & Old Agra taxi transfers.",
+      "historicalContext": "Agra's Jama Masjid, also known as the Jami Masjid or Friday Mosque, is one of the largest mosques in India, commanding the vibrant skyline of Old Agra. Constructed in 1648 by Mughal Emperor Shah Jahan, it was dedicated to his beloved eldest daughter, Princess Jahanara Begum, who personally funded its construction using her royal allowance. Constructed principally of red sandstone with inlaid white marble details in zigzag and herringbone patterns, the mosque rests upon a high raised plinth opposite the Agra Fort. Three colossal bulbous domes decorated with inverted lotus crests rise above the prayer sanctuary, while the vast paved central courtyard can comfortably accommodate up to 10,000 worshippers during congregational Friday and Eid prayers.",
+      "visitorGuide": "Located overlooking the historic Kinari Bazaar and Agra Fort railway station, Jama Masjid is an essential stop for travelers keen to experience the sensory tapestry of historic Agra. Modest dress is required: visitors must cover shoulders and knees, and head scarves are provided at the entrance. Shoes must be deposited with custodians at the flight of stone stairs. Because old bazaar streets are bustling and narrow, our chauffeurs park safely near Agra Fort, escorting you to the base steps.",
+      "architectureHighlights": [
+        "Built by royal decree of Princess Jahanara Begum, daughter of Shah Jahan",
+        "Three massive sandstone domes featuring decorative zigzag white marble inlays",
+        "Expansive sandstone courtyard accommodating over 10,000 congregational worshippers",
+        "Overlooks the medieval lanes of Kinari Bazaar and historic spice trading quarters"
+      ],
       "sortOrder": 7,
       "createdAt": "2026-10-22T03:38:41.408Z",
-      "updatedAt": "2026-10-22T03:38:41.408Z"
+      "updatedAt": "2026-10-28T12:00:00.000Z"
     },
     {
       "id": "6a5274a0-7d7b-49c9-be67-f90d72f834aa",
+      "slug": "moti-masjid-pearl-mosque",
       "name": "Moti Masjid (Pearl Mosque)",
       "visitingHours": "06:00 – 18:00",
-      "closedNote": "Inside Agra Fort",
-      "historicalContext": "Lustrous white marble mosque commissioned by Shah Jahan.",
+      "closedNote": "Inside Agra Fort Complex",
+      "metaTitle": "Moti Masjid Pearl Mosque Guide & Cabs | SK Baghel",
+      "metaDescription": "Explore Shah Jahan's luminous white marble Moti Masjid inside Agra Fort. Pearl-like luster, architecture details & guided private taxi tours.",
+      "historicalContext": "The Moti Masjid, poeticized as the 'Pearl Mosque', is an architectural jewel situated on a northern terraced slope inside the Agra Red Fort complex. Commissioned between 1648 and 1654 by Emperor Shah Jahan for the private worship of imperial royal court members, the mosque owes its moniker to its impeccably polished, milk-white Makrana marble that radiates with a pearlescent sheen under morning sunlight. Contrasting dramatically with the surrounding red sandstone ramparts, the mosque is entered via a steep flight of sandstone stairs leading into an austere white marble sanctuary. Seven arcaded bays, twelve delicate cusped arches, and three bulbous marble domes crowned with gilded brass finials create an atmosphere of serene spiritual elegance.",
+      "visitorGuide": "Moti Masjid is accessible within the Agra Red Fort perimeter and requires standard fort admission. During certain restoration periods, parts of the interior courtyard are viewed from designated heritage walkways to protect the delicate marble floor slabs. Visiting early in the morning when the sun illuminates the eastern facade allows photographers to capture the marble's distinctive pearl glow.",
+      "architectureHighlights": [
+        "Pristine white Makrana marble construction shining like a natural pearl",
+        "Twelve multi-cusped marble arches supporting seven serene prayer bays",
+        "Three gracefully proportioned bulbous domes crowned with brass finials",
+        "Elevated slope vantage point offering views toward the Yamuna curve"
+      ],
       "sortOrder": 8,
       "createdAt": "2026-10-22T03:38:41.408Z",
-      "updatedAt": "2026-10-22T03:38:41.408Z"
+      "updatedAt": "2026-10-28T12:00:00.000Z"
     },
     {
       "id": "963dfdff-927e-46cf-86b4-6cde329d8eea",
+      "slug": "jodha-bai-ka-rauza",
       "name": "Jodha Bai Ka Rauza",
       "visitingHours": "10:00 – 19:00",
-      "closedNote": "Open all days",
-      "historicalContext": "Largest residential palace complex inside Fatehpur Sikri.",
+      "closedNote": "Inside Fatehpur Sikri Palace Enclosure",
+      "metaTitle": "Jodha Bai Palace Fatehpur Sikri Guide | SK Baghel",
+      "metaDescription": "Discover Jodha Bai Ka Rauza in Fatehpur Sikri. Rajput-Mughal fusion architecture, royal zenana history & private outstation taxi from Agra.",
+      "historicalContext": "Jodha Bai Ka Rauza, also celebrated as the Palace of Mariam-uz-Zamani, is the largest and most architecturally intricate residential palace within the UNESCO-protected Fatehpur Sikri royal enclosure. Constructed under Emperor Akbar's direct supervision between 1570 and 1574, this sprawling fortress-like palace served as the primary living quarters for his chief Hindu consort, Empress Mariam-uz-Zamani (popularly revered as Jodha Bai), the mother of Emperor Jahangir. The building stands as an extraordinary architectural synthesis of Rajput, Gujarati Hindu, and classical Mughal elements: carved bell, chain, and lotus motifs adorn the stone pillars, while graceful serpentine brackets mimic Gujarati temple mandapas. The double-storey palace features an airy interior courtyard, secluded balconies, and a dedicated Hindu temple niche where the queen conducted daily devotional pujas.",
+      "visitorGuide": "Jodha Bai Ka Rauza is reached through the central palace gate of Fatehpur Sikri. Exploring the interior chambers, viewing the blue enameled tile remnants on the roof, and observing the breezy summer and winter apartments takes about 45 minutes. Wear supportive walking shoes, as stone corridors can be smooth and worn. Combine with our Same-Day Fatehpur Sikri & Agra Tour for a comfortable chauffeur-driven experience.",
+      "architectureHighlights": [
+        "Largest zenana palace compound in the imperial city of Fatehpur Sikri",
+        "Remarkable fusion of Rajput and Gujarati stone carving with Mughal arches",
+        "Hindu temple chamber preserving traditional lotus and bell stone motifs",
+        "Intact remnants of brilliant turquoise enameled Persian roof tiles"
+      ],
       "sortOrder": 9,
       "createdAt": "2026-10-22T03:38:41.408Z",
-      "updatedAt": "2026-10-22T03:38:41.408Z"
+      "updatedAt": "2026-10-28T12:00:00.000Z"
     },
     {
       "id": "687bb343-8257-48af-bbb6-26ca10b07579",
+      "slug": "mariam-uz-zamani-palace",
       "name": "Mariam-Uz-Zamani Palace",
       "visitingHours": "10:00 – 19:00",
-      "closedNote": "Open all days",
-      "historicalContext": "Palace dedicated to Akbar Portuguese-Christian / Rajput consort.",
+      "closedNote": "Inside Fatehpur Sikri / Sikandra",
+      "metaTitle": "Mariam-uz-Zamani Palace Tour & Taxi | SK Baghel",
+      "metaDescription": "Visit the Golden Palace of Queen Mariam-uz-Zamani. Frescoes, Mughal history & door-to-door cab booking with Agra SK Baghel Tour & Travels.",
+      "historicalContext": "The Palace of Mariam-uz-Zamani, historically documented as the Sunahra Makan (or 'Golden House'), is an exquisite jewel-box pavilion situated within the imperial court complex at Fatehpur Sikri. Originally constructed by Emperor Akbar for his queen Mariam-uz-Zamani, the pavilion derived its name from the brilliant gilded frescoes, figurative Persian murals, and floral arabesques that once blanketed its interior walls and stone ceilings. Supported by elegantly carved bracket pillars and featuring high verandas, the building was designed to capture cooling western breezes across the ridge. Historical records note that scenes depicted included elephants, floral arrangements, and motifs reminiscent of Akbar's eclectic courtly pursuits, demonstrating the Emperor's willingness to integrate human and animal figurative art into palace decorations.",
+      "visitorGuide": "Located immediately adjacent to the Diwan-i-Khas and the Panch Mahal, Mariam's Palace is easily incorporated into any royal enclosure walking route. Morning and late-afternoon light emphasize the intricate relief carvings on the exterior brackets. Photography is permitted throughout. Our chauffeurs take care of all highway transit, parking, and timing logistics while you discover the imperial capital.",
+      "architectureHighlights": [
+        "Historic Sunahra Makan (Golden House) featuring remnants of Mughal gold frescoes",
+        "Elaborate relief bracket carvings depicting elephants, swans, and floral sprays",
+        "High elevated veranda designed for cross-ventilation across the Sikri plateau",
+        "Intimate royal pavilion adjacent to the Diwan-i-Khas and Panch Mahal"
+      ],
       "sortOrder": 10,
       "createdAt": "2026-10-22T03:38:41.408Z",
-      "updatedAt": "2026-10-22T03:38:41.408Z"
+      "updatedAt": "2026-10-28T12:00:00.000Z"
     }
   ],
   "petPolicy": {

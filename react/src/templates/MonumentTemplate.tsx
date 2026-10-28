@@ -14,7 +14,11 @@ export interface DossierMonumentItem {
   name: string;
   visitingHours: string;
   closedNote: string;
+  metaTitle?: string;
+  metaDescription?: string;
   historicalContext?: string | null;
+  visitorGuide?: string | null;
+  architectureHighlights?: string[];
   sortOrder?: number;
   images?: string[];
   createdAt?: string;
@@ -40,7 +44,6 @@ function formatFareDate(dateStr?: string | null): string {
 }
 
 export function MonumentTemplate({ item }: MonumentTemplateProps) {
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
 
   const monumentSlug = item.slug ?? item.monumentCode ?? item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -85,40 +88,40 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
 
   const faqs = [
     {
-      q: `What are the visiting hours for ${item.name}?`,
-      a: `${item.name} is open from ${item.visitingHours}. ${item.closedNote}. For sunrise viewing, visitors are advised to reach the ticket barrier 30–45 minutes prior to gate opening.`,
+      q: `What are the visiting hours and entry rules for ${item.name}?`,
+      a: `${item.name} is open from ${item.visitingHours}. ${item.closedNote}. For dawn or sunrise visits, we recommend reaching the entry plaza 30–45 minutes prior to gate opening to pass through security checkpoints smoothly.`,
     },
     {
       q: `Is ${item.name} closed on any day of the week?`,
-      a: `Operational status: ${item.closedNote}. Please note that the Taj Mahal is closed on Fridays for congregational prayers, whereas other Agra monuments (Agra Fort, Fatehpur Sikri, Itmad-ud-Daulah) remain open all 7 days.`,
+      a: `Operational status: ${item.closedNote}. Note that the Taj Mahal is strictly closed every Friday for congregational prayers, whereas other Agra monuments (Agra Fort, Fatehpur Sikri, Itmad-ud-Daulah, Sikandra, and Mehtab Bagh) remain open all 7 days of the week.`,
     },
     {
-      q: `How can we book monument entry tickets?`,
-      a: `Tickets can be purchased electronically on the official Archaeological Survey of India (ASI) ticketing portal (asi.payumoney.com) or via on-site contactless QR kiosks at the entry plaza. Your chauffeur will guide you directly to the correct line.`,
+      q: `How can travelers purchase monument entry tickets?`,
+      a: `Tickets can be purchased digitally through the official Archaeological Survey of India (ASI) ticketing portal (asi.payumoney.com) or by scanning on-site contactless QR codes at the entry plaza. Our chauffeur will guide you directly to the correct line and parking zone.`,
     },
     {
       q: `Where does the taxi or cab drop visitors at ${item.name}?`,
-      a: `Due to Agra Archaeological Protection regulations, commercial motorized vehicles drop passengers at designated parking plazas (such as Taj East Gate or West Gate parking). Battery-operated electric golf carts and shuttles transport visitors the remaining 500 meters to the main gate.`,
+      a: `Under Agra Archaeological Protection regulations, commercial motorized cabs drop guests at designated parking plazas (such as Shilpgram at Taj East Gate or Agra Fort parking). Pollution-free battery-operated golf carts transfer visitors the remaining distance to the main gates.`,
     },
     {
-      q: `Are official tour guides available at ${item.name}?`,
-      a: `Yes! We coordinate with Ministry of Tourism and ASI-licensed historians speaking English, French, Spanish, German, and Italian at government-approved rates. Beware of unauthorized touts near parking bays.`,
+      q: `Are licensed government tour guides available at ${item.name}?`,
+      a: `Yes! We coordinate with Ministry of Tourism and ASI-approved licensed guides speaking English, French, Spanish, German, and Italian at standardized government rates. We advise avoiding unauthorized touts near parking lots.`,
     },
     {
-      q: `What items are prohibited inside ${item.name}?`,
-      a: `Eating items, chewing gum, smoking devices, matchboxes, tripods, large backpacks, and sharp objects are strictly prohibited inside central Mughal monument sanctums. Cell phones and small handheld digital cameras are permitted. Locker rooms are available at security checkpoints.`,
+      q: `What items are restricted or prohibited inside ${item.name}?`,
+      a: `Food items, chewing gum, smoking devices, lighters, tripods, large backpacks, and sharp objects are strictly prohibited inside the monument. Mobile phones and small handheld digital cameras are permitted. Secure locker facilities are available at ticket gates.`,
     },
     {
-      q: `What shoe protocol is required inside ${item.name}?`,
-      a: `To protect ancient marble and red sandstone floors, visitors must either remove footwear or wear disposable shoe covers (provided complimentary or for a nominal fee at the main plinth security booth).`,
+      q: `What footwear rules are enforced inside ${item.name}?`,
+      a: `To preserve centuries-old marble and sandstone plinths, visitors must either remove shoes or wear disposable shoe covers (provided complimentary or for a nominal fee at security booths before stepping onto the main plinth).`,
     },
     {
-      q: `How does cab booking to ${item.name} work?`,
-      a: `You can book a dedicated point-to-point transfer or full-day sightseeing charter online with a 28% deposit (₹${tokenAdvance.toLocaleString("en-IN")}). Your chauffeur will meet you at your hotel lobby or Agra Cantt station and wait until your visit concludes.`,
+      q: `How does private cab booking to ${item.name} work?`,
+      a: `Book online with a 28% advance deposit (₹${tokenAdvance.toLocaleString("en-IN")}) and pay the 72% balance upon completion. Your dedicated chauffeur will pick you up from your hotel or Agra Cantt Railway Station and remain on standby until your monument tour finishes.`,
     },
     {
       q: `What is the cancellation policy for monument transfers?`,
-      a: `Enjoy full flexibility with our 24-Hour Free Cancellation guarantee. If your schedule changes and you cancel 24 hours prior to pickup, 100% of your deposit is refunded without deduction.`,
+      a: `Enjoy 100% peace of mind with our 24-Hour Free Cancellation guarantee. If your schedule changes and you cancel at least 24 hours prior to departure, your entire 28% deposit is refunded promptly without penalty.`,
     },
   ];
 
@@ -153,13 +156,13 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
           <nav aria-label="Breadcrumb" className="flex items-center gap-space-xs text-body-sm font-body-sm text-on-surface-variant">
             <a className="hover:text-primary transition-colors" href="/">Home</a>
             <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">chevron_right</span>
-            <a className="hover:text-primary transition-colors" href="/en/packages/">Heritage Guides</a>
+            <a className="hover:text-primary transition-colors" href="/en/monuments/">Monuments</a>
             <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">chevron_right</span>
             <span className="text-terracotta-sandstone font-medium">{item.name}</span>
           </nav>
           <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed text-primary text-label-caps font-label-caps uppercase tracking-wider">
             <span className="material-symbols-outlined text-icon-14">account_balance</span>
-            UNESCO World Heritage Site
+            Mughal Heritage Wonder
           </span>
         </div>
       </div>
@@ -180,7 +183,7 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
               </h1>
 
               <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
-                {item.historicalContext || `Experience the breathtaking architectural mastery of ${item.name}. Private air-conditioned transfers, doorstep hotel pickup, and verified government heritage guide coordination.`}
+                {item.historicalContext || `Experience the architectural mastery and historical majesty of ${item.name}. Private air-conditioned transfers, doorstep hotel pickup in Agra, and verified government heritage guide assistance.`}
               </p>
 
               {/* Protocol Badges Strip */}
@@ -267,7 +270,7 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
                 <img
                   className="w-full h-full object-cover transition-all duration-500"
                   src={galleryImages[selectedImageIndex] || galleryImages[0]}
-                  alt={`${item.name} architectural view`}
+                  alt={`${item.name} architectural view in Agra`}
                   loading="eager"
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src = "/assets/places/gallery/taj-mahal-01.jpg";
@@ -304,8 +307,150 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
         </div>
       </section>
 
-      {/* Section 2: Dedicated Transport Fleet Options */}
-      <section className="w-full bg-surface-container-low py-space-3xl border-t border-b border-border-warm/30">
+      {/* Section 2: Architectural Legacy & Historical Narrative */}
+      <section className="w-full bg-surface-container-lowest py-space-2xl border-t border-border-warm/40">
+        <div className="max-w-5xl mx-auto px-margin-mobile lg:px-margin flex flex-col gap-space-lg">
+          <div className="flex flex-col gap-2">
+            <span className="font-label-caps text-label-caps text-terracotta-sandstone uppercase tracking-widest">
+              Heritage Dossier
+            </span>
+            <h2 className="font-headline-lg text-headline-lg text-ink-charcoal font-serif">
+              Architectural Legacy & History of {item.name}
+            </h2>
+          </div>
+
+          <div className="prose prose-lg max-w-none text-on-surface-variant font-body-md leading-relaxed space-y-4">
+            <p>{item.historicalContext}</p>
+          </div>
+
+          {/* Architectural Highlights Grid */}
+          {item.architectureHighlights && item.architectureHighlights.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+              {item.architectureHighlights.map((highlight, index) => (
+                <div
+                  key={index}
+                  className="flex items-start gap-3 p-4 rounded-xl bg-surface-container-low border border-border-warm/50"
+                >
+                  <span className="material-symbols-outlined text-primary text-icon-20 mt-0.5 shrink-0">
+                    check_circle
+                  </span>
+                  <span className="font-body-md text-on-surface text-sm leading-normal">
+                    {highlight}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Section 3: Visitor Guidelines & Logistics */}
+      <section className="w-full bg-surface py-space-2xl border-t border-border-warm/30">
+        <div className="max-w-5xl mx-auto px-margin-mobile lg:px-margin flex flex-col gap-space-lg">
+          <div className="flex flex-col gap-2">
+            <span className="font-label-caps text-label-caps text-terracotta-sandstone uppercase tracking-widest">
+              Visitor Information
+            </span>
+            <h2 className="font-headline-lg text-headline-lg text-ink-charcoal font-serif">
+              Visiting Guidelines, Entry Tickets & Hours
+            </h2>
+          </div>
+
+          {item.visitorGuide && (
+            <div className="p-space-lg rounded-xl bg-sandstone-wash/40 border border-border-warm/60 text-on-surface-variant font-body-md leading-relaxed">
+              <p>{item.visitorGuide}</p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 rounded-xl bg-surface-container-lowest border border-border-warm/50 flex flex-col gap-2">
+              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <span className="material-symbols-outlined text-icon-20">qr_code_scanner</span>
+              </div>
+              <h3 className="font-title-md text-sm font-semibold text-ink-charcoal">Electronic Ticketing</h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Scan ASI QR codes on-site or book in advance at asi.payumoney.com to bypass physical ticket lines.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-surface-container-lowest border border-border-warm/50 flex flex-col gap-2">
+              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <span className="material-symbols-outlined text-icon-20">footprint</span>
+              </div>
+              <h3 className="font-title-md text-sm font-semibold text-ink-charcoal">Shoe Covers Required</h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Wear disposable covers or remove footwear prior to walking on historic marble and red sandstone plinths.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-surface-container-lowest border border-border-warm/50 flex flex-col gap-2">
+              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <span className="material-symbols-outlined text-icon-20">electric_car</span>
+              </div>
+              <h3 className="font-title-md text-sm font-semibold text-ink-charcoal">Eco Golf Carts</h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Zero-emission electric shuttles transport visitors the last 500 meters from parking plazas to entry gates.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-surface-container-lowest border border-border-warm/50 flex flex-col gap-2">
+              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <span className="material-symbols-outlined text-icon-20">lock</span>
+              </div>
+              <h3 className="font-title-md text-sm font-semibold text-ink-charcoal">Cloakroom Lockers</h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Large bags, tripods, and tobacco items must be deposited in secure government lockers near the ticket booth.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 4: Chauffeur Transfer & Waiting Service */}
+      <section className="w-full bg-surface-container-low py-space-2xl border-t border-border-warm/30">
+        <div className="max-w-5xl mx-auto px-margin-mobile lg:px-margin flex flex-col gap-space-lg">
+          <div className="flex flex-col gap-2">
+            <span className="font-label-caps text-label-caps text-terracotta-sandstone uppercase tracking-widest">
+              Chauffeur Transportation
+            </span>
+            <h2 className="font-headline-lg text-headline-lg text-ink-charcoal font-serif">
+              Doorstep Cab Transfers & Dedicated Waiting Guarantee
+            </h2>
+            <p className="text-on-surface-variant text-sm max-w-3xl leading-relaxed">
+              Visiting Agra's monuments should be stress-free and luxurious. Our verified chauffeurs provide private air-conditioned transportation with dedicated waiting throughout your monument tour.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-5 rounded-xl bg-surface-container-lowest border border-border-warm/60 flex flex-col gap-2">
+              <span className="material-symbols-outlined text-primary text-2xl">hotel</span>
+              <h3 className="font-title-md text-base font-semibold text-ink-charcoal">Doorstep Hotel Pickup</h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                We meet you at your hotel lobby, home residence, or Agra Cantt Railway Station with punctuality guaranteed.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-xl bg-surface-container-lowest border border-border-warm/60 flex flex-col gap-2">
+              <span className="material-symbols-outlined text-primary text-2xl">timelapse</span>
+              <h3 className="font-title-md text-base font-semibold text-ink-charcoal">Driver Waiting Guarantee</h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                Take all the time you need to explore and photograph. Your vehicle and chauffeur remain on standby at the parking bay.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-xl bg-surface-container-lowest border border-border-warm/60 flex flex-col gap-2">
+              <span className="material-symbols-outlined text-primary text-2xl">verified_user</span>
+              <h3 className="font-title-md text-base font-semibold text-ink-charcoal">Zero Tourist Traps</h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                We strictly uphold a zero-commission policy: no forced souvenir shops, emporiums, or unauthorized tout detours.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 5: Dedicated Transport Fleet Options */}
+      <section className="w-full bg-surface py-space-3xl border-t border-b border-border-warm/30">
         <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin">
           <GroupedVehicleSection
             rates={fleetPrices}
@@ -320,8 +465,8 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
         </div>
       </section>
 
-      {/* Section 3: Monument FAQs */}
-      <section className="w-full bg-surface py-space-3xl">
+      {/* Section 6: Monument FAQs */}
+      <section className="w-full bg-surface-container-low py-space-3xl">
         <div className="max-w-4xl mx-auto px-margin-mobile lg:px-margin">
           <div className="flex flex-col items-center text-center mb-space-2xl">
             <span className="font-label-caps text-label-caps text-terracotta-sandstone uppercase tracking-widest mb-space-xs">
@@ -336,35 +481,28 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
           </div>
 
           <div className="flex flex-col gap-space-sm">
-            {faqs.map((faq, idx) => {
-              const isOpen = openFaqIndex === idx;
-              return (
-                <div
-                  key={idx}
-                  className="rounded-xl border border-border-warm/60 bg-surface-container-lowest overflow-hidden transition-all shadow-sm"
-                >
-                  <button
-                    type="button"
-                    onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                    className="w-full px-space-lg py-space-md text-left flex items-center justify-between gap-space-md hover:bg-sandstone-wash/30 transition-colors"
-                    aria-expanded={isOpen}
-                  >
-                    <span className="font-title-md text-ink-charcoal font-serif">{faq.q}</span>
-                    <span className={`material-symbols-outlined text-icon-20 text-terracotta-sandstone transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>
-                      expand_more
-                    </span>
-                  </button>
-                  {isOpen && (
-                    <div className="px-space-lg pb-space-md pt-space-xs border-t border-border-warm/20 text-body-md text-on-surface-variant leading-relaxed">
-                      {faq.a}
-                    </div>
-                  )}
+            {faqs.map((faq, idx) => (
+              <details
+                key={idx}
+                open
+                className="group rounded-xl border border-border-warm/60 bg-surface-container-lowest overflow-hidden transition-all shadow-sm"
+              >
+                <summary className="w-full px-space-lg py-space-md text-left flex items-center justify-between gap-space-md hover:bg-sandstone-wash/30 transition-colors cursor-pointer select-none list-none">
+                  <span className="font-title-md text-ink-charcoal font-serif">{faq.q}</span>
+                  <span className="material-symbols-outlined text-icon-20 text-terracotta-sandstone transition-transform duration-200 group-open:rotate-180">
+                    expand_more
+                  </span>
+                </summary>
+                <div className="px-space-lg pb-space-md pt-space-xs border-t border-border-warm/20 text-body-md text-on-surface-variant leading-relaxed">
+                  {faq.a}
                 </div>
-              );
-            })}
+              </details>
+            ))}
           </div>
         </div>
       </section>
     </div>
   );
 }
+
+export default MonumentTemplate;

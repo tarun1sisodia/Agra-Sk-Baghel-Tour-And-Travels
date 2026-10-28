@@ -15,3 +15,26 @@
 /en/agra-to-delhi-airport-cab-booking/ /en/agra-to-delhi-airport-taxi/ 301
 /en/agra-cantt-railway-station-taxi-service /en/agra-cantt-station-transfer/ 301
 /en/agra-cantt-railway-station-taxi-service/ /en/agra-cantt-station-transfer/ 301
+
+
+# Core non-localized routes to canonical /en/ paths
+/routes /en/routes/ 301
+/routes/ /en/routes/ 301
+/fleet /en/fleet/ 301
+/fleet/ /en/fleet/ 301
+/services /en/services/ 301
+/services/ /en/services/ 301
+/packages /en/packages/ 301
+/packages/ /en/packages/ 301
+/monuments /en/monuments/ 301
+/monuments/ /en/monuments/ 301
+/about /en/about/ 301
+/about/ /en/about/ 301
+/contact /en/contact/ 301
+/contact/ /en/contact/ 301
+/faq /en/faq/ 301
+/faq/ /en/faq/ 301
+/rent /en/taxis/rent/ 301
+/rent/ /en/taxis/rent/ 301
+/rental /en/taxis/rent/ 301
+/rental/ /en/taxis/rent/ 301

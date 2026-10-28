@@ -743,6 +743,7 @@ export function CleanBookingPage() {
   if (catalogLoading && catalog.products.length === 0) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center bg-bg">
+        <h1 className="sr-only">Book Your Journey — Agra SK Baghel Tour and Travels</h1>
         <div className="text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
           <p className="mt-3 font-mono text-xs uppercase tracking-widest text-ink-soft">

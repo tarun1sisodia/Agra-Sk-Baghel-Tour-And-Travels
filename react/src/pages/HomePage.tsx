@@ -314,15 +314,15 @@ export function HomePage({ language = "en" }: HomePageProps) {
               <span>Agra Hub Dispatch • 24/7 Verified Chauffeur Fleet</span>
             </div>
 
-            {/* 100% SEO-Safe Headline with Handwriting Flourish */}
-            <h1 className="font-headline-hero text-headline-hero font-normal leading-[1.12] w-full max-w-4xl">
-              {/* Semantic HTML text for search crawlers & screen readers */}
-              <span className="sr-only">Premium Taxi Service & Tour Packages in Agra</span>
+            {/* 100% Clean Semantic H1 for Search Crawlers & Screen Readers */}
+            <h1 className="sr-only">Premium Taxi Service & Tour Packages in Agra</h1>
 
-              <div aria-hidden="true" className="select-none flex flex-col items-center gap-1.5 w-full">
+            {/* Visual Headline with Handwriting Flourish */}
+            <div className="font-headline-hero text-headline-hero font-normal leading-[1.12] w-full max-w-4xl" aria-hidden="true">
+              <span className="select-none flex flex-col items-center gap-1.5 w-full">
                 {/* Line 1: Agra to Anywhere */}
-                <div
-                  className="text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)] drop-shadow-[0_6px_28px_rgba(0,0,0,0.7)] overflow-visible pb-0.5"
+                <span
+                  className="block text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)] drop-shadow-[0_6px_28px_rgba(0,0,0,0.7)] overflow-visible pb-0.5"
                   aria-label={text}
                 >
                   {text.split("").map((letter, index) => (
@@ -333,19 +333,19 @@ export function HomePage({ language = "en" }: HomePageProps) {
                       {letter === " " ? "\u00A0" : letter}
                     </span>
                   ))}
-                </div>
+                </span>
 
                 {/* Line 2: in first-class comfort. in luminous light white/champagne */}
-                <div className="relative w-full max-w-xl mt-1 flex flex-col items-center">
-                  <div
-                    className="font-serif italic tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-white/95 to-white/80 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] text-3xl sm:text-5xl md:text-6xl"
+                <span className="relative w-full max-w-xl mt-1 flex flex-col items-center">
+                  <span
+                    className="block font-serif italic tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-white/95 to-white/80 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] text-3xl sm:text-5xl md:text-6xl"
                     style={{
                       lineHeight: 1.15,
                       fontFamily: "'Playfair Display', 'EB Garamond', Georgia, serif",
                     }}
                   >
                     in first-class comfort.
-                  </div>
+                  </span>
 
                   {/* Cursive flourish underline stroke in luminous white silk */}
                   <svg
@@ -369,9 +369,9 @@ export function HomePage({ language = "en" }: HomePageProps) {
                       </linearGradient>
                     </defs>
                   </svg>
-                </div>
-              </div>
-            </h1>
+                </span>
+              </span>
+            </div>
 
             <p className="font-body-lg text-body-lg text-ivory-surface max-w-2xl leading-relaxed drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
               Explore local monuments or plan outstation trips with Agra's trusted travel partner. Doorstep pickup across Agra, Taj Mahal sunrise tours by car, and transparent per-km billing.
