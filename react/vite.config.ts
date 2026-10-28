@@ -69,6 +69,9 @@ export default defineConfig(({ mode }) => {
             if (id.includes("node_modules/lucide-react/")) {
               return "vendor-icons";
             }
+            if (id.includes("node_modules/zod/")) {
+              return "vendor-zod";
+            }
             if (id.includes("node_modules/@supabase/")) {
               return "vendor-supabase";
             }
