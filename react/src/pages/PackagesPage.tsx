@@ -846,7 +846,7 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {displayedPackages.map((item) => {
             const { pkg } = item;
-            const packageDetailUrl = `/en/packages/${pkg.slug}`;
+            const packageDetailUrl = `/en/packages/${pkg.slug}/`;
             const fromParam = encodeURIComponent(pkg.source || "Agra");
             const toParam = encodeURIComponent(pkg.destination || pkg.name);
             const bookStep1Url = `/book.html?category=tour_package&product=${encodeURIComponent(pkg.slug)}&from=${fromParam}&to=${toParam}`;
@@ -1109,7 +1109,7 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
                         }`}
                     >
                       <td className="py-2.5 px-3 font-semibold text-ink-charcoal">
-                        <a href={`/en/packages/${pkg.slug}`} className="hover:text-primary transition-colors">
+                        <a href={`/en/packages/${pkg.slug}/`} className="hover:text-primary transition-colors">
                           {pkg.name}
                         </a>
                       </td>

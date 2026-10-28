@@ -73,7 +73,7 @@ export function Footer({ className = "" }: FooterProps) {
               <p className="font-body-sm text-body-sm text-white/85">
                 {contact.address}
               </p>
-            <div className="flex flex-col gap-1 pt-1 text-body-sm">
+              <div className="flex flex-col gap-1 pt-1 text-body-sm">
                 <a
                   href={`tel:${contact.phone}`}
                   aria-label={`Call us at ${contact.phoneDisplay}`}
@@ -130,7 +130,7 @@ export function Footer({ className = "" }: FooterProps) {
                   <SocialIcon name="instagram" />
                 </a>
                 <a
-                  href="https://youtube.com/@agraskbaghel_tourandtravels?si=paXJ1oLHgGZvgXxN"
+                  href="https://www.youtube.com/@agraskbagheltourandtravels?si=paXJ1oLHgGZvgXxN"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Agra SK Baghel Tour and Travels on YouTube"

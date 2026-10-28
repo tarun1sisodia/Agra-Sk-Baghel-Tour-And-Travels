@@ -111,7 +111,7 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
       }),
       buildBreadcrumbSchema([
         { name: "Home", url: "/" },
-        { name: "Tour Packages", url: "/packages/" },
+        { name: "Tour Packages", url: "/en/packages/" },
         { name: item.title, url: canonicalUrl },
       ]),
     ],

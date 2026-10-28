@@ -92,6 +92,13 @@ function getPublishedPackageRoutes(): string[] {
   }
 }
 
+const REDIRECT_SLUGS = new Set([
+  "agra-to-delhi",
+  "agra-to-mathura-taxi-service",
+  "agra-to-delhi-airport-cab-booking",
+  "agra-cantt-railway-station-taxi-service",
+]);
+
 function getPublishedRoutePages(): string[] {
   const snapshotPath = join(reactRoot, "src", "data", "generated-published-routes.json");
   const livePath = join(reactRoot, "src", "data", "live-catalog.snapshot.json");
@@ -99,7 +106,7 @@ function getPublishedRoutePages(): string[] {
     const raw = existsSync(livePath) ? JSON.parse(readFileSync(livePath, "utf8")) : JSON.parse(readFileSync(snapshotPath, "utf8"));
     const snapshot = (Array.isArray(raw) ? raw : Object.keys(raw?.data?.routes ?? raw?.routes ?? {}).map((slug) => ({ slug }))) as Array<{ slug?: string }>;
     return snapshot
-      .filter((item) => isSitemapSafeSlug(item.slug))
+      .filter((item) => isSitemapSafeSlug(item.slug) && !REDIRECT_SLUGS.has(item.slug))
       .map((item) => `/en/${item.slug}/`);
   } catch {
     return [];
@@ -261,6 +268,9 @@ const redirectStubs = [
   { from: "en/privacy/", to: "/privacy-policy/" },
   { from: "en/terms/", to: "/terms-and-conditions/" },
   { from: "en/agra-to-mathura-taxi-service/", to: "/en/agra-to-mathura-taxi/" },
+  { from: "en/agra-to-delhi/", to: "/en/agra-to-delhi-taxi/" },
+  { from: "en/agra-to-delhi-airport-cab-booking/", to: "/en/agra-to-delhi-airport-taxi/" },
+  { from: "en/agra-cantt-railway-station-taxi-service/", to: "/en/agra-cantt-station-transfer/" },
   { from: "services.html", to: "/en/services/" },
   { from: "routes.html", to: "/en/routes/" },
   { from: "packages.html", to: "/en/packages/" },
@@ -322,7 +332,13 @@ export async function prerender(): Promise<void> {
   // functions/review/[[token]].ts. Keep a shell at its rewrite target without
   // placing a real customer token in the public build.
   await mkdir(join(dist, "review"), { recursive: true });
-  const reviewShell = baseTemplate.replace(
+  const reviewShell = baseTemplate
+    .replace(/<title>.*?<\/title>/, "<title>Customer Reviews | Agra SK Baghel Travels</title>")
+    .replace(
+      /<meta name="description" content="[^"]*" \/>/,
+      '<meta name="description" content="Read authentic traveler reviews for Agra SK Baghel Tour and Travels. Verified ratings on private Taj Mahal tours, outstation cabs & Tempo Travellers." />',
+    )
+    .replace(
     "</head>",
     `<meta name="robots" content="noindex, nofollow" /><link rel="canonical" href="${CANONICAL_DOMAIN}/review" /></head>`,
   );

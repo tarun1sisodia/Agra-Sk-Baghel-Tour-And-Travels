@@ -453,7 +453,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                 style={{ color: "#ffffff" }}
                 href="https://wa.me/919762817598"
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
               >
                 <WhatsAppIcon className="w-[18px] h-[18px] shrink-0 text-white" />
                 <span className="text-white font-semibold" style={{ color: "#ffffff" }}>WhatsApp Support</span>
@@ -621,7 +621,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                 <a
                   href="https://wa.me/919762817598?text=Hello%20Agra%20SK%20Baghel%20Desk%2C%20I%20would%20like%20to%20check%20cab%20availability."
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-xs font-bold font-label-caps hover:bg-primary-container transition-colors"
                 >
                   <span>Inquire via WhatsApp Desk</span>
@@ -773,7 +773,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                       style={{ color: "#ffffff" }}
                       href={`https://wa.me/919762817598?text=Inquiry%20for%20${encodeURIComponent(veh.name)}`}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                     >
                       <WhatsAppIcon className="w-3.5 h-3.5 shrink-0 text-white" />
                       <span className="text-white font-semibold" style={{ color: "#ffffff" }}>WhatsApp Inquiry</span>
@@ -814,7 +814,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
               style={{ color: "#ffffff" }}
               href="https://wa.me/919762817598?text=Hello%2C%20I%20am%20inquiring%20about%20a%20specific%20vehicle%20model%20for%20my%20Agra%20tour."
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               <WhatsAppIcon className="w-4 h-4 shrink-0 text-white" />
               <span className="text-white font-semibold" style={{ color: "#ffffff" }}>Request Custom Model</span>
@@ -861,7 +861,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                   <a
                     href={`https://wa.me/919762817598?text=Hello%20Desk%2C%20I%20would%20like%20to%20reserve%20a%20${encodeURIComponent(item.name)}.`}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="w-full py-1.5 px-3 rounded-lg bg-surface-container hover:bg-surface-container-high text-ink-charcoal text-xs font-semibold font-label-caps transition-colors flex items-center justify-center gap-1.5 border border-border-warm/60"
                   >
                     <span>Reserve via Desk</span>

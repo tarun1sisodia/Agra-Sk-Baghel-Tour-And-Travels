@@ -286,7 +286,7 @@ export function FaqPage({ language = "en" }: FaqPageProps) {
             <a
               href="https://wa.me/919762817598"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               style={{ color: "#ffffff" }}
               className="p-3.5 rounded-xl bg-black text-white hover:bg-neutral-900 border border-white/10 transition-all flex flex-col items-center text-center shadow-xs active:scale-[0.98]"
             >

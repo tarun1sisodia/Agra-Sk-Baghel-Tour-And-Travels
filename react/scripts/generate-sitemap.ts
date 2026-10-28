@@ -53,7 +53,12 @@ export interface SitemapEntry {
 
 // Legacy redirect stubs must never be advertised as canonical sitemap URLs,
 // even if an old catalog snapshot still contains their slug.
-const REDIRECT_ONLY_PATHS = new Set(["/en/agra-to-mathura-taxi-service/"]);
+const REDIRECT_ONLY_PATHS = new Set([
+  "/en/agra-to-mathura-taxi-service/",
+  "/en/agra-to-delhi/",
+  "/en/agra-to-delhi-airport-cab-booking/",
+  "/en/agra-cantt-railway-station-taxi-service/",
+]);
 
 export function isSitemapSafeSlug(slug: unknown): slug is string {
   if (typeof slug !== "string") return false;
@@ -468,6 +473,9 @@ export function generateRobotsTxt(): string {
 User-agent: *
 Allow: /
 Disallow: /book.html
+Disallow: /book
+Disallow: /book/
+Disallow: /book*
 Disallow: /404.html
 Disallow: /design-guide/
 

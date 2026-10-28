@@ -137,7 +137,7 @@ export function ContactCard() {
             style={{ color: "#ffffff" }}
             href={`https://wa.me/${contact.whatsapp}`}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             aria-label="Chat with Agra SK Baghel Tour and Travels on WhatsApp"
           >
             <WhatsAppIcon className="w-4 h-4 shrink-0 text-white" />
@@ -249,7 +249,7 @@ export function ContactCard() {
                   className="contact-tile"
                   href={`https://wa.me/${contact.whatsapp}`}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   aria-label="Message Agra SK Baghel Tour and Travels on WhatsApp"
                   role="listitem"
                 >
@@ -295,7 +295,7 @@ export function ContactCard() {
                   className="contact-tile"
                   href={contact.mapsUrl}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   aria-label="Open Google Maps directions to Taj Ganj, Agra"
                   role="listitem"
                 >
@@ -387,7 +387,7 @@ export function ContactCard() {
                         formData.name
                       )}.`}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                     >
                       <WhatsAppIcon className="w-4 h-4 shrink-0 text-white" />
                       <span className="text-white" style={{ color: "#ffffff" }}>Chat on WhatsApp</span>

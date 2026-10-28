@@ -2,6 +2,9 @@
 User-agent: *
 Allow: /
 Disallow: /book.html
+Disallow: /book
+Disallow: /book/
+Disallow: /book*
 Disallow: /404.html
 Disallow: /design-guide/
 

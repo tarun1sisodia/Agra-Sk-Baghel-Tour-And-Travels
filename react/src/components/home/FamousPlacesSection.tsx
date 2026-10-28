@@ -599,7 +599,7 @@ export function FamousPlacesSection() {
                       `Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about a taxi trip to ${place.name} (${place.distance}).`
                     )}`}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     aria-label={`Inquire about cab to ${place.name} on WhatsApp`}
                   >
                     <WhatsAppIcon className="w-3.5 h-3.5 shrink-0 text-white" />
@@ -657,7 +657,7 @@ export function FamousPlacesSection() {
                     `Hello Agra SK Baghel Tour and Travels, I am inquiring about visiting ${modalImage.title}.`
                   )}`}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                 >
                   <WhatsAppIcon className="w-4 h-4 shrink-0 text-white" />
                   <span className="text-white font-semibold" style={{ color: "#ffffff" }}>WhatsApp Desk</span>

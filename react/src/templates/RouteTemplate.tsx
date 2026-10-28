@@ -113,8 +113,8 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
 
   const breadcrumbSchema = buildBreadcrumbSchema([
     { name: "Home", url: "/" },
-    { name: "Routes", url: "/routes/" },
-    { name: `${fromEn} to ${toEn}`, url: `/routes/${route.id}/` },
+    { name: "Routes", url: "/en/routes/" },
+    { name: `${fromEn} to ${toEn}`, url: canonicalUrl },
   ]);
 
   const faqSchema = buildFaqSchema(faqItems.map((f) => ({ question: f.q, answer: f.a })));

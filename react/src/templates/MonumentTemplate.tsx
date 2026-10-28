@@ -126,8 +126,8 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
 
   const breadcrumbSchema = buildBreadcrumbSchema([
     { name: "Home", url: "/" },
-    { name: "Monuments", url: "/packages/" },
-    { name: item.name, url: `/monuments/${monumentSlug}/` },
+    { name: "Monuments", url: "/en/monuments/" },
+    { name: item.name, url: canonicalUrl },
   ]);
 
   const faqSchema = buildFaqSchema(faqs.map((f) => ({ question: f.q, answer: f.a })));

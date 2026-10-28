@@ -181,7 +181,7 @@ export function WhatsAppButton({
     <a
       href={`https://wa.me/${phone}?text=${encodeURIComponent(inquiryText)}`}
       target="_blank"
-      rel="noreferrer"
+      rel="noopener noreferrer"
       style={{ color: "#ffffff", ...style }}
       className={`${sizeClass} ${className}`}
       {...props}
@@ -568,3 +568,19 @@ export function EditorialHero({
     </section>
   );
 }
+
+
+// Re-export modern semantic typography primitives for unified editorial authoring
+export {
+  PageHeroTitle,
+  SectionHeading,
+  CardTitle,
+  SubSectionHeading,
+  BodyLead,
+  BodyText,
+  BodySmall,
+  Eyebrow,
+  PriceDisplay,
+  CtaButton,
+  Typography,
+} from "../ui/typography";

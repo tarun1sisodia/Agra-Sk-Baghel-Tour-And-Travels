@@ -391,7 +391,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                 style={{ color: "#ffffff" }}
                 href={`https://wa.me/${contact.whatsapp}`}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 aria-label="Book taxi directly on WhatsApp (opens in new window)"
               >
                 <WhatsAppIcon className="w-[18px] h-[18px] shrink-0 text-white" />
@@ -966,7 +966,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                       <span className="font-title-md text-title-lg text-on-surface font-bold">+91 97628 17598</span>
                     </div>
                   </a>
-                  <a className="p-3.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container transition-all flex items-center gap-3 shadow-sm border border-border-warm/40" href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noreferrer">
+                  <a className="p-3.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container transition-all flex items-center gap-3 shadow-sm border border-border-warm/40" href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noopener noreferrer">
                     <div className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center shrink-0 shadow-sm">
                       <WhatsAppIcon className="w-[18px] h-[18px] shrink-0" />
                     </div>
@@ -1010,7 +1010,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                         <a
                           href={`https://wa.me/919762817598?text=${encodeURIComponent(`Hello Agra SK Baghel Tour and Travels, following up on my booking inquiry for ${origin} to ${destination} on ${inquiryDate}.`)}`}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
                           style={{ color: "#ffffff" }}
                           className="px-3.5 py-2 rounded-lg bg-black text-white font-label-caps text-xs font-bold inline-flex items-center gap-1.5 shadow-xs"
                         >

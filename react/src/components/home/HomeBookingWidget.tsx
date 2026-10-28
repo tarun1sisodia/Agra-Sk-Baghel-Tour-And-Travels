@@ -402,7 +402,14 @@ export function HomeBookingWidget() {
                 ) : publishedTours.length > 0 ? (
                   <div className="booking-reference__select booking-reference__select--with-icon">
                     <span className="booking-reference__thumb">
-                      <img src={thumbSrc} alt="" width={44} height={44} loading="lazy" decoding="async" />
+                      <img
+                        src={thumbSrc}
+                        alt={selectedTour?.name ? `${selectedTour.name} tour preview` : "Agra tour package preview"}
+                        width={44}
+                        height={44}
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </span>
                     <select
                       id="home-local-tour"
@@ -660,7 +667,14 @@ export function HomeBookingWidget() {
                     setErrors({});
                   }}
                 >
-                  <img src={tour.image} alt="" width={56} height={56} loading="lazy" decoding="async" />
+                  <img
+                    src={tour.image}
+                    alt={tour.name ? `${tour.name} sightseeing tour in Agra` : "Agra tour package"}
+                    width={56}
+                    height={56}
+                    loading="lazy"
+                    decoding="async"
+                  />
                   <span>
                     <strong>{tour.name}</strong>
                     <small>{tour.durationText}</small>

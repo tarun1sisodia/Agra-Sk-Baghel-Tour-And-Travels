@@ -82,7 +82,7 @@ async function main(): Promise<void> {
   const locValues = Array.from(sitemap.matchAll(/<loc>\s*([^<]+)\s*<\/loc>/gi), (match) => match[1]!.trim());
   assert.ok(locValues.length > 0, "The sitemap must contain at least one URL.");
   assert.equal(new Set(locValues).size, locValues.length, "Sitemap loc URLs must be unique.");
-  for (const alias of ["/en/privacy/", "/en/terms/", "/en/agra-to-mathura-taxi-service/"]) {
+  for (const alias of ["/en/privacy/", "/en/terms/", "/en/agra-to-mathura-taxi-service/", "/en/agra-to-delhi/", "/en/agra-to-delhi-airport-cab-booking/", "/en/agra-cantt-railway-station-taxi-service/"]) {
     assert.equal(locValues.some((loc) => new URL(loc).pathname === alias), false,
       "A redirected legacy alias must not be listed in the sitemap: " + alias);
   }
@@ -131,6 +131,43 @@ async function main(): Promise<void> {
   for (const path of htmlFiles) {
     const html = await readFile(path, "utf8");
     const relPath = relative(distDir, path).split(sep).join("/");
+    const blankAnchors = tags(html, /<a\b[^>]*\btarget=["\']_blank["\'][^>]*>/gi);
+    for (const anchor of blankAnchors) {
+      const rel = attribute(anchor, "rel") ?? "";
+      assert.ok(
+        rel.includes("noopener") && rel.includes("noreferrer"),
+        `External blank anchor in ${relPath} must include rel="noopener noreferrer": ${anchor}`
+      );
+    }
+
+    // Assert internal /en/ links contain trailing slash
+    const internalEnLinks = Array.from(html.matchAll(/href=["'](\/en\/[^"'\s?#]+)["']/gi), (m) => m[1]!);
+    for (const href of internalEnLinks) {
+      assert.ok(
+        href.endsWith("/") || /\.[a-zA-Z0-9]+$/.test(href),
+        `Internal /en/ link in ${relPath} missing trailing slash: ${href}`
+      );
+    }
+
+    // Assert title length <= 60 characters
+    const fileTitleTags = tags(html, /<title>[\s\S]*?<\/title>/gi);
+    if (fileTitleTags.length > 0) {
+      const fileTitle = decodeHtmlEntities(fileTitleTags[0]!.replace(/^<title>|<\/title>$/gi, "")).trim();
+      assert.ok(
+        fileTitle.length <= 60,
+        `Page title in ${relPath} exceeds 60 characters: "${fileTitle}" (${fileTitle.length})`
+      );
+    }
+
+    // Assert meta description <= 160 characters
+    const fileDescTags = tags(html, /<meta\b[^>]*\bname=["']description["'][^>]*>/gi);
+    if (fileDescTags.length > 0) {
+      const fileDesc = decodeHtmlEntities(attribute(fileDescTags[0]!, "content") ?? "").trim();
+      assert.ok(
+        fileDesc.length <= 160,
+        `Meta description in ${relPath} exceeds 160 characters: "${fileDesc}" (${fileDesc.length})`
+      );
+    }
     const canonicalTags = tags(html, /<link\b[^>]*\brel=["\']canonical["\'][^>]*>/gi);
     assert.equal(canonicalTags.length, 1, "Every prerendered HTML artifact must contain exactly one canonical tag: " + relPath);
     const canonicalValue = attribute(canonicalTags[0]!, "href");

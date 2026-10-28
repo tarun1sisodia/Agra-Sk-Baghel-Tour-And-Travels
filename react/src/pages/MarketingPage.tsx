@@ -106,7 +106,7 @@ function DetailPage({ detail, language }: { detail: Vehicle | Package | Route; l
         <p className="hero-copy">{description}</p>
         <div className="hero-actions">
           <a className="button button-primary" href={`tel:${contact.phone}`}>Call {contact.phoneDisplay}</a>
-          <a className="button button-whatsapp inline-flex items-center gap-2" style={{ color: "#ffffff" }} href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noreferrer"><WhatsAppIcon className="w-4 h-4 shrink-0 text-white" /><span className="text-white" style={{ color: "#ffffff" }}>WhatsApp</span></a>
+          <a className="button button-whatsapp inline-flex items-center gap-2" style={{ color: "#ffffff" }} href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noopener noreferrer"><WhatsAppIcon className="w-4 h-4 shrink-0 text-white" /><span className="text-white" style={{ color: "#ffffff" }}>WhatsApp</span></a>
           <a className="button button-outline" href={`/book.html?${isVehicle ? `vehicle=${detail.id}` : isPackage ? `package=${detail.slug}` : `route=${detail.id}`}`}>Book now ↗</a>
         </div>
       </section>
@@ -188,7 +188,7 @@ export function MarketingPage({ language, section }: MarketingPageProps) {
           <h2>{section === "about" ? "Local knowledge, dependable travel." : "Your local travel desk in Agra."}</h2>
           <p>{intro}</p>
           <div className="contact-details"><a href={`tel:${contact.phone}`}>{contact.phoneDisplay}</a><a href={`mailto:${contact.email}`}>{contact.email}</a><a href={contact.mapsUrl}>{contact.address}</a></div>
-          <div className="hero-actions"><a className="button button-whatsapp inline-flex items-center gap-2" style={{ color: "#ffffff" }} href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noreferrer"><WhatsAppIcon className="w-4 h-4 shrink-0 text-white" /><span className="text-white" style={{ color: "#ffffff" }}>Message on WhatsApp</span></a><a className="button button-outline" href="/book.html">Start a booking</a></div>
+          <div className="hero-actions"><a className="button button-whatsapp inline-flex items-center gap-2" style={{ color: "#ffffff" }} href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noopener noreferrer"><WhatsAppIcon className="w-4 h-4 shrink-0 text-white" /><span className="text-white" style={{ color: "#ffffff" }}>Message on WhatsApp</span></a><a className="button button-outline" href="/book.html">Start a booking</a></div>
         </section>
       )}
     </main>

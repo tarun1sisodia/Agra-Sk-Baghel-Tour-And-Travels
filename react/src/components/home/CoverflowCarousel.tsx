@@ -111,7 +111,7 @@ export function CoverflowCarousel() {
               style={{ color: "#ffffff" }}
               href={waUrl}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               <WhatsAppIcon className="w-4 h-4 shrink-0 text-white" />
               <span className="text-white" style={{ color: "#ffffff" }}>WhatsApp Inquiry</span>

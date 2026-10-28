@@ -2,6 +2,16 @@ import React, { useState } from "react";
 import type { RouteDetail } from "../data/seoLandingSlugs";
 import { contact } from "../data/contact";
 import { WhatsAppIcon } from "./icons";
+import {
+  PageHeroTitle,
+  SectionHeading,
+  CardTitle,
+  BodyLead,
+  BodyText,
+  Eyebrow,
+  PriceDisplay,
+  CtaButton,
+} from "./ui/typography";
 
 interface RichLandingPageProps {
   route: RouteDetail;
@@ -165,10 +175,10 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
 
           {/* Eyebrow & Badges */}
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sandstone-wash text-terracotta-deep font-label-caps text-xs font-bold uppercase tracking-wider">
+            <Eyebrow variant="sandstone">
               <span className="size-2 rounded-full bg-success-jade animate-pulse shrink-0" />
               {isLocal ? "Agra Local Sightseeing • 8–12h Dedicated Chauffeur" : "Agra Hub Intercity Corridor • Tolls & FASTag Included"}
-            </span>
+            </Eyebrow>
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container border border-border-warm text-ink-charcoal text-xs font-semibold">
               <span className="material-symbols-outlined text-xs text-terracotta-sandstone">verified</span>
               100% Verified Commercial Drivers
@@ -176,14 +186,14 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
           </div>
 
           {/* Main H1 Title (Strictly 36px / 2.25rem scale, exactly one per page) */}
-          <h1 className="font-headline-hero text-ink-charcoal text-3xl sm:text-4xl lg:text-[2.25rem] font-bold tracking-tight leading-tight mb-4">
+          <PageHeroTitle className="mb-4">
             {route.h1}
-          </h1>
+          </PageHeroTitle>
 
-          {/* Subheadline Lead Text (16px / 1rem baseline, 1.6 line height) */}
-          <p className="text-on-surface-variant text-base sm:text-lg leading-[1.6] max-w-3xl mb-6">
+          {/* Subheadline Lead Text (18px lead, 1.55 line height) */}
+          <BodyLead className="max-w-3xl mb-6">
             {route.subheadline}
-          </p>
+          </BodyLead>
 
           {/* Route Key Specifications Badges */}
           <div className="flex flex-wrap gap-2.5 sm:gap-3 mb-8">
@@ -209,34 +219,33 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
             )}
           </div>
 
-          {/* Dual Primary Call-to-Action Buttons (48px min touch target, 18px text) */}
+          {/* Dual Primary Call-to-Action Buttons (48px min touch target) */}
           <div className="flex flex-wrap gap-3 sm:gap-4 items-center">
-            <a
+            <CtaButton
               href={`tel:${contact.phone}`}
-              className="inline-flex min-h-[48px] items-center justify-center gap-2 bg-terracotta-deep hover:bg-primary text-white font-label-lg py-3 px-6 rounded-xl transition-all font-bold text-base sm:text-lg shadow-xs active:scale-[0.98]"
+              variant="primary"
+              size="large"
+              icon="phone_in_talk"
+              iconPosition="left"
             >
-              <span className="material-symbols-outlined text-base">phone_in_talk</span>
-              <span>{isLocal ? "Direct Local Dispatch" : "Highway Dispatch Desk"} ({contact.phoneDisplay})</span>
-            </a>
-            <a
+              {isLocal ? "Direct Local Dispatch" : "Highway Dispatch Desk"} ({contact.phoneDisplay})
+            </CtaButton>
+            <CtaButton
               href={createWhatsAppLink(isLocal ? "Local Tour Sedan" : "Outstation Express Sedan", route.fares.sedan)}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex min-h-[48px] items-center justify-center gap-2 bg-black hover:bg-neutral-900 border border-white/10 text-white font-label-lg py-3 px-6 rounded-xl transition-all font-bold text-base sm:text-lg shadow-xs active:scale-[0.98]"
-              style={{ color: "#ffffff" }}
+              variant="whatsapp"
+              size="large"
             >
-              <WhatsAppIcon className="w-5 h-5 shrink-0 text-white" />
-              <span className="text-white" style={{ color: "#ffffff" }}>
-                {isLocal ? "Book Local Chauffeur Now ↗" : "Pre-Book Outstation Transfer ↗"}
-              </span>
-            </a>
-            <a
+              {isLocal ? "Book Local Chauffeur Now ↗" : "Pre-Book Outstation Transfer ↗"}
+            </CtaButton>
+            <CtaButton
               href="/book.html"
-              className="inline-flex min-h-[48px] items-center justify-center gap-2 bg-surface-container hover:bg-surface-container-high border border-border-warm text-ink-charcoal font-label-lg py-3 px-5 rounded-xl transition-all font-semibold text-sm sm:text-base"
+              variant="outline"
+              size="default"
+              icon="arrow_forward"
+              iconPosition="right"
             >
-              <span>Instant Online Booking (28% Deposit)</span>
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
-            </a>
+              Instant Online Booking (28% Deposit)
+            </CtaButton>
           </div>
         </div>
       </header>
@@ -246,15 +255,15 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
         {/* 2. TRANSPARENT FARE TABLE (Section Heading <h2> at 28px / 1.75rem) */}
         <section className="glass-card-frosted border border-white/60 rounded-3xl p-6 sm:p-10 shadow-xl">
           <div className="mb-6">
-            <span className="text-terracotta-sandstone font-label-caps uppercase tracking-wider text-xs font-bold block mb-1">
+            <Eyebrow variant="sandstone" className="mb-1">
               Guaranteed Upfront Pricing
-            </span>
-            <h2 className="font-headline-lg text-2xl sm:text-[1.75rem] text-ink-charcoal font-bold tracking-tight">
+            </Eyebrow>
+            <SectionHeading className="mt-1">
               Fixed Real-Time Upfront Pricing ({isLocal ? "Local Sightseeing Taxi in Agra" : "Outstation Taxi Service from Agra"})
-            </h2>
-            <p className="mt-2 text-base text-on-surface-variant leading-[1.6]">
+            </SectionHeading>
+            <BodyText className="mt-2">
               ⚠️ All quoted fares are 100% transparent and <strong>inclusive of state vehicle permits, Yamuna Expressway / highway toll taxes, and commercial FASTag charges</strong>. Zero hidden driver allowances or roadside surprises.
-            </p>
+            </BodyText>
           </div>
 
           <div className="overflow-x-auto rounded-2xl border border-white/60 bg-white/40 backdrop-blur-sm shadow-xs">
@@ -278,18 +287,18 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
                       {tier.capacity}
                     </td>
                     <td className="py-4 px-4 font-bold text-terracotta-deep text-lg">
-                      ₹{tier.fare.toLocaleString("en-IN")}
+                      <PriceDisplay amount={tier.fare} className="text-terracotta-deep text-lg" />
                     </td>
                     <td className="py-4 px-4 text-right">
-                      <a
+                      <CtaButton
                         href={createWhatsAppLink(tier.name, tier.fare)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-border-warm text-xs sm:text-sm font-bold text-ink-charcoal hover:text-primary transition-colors"
+                        variant="secondary"
+                        size="compact"
+                        icon={<WhatsAppIcon className="w-3.5 h-3.5 shrink-0" />}
+                        iconPosition="left"
                       >
-                        <WhatsAppIcon className="w-3.5 h-3.5 shrink-0" />
-                        <span>Reserve Now →</span>
-                      </a>
+                        Reserve Now →
+                      </CtaButton>
                     </td>
                   </tr>
                 ))}
@@ -305,9 +314,9 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
             <div className="mt-6 p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 shadow-2xs">
               <div className="flex items-center gap-2 mb-3">
                 <span className="material-symbols-outlined text-amber-800 text-xl">schedule</span>
-                <h3 className="font-headline-sm text-lg sm:text-[1.375rem] font-bold text-amber-950">
+                <CardTitle className="text-amber-950">
                   ⏱️ Local Sightseeing Flex Policies &amp; Inclusions:
-                </h3>
+                </CardTitle>
               </div>
               <ul className="space-y-2.5 text-base text-amber-950 leading-[1.6] font-medium">
                 <li className="flex items-start gap-2.5">
@@ -332,9 +341,9 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
             <div className="mt-6 p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-2xs">
               <div className="flex items-center gap-2 mb-3">
                 <span className="material-symbols-outlined text-emerald-800 text-xl">verified_user</span>
-                <h3 className="font-headline-sm text-lg sm:text-[1.375rem] font-bold text-emerald-950">
+                <CardTitle className="text-emerald-950">
                   🛣️ Outstation Highway Safety &amp; All-Inclusive Inclusions:
-                </h3>
+                </CardTitle>
               </div>
               <ul className="space-y-2.5 text-base text-emerald-950 leading-[1.6] font-medium">
                 <li className="flex items-start gap-2.5">
@@ -358,16 +367,16 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
           )}
         </section>
 
-        {/* 3. ROUTE HIGHLIGHTS & ITINERARY BREAKDOWN (Subsection Headings <h3> at 22px / 1.375rem) */}
+        {/* 3. ROUTE HIGHLIGHTS & ITINERARY BREAKDOWN */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
           {/* Landmarks Featured */}
           <div className="bg-surface-container-lowest border border-border-warm rounded-2xl p-6 shadow-xs flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="material-symbols-outlined text-terracotta-sandstone text-xl">location_on</span>
-                <h3 className="font-headline-sm text-lg sm:text-[1.375rem] font-bold text-ink-charcoal">
+                <CardTitle>
                   {isLocal ? "Key Heritage Monuments & Drop Points" : "Key Highway Nodes & Terminal Drops"}
-                </h3>
+                </CardTitle>
               </div>
               <p className="text-xs sm:text-sm text-on-surface-variant mb-4">
                 {isLocal
@@ -397,9 +406,9 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="material-symbols-outlined text-terracotta-sandstone text-xl">local_cafe</span>
-                <h3 className="font-headline-sm text-lg sm:text-[1.375rem] font-bold text-ink-charcoal">
+                <CardTitle>
                   {isLocal ? "Recommended Route Halts & Artisan Hubs" : "Planned Expressway Food Plazas & Rest Stops"}
-                </h3>
+                </CardTitle>
               </div>
               <p className="text-xs sm:text-sm text-on-surface-variant mb-4">
                 {isLocal
@@ -428,53 +437,48 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
         {/* 4. INTERACTIVE BOOKING CTA & VALUE PROPOSITION */}
         <section className="bg-surface-container-low border border-border-warm rounded-2xl p-6 sm:p-8 text-center shadow-xs">
           <div className="max-w-2xl mx-auto space-y-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sandstone-wash text-terracotta-deep font-label-caps text-xs font-bold uppercase tracking-wider">
+            <Eyebrow variant="sandstone">
               {isLocal ? "Agra Sightseeing Chauffeur Desk" : "Inter-City Highway Transit"}
-            </span>
-            <h3 className="font-headline-lg text-xl sm:text-2xl text-ink-charcoal font-bold">
+            </Eyebrow>
+            <SectionHeading className="text-xl sm:text-2xl">
               {isLocal ? "Ready to Explore the Taj Mahal & Historic Agra?" : "Ready to Confirm Your Outstation or Airport Cab?"}
-            </h3>
-            <p className="text-base text-on-surface-variant leading-[1.6]">
+            </SectionHeading>
+            <BodyText>
               {isLocal
                 ? "Experience zero waiting delays, police-verified local chauffeurs, clean dual-zone air conditioning, and transparent hourly/daily billing."
                 : "Travel in high-speed comfort with police-verified commercial chauffeurs, pre-cleared toll passes, and 100% transparent upfront billing."}
-            </p>
+            </BodyText>
             <div className="flex flex-wrap gap-3 sm:gap-4 justify-center pt-3">
-              <a
+              <CtaButton
                 href={`tel:${contact.phone}`}
-                className="inline-flex min-h-[48px] items-center justify-center gap-2 bg-terracotta-deep hover:bg-primary text-white font-label-lg py-3 px-6 rounded-xl transition-all font-bold text-base shadow-xs"
+                variant="primary"
+                icon="call"
+                iconPosition="left"
               >
-                <span className="material-symbols-outlined text-base">call</span>
-                <span>Call Travel Desk ({contact.phoneDisplay})</span>
-              </a>
-              <a
+                Call Travel Desk ({contact.phoneDisplay})
+              </CtaButton>
+              <CtaButton
                 href={createWhatsAppLink(isLocal ? "Sightseeing Vehicle" : "Highway Fleet", route.fares.sedan)}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex min-h-[48px] items-center justify-center gap-2 bg-black hover:bg-neutral-900 border border-white/10 text-white font-label-lg py-3 px-6 rounded-xl transition-all font-bold text-base shadow-xs"
-                style={{ color: "#ffffff" }}
+                variant="whatsapp"
               >
-                <WhatsAppIcon className="w-4 h-4 shrink-0 text-white" />
-                <span className="text-white" style={{ color: "#ffffff" }}>
-                  {isLocal ? "Lock Price via WhatsApp ↗" : "Pre-Book via WhatsApp ↗"}
-                </span>
-              </a>
+                {isLocal ? "Lock Price via WhatsApp ↗" : "Pre-Book via WhatsApp ↗"}
+              </CtaButton>
             </div>
           </div>
         </section>
 
-        {/* 5. STRUCTURED FAQ ACCORDION HUB (Section Heading <h2> at 28px / 1.75rem) */}
+        {/* 5. STRUCTURED FAQ ACCORDION HUB */}
         <section className="bg-surface-container-lowest border border-border-warm rounded-2xl p-5 sm:p-8 shadow-xs">
           <div className="mb-6">
-            <span className="text-terracotta-sandstone font-label-caps uppercase tracking-wider text-xs font-bold block mb-1">
+            <Eyebrow variant="sandstone" className="mb-1">
               Traveler Clarifications
-            </span>
-            <h2 className="font-headline-lg text-2xl sm:text-[1.75rem] text-ink-charcoal font-bold tracking-tight">
+            </Eyebrow>
+            <SectionHeading className="mt-1">
               Frequently Asked Questions
-            </h2>
-            <p className="text-base text-on-surface-variant mt-1 leading-[1.6]">
+            </SectionHeading>
+            <BodyText className="mt-1">
               Direct, verified answers regarding route timings, toll taxes, pickup guarantees, and vehicle capacities.
-            </p>
+            </BodyText>
           </div>
 
           <div className="space-y-3">
@@ -490,17 +494,17 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
                     onClick={() => toggleFaq(idx)}
                     className="w-full text-left p-4 flex items-center justify-between gap-3 hover:bg-sandstone-wash/20 transition-colors"
                   >
-                    <span className="font-headline-sm text-base sm:text-lg font-bold text-ink-charcoal">
+                    <CardTitle className="text-base sm:text-lg">
                       ❓ {faq.question}
-                    </span>
+                    </CardTitle>
                     <span className="material-symbols-outlined text-primary text-lg shrink-0">
                       {isOpen ? "expand_less" : "expand_more"}
                     </span>
                   </button>
                   {isOpen && (
-                    <div className="p-4 pt-0 text-base text-on-surface-variant leading-[1.6] border-t border-border-warm/40 mt-1">
+                    <BodyText className="p-4 pt-0 border-t border-border-warm/40 mt-1">
                       {faq.answer}
-                    </div>
+                    </BodyText>
                   )}
                 </div>
               );
@@ -519,7 +523,7 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
             <a
               href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(`Hi Agra SK Baghel Tour & Travels, I need custom pricing for ${route.h1}.`)}`}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-bold text-primary hover:underline"
             >
               <span>Chat with Dispatch Specialist ↗</span>
@@ -531,15 +535,15 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
         <section className="bg-surface-container-low border border-border-warm rounded-2xl p-6 sm:p-8 shadow-xs">
           <div className="flex flex-col md:flex-row gap-6 items-start justify-between">
             <div className="space-y-2 max-w-xl">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sandstone-wash text-terracotta-deep font-label-caps text-xs font-bold uppercase tracking-wider">
+              <Eyebrow variant="sandstone">
                 Official Registered Tourist Transport
-              </span>
-              <h3 className="font-headline-sm text-xl sm:text-[1.375rem] font-bold text-ink-charcoal">
+              </Eyebrow>
+              <CardTitle className="text-xl sm:text-[1.375rem] mt-1">
                 Agra SK Baghel Tour and Travels — Operations &amp; Dispatch Offices
-              </h3>
-              <p className="text-base text-on-surface-variant leading-[1.6]">
+              </CardTitle>
+              <BodyText>
                 Operating government-approved tourist commercial fleets across Agra and North India. For inquiries, hotel pickups, or airport dispatches, connect with our centralized teams:
-              </p>
+              </BodyText>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 text-sm">
                 <div className="p-3.5 rounded-xl bg-surface-container-lowest border border-border-warm/80">
                   <div className="font-bold text-ink-charcoal flex items-center gap-1.5">
@@ -563,23 +567,20 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
             </div>
 
             <div className="shrink-0 flex flex-col gap-3 w-full md:w-auto">
-              <a
+              <CtaButton
                 href={`tel:${contact.phone}`}
-                className="inline-flex min-h-[48px] items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-terracotta-deep hover:bg-primary text-white font-bold text-sm shadow-xs transition-colors"
+                variant="primary"
+                icon="call"
+                iconPosition="left"
               >
-                <span className="material-symbols-outlined text-base">call</span>
-                <span>24×7 Dispatch: {contact.phoneDisplay}</span>
-              </a>
-              <a
+                24×7 Dispatch: {contact.phoneDisplay}
+              </CtaButton>
+              <CtaButton
                 href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent("Hello Agra SK Baghel Tour & Travels, I want to confirm taxi availability.")}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex min-h-[48px] items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-black hover:bg-neutral-900 text-white font-bold text-sm border border-white/10 shadow-xs transition-colors"
-                style={{ color: "#ffffff" }}
+                variant="whatsapp"
               >
-                <WhatsAppIcon className="w-4 h-4 shrink-0 text-white" />
-                <span className="text-white" style={{ color: "#ffffff" }}>Instant WhatsApp Desk</span>
-              </a>
+                Instant WhatsApp Desk
+              </CtaButton>
             </div>
           </div>
         </section>

@@ -252,7 +252,7 @@ export function TransferDetailPage({ item }: TransferDetailPageProps) {
                   className="w-full inline-flex items-center justify-center gap-2 bg-black text-white py-3 rounded-lg text-label-lg font-label-lg shadow-xs hover:bg-ink-slate transition-all text-center"
                   href={whatsappUrl}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                 >
                   <WhatsAppIcon className="w-5 h-5 text-white" />
                   <span>Chat with Concierge</span>

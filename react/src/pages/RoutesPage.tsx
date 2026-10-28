@@ -487,7 +487,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                 <a
                   href={`https://wa.me/${contact.phone.replace(/[^0-9]/g, "")}?text=Hello%20Agra%20SK%20Baghel%20Desk%2C%20I%20would%20like%20to%20inquire%20about%20a%20custom%20route.`}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-white text-xs font-bold font-label-caps hover:bg-primary-container transition-colors"
                 >
                   <span>Inquire via WhatsApp Desk</span>
@@ -594,7 +594,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                         style={{ color: "#ffffff" }}
                         href={`https://wa.me/919762817598?text=Booking%20Route%20${encodeURIComponent(route.name)}`}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                       >
                         <WhatsAppIcon className="w-3.5 h-3.5 shrink-0 text-white" />
                         <span className="text-white" style={{ color: "#ffffff" }}>WhatsApp</span>

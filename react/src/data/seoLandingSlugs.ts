@@ -332,8 +332,6 @@ export const SEO_LANDING_SLUGS = [
   "agra-fatehpur-sikri-one-day-tour",
   "agra-local-sightseeing-taxi",
   "taj-mahal-sunrise-tour-package-by-car",
-  "agra-cantt-railway-station-taxi-service",
-  "agra-to-delhi-airport-cab-booking",
   "agra-to-lucknow-taxi",
   "innova-crysta-rental-in-agra",
   "ertiga-taxi-booking-agra",

@@ -100,8 +100,8 @@ export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
 
   const breadcrumbSchema = buildBreadcrumbSchema([
     { name: "Home", url: "/" },
-    { name: "Local Packages", url: "/packages/" },
-    { name: item.name, url: `/packages/${item.slug}/` },
+    { name: "Local Packages", url: "/en/packages/" },
+    { name: item.name, url: canonicalUrl },
   ]);
 
   const faqSchema = buildFaqSchema(faqs.map((f) => ({ question: f.q, answer: f.a })));

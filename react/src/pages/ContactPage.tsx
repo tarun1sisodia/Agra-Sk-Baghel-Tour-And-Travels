@@ -199,7 +199,7 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
               style={{ color: "#ffffff" }}
               href="https://wa.me/919762817598"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
             >
               <WhatsAppIcon className="w-5 h-5 shrink-0 text-white" />
               <span className="text-white" style={{ color: "#ffffff" }}>Chat on WhatsApp ↗</span>
@@ -381,7 +381,7 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
                     `Hello Agra SK Baghel Tour & Travels, I just submitted an inquiry on your website for ${formData.serviceType} (${formData.name}, ${formData.phone}).`
                   )}`}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-black text-white hover:bg-neutral-900 px-4 py-2 rounded-lg text-xs font-semibold shadow-xs transition-colors"
                   style={{ color: "#ffffff" }}
                 >

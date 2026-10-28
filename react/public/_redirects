@@ -7,3 +7,11 @@
 # Legacy production sitemap URL; consolidate to the canonical route page
 /en/agra-to-mathura-taxi-service /en/agra-to-mathura-taxi/ 301
 /en/agra-to-mathura-taxi-service/ /en/agra-to-mathura-taxi/ 301
+
+# Legacy duplicate route aliases consolidated to canonical rich routes
+/en/agra-to-delhi /en/agra-to-delhi-taxi/ 301
+/en/agra-to-delhi/ /en/agra-to-delhi-taxi/ 301
+/en/agra-to-delhi-airport-cab-booking /en/agra-to-delhi-airport-taxi/ 301
+/en/agra-to-delhi-airport-cab-booking/ /en/agra-to-delhi-airport-taxi/ 301
+/en/agra-cantt-railway-station-taxi-service /en/agra-cantt-station-transfer/ 301
+/en/agra-cantt-railway-station-taxi-service/ /en/agra-cantt-station-transfer/ 301

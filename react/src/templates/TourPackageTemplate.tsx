@@ -212,8 +212,8 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
 
   const breadcrumbSchema = buildBreadcrumbSchema([
     { name: "Home", url: "/" },
-    { name: "Packages", url: "/packages/" },
-    { name: packageName, url: `/packages/${packageSlug}/` },
+    { name: "Packages", url: "/en/packages/" },
+    { name: packageName, url: canonicalUrl },
   ]);
 
   const faqSchema = buildFaqSchema(TOUR_FAQS.map((faq) => ({ question: faq.q, answer: faq.a })));
