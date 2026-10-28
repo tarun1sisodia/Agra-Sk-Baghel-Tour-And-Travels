@@ -463,14 +463,16 @@
   margin-top: 64px;
 }
 
+/* Portfolio lead-form language, in terracotta tokens: a solid card, a border
+   you can actually see, generous padding, soft lift. */
 .rental-form-card {
   max-width: 900px;
   margin: 0 auto;
-  padding: 36px;
+  padding: clamp(24px, 4vw, 44px);
   background: var(--rental-card-bg);
-  border: 1.5px solid var(--rental-border);
-  border-radius: var(--rental-radius-lg);
-  box-shadow: 0 10px 32px rgba(24, 29, 39, 0.06);
+  border: 1.5px solid rgba(159, 60, 22, 0.32);
+  border-radius: 22px;
+  box-shadow: 0 24px 64px rgba(24, 29, 39, 0.12);
 }
 
 .rental-form-header {
@@ -531,13 +533,13 @@
 .form-grid-2col {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  gap: 20px;
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .form-field.full {
@@ -545,14 +547,19 @@
 }
 
 .form-field label {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--rental-ink);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--rental-muted);
 }
 
 .form-field label span.optional {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
   color: var(--rental-muted);
 }
 
@@ -561,14 +568,31 @@
 .form-field textarea {
   width: 100%;
   min-height: 46px;
-  padding: 10px 14px;
-  border: 1.5px solid #cfc3bb;
-  border-radius: var(--rental-radius-sm);
-  background: #ffffff;
+  padding: 13px 15px;
+  border: 1.5px solid rgba(159, 60, 22, 0.28);
+  border-radius: 12px;
+  background: rgba(159, 60, 22, 0.04);
   color: var(--rental-ink);
   font: inherit;
   font-size: 0.95rem;
-  transition: border-color 0.2s, outline 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Portfolio-style chevron + themed options (never a hardcoded dark popup). */
+.form-field select {
+  appearance: none;
+  padding-right: 40px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--rental-muted) 50%),
+    linear-gradient(135deg, var(--rental-muted) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.form-field select option {
+  background: var(--rental-card-bg);
+  color: var(--rental-ink);
 }
 
 .form-field textarea {
@@ -579,8 +603,9 @@
 .form-field input:focus-visible,
 .form-field select:focus-visible,
 .form-field textarea:focus-visible {
-  outline: 3px solid rgba(159, 60, 22, 0.25);
+  outline: none;
   border-color: var(--rental-primary);
+  box-shadow: 0 0 0 3px rgba(159, 60, 22, 0.15);
 }
 
 .field-hint {
@@ -594,8 +619,8 @@
   align-items: flex-start;
   gap: 12px;
   padding: 12px 14px;
-  border: 1px solid var(--rental-border);
-  border-radius: var(--rental-radius-sm);
+  border: 1.5px solid rgba(159, 60, 22, 0.28);
+  border-radius: 12px;
   background: rgba(253, 248, 245, 0.6);
 }
 
