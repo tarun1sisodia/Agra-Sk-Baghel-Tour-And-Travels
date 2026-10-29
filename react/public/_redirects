@@ -4,6 +4,10 @@
 /en/terms /terms-and-conditions/ 301
 /en/terms/ /terms-and-conditions/ 301
 
+# Canonical root homepage
+/en / 301
+/en/ / 301
+
 # Legacy production sitemap URL; consolidate to the canonical route page
 /en/agra-to-mathura-taxi-service /en/agra-to-mathura-taxi/ 301
 /en/agra-to-mathura-taxi-service/ /en/agra-to-mathura-taxi/ 301
@@ -38,3 +42,19 @@
 /rent/ /en/taxis/rent/ 301
 /rental /en/taxis/rent/ 301
 /rental/ /en/taxis/rent/ 301
+
+# Detail entity non-localized & alias fallbacks to canonical paths
+/routes/:slug /en/:slug/ 301
+/routes/:slug/ /en/:slug/ 301
+/en/routes/:slug /en/:slug/ 301
+/en/routes/:slug/ /en/:slug/ 301
+/packages/:slug /en/packages/:slug/ 301
+/packages/:slug/ /en/packages/:slug/ 301
+/transfers/:slug /en/transfers/:slug/ 301
+/transfers/:slug/ /en/transfers/:slug/ 301
+/local-packages/:slug /en/local-packages/:slug/ 301
+/local-packages/:slug/ /en/local-packages/:slug/ 301
+/vehicles/:slug /en/vehicles/:slug/ 301
+/vehicles/:slug/ /en/vehicles/:slug/ 301
+/monuments/:slug /en/monuments/:slug/ 301
+/monuments/:slug/ /en/monuments/:slug/ 301

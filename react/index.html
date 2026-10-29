@@ -18,8 +18,35 @@
     <!-- Critical Text Fonts: Plus Jakarta Sans & EB Garamond (streamlined weights) -->
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" />
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-    <!-- Material Symbols: Non-critical icon font loaded asynchronously without blocking FCP/LCP -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <!-- Material Symbols: Non-critical icon font loaded asynchronously via idle/interaction without blocking FCP/LCP -->
+    <script>
+      (function () {
+        var iconsLoaded = false;
+        function loadIcons() {
+          if (iconsLoaded) return;
+          iconsLoaded = true;
+          ['scroll', 'touchstart', 'pointerdown', 'keydown'].forEach(function (evt) {
+            window.removeEventListener(evt, loadIcons, { passive: true });
+          });
+          var link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap";
+          document.head.appendChild(link);
+        }
+        ['scroll', 'touchstart', 'pointerdown', 'keydown'].forEach(function (evt) {
+          window.addEventListener(evt, loadIcons, { passive: true, once: true });
+        });
+        if ("requestIdleCallback" in window) {
+          window.requestIdleCallback(function () {
+            setTimeout(loadIcons, 2500);
+          }, { timeout: 6000 });
+        } else {
+          window.addEventListener("load", function () {
+            setTimeout(loadIcons, 2500);
+          });
+        }
+      })();
+    </script>
     <noscript>
       <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Material+Symbols+Outlined&display=swap" rel="stylesheet" />
     </noscript>

@@ -96,7 +96,7 @@ export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
     },
   ];
 
-  const canonicalUrl = `${CANONICAL_DOMAIN}/en/packages/${item.slug}/`;
+  const canonicalUrl = `${CANONICAL_DOMAIN}/en/local-packages/${item.slug}/`;
 
   const breadcrumbSchema = buildBreadcrumbSchema([
     { name: "Home", url: "/" },

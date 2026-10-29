@@ -217,6 +217,34 @@ export function VehicleDetailPage({ vehicle }: VehicleDetailPageProps) {
         </div>
       </section>
 
+      {/* Fleet Standards & Chauffeur Guarantee Banner */}
+      <section className="w-full bg-sandstone-wash/60 py-space-xl border-b border-border-warm/40">
+        <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin">
+          <div className="bg-surface-container-lowest p-space-xl rounded-xl border border-border-warm shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-space-lg">
+            <div className="flex items-start gap-space-md">
+              <div className="w-12 h-12 rounded-xl bg-sandstone-wash text-terracotta-sandstone flex items-center justify-center shrink-0 border border-border-warm/50">
+                <span className="material-symbols-outlined text-icon-28">verified</span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="font-title-lg text-title-lg text-ink-charcoal font-serif">
+                  Verified Chauffeur &amp; Highway Readiness Guarantee
+                </h3>
+                <p className="font-body-md text-body-md text-on-surface-variant max-w-3xl leading-relaxed">
+                  Every {vehicle.name} in our fleet undergoes pre-dispatch tire, braking, and air-conditioning inspections. Driven by background-verified, non-smoking commercial chauffeurs with minimum 7+ years of Yamuna Expressway and Delhi-Agra-Jaipur Golden Triangle experience. Zero surge pricing, 100% yellow-plate commercial registration, and 24/7 GPS route tracking from our central Taj Ganj operations desk.
+                </p>
+              </div>
+            </div>
+            <div className="flex md:flex-col items-center md:items-end gap-2 shrink-0 text-body-sm text-secondary font-medium">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed text-primary border border-border-warm/30">
+                <span className="material-symbols-outlined text-icon-14">check_circle</span>
+                Inspected &amp; Sanitized
+              </span>
+              <span>45-Min Replacement SLA</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Section 2: Technical Specifications & Cabin Amenities Bento Grid */}
       <section className="w-full bg-surface-container-low py-space-3xl border-t border-b border-border-warm/30">
         <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin">
@@ -455,11 +483,9 @@ export function VehicleDetailPage({ vehicle }: VehicleDetailPageProps) {
                       keyboard_arrow_down
                     </span>
                   </button>
-                  {isOpen && (
-                    <div className="px-space-lg pb-space-lg pt-0 text-body-md text-on-surface-variant leading-relaxed border-t border-border-warm/20">
-                      {item.a}
-                    </div>
-                  )}
+                  <div className={`px-space-lg pb-space-lg pt-0 text-body-md text-on-surface-variant leading-relaxed border-t border-border-warm/20 ${isOpen ? "block" : "hidden"}`}>
+                    {item.a}
+                  </div>
                 </div>
               );
             })}

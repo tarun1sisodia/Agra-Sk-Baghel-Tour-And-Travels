@@ -109,7 +109,7 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
     `Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about taxi booking from ${fromEn} to ${toEn} (${tripType === "round-trip" ? "Round Trip" : "One Way"}).`
   )}`;
 
-  const canonicalUrl = `${CANONICAL_DOMAIN}/en/routes/${route.id}/`;
+  const canonicalUrl = `${CANONICAL_DOMAIN}/en/${route.id}/`;
 
   const breadcrumbSchema = buildBreadcrumbSchema([
     { name: "Home", url: "/" },
@@ -459,11 +459,9 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
                       expand_more
                     </span>
                   </button>
-                  {isOpen && (
-                    <div className="px-space-lg pb-space-md pt-space-xs border-t border-border-warm/20 text-body-md text-on-surface-variant leading-relaxed">
-                      {faq.a}
-                    </div>
-                  )}
+                  <div className={`px-space-lg pb-space-md pt-space-xs border-t border-border-warm/20 text-body-md text-on-surface-variant leading-relaxed ${isOpen ? "block" : "hidden"}`}>
+                    {faq.a}
+                  </div>
                 </div>
               );
             })}

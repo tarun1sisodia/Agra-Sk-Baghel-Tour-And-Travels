@@ -128,7 +128,14 @@ export function getSeo(
       const slug = item.slug ?? item.monumentCode ?? (item.name ? item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "");
       return path.endsWith(`/${slug}`) || path.endsWith(slug);
     });
-  const route = routes.find((item) => {
+  const isEntityDetailPath =
+    path.includes("/packages/") ||
+    path.includes("/monuments/") ||
+    path.includes("/vehicles/") ||
+    path.includes("/fleet/") ||
+    path.includes("/transfers/") ||
+    path.includes("/local-packages/");
+  const route = !isEntityDetailPath && routes.find((item) => {
     const from = item.from === "agra" && item.to === "agra" ? "agra-sightseeing" : `${item.from}-to-${item.to}`;
     const hindiFrom = item.from === "agra" && item.to === "agra" ? "agra-darshan" : `${item.from}-se-${item.to}`;
     return (
@@ -415,7 +422,16 @@ export function App({ pathname: propPathname }: AppProps = {}) {
     };
   }, [initialTourPackages]);
 
+  const isEntityDetailPathLocal =
+    pathname.includes("/packages/") ||
+    pathname.includes("/monuments/") ||
+    pathname.includes("/vehicles/") ||
+    pathname.includes("/fleet/") ||
+    pathname.includes("/transfers/") ||
+    pathname.includes("/local-packages/");
+
   const matchedRoute = useMemo<Route | null>(() => {
+    if (isEntityDetailPathLocal) return null;
     // 1. Static routes match
     const staticMatch = routes.find((item) => {
       const from = item.from === "agra" && item.to === "agra" ? "agra-sightseeing" : `${item.from}-to-${item.to}`;
@@ -488,13 +504,13 @@ export function App({ pathname: propPathname }: AppProps = {}) {
   const activeRoute = manifestRoute || matchedRoute;
 
   useEffect(() => {
-    if (isHome || isBooking || isMarketingHub) return;
+    if (isHome || isBooking || isMarketingHub || isEntityDetailPathLocal) return;
     const cleanSection = section.replace(/\.html$/, "");
     let isMounted = true;
     loadRoutesManifest()
       .then((data) => {
         if (!data || !isMounted) return;
-        const entry = (data as any)[cleanSection] || Object.entries(data).find(([k]) => pathname.includes(k))?.[1] as any;
+        const entry = (data as any)[cleanSection] || (data as any)[cleanPath.replace(/^\/(?:en|hi)\//, "").replace(/\/$/, "")];
         if (entry) {
           const durationHrs = Math.floor(entry.m / 60);
           const durationMins = entry.m % 60;

@@ -73,6 +73,7 @@ export function RadialDock({ currentPath, className = "" }: RadialDockProps) {
         aria-label={`Call ${contact.phoneDisplay}`}
         title={`Call: ${contact.phoneDisplay}`}
         tabIndex={isOpen ? 0 : -1}
+        aria-hidden={!isOpen}
       >
         <span className="icon">
           <span className="icon icon-call" aria-hidden="true">
@@ -90,6 +91,7 @@ export function RadialDock({ currentPath, className = "" }: RadialDockProps) {
         aria-label={`WhatsApp ${contact.phoneDisplay}`}
         title="WhatsApp"
         tabIndex={isOpen ? 0 : -1}
+        aria-hidden={!isOpen}
       >
         <span className="icon">
           <span className="icon icon-wa" aria-hidden="true">
@@ -106,6 +108,7 @@ export function RadialDock({ currentPath, className = "" }: RadialDockProps) {
         aria-label="Explore Tours"
         title="Explore Tours"
         tabIndex={isOpen ? 0 : -1}
+        aria-hidden={!isOpen}
       >
         <span className="icon">
           <span className="icon icon-compass" aria-hidden="true">
@@ -134,6 +137,7 @@ export function RadialDock({ currentPath, className = "" }: RadialDockProps) {
         aria-label="Instant Taxi Booking"
         title="Instant Taxi Booking"
         tabIndex={isOpen ? 0 : -1}
+        aria-hidden={!isOpen}
       >
         <span className="icon">
           <span className="icon icon-car" aria-hidden="true">

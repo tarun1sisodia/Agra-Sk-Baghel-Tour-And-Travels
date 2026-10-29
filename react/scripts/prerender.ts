@@ -79,7 +79,10 @@ function getPublishedPackageRoutes(): string[] {
   const snapshotPath = join(reactRoot, "src", "data", "generated-published-catalog.json");
   const livePath = join(reactRoot, "src", "data", "live-catalog.snapshot.json");
   try {
-    const raw = existsSync(livePath) ? JSON.parse(readFileSync(livePath, "utf8")) : JSON.parse(readFileSync(snapshotPath, "utf8"));
+    let raw: any = existsSync(snapshotPath) ? JSON.parse(readFileSync(snapshotPath, "utf8")) : null;
+    if ((!raw || (Array.isArray(raw) && raw.length === 0)) && existsSync(livePath)) {
+      raw = JSON.parse(readFileSync(livePath, "utf8"));
+    }
     const snapshot = (Array.isArray(raw) ? raw : raw?.data?.packages ?? raw?.packages ?? []) as Array<{ type?: string; slug?: string }>;
     return snapshot
       .filter((item) => (item.type === "package" || item.type === "tour" || item.type === "transfer") && isSitemapSafeSlug(item.slug))
@@ -103,8 +106,17 @@ function getPublishedRoutePages(): string[] {
   const snapshotPath = join(reactRoot, "src", "data", "generated-published-routes.json");
   const livePath = join(reactRoot, "src", "data", "live-catalog.snapshot.json");
   try {
-    const raw = existsSync(livePath) ? JSON.parse(readFileSync(livePath, "utf8")) : JSON.parse(readFileSync(snapshotPath, "utf8"));
-    const snapshot = (Array.isArray(raw) ? raw : Object.keys(raw?.data?.routes ?? raw?.routes ?? {}).map((slug) => ({ slug }))) as Array<{ slug?: string }>;
+    let snapshot: Array<{ slug?: string }> = [];
+    if (existsSync(snapshotPath)) {
+      const raw = JSON.parse(readFileSync(snapshotPath, "utf8"));
+      if (Array.isArray(raw) && raw.length > 0) {
+        snapshot = raw;
+      }
+    }
+    if (snapshot.length === 0 && existsSync(livePath)) {
+      const raw = JSON.parse(readFileSync(livePath, "utf8"));
+      snapshot = (Array.isArray(raw) ? raw : Object.keys(raw?.data?.routes ?? raw?.routes ?? {}).map((slug) => ({ slug }))) as Array<{ slug?: string }>;
+    }
     return snapshot
       .filter((item) => isSitemapSafeSlug(item.slug) && !REDIRECT_SLUGS.has(item.slug))
       .map((item) => `/en/${item.slug}/`);

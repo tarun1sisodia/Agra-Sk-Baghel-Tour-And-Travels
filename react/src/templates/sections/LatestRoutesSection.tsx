@@ -84,7 +84,7 @@ export function LatestRoutesSection({
             const validRates = Object.values(fares).filter((v) => typeof v === "number" && v > 0);
             const startingFare = Number(fares.sedan || fares.dzire || fares.city || (validRates.length > 0 ? Math.min(...validRates) : 0));
             const token = startingFare > 0 ? Math.round(startingFare * 0.28) : 0;
-            const routeUrl = `/routes/${r.slug}/`;
+            const routeUrl = `/en/${r.slug}/`;
             const bookUrl = `/book?from=${encodeURIComponent(origin)}&to=${encodeURIComponent(dest)}&route=${encodeURIComponent(r.slug)}`;
 
             return (

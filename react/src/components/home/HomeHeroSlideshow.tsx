@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { KeyboardEvent, TouchEvent } from "react";
 import { HOME_HERO_SLIDES } from "../../data/homeHeroSlides";
+import { onUserInteractionOrIdle } from "../../utils/deferredRevalidation";
 
 const AUTOPLAY_MS = 6000;
 const HOLD_STEP_MS = 520;
@@ -49,12 +50,20 @@ export function HomeHeroSlideshow() {
 
   useEffect(() => {
     if (reducedMotion) return;
-    const timer = window.setInterval(() => {
-      if (isVisibleRef.current && isInViewportRef.current && holdTimerRef.current === null) {
-        move(1);
-      }
-    }, AUTOPLAY_MS);
-    return () => window.clearInterval(timer);
+    let timer: number | null = null;
+    // Defer autoplay start so the initial hero slide remains the stable LCP element
+    const cleanup = onUserInteractionOrIdle(() => {
+      timer = window.setInterval(() => {
+        if (isVisibleRef.current && isInViewportRef.current && holdTimerRef.current === null) {
+          move(1);
+        }
+      }, AUTOPLAY_MS);
+    }, 12000);
+
+    return () => {
+      cleanup();
+      if (timer !== null) window.clearInterval(timer);
+    };
   }, [move, reducedMotion]);
 
   useEffect(() => {

@@ -77,7 +77,7 @@ export function LatestToursSection({
             const validRates = Object.values(fleetPrices).filter((v) => typeof v === "number" && v > 0);
             const startingFare = Number(fleetPrices.sedan || (validRates.length > 0 ? Math.min(...validRates) : 0));
             const token = startingFare > 0 ? Math.round(startingFare * 0.28) : 0;
-            const tourUrl = `/local-packages/${t.slug}/`;
+            const tourUrl = `/en/local-packages/${t.slug}/`;
             const bookUrl = `/book.html?category=local_package&product=${encodeURIComponent(t.slug)}&from=Agra&to=${encodeURIComponent(t.name)}`;
 
             return (

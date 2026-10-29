@@ -88,7 +88,7 @@ export function LatestPackagesSection({
             const minFleetPrice = fpValues.length > 0 ? Math.min(...fpValues) : 0;
             const startingFare = Number(p.startingPriceInr || p.starting_price_inr || fleetPrices.sedan || minFleetPrice || 0);
             const token = startingFare > 0 ? Math.round(startingFare * 0.28) : 0;
-            const packageUrl = `/packages/${p.slug}/`;
+            const packageUrl = `/en/packages/${p.slug}/`;
             const bookUrl = `/book.html?category=tour_package&product=${encodeURIComponent(p.slug)}&from=${encodeURIComponent(p.source || "Agra")}&to=${encodeURIComponent(p.destination || p.name)}`;
             const rawImg = p.gallery?.[0]?.url || p.image || "/assets/packages/taj-dawn.webp";
             const imageUrl = resolveCatalogMediaUrl(rawImg);

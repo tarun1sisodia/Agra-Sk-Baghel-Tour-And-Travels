@@ -140,6 +140,15 @@ async function main(): Promise<void> {
       );
     }
 
+    // Assert no internal un-prefixed entity links without /en/ (e.g. /routes/<slug>/, /packages/<slug>/)
+    const nonCanonicalEntityLinks = Array.from(
+      html.matchAll(/href=["'](\/(?:routes|packages|transfers|local-packages|vehicles)\/[^"'\s?#]+)["']/gi),
+      (m) => m[1]!
+    );
+    for (const href of nonCanonicalEntityLinks) {
+      assert.fail(`Non-canonical internal entity link without /en/ in ${relPath}: "${href}". All entity detail links must use /en/<category>/<slug>/ or /en/<slug>/`);
+    }
+
     // Assert internal /en/ links contain trailing slash
     const internalEnLinks = Array.from(html.matchAll(/href=["'](\/en\/[^"'\s?#]+)["']/gi), (m) => m[1]!);
     for (const href of internalEnLinks) {

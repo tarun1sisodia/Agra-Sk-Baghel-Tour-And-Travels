@@ -356,14 +356,27 @@ export function HomeBookingWidget() {
       <picture>
         <source
           type="image/avif"
+          media="(max-width: 640px)"
+          srcSet="/assets/booking/taj-mahal-480.avif"
+        />
+        <source
+          type="image/avif"
           srcSet="/assets/booking/taj-mahal-480.avif 480w, /assets/booking/taj-mahal-768.avif 768w"
-          sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) 50vw, 384px"
+          sizes="(max-width: 1024px) 50vw, 384px"
+        />
+        <source
+          type="image/webp"
+          media="(max-width: 640px)"
+          srcSet="/assets/booking/taj-mahal-480.webp"
+        />
+        <source
+          type="image/webp"
+          srcSet="/assets/booking/taj-mahal-480.webp 480w, /assets/booking/taj-mahal-768.webp 768w"
+          sizes="(max-width: 1024px) 50vw, 384px"
         />
         <img
           className="booking-reference__hero"
           src="/assets/booking/taj-mahal-480.webp"
-          srcSet="/assets/booking/taj-mahal-480.webp 480w, /assets/booking/taj-mahal-768.webp 768w, /assets/booking/taj-mahal.webp 1200w"
-          sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) 50vw, 384px"
           width={384}
           height={256}
           loading="lazy"

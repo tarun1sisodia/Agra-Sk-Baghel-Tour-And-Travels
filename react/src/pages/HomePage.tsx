@@ -86,47 +86,50 @@ export function HomePage({ language = "en" }: HomePageProps) {
 
   useEffect(() => {
     let active = true;
-    fetchLiveFleet()
-      .then((f) => {
-        if (active && f.length > 0) setLiveFleet(f);
-      })
-      .catch(() => { })
-      .finally(() => {
-        if (active) setFleetLoading(false);
-      });
+    const cleanup = onUserInteractionOrIdle(() => {
+      fetchLiveFleet()
+        .then((f) => {
+          if (active && f.length > 0) setLiveFleet(f);
+        })
+        .catch(() => { })
+        .finally(() => {
+          if (active) setFleetLoading(false);
+        });
 
-    loadRoutesManifest()
-      .then((m) => {
-        if (active && m) setManifestRoutes(m);
-      })
-      .catch(() => { })
-      .finally(() => {
-        if (active) setRoutesLoading(false);
-      });
+      loadRoutesManifest()
+        .then((m) => {
+          if (active && m) setManifestRoutes(m);
+        })
+        .catch(() => { })
+        .finally(() => {
+          if (active) setRoutesLoading(false);
+        });
 
-    loadPublishedPackages()
-      .then((pkgs) => {
-        if (active && pkgs) setPublishedPackages(pkgs);
-      })
-      .catch(() => { })
-      .finally(() => {
-        if (active) setPackagesLoading(false);
-      });
+      loadPublishedPackages()
+        .then((pkgs) => {
+          if (active && pkgs) setPublishedPackages(pkgs);
+        })
+        .catch(() => { })
+        .finally(() => {
+          if (active) setPackagesLoading(false);
+        });
 
-    fetchPublishedTransferRoutes()
-      .then((transfers) => {
-        if (active && transfers && transfers.length > 0) setTransferRoutes(transfers);
-      })
-      .catch(() => { });
+      fetchPublishedTransferRoutes()
+        .then((transfers) => {
+          if (active && transfers && transfers.length > 0) setTransferRoutes(transfers);
+        })
+        .catch(() => { });
 
-    fetchPublishedLocalTransfers()
-      .then((locals) => {
-        if (active && locals && locals.length > 0) setLocalPackages(locals);
-      })
-      .catch(() => { });
+      fetchPublishedLocalTransfers()
+        .then((locals) => {
+          if (active && locals && locals.length > 0) setLocalPackages(locals);
+        })
+        .catch(() => { });
+    }, 8000);
 
     return () => {
       active = false;
+      cleanup();
     };
   }, []);
 
@@ -286,14 +289,14 @@ export function HomePage({ language = "en" }: HomePageProps) {
               type="button"
               aria-label="Dismiss account reminder"
               onClick={() => { setAccountPromptDismissed(true); try { window.localStorage.setItem("arenaai:account-prompt-dismissed", "1"); } catch { } }}
-              className="text-on-surface-variant hover:text-ink-midnight min-w-[44px] min-h-[44px] p-2.5 flex items-center justify-center rounded-md shrink-0"
+              className="text-on-surface-variant hover:text-ink-midnight min-w-[48px] min-h-[48px] p-3 flex items-center justify-center rounded-lg shrink-0 cursor-pointer"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
             </button>
           </div>
-          <div className="flex items-center gap-2 mt-3">
-            <button type="button" onClick={() => void signInWithGoogle().catch(() => { })} className="rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-primary-container transition-colors">Continue with Google</button>
-            <button type="button" onClick={() => { setAccountPromptDismissed(true); try { window.localStorage.setItem("arenaai:account-prompt-dismissed", "1"); } catch { } }} className="rounded-lg px-3 py-2 text-xs font-semibold text-on-surface-variant hover:bg-surface-container transition-colors">Dismiss</button>
+          <div className="flex flex-wrap items-center gap-3 mt-3">
+            <button type="button" onClick={() => void signInWithGoogle().catch(() => { })} className="rounded-lg bg-primary px-4 py-2.5 min-h-[44px] text-xs font-semibold text-white shadow-xs hover:bg-primary-container transition-colors cursor-pointer">Continue with Google</button>
+            <button type="button" onClick={() => { setAccountPromptDismissed(true); try { window.localStorage.setItem("arenaai:account-prompt-dismissed", "1"); } catch { } }} className="rounded-lg px-4 py-2.5 min-h-[44px] text-xs font-semibold text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer">Dismiss</button>
           </div>
         </aside>
       )}

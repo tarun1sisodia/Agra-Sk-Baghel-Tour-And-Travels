@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { SiteLayout } from "../layouts/SiteLayout";
 import { HomePage } from "../pages/HomePage";
@@ -73,15 +74,15 @@ const publishedCatalog = (generatedPublishedCatalog as unknown as GeneratedCatal
 const publishedRoutes = (generatedPublishedRoutes as unknown as GeneratedRouteItem[]).filter(
   (item) => Boolean(item && item.slug && item.sourceCity),
 );
-const publishedTourPackages = (generatedPublishedTourPackages as unknown as DossierTourPackageItem[]).filter(
-  (item) => Boolean(item && item.slug && item.name),
-);
-const publishedTransferRoutes = (generatedPublishedTransferRoutes as unknown as DossierTransferRouteItem[]).filter(
-  (item) => Boolean(item && item.slug && item.name),
-);
-const publishedLocalPackages = (generatedPublishedLocalPackages as unknown as DossierLocalPackageItem[]).filter(
-  (item) => Boolean(item && item.slug && item.name),
-);
+const publishedTourPackages = (generatedPublishedTourPackages as unknown as DossierTourPackageItem[])
+  .filter((item) => Boolean(item && (item.slug || (item as any).packageCode || (item as any).package_code) && item.name))
+  .map((item) => ({ ...item, slug: item.slug || (item as any).packageCode || (item as any).package_code }));
+const publishedTransferRoutes = (generatedPublishedTransferRoutes as unknown as DossierTransferRouteItem[])
+  .filter((item) => Boolean(item && (item.slug || (item as any).routeCode || (item as any).route_code) && item.name))
+  .map((item) => ({ ...item, slug: item.slug || (item as any).routeCode || (item as any).route_code }));
+const publishedLocalPackages = (generatedPublishedLocalPackages as unknown as DossierLocalPackageItem[])
+  .filter((item) => Boolean(item && (item.slug || (item as any).packageCode || (item as any).package_code) && item.name))
+  .map((item) => ({ ...item, slug: item.slug || (item as any).packageCode || (item as any).package_code }));
 const publishedMonuments = (
   (generatedPublishedContent as { monuments?: DossierMonumentItem[] })?.monuments ?? []
 ).filter((item) => Boolean(item && item.name));
@@ -198,7 +199,15 @@ function getSeoBase(
   const resolvedDynamicItem = dynamicItem ?? (pathname.includes("/packages/")
     ? publishedCatalog.find((item) => pathname.replace(/\/$/, "").endsWith(`/packages/${item.slug}`))
     : undefined);
+  const isEntityDetailPath =
+    pathname.includes("/packages/") ||
+    pathname.includes("/monuments/") ||
+    pathname.includes("/vehicles/") ||
+    pathname.includes("/transfers/") ||
+    pathname.includes("/local-packages/");
+
   const resolvedDynamicRoute = dynamicRoute ?? (() => {
+    if (isEntityDetailPath) return undefined;
     const item = publishedRoutes.find((entry) => pathname.replace(/\/$/, "").endsWith(`/${entry.slug}`));
     return item ? toFrontendRoute(item) : undefined;
   })();
@@ -304,7 +313,7 @@ function getSeoBase(
       path.endsWith(item.id === "innova" ? "innova-crysta" : item.id === "tempo" ? "tempo-traveller" : item.id)
     );
   const tour = path.includes("/packages/") && packages.find((item) => path.endsWith(item.slug));
-  const route = routes.find((item) => {
+  const route = !isEntityDetailPath && routes.find((item) => {
     const from = item.from === "agra" && item.to === "agra" ? "agra-sightseeing" : `${item.from}-to-${item.to}`;
     const hindiFrom = item.from === "agra" && item.to === "agra" ? "agra-darshan" : `${item.from}-se-${item.to}`;
     return path.includes(`${from}-taxi`) || path.includes(`${hindiFrom}-taxi`);
@@ -564,13 +573,21 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
       cleanPath === "/en/book" ||
       cleanPath === "/hi/book");
 
-  const matchedRoute = routes.find((item) => {
+  const isEntityDetail =
+    pathname.includes("/packages/") ||
+    pathname.includes("/monuments/") ||
+    pathname.includes("/vehicles/") ||
+    pathname.includes("/fleet/") ||
+    pathname.includes("/transfers/") ||
+    pathname.includes("/local-packages/");
+
+  const matchedRoute = !isEntityDetail ? routes.find((item) => {
     const from = item.from === "agra" && item.to === "agra" ? "agra-sightseeing" : `${item.from}-to-${item.to}`;
     const hindiFrom = item.from === "agra" && item.to === "agra" ? "agra-darshan" : `${item.from}-se-${item.to}`;
     return pathname.includes(`${from}-taxi`) || pathname.includes(`${hindiFrom}-taxi`);
-  });
-  const dynamicRouteItem = publishedRoutes.find((item) => pathname.replace(/\/$/, "").endsWith(`/${item.slug}`));
-  const catalogRouteMatch = !dynamicRouteItem
+  }) : undefined;
+  const dynamicRouteItem = !isEntityDetail ? publishedRoutes.find((item) => pathname.replace(/\/$/, "").endsWith(`/${item.slug}`)) : undefined;
+  const catalogRouteMatch = !isEntityDetail && !dynamicRouteItem
     ? ((generatedCatalog as any)?.routes as Route[] || []).find((item) => {
         const taxiSlug = `${item.from}-to-${item.to}-taxi`;
         return (
@@ -717,7 +734,8 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
           noindex={isBooking || isPrivateCustomerPage || isLegacyLegalAlias || is404}
         />
         <SiteLayout currentPath={pathname}>
-          {is404 ? (
+          <Suspense fallback={null}>
+            {is404 ? (
             <NotFoundPage language={language} />
           ) : isAuthCallback ? (
             <AuthCallbackPage />
@@ -784,6 +802,7 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
           ) : (
             <NotFoundPage language={language} />
           )}
+          </Suspense>
         </SiteLayout>
       </CustomerAuthProvider>
     </ErrorBoundary>

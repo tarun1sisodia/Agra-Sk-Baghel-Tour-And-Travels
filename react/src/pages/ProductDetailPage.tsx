@@ -391,12 +391,12 @@ export function ProductDetailPage({ category, code }: ProductDetailPageProps) {
                       key={rp.id}
                       href={
                         rp.category === "outstation"
-                          ? `/taxi/${rp.code}`
+                          ? `/en/${rp.code}/`
                           : rp.category === "local_package"
-                          ? `/local-sightseeing/${rp.code}`
+                          ? `/en/local-packages/${rp.code}/`
                           : rp.category === "transfer"
-                          ? `/transfers/${rp.code}`
-                          : `/tours/${rp.code}`
+                          ? `/en/transfers/${rp.code}/`
+                          : `/en/packages/${rp.code}/`
                       }
                       className="group block rounded-md border border-hairline p-3 transition-colors hover:border-gold-border hover:bg-gold-wash/40"
                     >
