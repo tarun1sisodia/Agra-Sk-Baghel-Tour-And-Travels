@@ -42,6 +42,11 @@ async function ensureAssets(): Promise<void> {
   if (existsSync(publicAssets) && !existsSync(distAssets)) {
     await cp(publicAssets, distAssets, { recursive: true });
   }
+  const publicFonts = join(reactRoot, "public", "fonts");
+  const distFonts = join(dist, "fonts");
+  if (existsSync(publicFonts) && !existsSync(distFonts)) {
+    await cp(publicFonts, distFonts, { recursive: true });
+  }
 }
 
 // Manifest of all core marketing, detail, and utility routes
@@ -338,7 +343,12 @@ export async function prerender(): Promise<void> {
   if (!existsSync(indexPath)) {
     throw new Error(`dist/index.html not found at ${indexPath}. Run vite build first.`);
   }
-  const baseTemplate = await readFile(indexPath, "utf8");
+  let baseTemplate = await readFile(indexPath, "utf8");
+  // Make critical stylesheet non-render-blocking via preload + print swap
+  baseTemplate = baseTemplate.replace(
+    /<link rel="stylesheet" crossorigin href="(\/assets\/index-[^"]+\.css)">/,
+    `<link rel="preload" as="style" href="$1" />\n    <link rel="stylesheet" href="$1" media="print" onload="this.media='all'" />\n    <noscript><link rel="stylesheet" href="$1" /></noscript>`
+  );
 
   // Tokenized review invitations are served by the explicit Pages Function at
   // functions/review/[[token]].ts. Keep a shell at its rewrite target without

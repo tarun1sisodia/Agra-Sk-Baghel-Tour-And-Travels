@@ -193,16 +193,23 @@ export function BuddyAvatar({
       return seed / 0x7fffffff;
     };
 
+    let cachedCx = -1;
+    let cachedCy = -1;
+    let lastRectTime = 0;
+
     const frame = (now: number) => {
       // Gaze: steer pupils toward the tracked viewport point.
       const target = lookAtRef?.current;
       if (target && target.x >= 0 && svg) {
-        const r = svg.getBoundingClientRect();
-        const cx = r.left + r.width / 2;
-        const cy = r.top + r.height / 2;
+        if (cachedCx < 0 || now - lastRectTime > 2000) {
+          lastRectTime = now;
+          const r = svg.getBoundingClientRect();
+          cachedCx = r.left + r.width / 2;
+          cachedCy = r.top + r.height / 2;
+        }
         const clamp1 = (v: number) => Math.min(1, Math.max(-1, v));
-        const tx = clamp1((target.x - cx) / 140);
-        const ty = clamp1((target.y - cy) / 140);
+        const tx = clamp1((target.x - cachedCx) / 140);
+        const ty = clamp1((target.y - cachedCy) / 140);
         gaze.x += (tx - gaze.x) * 0.16;
         gaze.y += (ty - gaze.y) * 0.16;
       } else {

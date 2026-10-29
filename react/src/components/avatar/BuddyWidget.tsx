@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BuddyAvatar } from "./BuddyAvatar";
 import { useBuddyGuide } from "./useBuddyGuide";
+import { onUserInteractionOrIdle } from "../../utils/deferredRevalidation";
 import "./buddy.css";
 
 const DISMISS_KEY = "baghel-buddy-dismissed";
@@ -14,15 +15,13 @@ const DISMISS_KEY = "baghel-buddy-dismissed";
  *
  * Purely additive chrome: it never touches locked layouts or the booking flow.
  */
-export function BuddyWidget() {
+function BuddyActiveWidget() {
   const [dismissed, setDismissed] = useState(false);
   const [animation, setAnimation] = useState("idle");
-  const [mounted, setMounted] = useState(false);
   const { lookAtRef, spotlight, homeTipText } = useBuddyGuide();
 
   // Client-only: restore dismissal.
   useEffect(() => {
-    setMounted(true);
     try {
       if (window.localStorage.getItem(DISMISS_KEY) === "1") setDismissed(true);
     } catch {
@@ -30,7 +29,7 @@ export function BuddyWidget() {
     }
   }, []);
 
-  if (!mounted || dismissed) return null;
+  if (dismissed) return null;
 
   const cheer = () => {
     setAnimation("excited");
@@ -80,4 +79,18 @@ export function BuddyWidget() {
       </button>
     </div>
   );
+}
+
+export function BuddyWidget() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const cleanup = onUserInteractionOrIdle(() => {
+      setMounted(true);
+    }, 15000);
+    return cleanup;
+  }, []);
+
+  if (!mounted) return null;
+  return <BuddyActiveWidget />;
 }

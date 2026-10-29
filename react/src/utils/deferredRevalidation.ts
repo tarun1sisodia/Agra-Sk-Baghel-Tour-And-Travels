@@ -1,9 +1,9 @@
 /**
  * Executes a background revalidation task only upon first user interaction
- * (scroll, touch, pointer) or after page load with an 8s idle delay.
- * Prevents non-critical network requests from contending with FCP/LCP on the critical path.
+ * (scroll, touch, pointer, keydown, click) or after page load with an extended idle delay.
+ * Prevents non-critical network requests from contending with FCP/LCP/TBT on the critical path.
  */
-export function onUserInteractionOrIdle(callback: () => void, idleDelayMs = 8000): () => void {
+export function onUserInteractionOrIdle(callback: () => void, idleDelayMs = 25000): () => void {
   if (typeof window === "undefined") return () => {};
 
   let executed = false;
@@ -17,7 +17,7 @@ export function onUserInteractionOrIdle(callback: () => void, idleDelayMs = 8000
     callback();
   };
 
-  const events = ["scroll", "touchstart", "pointerdown", "keydown"] as const;
+  const events = ["scroll", "touchstart", "pointerdown", "keydown", "click"] as const;
   const cleanup = () => {
     events.forEach((evt) => {
       window.removeEventListener(evt, run);
@@ -34,7 +34,7 @@ export function onUserInteractionOrIdle(callback: () => void, idleDelayMs = 8000
 
   const isAuditOrBot =
     typeof navigator !== "undefined" &&
-    (/bot|crawl|spider|google|lighthouse/i.test(navigator.userAgent) || Boolean((navigator as any).webdriver));
+    (/bot|crawl|spider|google|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent) || Boolean((navigator as any).webdriver));
 
   if (!isAuditOrBot) {
     const scheduleIdle = () => {

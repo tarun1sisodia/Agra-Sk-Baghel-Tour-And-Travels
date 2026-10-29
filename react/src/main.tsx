@@ -3,6 +3,7 @@ import { createRoot, hydrateRoot } from "react-dom/client";
 import App from "@/app/App";
 import { AppErrorBoundary } from "@/AppErrorBoundary";
 import { assertCatalogueInvariants } from "@/data/parity";
+import "@/styles/fonts.css";
 import "@/styles/tokens.css";
 import "@/styles/theme.css";
 import "@/styles/global.css";
