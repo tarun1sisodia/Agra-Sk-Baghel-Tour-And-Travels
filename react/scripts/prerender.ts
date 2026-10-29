@@ -344,10 +344,11 @@ export async function prerender(): Promise<void> {
     throw new Error(`dist/index.html not found at ${indexPath}. Run vite build first.`);
   }
   let baseTemplate = await readFile(indexPath, "utf8");
-  // Make critical stylesheet non-render-blocking via preload + print swap
+  // Preload critical stylesheet at high priority while keeping standard stylesheet
+  // to prevent any Flash of Unstyled Content (FOUC) and Cumulative Layout Shift (CLS).
   baseTemplate = baseTemplate.replace(
     /<link rel="stylesheet" crossorigin href="(\/assets\/index-[^"]+\.css)">/,
-    `<link rel="preload" as="style" href="$1" />\n    <link rel="stylesheet" href="$1" media="print" onload="this.media='all'" />\n    <noscript><link rel="stylesheet" href="$1" /></noscript>`
+    `<link rel="preload" as="style" href="$1" />\n    <link rel="stylesheet" href="$1" />`
   );
 
   // Tokenized review invitations are served by the explicit Pages Function at

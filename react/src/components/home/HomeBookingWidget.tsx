@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo, type ReactNode } from "react";
 import { localTomorrow } from "../../fares";
 import { fetchPublishedCatalog, getFallbackPublishedCatalog } from "../../services/cleanFareApi";
+import { onUserInteractionOrIdle } from "../../utils/deferredRevalidation";
 import type {
   PublishedCatalogResponse,
   PublishedProductSummary,
@@ -182,9 +183,12 @@ export function HomeBookingWidget() {
         console.error("Failed to fetch published catalog for home booking widget:", err);
       }
     }
-    loadLiveCatalog();
+    const cancel = onUserInteractionOrIdle(() => {
+      void loadLiveCatalog();
+    }, 25000);
     return () => {
       isMounted = false;
+      cancel();
     };
   }, []);
 

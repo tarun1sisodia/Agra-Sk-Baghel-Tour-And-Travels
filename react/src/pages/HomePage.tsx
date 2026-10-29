@@ -279,7 +279,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
     <div className="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen">
 
       {!authLoading && configured && !user && !accountPromptDismissed && (
-        <aside className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 rounded-xl shadow-2xl border border-border-warm bg-surface-container-lowest p-4 animate-in slide-in-from-bottom duration-300" aria-label="Optional account sign-in">
+        <aside className="fixed bottom-[136px] sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 rounded-xl shadow-2xl border border-border-warm bg-surface-container-lowest p-4 animate-in slide-in-from-bottom duration-300" aria-label="Optional account sign-in">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm font-bold text-ink-midnight">Save your trips</p>

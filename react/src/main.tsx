@@ -32,7 +32,25 @@ const appTree = (
 );
 
 if (root.hasChildNodes()) {
-  hydrateRoot(root, appTree);
+  let isHydrated = false;
+  const doHydrate = () => {
+    if (isHydrated) return;
+    isHydrated = true;
+    cleanup();
+    hydrateRoot(root, appTree);
+  };
+
+  const userEvents = ["click", "touchstart", "scroll", "keydown", "pointerdown"] as const;
+  const cleanup = () => {
+    userEvents.forEach((evt) => window.removeEventListener(evt, doHydrate));
+  };
+  userEvents.forEach((evt) => window.addEventListener(evt, doHydrate, { passive: true, once: true }));
+
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(doHydrate, { timeout: 2500 });
+  } else {
+    setTimeout(doHydrate, 1200);
+  }
 } else {
   createRoot(root).render(appTree);
 }

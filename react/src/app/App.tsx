@@ -324,7 +324,9 @@ export function App({ pathname: propPathname }: AppProps = {}) {
   useScrollReveal([pathname]);
   useEffect(() => installConversionAnalytics(), []);
   useEffect(() => {
-    if (typeof window !== "undefined") void fetchCatalogManifest();
+    return onUserInteractionOrIdle(() => {
+      void fetchCatalogManifest();
+    }, 30000);
   }, []);
   const { language, section } = getMarketingPath(pathname);
   const isHome =

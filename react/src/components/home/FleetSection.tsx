@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useId } from "react";
 import type { SupportedLanguage } from "../../config";
 import { getApiBaseUrl } from "../../services/api";
+import { onUserInteractionOrIdle } from "../../utils/deferredRevalidation";
 
 export interface CanonicalFleetVehicle {
   id: string;
@@ -379,7 +380,10 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
   }
 
   useEffect(() => {
-    loadFleet();
+    const cancel = onUserInteractionOrIdle(() => {
+      void loadFleet();
+    }, 30000);
+    return () => cancel();
   }, []);
 
   const activeGroup = groups.find((g) => g.code === activeGroupCode) ?? groups[0] ?? FALLBACK_GROUPS[0];

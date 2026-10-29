@@ -3,7 +3,7 @@ import type { KeyboardEvent, TouchEvent } from "react";
 import { HOME_HERO_SLIDES } from "../../data/homeHeroSlides";
 import { onUserInteractionOrIdle } from "../../utils/deferredRevalidation";
 
-const AUTOPLAY_MS = 6000;
+const AUTOPLAY_MS = 25000;
 const HOLD_STEP_MS = 520;
 
 function wrapIndex(index: number, length: number) {
@@ -25,6 +25,7 @@ export function HomeHeroSlideshow() {
 
   const stopHolding = useCallback(() => {
     if (holdTimerRef.current !== null) {
+      window.clearTimeout(holdTimerRef.current);
       window.clearInterval(holdTimerRef.current);
       holdTimerRef.current = null;
     }
@@ -33,8 +34,10 @@ export function HomeHeroSlideshow() {
   const startHolding = useCallback(
     (direction: -1 | 1) => {
       stopHolding();
-      move(direction);
-      holdTimerRef.current = window.setInterval(() => move(direction), HOLD_STEP_MS);
+      holdTimerRef.current = window.setTimeout(() => {
+        move(direction);
+        holdTimerRef.current = window.setInterval(() => move(direction), HOLD_STEP_MS);
+      }, 500);
     },
     [move, stopHolding]
   );
@@ -156,7 +159,8 @@ export function HomeHeroSlideshow() {
           src={slide.webp.large}
           alt={slide.alt || "Chauffeur taxi service and tour in Agra"}
           fetchPriority={activeIndex === 0 ? "high" : "auto"}
-          decoding="async"
+          decoding={activeIndex === 0 ? "sync" : "async"}
+          loading={activeIndex === 0 ? "eager" : "lazy"}
           width={1600}
           height={900}
           className="h-full w-full object-cover opacity-80 contrast-105 brightness-100 transition-opacity duration-700"

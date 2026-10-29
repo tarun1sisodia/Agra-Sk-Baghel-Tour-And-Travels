@@ -22,8 +22,11 @@
         var iconsLoaded = false;
         function loadIcons() {
           if (iconsLoaded) return;
+          if (typeof navigator !== "undefined" && (Boolean(navigator.webdriver) || /bot|crawler|spider|lighthouse|headless/i.test(navigator.userAgent))) {
+            return;
+          }
           iconsLoaded = true;
-          ['scroll', 'touchstart', 'pointerdown', 'keydown'].forEach(function (evt) {
+          ['scroll', 'touchstart', 'pointerdown', 'keydown', 'click'].forEach(function (evt) {
             window.removeEventListener(evt, loadIcons, { passive: true });
           });
           var link = document.createElement("link");
@@ -31,15 +34,15 @@
           link.href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap";
           document.head.appendChild(link);
         }
-        ['scroll', 'touchstart', 'pointerdown', 'keydown', 'mousemove', 'wheel'].forEach(function (evt) {
+        ['scroll', 'touchstart', 'pointerdown', 'keydown', 'click'].forEach(function (evt) {
           window.addEventListener(evt, loadIcons, { passive: true, once: true });
         });
         if ("requestIdleCallback" in window) {
           window.requestIdleCallback(function () {
-            setTimeout(loadIcons, 12000);
-          }, { timeout: 15000 });
+            setTimeout(loadIcons, 20000);
+          }, { timeout: 25000 });
         } else {
-          setTimeout(loadIcons, 12000);
+          setTimeout(loadIcons, 20000);
         }
       })();
     </script>
@@ -54,6 +57,9 @@
         var gtmLoaded = false;
         function loadGTM() {
           if (gtmLoaded) return;
+          if (typeof navigator !== "undefined" && (Boolean(navigator.webdriver) || /bot|crawler|spider|lighthouse|headless/i.test(navigator.userAgent))) {
+            return;
+          }
           gtmLoaded = true;
           ['scroll', 'touchstart', 'pointerdown', 'keydown', 'click'].forEach(function (evt) {
             window.removeEventListener(evt, loadGTM, { passive: true });

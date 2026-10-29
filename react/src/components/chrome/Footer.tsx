@@ -53,7 +53,7 @@ export function Footer({ className = "" }: FooterProps) {
   return (
     <footer
       className={`w-full bg-surface-container-low text-on-surface-variant border-t border-border-warm pb-24 md:pb-0 ${className}`.trim()}
-      style={{ backgroundImage: "linear-gradient(rgba(32, 25, 20, 0.88), rgba(32, 25, 20, 0.92)), url('/assets/home-hero/agra-fort-1280.webp')", backgroundPosition: "center", backgroundSize: "cover", backgroundColor: "#201914" }}
+      style={{ backgroundColor: "#201914" }}
       role="contentinfo"
     >
 
@@ -76,17 +76,15 @@ export function Footer({ className = "" }: FooterProps) {
               <div className="flex flex-col gap-1 pt-1 text-body-sm">
                 <a
                   href={`tel:${contact.phone}`}
-                  aria-label={`Call us at ${contact.phoneDisplay}`}
                   className="inline-flex items-center gap-2 text-white/85 hover:text-amber-200 transition-colors py-2 min-h-[44px]"
                 >
-                  <span className="material-symbols-outlined text-primary text-icon-18">call</span>
+                  <span className="material-symbols-outlined text-amber-200 text-icon-18" aria-hidden="true">call</span>
                   <span>{contact.phoneDisplay}</span>
                 </a>
                 <a
                   href={`https://wa.me/${contact.whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Contact WhatsApp customer support desk (opens in new window)"
                   className="inline-flex items-center gap-2 text-white/85 hover:text-amber-200 transition-colors py-2 min-h-[44px]"
                 >
                   <WhatsAppIcon className="w-[18px] h-[18px] shrink-0" />
@@ -96,16 +94,15 @@ export function Footer({ className = "" }: FooterProps) {
                   href={contact.mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="View Taj Ganj office on Google Maps (opens in new window)"
                   className="inline-flex items-center gap-space-xs text-amber-200 hover:underline font-label-lg text-label-lg py-2 min-h-[44px]"
                 >
-                  <span className="material-symbols-outlined text-icon-16">map</span>
+                  <span className="material-symbols-outlined text-icon-16" aria-hidden="true">map</span>
                   <span>View on Google Maps</span>
                 </a>
               </div>
             </div>
             <div className="pt-space-xs">
-              <p className="font-label-caps text-label-caps text-primary uppercase font-bold tracking-wider mb-2">
+              <p className="font-label-caps text-label-caps text-amber-200 uppercase font-bold tracking-wider mb-2">
                 Follow our travel desk
               </p>
               <div className="flex flex-wrap gap-2" aria-label="Social media links">
@@ -205,12 +202,12 @@ export function Footer({ className = "" }: FooterProps) {
       </div>
 
       {/* Sub-Footer & Legal Copyright */}
-      <div className="border-t border-border-warm bg-surface-container/40">
+      <div className="border-t border-white/10 bg-black/40">
         <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-md flex flex-col sm:flex-row items-center justify-between gap-space-sm text-center sm:text-left">
-          <p className="font-body-sm text-body-sm text-on-surface-variant text-title-lg">
+          <p className="font-body-sm text-body-sm text-white/75">
             © {new Date().getFullYear()} Agra SK Baghel Tour and Travels. All rights reserved.
           </p>
-          <div className="flex flex-wrap items-center gap-space-md font-body-sm text-body-sm text-title-lg">
+          <div className="flex flex-wrap items-center gap-space-md font-body-sm text-body-sm text-white/80">
             <a href="/privacy-policy/" className="hover:text-amber-200 transition-colors py-2 min-h-[44px] inline-flex items-center">Privacy Policy</a>
             <span className="text-border-warm">•</span>
             <a href="/terms-and-conditions/" className="hover:text-amber-200 transition-colors py-2 min-h-[44px] inline-flex items-center">Terms of Service</a>
