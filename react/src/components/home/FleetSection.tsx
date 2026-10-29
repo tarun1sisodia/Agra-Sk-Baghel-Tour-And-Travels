@@ -58,7 +58,7 @@ const FALLBACK_GROUPS: CanonicalFleetGroup[] = [
         seats: 4,
         bags: 2,
         perKm: 11,
-        imageUrl: "/assets/fleet/honda-amaze-red-sedan-921x519.webp",
+        imageUrl: "/assets/fleet/honda-amaze-red-sedan-480.webp",
         active: true,
       },
       {
@@ -84,7 +84,7 @@ const FALLBACK_GROUPS: CanonicalFleetGroup[] = [
         seats: 4,
         bags: 3,
         perKm: 14,
-        imageUrl: "/assets/fleet/skoda-slavia-montecarlo-jodhpur-palace-921x519.jpg",
+        imageUrl: "/assets/fleet/skoda-slavia-montecarlo-480.webp",
         active: true,
       },
       {
@@ -97,7 +97,7 @@ const FALLBACK_GROUPS: CanonicalFleetGroup[] = [
         seats: 4,
         bags: 3,
         perKm: 13,
-        imageUrl: "/assets/fleet/toyota-belta-white-sedan-1000x650.png",
+        imageUrl: "/assets/fleet/toyota-belta-white-sedan-480.webp",
         active: true,
       },
     ],
@@ -523,18 +523,21 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
                   >
                     {/* Photo with aspect-ratio container */}
                     <div className="h-44 w-full overflow-hidden relative bg-surface-container-low">
-                      <img
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        src={img}
-                        width={384}
-                        height={176}
-                        loading="lazy"
-                        decoding="async"
-                        alt={vehicle.displayName}
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = "/assets/fleet/sedan.webp";
-                        }}
-                      />
+                      <picture>
+                        <source type="image/avif" srcSet={img.replace(/\.(?:webp|jpg|png)$/, ".avif")} />
+                        <img
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          src={img}
+                          width={384}
+                          height={176}
+                          loading="lazy"
+                          decoding="async"
+                          alt={vehicle.displayName}
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = "/assets/fleet/sedan-480.webp";
+                          }}
+                        />
+                      </picture>
                       <div className="absolute top-3 left-3">
                         <span className="px-2 py-0.5 rounded-full bg-ink-midnight/80 backdrop-blur-md text-white font-label-caps text-xs uppercase font-bold tracking-wider">
                           {activeGroup.name}

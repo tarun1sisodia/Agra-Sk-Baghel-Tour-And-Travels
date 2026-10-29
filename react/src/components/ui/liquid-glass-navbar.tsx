@@ -498,8 +498,11 @@ export function LiquidNavbar({
     };
   }, [loop]);
 
-  useIsomorphicLayoutEffect(() => {
-    measure();
+  React.useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      measure();
+    });
+    return () => cancelAnimationFrame(id);
   }, [measure, items.length, compact, current]);
 
   const measureRef = React.useRef(measure);

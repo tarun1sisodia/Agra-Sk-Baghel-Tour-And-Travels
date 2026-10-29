@@ -33,17 +33,15 @@
           link.href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap";
           document.head.appendChild(link);
         }
-        ['scroll', 'touchstart', 'pointerdown', 'keydown'].forEach(function (evt) {
+        ['scroll', 'touchstart', 'pointerdown', 'keydown', 'mousemove', 'wheel'].forEach(function (evt) {
           window.addEventListener(evt, loadIcons, { passive: true, once: true });
         });
         if ("requestIdleCallback" in window) {
           window.requestIdleCallback(function () {
-            setTimeout(loadIcons, 2500);
-          }, { timeout: 6000 });
+            setTimeout(loadIcons, 12000);
+          }, { timeout: 15000 });
         } else {
-          window.addEventListener("load", function () {
-            setTimeout(loadIcons, 2500);
-          });
+          setTimeout(loadIcons, 12000);
         }
       })();
     </script>
