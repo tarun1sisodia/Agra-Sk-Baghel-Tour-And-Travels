@@ -14,10 +14,12 @@ if (!root) {
   throw new Error("React root element was not found.");
 }
 
-try {
-  assertCatalogueInvariants();
-} catch (e) {
-  console.warn("Catalogue invariant check warning:", e);
+if (import.meta.env.DEV) {
+  try {
+    assertCatalogueInvariants();
+  } catch (e) {
+    console.warn("Catalogue invariant check warning:", e);
+  }
 }
 
 const appTree = (

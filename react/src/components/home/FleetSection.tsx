@@ -272,16 +272,16 @@ const FALLBACK_GROUPS: CanonicalFleetGroup[] = [
 ];
 
 const LOCAL_ASSET_MAP: Record<string, string> = {
-  dzire: "/assets/fleet/sedan.webp",
-  amaze: "/assets/fleet/honda-amaze-red-sedan-921x519.webp",
-  city: "/assets/fleet/sedan.webp",
-  ciaz: "/assets/fleet/toyota-belta-white-sedan-1000x650.png",
-  belta: "/assets/fleet/toyota-belta-white-sedan-1000x650.png",
-  slavia: "/assets/fleet/skoda-slavia-montecarlo-jodhpur-palace-921x519.jpg",
-  sedan: "/assets/fleet/sedan.webp",
-  ertiga: "/assets/fleet/ertiga.webp",
-  crysta: "/assets/fleet/innova.webp",
-  "innova crysta": "/assets/fleet/innova.webp",
+  dzire: "/assets/fleet/sedan-480.webp",
+  amaze: "/assets/fleet/honda-amaze-red-sedan-480.webp",
+  city: "/assets/fleet/sedan-480.webp",
+  ciaz: "/assets/fleet/toyota-belta-white-sedan-480.webp",
+  belta: "/assets/fleet/toyota-belta-white-sedan-480.webp",
+  slavia: "/assets/fleet/skoda-slavia-montecarlo-480.webp",
+  sedan: "/assets/fleet/sedan-480.webp",
+  ertiga: "/assets/fleet/ertiga-480.webp",
+  crysta: "/assets/fleet/innova-480.webp",
+  "innova crysta": "/assets/fleet/innova-480.webp",
   fortuner: "/assets/fleet/toyota-fortuner-black-suv-360x536.jpg",
   creta: "/assets/fleet/hyundai-creta-white-suv-921x519.jpg",
   brezza: "/assets/fleet/maruti-brezza-red-compact-suv-1260x564.png",
@@ -298,10 +298,10 @@ const LOCAL_ASSET_MAP: Record<string, string> = {
   "hector plus": "/assets/fleet/mg-hector-plus-black-suv-480x360.webp",
   camry: "/assets/fleet/toyota-camry-hybrid-executive-luxury-360x536.jpg",
   vellfire: "/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg",
-  "traveller 12": "/assets/fleet/tempo.webp",
-  "traveller 17": "/assets/fleet/tempo.webp",
-  urbania: "/assets/fleet/urbania.webp",
-  "urbania 13": "/assets/fleet/urbania.webp",
+  "traveller 12": "/assets/fleet/tempo-480.webp",
+  "traveller 17": "/assets/fleet/tempo-480.webp",
+  urbania: "/assets/fleet/urbania-480.webp",
+  "urbania 13": "/assets/fleet/urbania-480.webp",
 };
 
 function resolveVehicleImage(v: CanonicalFleetVehicle): string {
@@ -311,10 +311,10 @@ function resolveVehicleImage(v: CanonicalFleetVehicle): string {
   for (const [key, path] of Object.entries(LOCAL_ASSET_MAP)) {
     if (nameKey.includes(key) || displayKey.includes(key)) return path;
   }
-  if (v.groupCode === "tempo_traveller") return "/assets/fleet/tempo.webp";
-  if (v.groupCode === "suv") return "/assets/fleet/ertiga.webp";
+  if (v.groupCode === "tempo_traveller") return "/assets/fleet/tempo-480.webp";
+  if (v.groupCode === "suv") return "/assets/fleet/ertiga-480.webp";
   if (v.groupCode === "luxury") return "/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg";
-  return "/assets/fleet/sedan.webp";
+  return "/assets/fleet/sedan-480.webp";
 }
 
 export function FleetSection({ language = "en" }: FleetSectionProps) {
@@ -495,7 +495,7 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
                 aria-label="Previous vehicles"
                 className="w-9 h-9 rounded-full border border-border-warm/60 bg-surface-container-lowest hover:bg-surface-container flex items-center justify-center text-on-surface shadow-xs transition-colors cursor-pointer"
               >
-                <span className="material-symbols-outlined text-icon-18">chevron_left</span>
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
               </button>
               <button
                 type="button"
@@ -503,7 +503,7 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
                 aria-label="Next vehicles"
                 className="w-9 h-9 rounded-full border border-border-warm/60 bg-surface-container-lowest hover:bg-surface-container flex items-center justify-center text-on-surface shadow-xs transition-colors cursor-pointer"
               >
-                <span className="material-symbols-outlined text-icon-18">chevron_right</span>
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
               </button>
             </div>
 
@@ -524,7 +524,9 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
                     {/* Photo with aspect-ratio container */}
                     <div className="h-44 w-full overflow-hidden relative bg-surface-container-low">
                       <picture>
-                        <source type="image/avif" srcSet={img.replace(/\.(?:webp|jpg|png)$/, ".avif")} />
+                        {img.endsWith("-480.webp") ? (
+                          <source type="image/avif" srcSet={img.replace(/\.webp$/, ".avif")} />
+                        ) : null}
                         <img
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           src={img}
@@ -592,10 +594,10 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
                         <a
                           className="min-h-[44px] px-4 py-2 rounded-xl bg-primary hover:bg-primary-container text-white font-label-md text-xs font-bold transition-all shadow-xs active:scale-[0.98] inline-flex items-center justify-center gap-1"
                           href={`/book?category=outstation&car=${encodeURIComponent(vehicle.modelName.toLowerCase().replace(/\s+/g, "-"))}`}
-                          aria-label={`Book ${vehicle.displayName}`}
+                          aria-label={`Book Now: ${vehicle.displayName}`}
                         >
                           <span className="text-white">Book Now</span>
-                          <span aria-hidden="true" className="material-symbols-outlined text-icon-14 text-white">arrow_forward</span>
+                          <svg className="w-3.5 h-3.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                         </a>
                       </div>
                     </div>

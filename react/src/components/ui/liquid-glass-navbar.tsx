@@ -417,8 +417,8 @@ export function LiquidNavbar({
       s.last = now;
       step(dt, now);
       draw();
-      const busy = s.moving || s.rips.length || s.sats.length || s.mouse.s > 0.01;
-      if (s.visible && (!s.reduce || busy)) s.raf = requestAnimationFrame(tick);
+      const busy = s.moving || s.rips.length > 0 || s.sats.length > 0 || s.mouse.s > 0.01;
+      if (s.visible && busy) s.raf = requestAnimationFrame(tick);
       else s.raf = 0;
     };
     s.raf = requestAnimationFrame(tick);
@@ -460,13 +460,24 @@ export function LiquidNavbar({
         cv.style.height = `${Hh}px`;
       }
     }
+    draw();
     loop();
-  }, [current, loop]);
+  }, [current, draw, loop]);
 
   React.useEffect(() => {
     setRefract(supportsRefraction());
     const s = st.current;
     s.reduce = typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+    const isMobileOrHidden =
+      typeof window !== "undefined" &&
+      (window.innerWidth < 1280 || (navRef.current && navRef.current.offsetParent === null));
+
+    if (isMobileOrHidden) {
+      s.visible = false;
+      return;
+    }
+
     const cv = canvasRef.current;
     s.glc = cv ? initGL(cv) : null;
     if (!s.glc) setGl("off");

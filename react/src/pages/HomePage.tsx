@@ -291,7 +291,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
               onClick={() => { setAccountPromptDismissed(true); try { window.localStorage.setItem("arenaai:account-prompt-dismissed", "1"); } catch { } }}
               className="text-on-surface-variant hover:text-ink-midnight min-w-[48px] min-h-[48px] p-3 flex items-center justify-center rounded-lg shrink-0 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[18px]">close</span>
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
           </div>
           <div className="flex flex-wrap items-center gap-3 mt-3">
@@ -395,9 +395,9 @@ export function HomePage({ language = "en" }: HomePageProps) {
                 href={`https://wa.me/${contact.whatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Book taxi directly on WhatsApp (opens in new window)"
+                aria-label="WhatsApp Booking: Book taxi directly on WhatsApp (opens in new window)"
               >
-                <WhatsAppIcon className="w-[18px] h-[18px] shrink-0 text-white" />
+                <WhatsAppIcon className="w-[18px] h-[18px] shrink-0 text-white" aria-hidden="true" />
                 <span className="text-white font-semibold" style={{ color: "#ffffff" }}>WhatsApp Booking</span>
               </a>
             </div>
@@ -752,10 +752,10 @@ export function HomePage({ language = "en" }: HomePageProps) {
                         <a
                           className="mt-auto pt-2 border-t border-border-warm/40 inline-flex items-center gap-1 font-label-lg text-label-md text-primary hover:text-primary-container font-bold transition-colors min-h-[44px] py-2"
                           href={`/en/packages/${encodeURIComponent(pkg.slug)}/`}
-                          aria-label={`View tour: ${pkg.name}`}
+                          aria-label={`View Tour: ${pkg.name}`}
                         >
                           <span>View Tour</span>
-                          <span className="material-symbols-outlined text-icon-13">east</span>
+                          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                         </a>
                       </div>
                     </div>

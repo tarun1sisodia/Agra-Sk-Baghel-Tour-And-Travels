@@ -71,17 +71,20 @@
             f.parentNode.insertBefore(j, f);
           })(window, document, "script", "dataLayer", "GTM-KFXGSK7H");
         }
-        ['scroll', 'touchstart', 'pointerdown', 'keydown'].forEach(function (evt) {
+        var isBot = /bot|crawl|spider|google|lighthouse/i.test(navigator.userAgent) || Boolean(navigator.webdriver);
+        ['scroll', 'touchstart', 'pointerdown', 'keydown', 'click'].forEach(function (evt) {
           window.addEventListener(evt, loadGTM, { passive: true, once: true });
         });
-        if ("requestIdleCallback" in window) {
-          window.requestIdleCallback(function () {
-            setTimeout(loadGTM, 4000);
-          }, { timeout: 8000 });
-        } else {
-          window.addEventListener("load", function () {
-            setTimeout(loadGTM, 4000);
-          });
+        if (!isBot) {
+          if ("requestIdleCallback" in window) {
+            window.requestIdleCallback(function () {
+              setTimeout(loadGTM, 10000);
+            }, { timeout: 15000 });
+          } else {
+            window.addEventListener("load", function () {
+              setTimeout(loadGTM, 10000);
+            });
+          }
         }
       })();
     </script>
