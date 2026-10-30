@@ -180,7 +180,7 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
   useScrollReveal([categories]);
 
   return (
-    <main id="main-content" className="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen">
+    <div className="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen">
       {/* ── 1. HERO & BREADCRUMBS ── */}
       <section className="relative w-full bg-surface-container-low texture overflow-hidden border-b border-border-warm/60">
         <div className="relative max-w-[1280px] mx-auto px-margin-mobile lg:px-margin pt-space-xl pb-space-2xl">
@@ -209,14 +209,10 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
                 <PrimaryButton href="/book">
                   Book Cab Online
                 </PrimaryButton>
-                <a
-                  href={`https://wa.me/919762817598?text=${encodeURIComponent("Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about cab bookings.")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${EDITORIAL_BUTTONS.whatsapp} min-h-[44px] inline-flex items-center gap-1.5`}
-                >
-                  💬 WhatsApp Desk
-                </a>
+                <WhatsAppButton
+                  inquiryText="Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about cab bookings."
+                  label="WhatsApp Desk"
+                />
               </div>
             </div>
           </div>
@@ -265,10 +261,11 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
               key={cat.id}
               id={cat.id}
               style={{ "--reveal-delay": `${(idx % 2) * 120}ms` } as React.CSSProperties}
-              className="scroll-mt-24 group relative rounded-2xl overflow-hidden border border-border-warm/70 bg-ink-charcoal text-ivory-surface shadow-md lift reveal focus-within:ring-2 focus-within:ring-primary/60 w-full min-h-[460px] sm:min-h-[500px] lg:min-h-[560px] flex flex-col justify-between"
+              className="scroll-mt-24 group relative rounded-2xl overflow-hidden border border-border-warm/70 bg-ink-charcoal text-ivory-surface shadow-md lift reveal focus-within:ring-2 focus-within:ring-primary/60"
             >
               {/* Full-Bleed Atmospheric Image & Backdrop */}
-              <img
+              <div className="relative w-full min-h-[460px] sm:min-h-[500px] lg:min-h-[560px] flex flex-col justify-between overflow-hidden">
+                <img
                   src={cat.image}
                   alt={cat.name}
                   loading="lazy"
@@ -317,11 +314,12 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
                 {/* Detailed Information: Intentional Reveal on Scroll & Hover/Focus on Desktop; Tap on Mobile */}
                 <div
                   id={`details-${cat.id}`}
-                  className={`relative z-10 max-w-4xl p-5 sm:p-6 lg:p-8 flex flex-col justify-end bg-gradient-to-t from-ink-midnight via-ink-midnight/95 to-transparent pt-6 sm:pt-10 transition-all duration-300 ${
+                  className={`relative z-10 p-5 sm:p-6 lg:p-8 flex flex-col justify-end bg-gradient-to-t from-ink-midnight via-ink-midnight/95 to-transparent pt-6 sm:pt-10 transition-all duration-300 ${
                     isExpanded ? "block" : "hidden sm:block sm:opacity-95 group-hover:opacity-100 group-focus-within:opacity-100"
                   }`}
                 >
-                  <p className="font-body-md text-ivory-surface/85 text-sm sm:text-base leading-relaxed mb-4 max-w-3xl">
+                  <div className="max-w-4xl">
+                    <p className="font-body-md text-ivory-surface/85 text-sm sm:text-base leading-relaxed mb-4 max-w-3xl">
                       {cat.description}
                     </p>
 
@@ -376,17 +374,16 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
                             {cat.secondaryLabel || "View Details"}
                           </a>
                         )}
-                        <a
-                          href={`https://wa.me/919762817598?text=${encodeURIComponent(cat.inquiryText)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`${EDITORIAL_BUTTONS.whatsapp} min-h-[44px] inline-flex items-center gap-1.5`}
-                        >
-                          💬 WhatsApp Consultation
-                        </a>
+                        <WhatsAppButton
+                          size="md"
+                          inquiryText={cat.inquiryText}
+                          label="WhatsApp Consultation"
+                        />
                       </div>
                     </div>
+                  </div>
                 </div>
+              </div>
             </article>
           );
         })}
@@ -473,6 +470,6 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

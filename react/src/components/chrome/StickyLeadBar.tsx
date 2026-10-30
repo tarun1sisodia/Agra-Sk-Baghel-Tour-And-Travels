@@ -17,25 +17,18 @@ export function StickyLeadBar({ currentPath }: StickyLeadBarProps) {
   useEffect(() => {
     if (isBookingPage) return;
 
-    let rafId = 0;
     const handleScroll = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = 0;
-        const scrollHeight = document.documentElement.scrollHeight;
-        const scrollTop = window.scrollY;
-        const clientHeight = window.innerHeight;
-        const nearBottom = scrollHeight - (scrollTop + clientHeight) < 140;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY;
+      const clientHeight = window.innerHeight;
+      const nearBottom = scrollHeight - (scrollTop + clientHeight) < 140;
 
-        setIsVisible(!nearBottom);
-      });
+      setIsVisible(!nearBottom);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [isBookingPage]);
 
   // Don't show on the booking page itself

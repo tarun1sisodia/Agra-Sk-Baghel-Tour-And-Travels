@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect, useMemo } from "react";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { SiteLayout } from "../layouts/SiteLayout";
-const HomePage = lazy(() => import("../pages/HomePage").then((m) => ({ default: m.HomePage })));
+import { HomePage } from "../pages/HomePage";
 import { CustomerAuthProvider } from "../auth/customerAuth";
 
 const RentalPage = lazy(() => import("../pages/RentalPage").then((m) => ({ default: m.RentalPage })));

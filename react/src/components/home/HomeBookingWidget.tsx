@@ -49,38 +49,22 @@ export {
   buildBookingHref,
 };
 
-const pathD: Record<IconName, string> = {
-  car: "M4 15.5h16l-1.2-5.1a2 2 0 0 0-1.95-1.55H7.15A2 2 0 0 0 5.2 10.4L4 15.5ZM3 15.5v2.3M21 15.5v2.3M6.5 18v1M17.5 18v1M7 13h.01M17 13h.01",
-  swap: "M5 7h13M15 4l3 3-3 3M19 17H6M9 14l-3 3 3 3",
-  pin: "M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11ZM12 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z",
-  calendar: "M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2ZM8 3v4M16 3v4M4 9h16",
-  sedan: "M4 15.5h16l-1.2-5.1a2 2 0 0 0-1.95-1.55H7.15A2 2 0 0 0 5.2 10.4L4 15.5ZM3 15.5v2.3M21 15.5v2.3M7 13h.01M17 13h.01",
-  van: "M3 16V8.5A1.5 1.5 0 0 1 4.5 7h11.8a2 2 0 0 1 1.7.95L21 12v4H3ZM7 10h2M12 10h2M4 16v2M20 16v2M7 18h.01M17 18h.01",
-  bus: "M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM5 12h14M8 16h.01M16 16h.01M8 7h8",
-  shield: "m12 3 7 3v5c0 4.4-2.95 7.8-7 10-4.05-2.2-7-5.6-7-10V6l7-3Zm-3 9 2 2 4-4",
-  rupee: "M7 5h10M7 9h8M8 5c5 0 6 2 6 4 0 3-3 4-7 4l6 6",
-  clock: "M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17ZM12 7v5l3 2",
-  support: "M5 13v-2a7 7 0 0 1 14 0v2M5 13H3v4h3v-4M19 13h2v4h-3v-4M12 20h3",
-  arrow: "M4 12h15M14 7l5 5-5 5",
-};
-
 function SvgIcon({ name, size = 18 }: { name: IconName; size?: number }) {
-  return (
-    <svg
-      className="booking-svg-icon"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d={pathD[name]} />
-    </svg>
-  );
+  const paths: Record<IconName, ReactNode> = {
+    car: <><path d="M4 15.5h16l-1.2-5.1a2 2 0 0 0-1.95-1.55H7.15A2 2 0 0 0 5.2 10.4L4 15.5Z" /><path d="M3 15.5v2.3M21 15.5v2.3M6.5 18v1M17.5 18v1M7 13h.01M17 13h.01" /></>,
+    swap: <><path d="M5 7h13M15 4l3 3-3 3M19 17H6M9 14l-3 3 3 3" /></>,
+    pin: <><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z" /><circle cx="12" cy="10" r="2" /></>,
+    calendar: <><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M8 3v4M16 3v4M4 9h16" /></>,
+    sedan: <><path d="M4 15.5h16l-1.2-5.1a2 2 0 0 0-1.95-1.55H7.15A2 2 0 0 0 5.2 10.4L4 15.5Z" /><path d="M3 15.5v2.3M21 15.5v2.3M7 13h.01M17 13h.01" /></>,
+    van: <><path d="M3 16V8.5A1.5 1.5 0 0 1 4.5 7h11.8a2 2 0 0 1 1.7.95L21 12v4H3Z" /><path d="M7 10h2M12 10h2M4 16v2M20 16v2M7 18h.01M17 18h.01" /></>,
+    bus: <><rect x="5" y="4" width="14" height="16" rx="2" /><path d="M5 12h14M8 16h.01M16 16h.01M8 7h8" /></>,
+    shield: <><path d="m12 3 7 3v5c0 4.4-2.95 7.8-7 10-4.05-2.2-7-5.6-7-10V6l7-3Z" /><path d="m9 12 2 2 4-4" /></>,
+    rupee: <><path d="M7 5h10M7 9h8M8 5c5 0 6 2 6 4 0 3-3 4-7 4l6 6" /></>,
+    clock: <><circle cx="12" cy="12" r="8.5" /><path d="M12 7v5l3 2" /></>,
+    support: <><path d="M5 13v-2a7 7 0 0 1 14 0v2" /><path d="M5 13H3v4h3v-4M19 13h2v4h-3v-4M12 20h3" /></>,
+    arrow: <><path d="M4 12h15M14 7l5 5-5 5" /></>,
+  };
+  return <svg className="booking-svg-icon" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
 }
 
 function CityInput({
@@ -106,7 +90,7 @@ function CityInput({
 
   return (
     <div className="booking-reference__text-input-wrap">
-      <span className="booking-svg-icon" aria-hidden="true" style={{ width: 20, height: 20, display: "inline-block", background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325211e'%3E%3Cpath d='${encodeURIComponent(pathD.pin)}'/%3E%3C/svg%3E") no-repeat center / contain` }} />
+      <SvgIcon name="pin" size={20} />
       <input
         id={id}
         aria-label={label}
@@ -372,11 +356,7 @@ export function HomeBookingWidget() {
   }
 
   return (
-    <section
-      id="home-booking-widget"
-      className={`relative z-30 w-full -mt-12 sm:-mt-16 px-3 sm:px-6 lg:px-8 max-w-6xl mx-auto rounded-3xl glass-card-frosted p-2.5 sm:p-5 shadow-[0_20px_50px_rgba(15,19,26,0.12)] border border-white/80 booking-reference booking-reference--${mode}`}
-      aria-label="Book your taxi"
-    >
+    <div id="home-booking-widget" className={`booking-reference booking-reference--${mode}`}>
       <picture>
         <source
           type="image/avif"
@@ -409,7 +389,7 @@ export function HomeBookingWidget() {
         />
       </picture>
       <div className="booking-reference__veil" aria-hidden="true" />
-      <div className="booking-reference__content booking-reference__controls">
+      <div className="booking-reference__content">
         <div className="booking-reference__tabs" role="tablist" aria-label="Booking type">
           {modes.map((item) => (
             <button
@@ -426,7 +406,8 @@ export function HomeBookingWidget() {
           ))}
         </div>
 
-        <div className="booking-reference__fields-row">
+        <div className="booking-reference__controls">
+          <div className="booking-reference__fields-row">
             {mode === "local" ? (
               <div className="booking-reference__field booking-reference__field--tour">
                 <label htmlFor="home-local-tour">Select Local Tour</label>
@@ -506,7 +487,7 @@ export function HomeBookingWidget() {
                   try { pickupInputRef.current?.showPicker(); } catch { pickupInputRef.current?.focus(); }
                 }}
               >
-                <span className="booking-svg-icon" aria-hidden="true" style={{ width: 18, height: 18, display: "inline-block", background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325211e'%3E%3Cpath d='${encodeURIComponent(pathD.calendar)}'/%3E%3C/svg%3E") no-repeat center / contain` }} />
+                <SvgIcon name="calendar" size={18} />
                 <input
                   ref={pickupInputRef}
                   id="home-pickup-date"
@@ -538,7 +519,7 @@ export function HomeBookingWidget() {
                     try { returnInputRef.current?.showPicker(); } catch { returnInputRef.current?.focus(); }
                   }}
                 >
-                  <span className="booking-svg-icon" aria-hidden="true" style={{ width: 18, height: 18, display: "inline-block", background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325211e'%3E%3Cpath d='${encodeURIComponent(pathD.calendar)}'/%3E%3C/svg%3E") no-repeat center / contain` }} />
+                  <SvgIcon name="calendar" size={18} />
                   <input
                     ref={returnInputRef}
                     id="home-return-date"
@@ -604,36 +585,31 @@ export function HomeBookingWidget() {
           <FieldError>{errors.route || errors.catalog || errors.vehicle}</FieldError>
 
           <div className="booking-reference__bottom-row">
-            <div
-              className="booking-reference__field booking-reference__field--fleet booking-reference__vehicles"
-              role="radiogroup"
-              aria-labelledby="home-vehicle-class-label"
-              aria-label="Vehicle type"
-              style={{ gridTemplateColumns: `repeat(${vehicleGroups.length}, minmax(0, 1fr))` }}
-            >
-              <label
-                id="home-vehicle-class-label"
-                className="booking-reference__label"
-                style={{ gridColumn: "1 / -1", margin: "0 0 0 2px" }}
-              >
-                Vehicle Class
-              </label>
+            <div className="booking-reference__field booking-reference__field--fleet">
+              <label>Vehicle Class</label>
               {vehicleGroups.length > 0 ? (
-                vehicleGroups.map((g) => (
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={selectedVehicle === g.code}
-                    className={`booking-reference__vehicle ${selectedVehicle === g.code ? "is-active" : ""}`}
-                    key={g.code}
-                    onClick={() => setSelectedVehicle(g.code)}
-                  >
-                    <SvgIcon name={g.icon} size={22} />
-                    <span>{g.label}</span>
-                  </button>
-                ))
+                <div
+                  className="booking-reference__vehicles"
+                  role="radiogroup"
+                  aria-label="Vehicle type"
+                  style={{ gridTemplateColumns: `repeat(${vehicleGroups.length}, minmax(0, 1fr))` }}
+                >
+                  {vehicleGroups.map((g) => (
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={selectedVehicle === g.code}
+                      className={`booking-reference__vehicle ${selectedVehicle === g.code ? "is-active" : ""}`}
+                      key={g.code}
+                      onClick={() => setSelectedVehicle(g.code)}
+                    >
+                      <SvgIcon name={g.icon} size={22} />
+                      <span>{g.label}</span>
+                    </button>
+                  ))}
+                </div>
               ) : (
-                <div style={{ gridColumn: "1 / -1", padding: "8px 12px", fontSize: "12px", color: "#746b63" }}>
+                <div style={{ padding: "8px 12px", fontSize: "12px", color: "#746b63" }}>
                   <span>Loading available fleet…</span>
                 </div>
               )}
@@ -692,6 +668,7 @@ export function HomeBookingWidget() {
               )}
             </div>
           </div>
+        </div>
 
         {mode === "local" && publishedTours.length > 0 && (
           <div className="booking-reference__tour-cards" aria-label="Available local sightseeing packages">
@@ -734,6 +711,6 @@ export function HomeBookingWidget() {
           <span><SvgIcon name="support" size={15} /> 24/7 Support</span>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

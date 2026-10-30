@@ -47,7 +47,6 @@ interface PlacePhotoProps {
   className?: string;
   eager?: boolean;
   onClick?: () => void;
-  isThumbnail?: boolean;
 }
 
 /**
@@ -55,7 +54,7 @@ interface PlacePhotoProps {
  * ({base}-480/960/1600.avif -> webp -> 1600w jpg fallback). Remote or CMS
  * gallery URLs render as a plain lazy <img> so catalog overrides keep working.
  */
-function PlacePhoto({ url, alt, className, eager, onClick, isThumbnail }: PlacePhotoProps) {
+function PlacePhoto({ url, alt, className, eager, onClick }: PlacePhotoProps) {
   const base = galleryBase(url);
   const img = (
     <img
@@ -67,7 +66,7 @@ function PlacePhoto({ url, alt, className, eager, onClick, isThumbnail }: PlaceP
       onClick={onClick}
     />
   );
-  if (!base || isThumbnail) return img;
+  if (!base) return img;
   return (
     <picture>
       <source
@@ -350,7 +349,6 @@ export function FamousPlacesSection() {
   const [activeCategory, setActiveCategory] = useState<"all" | "heritage" | "braj" | "outstation">("all");
   const [activeImageIndices, setActiveImageIndices] = useState<Record<string, number>>({});
   const [modalImage, setModalImage] = useState<{ url: string; title: string; caption: string } | null>(null);
-  const [expandedAll, setExpandedAll] = useState(false);
   // Static list first (SSG baseline), then merge places published through the
   // Catalog CMS — the backend is the single source of truth for new monuments.
   const [places, setPlaces] = useState<FamousPlace[]>(FAMOUS_PLACES);
@@ -384,12 +382,9 @@ export function FamousPlacesSection() {
     };
   }, []);
 
-  const allFilteredPlaces = places.filter(
+  const filteredPlaces = places.filter(
     (p) => activeCategory === "all" || p.category === activeCategory
   );
-  const filteredPlaces = expandedAll || activeCategory !== "all"
-    ? allFilteredPlaces
-    : allFilteredPlaces.slice(0, 2);
 
   const handleSelectImage = (placeId: string, imgIdx: number) => {
     setActiveImageIndices((prev) => ({ ...prev, [placeId]: imgIdx }));
@@ -500,7 +495,7 @@ export function FamousPlacesSection() {
 
               {/* Multi-Image Interactive Thumbnails Strip */}
               <div className="p-2.5 bg-surface-container-low/70 border-b border-border-warm/40 flex items-center gap-2 overflow-x-auto no-scrollbar">
-                {place.images.slice(0, 2).map((img, idx) => (
+                {place.images.map((img, idx) => (
                   <button
                     key={img.url}
                     type="button"
@@ -517,7 +512,6 @@ export function FamousPlacesSection() {
                       url={img.url}
                       alt={img.alt}
                       className="w-full h-full object-cover"
-                      isThumbnail
                     />
                   </button>
                 ))}
@@ -563,8 +557,10 @@ export function FamousPlacesSection() {
                       {place.driveTime}
                     </span>
                   </div>
-                  <div className="col-span-2 pt-1 border-t border-border-warm/40 flex items-center justify-between text-on-surface-variant text-label-lg">
-                    Best Visit: <strong className="text-on-surface">{place.bestTime}</strong>
+                  <div className="col-span-2 pt-1 border-t border-border-warm/40 flex items-center justify-between">
+                    <span className="text-on-surface-variant text-label-lg">
+                      Best Visit: <strong className="text-on-surface">{place.bestTime}</strong>
+                    </span>
                   </div>
                 </div>
 
@@ -580,10 +576,8 @@ export function FamousPlacesSection() {
                   ))}
                 </div>
 
-              </div>
-
-              {/* Action CTAs */}
-              <div className="mt-auto px-4 pb-4 sm:px-5 sm:pb-5 pt-3 border-t border-border-warm/40 flex items-center justify-between gap-2">
+                {/* Action CTAs */}
+                <div className="mt-auto pt-3 border-t border-border-warm/40 flex items-center justify-between gap-2">
                   <a
                     className="flex-1 min-h-[44px] py-2.5 px-3 rounded-lg bg-primary hover:bg-primary-container text-white font-label-lg text-xs font-semibold transition-all shadow-xs text-center active:scale-[0.98] inline-flex items-center justify-center gap-1"
                     href={
@@ -593,7 +587,8 @@ export function FamousPlacesSection() {
                     }
                     aria-label={`Book cab from Agra to ${place.name}`}
                   >
-                    Book Cab ↗
+                    <span className="text-white">Book Cab</span>
+                    <Icon name="arrow_forward" className="text-icon-14 text-white" />
                   </a>
 
                   {/* WhatsApp CTA in Pure Black with Real WhatsApp Icon */}
@@ -610,23 +605,12 @@ export function FamousPlacesSection() {
                     <WhatsAppIcon className="w-3.5 h-3.5 shrink-0 text-white" />
                     <span className="text-white font-semibold" style={{ color: "#ffffff" }}>WhatsApp</span>
                   </a>
+                </div>
               </div>
             </article>
           );
         })}
       </div>
-
-      {!expandedAll && activeCategory === "all" && allFilteredPlaces.length > 3 && (
-        <div className="mt-8 text-center">
-          <button
-            type="button"
-            onClick={() => setExpandedAll(true)}
-            className="px-6 py-2.5 rounded-xl border border-border-warm bg-surface-container-lowest hover:bg-surface-container font-label-md text-xs font-bold text-on-surface transition-all shadow-xs cursor-pointer"
-          >
-            View All Destinations ({allFilteredPlaces.length}) ↓
-          </button>
-        </div>
-      )}
 
       {/* High-Res Modal Lightbox Preview */}
       {modalImage && (

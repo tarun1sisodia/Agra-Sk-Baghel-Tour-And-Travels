@@ -176,19 +176,6 @@ const NIMBUS_CSS = `
 @media (prefers-reduced-motion:reduce){.nv-ico svg,.nv-ico::before,.nv-ico::after,.nv-door{animation:none!important;transition:none}}
 `;
 
-function ensureNimbusStyles() {
-  if (typeof document === "undefined") return;
-  if (!document.getElementById("nimbus-css")) {
-    const el = document.createElement("style");
-    el.id = "nimbus-css";
-    el.textContent = NIMBUS_CSS;
-    document.head.appendChild(el);
-  }
-}
-if (typeof document !== "undefined") {
-  ensureNimbusStyles();
-}
-
 /* ---------- the water shader ---------- */
 const VERT = `attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}`;
 const FRAG = `precision highp float;
@@ -438,27 +425,11 @@ export function LiquidNavbar({
   }, [draw, step]);
 
   /* ---- layout ---- */
-  const measureRaf = React.useRef(0);
   const measure = React.useCallback(() => {
-    const isMobileOrHidden =
-      typeof window !== "undefined" &&
-      (window.innerWidth < 1280 || (navRef.current && navRef.current.offsetParent === null));
-
-    const isAuditOrBot =
-      typeof navigator !== "undefined" &&
-      (Boolean((navigator as any).webdriver) ||
-       /bot|crawl|spider|google|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent));
-
-    if (isMobileOrHidden || isAuditOrBot) {
-      st.current.visible = false;
-      return;
-    }
-
     const nav = navRef.current;
     const el = itemRefs.current[current];
     if (!nav || !el) return;
     const s = st.current;
-    s.visible = true;
     s.w = nav.offsetWidth;
     s.h = nav.offsetHeight;
     const T = s.t;
@@ -477,157 +448,27 @@ export function LiquidNavbar({
       s.split = false;
     }
     T.x = nx;
-
-    if (measureRaf.current) cancelAnimationFrame(measureRaf.current);
-    measureRaf.current = requestAnimationFrame(() => {
-      measureRaf.current = 0;
-      const cv = canvasRef.current;
-      if (cv) {
-        const dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2);
-        const W = s.w + PAD * 2,
-          Hh = s.h + PAD * 2;
-        if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(Hh * dpr)) {
-          cv.width = Math.round(W * dpr);
-          cv.height = Math.round(Hh * dpr);
-          cv.style.width = `${W}px`;
-          cv.style.height = `${Hh}px`;
-        }
+    const cv = canvasRef.current;
+    if (cv) {
+      const dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2);
+      const W = s.w + PAD * 2,
+        Hh = s.h + PAD * 2;
+      if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(Hh * dpr)) {
+        cv.width = Math.round(W * dpr);
+        cv.height = Math.round(Hh * dpr);
+        cv.style.width = `${W}px`;
+        cv.style.height = `${Hh}px`;
       }
-      draw();
-      loop();
-    });
+    }
+    draw();
+    loop();
   }, [current, draw, loop]);
 
-  const measureRef = React.useRef(measure);
-  measureRef.current = measure;
-
   React.useEffect(() => {
-    ensureNimbusStyles();
     setRefract(supportsRefraction());
     const s = st.current;
     s.reduce = typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-    const isAuditOrBot =
-      typeof navigator !== "undefined" &&
-      (Boolean((navigator as any).webdriver) ||
-       /bot|crawl|spider|google|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent));
-
-    if (isAuditOrBot) {
-      s.visible = false;
-      return;
-    }
-
-    const cv = canvasRef.current;
-    let lostListener: ((e: Event) => void) | null = null;
-    const initWebGLIfNeeded = () => {
-      if (s.glc) return true;
-      if (!cv) return false;
-      s.glc = initGL(cv);
-      if (!s.glc) {
-        setGl("off");
-        return false;
-      }
-      setGl("on");
-      lostListener = (e: Event) => {
-        e.preventDefault();
-        s.glc = null;
-        setGl("off");
-      };
-      cv.addEventListener("webglcontextlost", lostListener);
-      return true;
-    };
-
-    let lastW = -1;
-    const ro =
-      typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver((entries) => {
-            const entry = entries[0];
-            const w = entry?.contentRect ? entry.contentRect.width : (navRef.current?.clientWidth ?? 0);
-            const isMobileOrHidden =
-              w <= 0 ||
-              typeof window === "undefined" ||
-              window.innerWidth < 1280 ||
-              (navRef.current && navRef.current.offsetParent === null);
-
-            if (isMobileOrHidden) {
-              s.visible = false;
-              lastW = -1;
-              if (s.raf) {
-                cancelAnimationFrame(s.raf);
-                s.raf = 0;
-              }
-              return;
-            }
-
-            initWebGLIfNeeded();
-            s.visible = true;
-
-            if (lastW < 0 || Math.abs(w - lastW) >= 2) {
-              lastW = w;
-              s.ready = false;
-              measureRef.current();
-            }
-          })
-        : null;
-
-    if (navRef.current && ro) ro.observe(navRef.current);
-
-    const io =
-      typeof IntersectionObserver !== "undefined"
-        ? new IntersectionObserver(([e]) => {
-            const isDesktop =
-              typeof window !== "undefined" &&
-              window.innerWidth >= 1280 &&
-              navRef.current &&
-              navRef.current.offsetParent !== null;
-            s.visible = e.isIntersecting && Boolean(isDesktop);
-            if (s.visible) {
-              initWebGLIfNeeded();
-              loop();
-            } else if (s.raf) {
-              cancelAnimationFrame(s.raf);
-              s.raf = 0;
-            }
-          })
-        : null;
-    if (navRef.current && io) io.observe(navRef.current);
-
-    const vis = () => {
-      const isDesktop =
-        typeof window !== "undefined" &&
-        window.innerWidth >= 1280 &&
-        navRef.current &&
-        navRef.current.offsetParent !== null;
-      s.visible = document.visibilityState === "visible" && Boolean(isDesktop);
-      if (s.visible) {
-        initWebGLIfNeeded();
-        loop();
-      } else if (s.raf) {
-        cancelAnimationFrame(s.raf);
-        s.raf = 0;
-      }
-    };
-    document.addEventListener("visibilitychange", vis);
-
-    return () => {
-      ro?.disconnect();
-      io?.disconnect();
-      document.removeEventListener("visibilitychange", vis);
-      if (lostListener && cv) {
-        cv.removeEventListener("webglcontextlost", lostListener);
-      }
-      if (s.raf) {
-        cancelAnimationFrame(s.raf);
-        s.raf = 0;
-      }
-      if (measureRaf.current) {
-        cancelAnimationFrame(measureRaf.current);
-        measureRaf.current = 0;
-      }
-    };
-  }, [loop]);
-
-  React.useEffect(() => {
     const isMobileOrHidden =
       typeof window !== "undefined" &&
       (window.innerWidth < 1280 || (navRef.current && navRef.current.offsetParent === null));
@@ -638,16 +479,66 @@ export function LiquidNavbar({
        /bot|crawl|spider|google|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent));
 
     if (isMobileOrHidden || isAuditOrBot) {
-      st.current.visible = false;
+      s.visible = false;
       return;
     }
 
+    const cv = canvasRef.current;
+    s.glc = cv ? initGL(cv) : null;
+    if (!s.glc) setGl("off");
+    const lost = (e: Event) => {
+      e.preventDefault();
+      s.glc = null;
+      setGl("off");
+    };
+    cv?.addEventListener("webglcontextlost", lost);
+    const io =
+      typeof IntersectionObserver !== "undefined"
+        ? new IntersectionObserver(([e]) => {
+            s.visible = e.isIntersecting;
+            if (s.visible) loop();
+          })
+        : null;
+    if (navRef.current && io) io.observe(navRef.current);
+    const vis = () => {
+      s.visible = document.visibilityState === "visible";
+      if (s.visible) loop();
+    };
+    document.addEventListener("visibilitychange", vis);
+    return () => {
+      cv?.removeEventListener("webglcontextlost", lost);
+      io?.disconnect();
+      document.removeEventListener("visibilitychange", vis);
+      if (s.raf) cancelAnimationFrame(s.raf);
+      s.raf = 0;
+    };
+  }, [loop]);
+
+  React.useEffect(() => {
     const id = requestAnimationFrame(() => {
       measure();
     });
     return () => cancelAnimationFrame(id);
   }, [measure, items.length, compact, current]);
 
+  const measureRef = React.useRef(measure);
+  measureRef.current = measure;
+  React.useEffect(() => {
+    let lastW = -1;
+    const ro =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => {
+            const w = navRef.current?.offsetWidth ?? 0;
+            if (lastW < 0 || Math.abs(w - lastW) >= 2) {
+              lastW = w;
+              st.current.ready = false;
+              measureRef.current();
+            }
+          })
+        : null;
+    if (navRef.current && ro) ro.observe(navRef.current);
+    return () => ro?.disconnect();
+  }, []);
   React.useEffect(() => {
     loop();
   }, [tone, loop]);
@@ -742,6 +633,7 @@ export function LiquidNavbar({
       }}
       style={style}
     >
+      <style dangerouslySetInnerHTML={{ __html: NIMBUS_CSS }} />
       <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
         <filter id="nimbus-refract" x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
           <feTurbulence type="fractalNoise" baseFrequency="0.006 0.02" numOctaves="2" seed="7" result="noise" />

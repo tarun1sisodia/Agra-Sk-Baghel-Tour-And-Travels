@@ -396,8 +396,9 @@ export function RentalPage(_props: { language?: string }) {
         </div>
       </section>
 
-      {/* 2. Vehicle Groups Navigation */}
-      <section className="rental-groups-section rental-container" aria-labelledby="groups-heading">
+      <div className="rental-container">
+        {/* 2. Vehicle Groups Navigation */}
+        <section className="rental-groups-section" aria-labelledby="groups-heading">
           <div className="section-header">
             <h2 id="groups-heading">{"Vehicle Categories"}</h2>
             <p>
@@ -451,7 +452,7 @@ export function RentalPage(_props: { language?: string }) {
 
         {/* 3. Model Showroom */}
         <section
-          className="rental-showroom rental-container"
+          className="rental-showroom"
           id={`panel-${selectedGroupCode}`}
           role="tabpanel"
           aria-labelledby={`tab-${selectedGroupCode}`}
@@ -493,7 +494,7 @@ export function RentalPage(_props: { language?: string }) {
         </section>
 
         {/* 4. Rental Enquiry Form */}
-        <section id="rental-form" className="rental-form-section rental-form-card rental-container" aria-labelledby="form-heading">
+        <section id="rental-form" className="rental-form-section" aria-labelledby="form-heading">
           {confirmation ? (
             <div className="rental-confirmation-card" role="status">
               <div className="confirmation-icon">
@@ -537,7 +538,7 @@ export function RentalPage(_props: { language?: string }) {
               </button>
             </div>
           ) : (
-            <>
+            <div className="rental-form-card">
               <div className="rental-form-header">
                 <p className="rental-eyebrow">
                   <PhoneCall className="w-3.5 h-3.5" />
@@ -731,19 +732,23 @@ export function RentalPage(_props: { language?: string }) {
                       />
                     </div>
 
-                    <div className="form-field full checkbox-row">
-                      <input
-                        id="with-driver"
-                        type="checkbox"
-                        checked={form.withDriver}
-                        onChange={(e) => update("withDriver", e.target.checked)}
-                      />
-                      <label htmlFor="with-driver" className="checkbox-text font-bold">
-                        {"With Verified Chauffeur"}
-                        <span className="block font-normal">
-                          {"All our rental vehicles include an experienced, verified local commercial chauffeur."}
-                        </span>
-                      </label>
+                    <div className="form-field full">
+                      <div className="checkbox-row">
+                        <input
+                          id="with-driver"
+                          type="checkbox"
+                          checked={form.withDriver}
+                          onChange={(e) => update("withDriver", e.target.checked)}
+                        />
+                        <div className="checkbox-text">
+                          <label htmlFor="with-driver">
+                            <strong>{"With Verified Chauffeur"}</strong>
+                          </label>
+                          <span>
+                            {"All our rental vehicles include an experienced, verified local commercial chauffeur."}
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="form-field full">
@@ -789,12 +794,12 @@ export function RentalPage(_props: { language?: string }) {
                   {"Note: Submitting this form creates an enquiry. Vehicle availability and exact quotes are confirmed directly with you by phone."}
                 </p>
               </form>
-            </>
+            </div>
           )}
         </section>
 
         {/* 5. How It Works Section */}
-        <section className="rental-how-section rental-container" aria-labelledby="how-it-works-heading">
+        <section className="rental-how-section" aria-labelledby="how-it-works-heading">
           <div className="section-header text-center" style={{ textAlign: "center" }}>
             <h2 id="how-it-works-heading">{"How It Works"}</h2>
             <p>
@@ -830,7 +835,7 @@ export function RentalPage(_props: { language?: string }) {
         </section>
 
         {/* 6. Trust & FAQ Section */}
-        <section className="rental-faq-section rental-container" aria-labelledby="faq-heading">
+        <section className="rental-faq-section" aria-labelledby="faq-heading">
           <div className="section-header">
             <h2 id="faq-heading">{"Frequently Asked Questions"}</h2>
             <p>
@@ -868,6 +873,7 @@ export function RentalPage(_props: { language?: string }) {
             </div>
           </div>
         </section>
+      </div>
     </main>
   );
 }

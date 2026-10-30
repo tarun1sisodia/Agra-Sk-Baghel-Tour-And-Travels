@@ -28,31 +28,19 @@ export function CoverflowCarousel() {
   const stageRef = useRef<HTMLDivElement>(null);
   const total = packages.length;
 
-  // Measure stage card width dynamically without synchronous forced reflow on mount
+  // Measure stage card width dynamically
   useEffect(() => {
-    let rafId = 0;
-    const ro =
-      typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver((entries) => {
-            if (rafId) cancelAnimationFrame(rafId);
-            rafId = requestAnimationFrame(() => {
-              const entry = entries[0];
-              const measured = entry?.contentRect?.width || 320;
-              // Card width clamp between 220px and 360px based on container
-              const cardW = Math.max(220, Math.min(360, measured * 0.55));
-              setStageWidth(cardW);
-            });
-          })
-        : null;
-
-    if (stageRef.current && ro) {
-      ro.observe(stageRef.current);
+    function updateWidth() {
+      if (stageRef.current) {
+        const measured = stageRef.current.offsetWidth;
+        // Card width clamp between 240px and 360px based on container
+        const cardW = Math.max(220, Math.min(360, measured * 0.55));
+        setStageWidth(cardW);
+      }
     }
-
-    return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      ro?.disconnect();
-    };
+    updateWidth();
+    window.addEventListener("resize", updateWidth, { passive: true });
+    return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
   const handlePrev = useCallback(() => {
