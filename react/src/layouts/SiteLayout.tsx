@@ -10,18 +10,18 @@ interface SiteLayoutProps {
 
 export function SiteLayout({ children, currentPath }: SiteLayoutProps) {
   return (
-    <div className="app-shell">
-      <SkipLink />
-      <OAuthErrorBanner />
-      <Header currentPath={currentPath} />
-      <div className="pt-16">
+    <>
+      <div className="app-shell" style={{ paddingTop: "4rem" }}>
+        <SkipLink />
+        <OAuthErrorBanner />
+        <Header currentPath={currentPath} />
         {children}
+        <LeadBar />
+        <RadialDock />
+        <BuddyWidget />
       </div>
-      <LeadBar />
-      <RadialDock />
-      <BuddyWidget />
       <Footer />
-    </div>
+    </>
   );
 }
 

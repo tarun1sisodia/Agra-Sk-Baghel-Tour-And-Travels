@@ -276,7 +276,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
   };
 
   return (
-    <div className="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen">
+    <main id="main-content" className="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen w-full relative z-20">
 
       {!authLoading && configured && !user && !accountPromptDismissed && (
         <aside className="fixed bottom-[136px] sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-40 rounded-xl shadow-2xl border border-border-warm bg-surface-container-lowest p-4 animate-in slide-in-from-bottom duration-300" aria-label="Optional account sign-in">
@@ -302,7 +302,6 @@ export function HomePage({ language = "en" }: HomePageProps) {
       )}
 
       {/* ── MAIN HOMEPAGE CONTENT ── */}
-      <main id="main-content" className="w-full relative z-20">
         {/* ── HERO ── Full-Bleed Cinematic Taj Mahal Hero (100vw edge-to-edge) with Centered Typography */}
         <section className="relative w-full min-h-[520px] lg:min-h-[580px] flex flex-col justify-center items-center pt-24 sm:pt-32 pb-20 bg-ink-midnight text-on-primary overflow-hidden">
           <HomeHeroSlideshow />
@@ -321,58 +320,43 @@ export function HomePage({ language = "en" }: HomePageProps) {
             <h1 className="sr-only">Premium Taxi Service & Tour Packages in Agra</h1>
 
             {/* Visual Headline with Handwriting Flourish */}
-            <div className="font-headline-hero text-headline-hero font-normal leading-[1.12] w-full max-w-4xl" aria-hidden="true">
-              <span className="select-none flex flex-col items-center gap-1.5 w-full">
-                {/* Line 1: Agra to Anywhere */}
+            <div className="font-headline-hero text-headline-hero font-normal leading-[1.12] w-full max-w-4xl select-none flex flex-col items-center gap-1.5" aria-hidden="true">
+              {/* Line 1: Agra to Anywhere */}
+              <span
+                className="block text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)] drop-shadow-[0_6px_28px_rgba(0,0,0,0.7)] overflow-visible pb-0.5"
+                aria-label={text}
+              >
+                <span className="inline-block font-serif italic text-4xl sm:text-6xl md:text-7xl text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/85">
+                  {text}
+                </span>
+              </span>
+
+              {/* Line 2: in first-class comfort. in luminous light white/champagne */}
+              <span className="relative w-full max-w-xl mt-1 flex flex-col items-center">
                 <span
-                  className="block text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)] drop-shadow-[0_6px_28px_rgba(0,0,0,0.7)] overflow-visible pb-0.5"
-                  aria-label={text}
+                  className="block font-serif italic tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-white/95 to-white/80 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] text-3xl sm:text-5xl md:text-6xl"
+                  style={{
+                    lineHeight: 1.15,
+                    fontFamily: "'Playfair Display', 'EB Garamond', Georgia, serif",
+                  }}
                 >
-                  {text.split("").map((letter, index) => (
-                    <span
-                      key={`${letter}-${index}`}
-                      className="inline-block font-serif italic text-4xl sm:text-6xl md:text-7xl text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/85"
-                    >
-                      {letter === " " ? "\u00A0" : letter}
-                    </span>
-                  ))}
+                  in first-class comfort.
                 </span>
 
-                {/* Line 2: in first-class comfort. in luminous light white/champagne */}
-                <span className="relative w-full max-w-xl mt-1 flex flex-col items-center">
-                  <span
-                    className="block font-serif italic tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-white/95 to-white/80 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] text-3xl sm:text-5xl md:text-6xl"
-                    style={{
-                      lineHeight: 1.15,
-                      fontFamily: "'Playfair Display', 'EB Garamond', Georgia, serif",
-                    }}
-                  >
-                    in first-class comfort.
-                  </span>
-
-                  {/* Cursive flourish underline stroke in luminous white silk */}
-                  <svg
-                    viewBox="0 0 520 24"
-                    className="w-full max-w-[420px] h-auto overflow-visible mt-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M4 14 C120 18, 300 6, 500 12"
-                      stroke="url(#underlineWhiteSilk)"
-                      strokeWidth="2.8"
-                      strokeLinecap="round"
-                    />
-                    <defs>
-                      <linearGradient id="underlineWhiteSilk" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.15" />
-                        <stop offset="25%" stopColor="#FFFFFF" stopOpacity="0.95" />
-                        <stop offset="75%" stopColor="#F5F2EB" stopOpacity="0.9" />
-                        <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.1" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                </span>
+                {/* Cursive flourish underline stroke in luminous white silk */}
+                <svg
+                  viewBox="0 0 520 24"
+                  className="w-full max-w-[420px] h-auto overflow-visible mt-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M4 14 C120 18, 300 6, 500 12"
+                    stroke="rgba(255,255,255,0.85)"
+                    strokeWidth="2.8"
+                    strokeLinecap="round"
+                  />
+                </svg>
               </span>
             </div>
 
@@ -405,10 +389,8 @@ export function HomePage({ language = "en" }: HomePageProps) {
         </section>
 
         {/* ── FLOATING FROSTED GLASS BOOKING DOCK ── */}
-        <section className="relative z-30 w-full -mt-12 sm:-mt-16 px-3 sm:px-6 lg:px-8 max-w-6xl mx-auto" aria-label="Book your taxi">
-          <div className="rounded-3xl glass-card-frosted p-2.5 sm:p-5 shadow-[0_20px_50px_rgba(15,19,26,0.12)] border border-white/80">
-            <HomeBookingWidget />
-          </div>
+        <section className="relative z-30 w-full -mt-12 sm:-mt-16 px-3 sm:px-6 lg:px-8 max-w-6xl mx-auto rounded-3xl glass-card-frosted p-2.5 sm:p-5 shadow-[0_20px_50px_rgba(15,19,26,0.12)] border border-white/80" aria-label="Book your taxi">
+          <HomeBookingWidget />
         </section>
 
         {/* ── GLASS TRUST BANNER ── Spans 100% full width with smooth marquee */}
@@ -419,13 +401,13 @@ export function HomePage({ language = "en" }: HomePageProps) {
           <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-surface-container-low via-surface-container-low/90 to-transparent z-10" />
 
           <div className="animate-marquee flex items-center gap-10 text-on-surface whitespace-nowrap">
-            {[...Array(2)].flatMap(() => [
+            {[
               { icon: "verified_user", title: "Govt-Registered", sub: "Tourist Vehicle Permit" },
               { icon: "badge", title: "Verified Chauffeurs", sub: "Police Background Check" },
               { icon: "receipt_long", title: "Tax Invoice", sub: "Available on request" },
               { icon: "verified", title: "Top-Rated Service", sub: "Verified Customer Reviews" },
               { icon: "support_agent", title: "24×7 Dispatch", sub: "Live Agra Control Desk" },
-            ]).map((item, idx) => (
+            ].map((item, idx) => (
               <div key={idx} className="flex items-center gap-2.5 shrink-0 px-4">
                 <span className="material-symbols-outlined text-primary text-icon-20">{item.icon}</span>
                 <div className="flex flex-col">
@@ -664,8 +646,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                     href={svc.href}
                     aria-label={`Learn more about ${svc.title}`}
                   >
-                    <span>Learn more</span>
-                    <span className="material-symbols-outlined text-icon-13" aria-hidden="true">arrow_forward</span>
+                    Learn more ↗
                   </a>
                 </div>
               ))}
@@ -743,8 +724,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                           <ul className="space-y-1 mt-1">
                             {stops.map((item) => (
                               <li key={item} className="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant">
-                                <span className="w-1 h-1 rounded-full bg-gold-accent shrink-0" />
-                                {item}
+                                • {item}
                               </li>
                             ))}
                           </ul>
@@ -754,8 +734,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                           href={`/en/packages/${encodeURIComponent(pkg.slug)}/`}
                           aria-label={`View Tour: ${pkg.name}`}
                         >
-                          <span>View Tour</span>
-                          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                          View Tour ↗
                         </a>
                       </div>
                     </div>
@@ -836,9 +815,9 @@ export function HomePage({ language = "en" }: HomePageProps) {
                 className="p-5 rounded-xl border flex flex-col gap-3 group transition-all duration-300 bg-ink-charcoal text-ivory-surface border-border-warm/20 hover:border-gold-accent/40 shadow-sm hover:shadow-md"
               >
                 <div className="flex items-center justify-between">
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-105 bg-primary text-white">
-                    <span className="material-symbols-outlined text-icon-20">{item.icon}</span>
-                  </div>
+                  <span className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-105 bg-primary text-white material-symbols-outlined text-icon-20">
+                    {item.icon}
+                  </span>
                   <span className="font-label-caps text-label-caps uppercase font-bold px-2 py-0.5 rounded-full bg-gold-accent/15 text-gold-accent border border-gold-accent/30">
                     {item.badge}
                   </span>
@@ -961,27 +940,23 @@ export function HomePage({ language = "en" }: HomePageProps) {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
                   <a className="p-3.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container transition-all flex items-center gap-3 shadow-sm border border-border-warm/40" href="tel:+919762817598">
-                    <div className="w-9 h-9 rounded-full bg-sandstone-wash flex items-center justify-center text-primary shrink-0">
-                      <span className="material-symbols-outlined text-icon-18">call</span>
-                    </div>
+                    <span className="w-9 h-9 rounded-full bg-sandstone-wash flex items-center justify-center text-primary shrink-0 material-symbols-outlined text-icon-18">call</span>
                     <div>
                       <span className="font-label-caps text-body-sm text-on-surface-variant block uppercase font-bold">Call 24×7</span>
                       <span className="font-title-md text-title-lg text-on-surface font-bold">+91 97628 17598</span>
                     </div>
                   </a>
                   <a className="p-3.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container transition-all flex items-center gap-3 shadow-sm border border-border-warm/40" href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noopener noreferrer">
-                    <div className="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <span className="w-9 h-9 rounded-full bg-black text-white inline-flex items-center justify-center shrink-0 shadow-sm">
                       <WhatsAppIcon className="w-[18px] h-[18px] shrink-0" />
-                    </div>
+                    </span>
                     <div>
                       <span className="font-label-caps text-body-sm text-on-surface-variant block uppercase font-bold">WhatsApp</span>
                       <span className="font-title-md text-title-lg text-on-surface font-bold">Chat with Support</span>
                     </div>
                   </a>
                   <div className="p-3.5 rounded-xl bg-surface-container-lowest flex items-center gap-3 shadow-sm border border-border-warm/40 sm:col-span-2">
-                    <div className="w-9 h-9 rounded-full bg-sandstone-wash flex items-center justify-center text-primary shrink-0">
-                      <span className="material-symbols-outlined text-icon-18">pin_drop</span>
-                    </div>
+                    <span className="w-9 h-9 rounded-full bg-sandstone-wash flex items-center justify-center text-primary shrink-0 material-symbols-outlined text-icon-18">pin_drop</span>
                     <div>
                       <span className="font-label-caps text-body-sm text-on-surface-variant block uppercase font-bold">Office</span>
                       <span className="font-title-md text-title-lg text-on-surface font-medium">Taj Ganj, Agra 282001</span>
@@ -1106,7 +1081,6 @@ export function HomePage({ language = "en" }: HomePageProps) {
             </div>
           </div>
         </section>
-      </main>
-    </div>
+    </main>
   );
 }

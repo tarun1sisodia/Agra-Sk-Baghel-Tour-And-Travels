@@ -75,32 +75,6 @@ const FALLBACK_GROUPS: CanonicalFleetGroup[] = [
         imageUrl: "/assets/fleet/sedan.webp",
         active: true,
       },
-      {
-        id: "m-slavia",
-        make: "Skoda",
-        modelName: "Slavia",
-        displayName: "Skoda Slavia (Executive)",
-        groupCode: "sedan",
-        groupName: "Sedan",
-        seats: 4,
-        bags: 3,
-        perKm: 14,
-        imageUrl: "/assets/fleet/skoda-slavia-montecarlo-480.webp",
-        active: true,
-      },
-      {
-        id: "m-ciaz",
-        make: "Maruti",
-        modelName: "Ciaz",
-        displayName: "Maruti Ciaz (Executive Sedan)",
-        groupCode: "sedan",
-        groupName: "Sedan",
-        seats: 4,
-        bags: 3,
-        perKm: 13,
-        imageUrl: "/assets/fleet/toyota-belta-white-sedan-480.webp",
-        active: true,
-      },
     ],
   },
   {
@@ -453,165 +427,162 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
         })}
       </div>
 
-      {/* Main Interactive Showcase Panel */}
-      <div
-        role="tabpanel"
-        id={`fleet-panel-${activeGroupCode}`}
-        aria-labelledby={`fleet-tab-${activeGroupCode}`}
-        className="relative"
-      >
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-md animate-pulse">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-surface-container-lowest rounded-xl h-80 border border-border-warm/30 p-4">
-                <div className="w-full h-44 bg-surface-container rounded-lg mb-4" />
-                <div className="h-5 bg-surface-container rounded w-3/4 mb-2" />
-                <div className="h-4 bg-surface-container rounded w-1/2 mb-4" />
-                <div className="h-10 bg-surface-container rounded w-full mt-auto" />
-              </div>
-            ))}
-          </div>
-        ) : error ? (
-          <div className="py-12 text-center bg-surface-container-low rounded-2xl p-6 border border-border-warm/40">
-            <p className="text-on-surface font-semibold text-lg mb-2">Could not refresh live fleet inventory</p>
-            <p className="text-on-surface-variant text-sm mb-4">Please check your internet connection or try again.</p>
-            <button
-              type="button"
-              onClick={loadFleet}
-              className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold cursor-pointer hover:bg-primary-container"
-            >
-              Retry
-            </button>
-          </div>
-        ) : activeVehicles.length === 0 ? (
-          <div className="py-12 text-center bg-surface-container-low rounded-2xl p-6 border border-border-warm/40">
-            <p className="text-on-surface-variant text-base">
-              No active vehicle models currently published under this group. Contact our travel desk for custom requests.
-            </p>
-          </div>
-        ) : (
-          <div className="relative">
-            {/* Carousel navigation buttons */}
-            <div className="hidden sm:flex items-center justify-end gap-2 mb-3">
-              <button
-                type="button"
-                onClick={scrollLeft}
-                aria-label="Previous vehicles"
-                className="w-9 h-9 rounded-full border border-border-warm/60 bg-surface-container-lowest hover:bg-surface-container flex items-center justify-center text-on-surface shadow-xs transition-colors cursor-pointer"
-              >
-                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
-              </button>
-              <button
-                type="button"
-                onClick={scrollRight}
-                aria-label="Next vehicles"
-                className="w-9 h-9 rounded-full border border-border-warm/60 bg-surface-container-lowest hover:bg-surface-container flex items-center justify-center text-on-surface shadow-xs transition-colors cursor-pointer"
-              >
-                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
-              </button>
-            </div>
-
-            {/* Slider track with mobile snap scroll */}
-            <div
-              ref={sliderRef}
-              className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible sm:pb-0"
-            >
-              {activeVehicles.map((vehicle) => {
-                const img = resolveVehicleImage(vehicle);
-                const displayRate = vehicle.perKm != null && vehicle.perKm > 0 ? `₹${vehicle.perKm}/km` : "On request";
-
-                return (
-                  <div
-                    key={vehicle.id}
-                    className="min-w-[280px] sm:min-w-0 snap-start bg-surface-container-lowest rounded-2xl overflow-hidden border border-border-warm/50 flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary/40 shadow-xs"
-                  >
-                    {/* Photo with aspect-ratio container */}
-                    <div className="h-44 w-full overflow-hidden relative bg-surface-container-low">
-                      <picture>
-                        {img.endsWith("-480.webp") ? (
-                          <source type="image/avif" srcSet={img.replace(/\.webp$/, ".avif")} />
-                        ) : null}
-                        <img
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          src={img}
-                          width={384}
-                          height={176}
-                          loading="lazy"
-                          decoding="async"
-                          alt={vehicle.displayName}
-                          onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = "/assets/fleet/sedan-480.webp";
-                          }}
-                        />
-                      </picture>
-                      <div className="absolute top-3 left-3">
-                        <span className="px-2 py-0.5 rounded-full bg-ink-midnight/80 backdrop-blur-md text-white font-label-caps text-xs uppercase font-bold tracking-wider">
-                          {activeGroup.name}
-                        </span>
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                    </div>
-
-                    {/* Vehicle details */}
-                    <div className="p-4 flex-1 flex flex-col justify-between gap-3">
-                      <div>
-                        <div className="flex items-baseline justify-between gap-2">
-                          <h3 className="font-title-md text-base font-bold text-on-surface group-hover:text-primary transition-colors">
-                            {vehicle.displayName}
-                          </h3>
-                        </div>
-                        <p className="font-body-sm text-xs text-on-surface-variant mt-0.5">
-                          {vehicle.make} • Commercial Tourist Permit
-                        </p>
-                      </div>
-
-                      {/* Specs pills */}
-                      <div className="grid grid-cols-2 gap-2 text-xs text-on-surface-variant py-2 border-y border-border-warm/40">
-                        <span className="flex items-center gap-1.5 font-medium">
-                          <span className="material-symbols-outlined text-[16px] text-primary">group</span>
-                          {vehicle.seats} Passengers
-                        </span>
-                        <span className="flex items-center gap-1.5 font-medium">
-                          <span className="material-symbols-outlined text-[16px] text-primary">luggage</span>
-                          {vehicle.bags} Luggage Bags
-                        </span>
-                        <span className="flex items-center gap-1.5 font-medium">
-                          <span className="material-symbols-outlined text-[16px] text-primary">ac_unit</span>
-                          Chilled AC
-                        </span>
-                        <span className="flex items-center gap-1.5 font-medium">
-                          <span className="material-symbols-outlined text-[16px] text-primary">verified</span>
-                          Live GPS Monitored
-                        </span>
-                      </div>
-
-                      {/* Pricing and Action CTA */}
-                      <div className="flex items-center justify-between pt-1">
-                        <div>
-                          <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider block font-semibold">
-                            Outstation Rate
-                          </span>
-                          <span className="font-price-display text-base sm:text-lg font-bold text-primary">
-                            {displayRate}
-                          </span>
-                        </div>
-                        <a
-                          className="min-h-[44px] px-4 py-2 rounded-xl bg-primary hover:bg-primary-container text-white font-label-md text-xs font-bold transition-all shadow-xs active:scale-[0.98] inline-flex items-center justify-center gap-1"
-                          href={`/book?category=outstation&car=${encodeURIComponent(vehicle.modelName.toLowerCase().replace(/\s+/g, "-"))}`}
-                          aria-label={`Book Now: ${vehicle.displayName}`}
-                        >
-                          <span className="text-white">Book Now</span>
-                          <svg className="w-3.5 h-3.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+      {/* Carousel navigation buttons */}
+      <div className="hidden sm:flex items-center justify-end gap-2 mb-3">
+        <button
+          type="button"
+          onClick={scrollLeft}
+          aria-label="Previous vehicles"
+          className="w-9 h-9 rounded-full border border-border-warm/60 bg-surface-container-lowest hover:bg-surface-container flex items-center justify-center text-on-surface shadow-xs transition-colors cursor-pointer"
+        >
+          <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+        </button>
+        <button
+          type="button"
+          onClick={scrollRight}
+          aria-label="Next vehicles"
+          className="w-9 h-9 rounded-full border border-border-warm/60 bg-surface-container-lowest hover:bg-surface-container flex items-center justify-center text-on-surface shadow-xs transition-colors cursor-pointer"
+        >
+          <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+        </button>
       </div>
+
+      {/* Main Interactive Showcase Panel & Slider Track */}
+      {loading ? (
+        <div
+          role="tabpanel"
+          id={`fleet-panel-${activeGroupCode}`}
+          aria-labelledby={`fleet-tab-${activeGroupCode}`}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-md animate-pulse"
+        >
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-surface-container-lowest rounded-xl h-80 border border-border-warm/30 p-4">
+              <div className="w-full h-44 bg-surface-container rounded-lg mb-4" />
+              <div className="h-5 bg-surface-container rounded w-3/4 mb-2" />
+              <div className="h-4 bg-surface-container rounded w-1/2 mb-4" />
+              <div className="h-10 bg-surface-container rounded w-full mt-auto" />
+            </div>
+          ))}
+        </div>
+      ) : error ? (
+        <div
+          role="tabpanel"
+          id={`fleet-panel-${activeGroupCode}`}
+          aria-labelledby={`fleet-tab-${activeGroupCode}`}
+          className="py-12 text-center bg-surface-container-low rounded-2xl p-6 border border-border-warm/40"
+        >
+          <p className="text-on-surface font-semibold text-lg mb-2">Could not refresh live fleet inventory</p>
+          <p className="text-on-surface-variant text-sm mb-4">Please check your internet connection or try again.</p>
+          <button
+            type="button"
+            onClick={loadFleet}
+            className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold cursor-pointer hover:bg-primary-container"
+          >
+            Retry
+          </button>
+        </div>
+      ) : activeVehicles.length === 0 ? (
+        <div
+          role="tabpanel"
+          id={`fleet-panel-${activeGroupCode}`}
+          aria-labelledby={`fleet-tab-${activeGroupCode}`}
+          className="py-12 text-center bg-surface-container-low rounded-2xl p-6 border border-border-warm/40"
+        >
+          <p className="text-on-surface-variant text-base">
+            No active vehicle models currently published under this group. Contact our travel desk for custom requests.
+          </p>
+        </div>
+      ) : (
+        <div
+          ref={sliderRef}
+          role="tabpanel"
+          id={`fleet-panel-${activeGroupCode}`}
+          aria-labelledby={`fleet-tab-${activeGroupCode}`}
+          className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible sm:pb-0 relative"
+        >
+          {activeVehicles.map((vehicle) => {
+            const img = resolveVehicleImage(vehicle);
+            const displayRate = vehicle.perKm != null && vehicle.perKm > 0 ? `₹${vehicle.perKm}/km` : "On request";
+
+            return (
+              <div
+                key={vehicle.id}
+                className="min-w-[280px] sm:min-w-0 snap-start bg-surface-container-lowest rounded-2xl overflow-hidden border border-border-warm/50 flex flex-col group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary/40 shadow-xs"
+              >
+                {/* Photo with aspect-ratio container */}
+                <div className="h-44 w-full overflow-hidden relative bg-surface-container-low after:absolute after:inset-0 after:bg-gradient-to-t after:from-black/50 after:via-transparent after:to-transparent after:pointer-events-none">
+                  <img
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    src={img}
+                    width={384}
+                    height={176}
+                    loading="lazy"
+                    decoding="async"
+                    alt={vehicle.displayName}
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = "/assets/fleet/sedan-480.webp";
+                    }}
+                  />
+                  <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-ink-midnight/80 backdrop-blur-md text-white font-label-caps text-xs uppercase font-bold tracking-wider">
+                    {activeGroup.name}
+                  </span>
+                </div>
+
+                {/* Vehicle details */}
+                <div className="p-4 flex-1 flex flex-col justify-between gap-3">
+                  <div>
+                    <h3 className="font-title-md text-base font-bold text-on-surface group-hover:text-primary transition-colors">
+                      {vehicle.displayName}
+                    </h3>
+                    <p className="font-body-sm text-xs text-on-surface-variant mt-0.5">
+                      {vehicle.make} • Commercial Tourist Permit
+                    </p>
+                  </div>
+
+                  {/* Specs pills */}
+                  <div className="grid grid-cols-2 gap-2 text-xs text-on-surface-variant py-2 border-y border-border-warm/40">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <span className="material-symbols-outlined text-[16px] text-primary">group</span>
+                      {vehicle.seats} Passengers
+                    </span>
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <span className="material-symbols-outlined text-[16px] text-primary">luggage</span>
+                      {vehicle.bags} Luggage Bags
+                    </span>
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <span className="material-symbols-outlined text-[16px] text-primary">ac_unit</span>
+                      Chilled AC
+                    </span>
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <span className="material-symbols-outlined text-[16px] text-primary">verified</span>
+                      Live GPS Monitored
+                    </span>
+                  </div>
+
+                  {/* Pricing and Action CTA */}
+                  <div className="flex items-center justify-between pt-1">
+                    <div>
+                      <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider block font-semibold">
+                        Outstation Rate
+                      </span>
+                      <span className="font-price-display text-base sm:text-lg font-bold text-primary">
+                        {displayRate}
+                      </span>
+                    </div>
+                    <a
+                      className="min-h-[44px] px-4 py-2 rounded-xl bg-primary hover:bg-primary-container text-white font-label-md text-xs font-bold transition-all shadow-xs active:scale-[0.98] inline-flex items-center justify-center gap-1"
+                      href={`/book?category=outstation&car=${encodeURIComponent(vehicle.modelName.toLowerCase().replace(/\s+/g, "-"))}`}
+                      aria-label={`Book Now: ${vehicle.displayName}`}
+                    >
+                      Book Now ↗
+                    </a>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }

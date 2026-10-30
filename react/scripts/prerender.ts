@@ -35,6 +35,204 @@ function escapeHtml(str: string): string {
     .replaceAll("'", "&#39;");
 }
 
+// Critical above-the-fold CSS for 100/100 PageSpeed with 0ms render-blocking duration and 0 CLS
+const CRITICAL_CSS = `
+:root {
+  --color-primary: #9f3c16;
+  --color-primary-container: #bf542c;
+  --color-primary-fixed: #ffdbcf;
+  --color-on-primary: #ffffff;
+  --color-white: #ffffff;
+  --color-terracotta-sandstone: #C85A32;
+  --color-terracotta-sunlit: #D97746;
+  --color-terracotta-deep: #B4502A;
+  --color-gold-accent: #D99A3E;
+  --color-gold-bronze: #8C5E14;
+  --color-ink: #171310;
+  --color-ink-midnight: #0F131A;
+  --color-ink-charcoal: #181D27;
+  --color-surface: #fdf8f5;
+  --color-ivory-surface: #FDF8F5;
+  --color-sandstone-wash: #F5EBE1;
+  --color-border-warm: #E9DFD5;
+  --color-surface-container-low: #f8f3f0;
+  --color-surface-container: #f2edea;
+  --color-background: #fdf8f5;
+  --color-foreground: #1c1b1a;
+  --color-on-surface: #1c1b1a;
+  --color-on-surface-variant: #57423b;
+  --font-headline-hero: "EB Garamond", serif;
+  --font-headline-lg: "EB Garamond", serif;
+  --font-body-md: "Plus Jakarta Sans", sans-serif;
+  --font-body-lg: "Plus Jakarta Sans", sans-serif;
+  --font-ui: "Plus Jakarta Sans", sans-serif;
+  --bg: #fdf8f5;
+  --surface: #ffffff;
+  --text: #1c1b1a;
+  --gold: #e5a044;
+  --radius: 6px;
+  --radius-card: 10px;
+}
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  scrollbar-gutter: stable;
+  scroll-behavior: auto;
+  overflow-y: scroll;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  background-color: #fdf8f5;
+  color: #1c1b1a;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+a { color: inherit; text-decoration: none; }
+img, picture, svg { display: block; max-width: 100%; }
+button, input, select { font-family: inherit; font-size: inherit; }
+.skip-link {
+  position: fixed; left: 20px; top: 14px; z-index: 3000; transform: translateY(-200%);
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px;
+  background: #e5a044; color: #0a0a0a; font-weight: 600; font-size: 13.5px;
+  border-radius: 6px; text-decoration: none; transition: transform 180ms ease;
+}
+.skip-link:focus, .skip-link:focus-visible { transform: translateY(0); outline: 2px solid #f3c36c; outline-offset: 3px; }
+.skip-link-icon { font-size: 14px; font-weight: 700; line-height: 1; }
+.app-shell { min-height: 100vh; }
+#site-header {
+  position: fixed; top: 0; left: 0; right: 0; width: 100%; height: 64px; z-index: 50;
+  background: rgba(253, 248, 245, 0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(233, 223, 213, 0.3); box-shadow: 0 1px 8px rgba(0, 0, 0, 0.03);
+}
+#site-header .h-16 {
+  height: 64px; max-width: 80rem; margin: 0 auto; padding: 0 0.75rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+}
+@media (min-width: 640px) { #site-header .h-16 { padding: 0 1.5rem; } }
+@media (min-width: 1024px) { #site-header .h-16 { padding: 0 2rem; } }
+#site-header img { height: 40px; width: auto; max-width: min(58vw, 250px); object-fit: contain; }
+@media (min-width: 640px) { #site-header img { height: 44px; } }
+.pt-16 { padding-top: 4rem; }
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.hidden { display: none; }
+@media (min-width: 640px) { .sm\\:inline-flex { display: inline-flex; } .sm\\:flex { display: flex; } .sm\\:hidden { display: none; } }
+@media (min-width: 1024px) { .lg\\:inline-flex { display: inline-flex; } .lg\\:flex { display: flex; } }
+@media (min-width: 1280px) { .xl\\:inline-flex { display: inline-flex; } .xl\\:flex { display: flex; } .xl\\:hidden { display: none; } }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.shrink-0 { flex-shrink: 0; }
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.inset-0 { inset: 0; }
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.max-w-4xl { max-width: 56rem; }
+.max-w-5xl { max-width: 64rem; }
+.max-w-6xl { max-width: 72rem; }
+.max-w-7xl { max-width: 80rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+.py-1\\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+.py-3\\.5 { padding-top: 0.875rem; padding-bottom: 0.875rem; }
+.pt-24 { padding-top: 6rem; }
+.pb-20 { padding-bottom: 5rem; }
+@media (min-width: 640px) { .sm\\:pt-32 { padding-top: 8rem; } .sm\\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; } .sm\\:p-5 { padding: 1.25rem; } }
+@media (min-width: 1024px) { .lg\\:px-8 { padding-left: 2rem; padding-right: 2rem; } }
+.gap-1\\.5 { gap: 0.375rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-5 { gap: 1.25rem; }
+.overflow-hidden { overflow: hidden; }
+.pointer-events-none { pointer-events: none; }
+.select-none { user-select: none; }
+.text-center { text-align: center; }
+.rounded-full { border-radius: 9999px; }
+.rounded-md { border-radius: 0.375rem; }
+.rounded-3xl { border-radius: 1.5rem; }
+.border { border: 1px solid currentColor; }
+.shadow-xs { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
+.shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+.min-h-screen { min-height: 100vh; }
+.z-0 { z-index: 0; }
+.z-10 { z-index: 10; }
+.z-20 { z-index: 20; }
+.z-30 { z-index: 30; }
+.z-50 { z-index: 50; }
+.bg-ink-midnight { background-color: #0F131A; }
+.text-on-primary, .text-white { color: #ffffff; }
+section.min-h-\\[520px\\], .min-h-\\[520px\\] { min-height: 520px; }
+@media (min-width: 1024px) { section.lg\\:min-h-\\[580px\\], .lg\\:min-h-\\[580px\\] { min-height: 580px; } }
+.object-cover { object-fit: cover; }
+.opacity-80 { opacity: 0.8; }
+.contrast-105 { filter: contrast(1.05); }
+.brightness-100 { filter: brightness(1); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.font-headline-hero { font-family: "EB Garamond", Georgia, serif; }
+.text-headline-hero { font-size: clamp(2.25rem, 5vw, 4.25rem); line-height: 1.12; }
+.text-ivory-surface { color: #FDF8F5; }
+.font-body-lg { font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.125rem; }
+.font-body-md { font-family: "Plus Jakarta Sans", sans-serif; font-size: 1rem; }
+.leading-relaxed { line-height: 1.625; }
+.bg-primary { background-color: #9f3c16; }
+.bg-black\\/80 { background-color: rgba(0, 0, 0, 0.8); }
+.text-primary { color: #9f3c16; }
+.min-h-\\[48px\\] { min-height: 48px; }
+.min-w-\\[48px\\] { min-width: 48px; }
+.min-w-\\[44px\\] { min-width: 44px; }
+.min-h-\\[44px\\] { min-height: 44px; }
+.glass-card-frosted { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 20px 50px rgba(15, 19, 26, 0.12); }
+.-mt-12 { margin-top: -3rem; }
+@media (min-width: 640px) { .sm\\:-mt-16 { margin-top: -4rem; } }
+.booking-reference { position: relative; border-radius: 20px; background: #ffffff; overflow: hidden; }
+.booking-reference__hero { position: absolute; inset: 0 0 0 auto; z-index: -2; width: 31%; height: 100%; object-fit: cover; object-position: center; }
+.booking-reference__veil { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, #fff 0%, #fff 59%, rgba(255,255,255,.94) 70%, rgba(255,255,255,.16) 100%); }
+.booking-reference__content { position: relative; z-index: 1; width: 100%; padding: 22px 27px 0; }
+.booking-reference__tabs { display: inline-flex; gap: 0; padding: 4px; border-radius: 9999px; background: rgba(241, 238, 235, 0.85); backdrop-filter: blur(8px); }
+.booking-reference__tab { display: inline-flex; min-width: 125px; height: 42px; align-items: center; justify-content: center; gap: 8px; padding: 0 18px; border-radius: 9999px; color: #574d47; font: 700 12px/1 'Plus Jakarta Sans', sans-serif; cursor: pointer; border: 0; background: transparent; }
+.booking-reference__tab.is-active { color: #fff; background: #ac3d12; box-shadow: 0 4px 10px rgba(172,61,18,.2); }
+.booking-reference__controls { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+.booking-reference__fields-row { display: grid; gap: 12px; width: 100%; align-items: start; }
+.booking-reference--oneway .booking-reference__fields-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.booking-reference--round .booking-reference__fields-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.booking-reference--local .booking-reference__fields-row { grid-template-columns: 2fr 1fr; }
+@media (max-width: 768px) {
+  .booking-reference__fields-row, .booking-reference--oneway .booking-reference__fields-row, .booking-reference--round .booking-reference__fields-row, .booking-reference--local .booking-reference__fields-row { grid-template-columns: 1fr; }
+  .booking-reference__hero { display: none; }
+  .booking-reference__veil { background: #ffffff; }
+}
+.booking-reference__field { min-width: 0; display: flex; flex-direction: column; }
+.booking-reference__field > label { display: block; margin: 0 0 7px 2px; color: #665c55; font: 700 10px/1 'Plus Jakarta Sans', sans-serif; letter-spacing: .07em; text-transform: uppercase; }
+.booking-reference__text-input-wrap, .booking-reference__date-control { position: relative; display: flex; width: 100%; height: 52px; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid #e2ddd8; border-radius: 12px; background: #fff; color: #29231f; }
+.booking-reference__text-input-wrap input, .booking-reference__date-control input { width: 100%; height: 100%; border: 0; outline: 0; background: transparent; font-size: 14px; color: inherit; }
+.booking-reference__bottom-row { display: flex; gap: 14px; align-items: flex-end; margin-top: 4px; }
+@media (max-width: 768px) { .booking-reference__bottom-row { flex-direction: column; align-items: stretch; } }
+.booking-reference__field--fleet { flex: 1; }
+.booking-reference__vehicles { display: grid; gap: 8px; }
+.booking-reference__vehicle { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 52px; padding: 6px 4px; border: 1px solid #e2ddd8; border-radius: 10px; background: #fff; cursor: pointer; font-size: 11px; font-weight: 600; color: #574d47; }
+.booking-reference__vehicle.is-active { border-color: #ac3d12; color: #ac3d12; background: rgba(172, 61, 18, 0.05); }
+.booking-reference__action { flex-shrink: 0; }
+.booking-reference__search { height: 52px; padding: 0 28px; border-radius: 12px; border: 0; background: #ac3d12; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 7px 18px rgba(172, 61, 18, 0.25); }
+@media (max-width: 768px) { .booking-reference__search { width: 100%; } }
+.booking-reference__trust { display: flex; width: calc(100% + 54px); min-height: 40px; align-items: center; justify-content: space-between; gap: 14px; margin: 16px 0 0 -27px; padding: 0 27px; border-top: 1px solid #eee9e5; background: rgba(250, 248, 245, 0.82); color: #746b63; font: 600 10px/1 'Plus Jakarta Sans', sans-serif; flex-wrap: wrap; }
+.booking-reference__trust span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+`.trim();
+
 // Ensure public assets exist in dist
 async function ensureAssets(): Promise<void> {
   const publicAssets = join(reactRoot, "public", "assets");
@@ -344,11 +542,12 @@ export async function prerender(): Promise<void> {
     throw new Error(`dist/index.html not found at ${indexPath}. Run vite build first.`);
   }
   let baseTemplate = await readFile(indexPath, "utf8");
-  // Preload critical stylesheet at high priority while keeping standard stylesheet
-  // to prevent any Flash of Unstyled Content (FOUC) and Cumulative Layout Shift (CLS).
+  // Critical CSS inlining + non-render-blocking stylesheet loading:
+  // Inline critical above-the-fold layout styles into <style id="critical-css"> in <head>
+  // and load main bundle asynchronously using media="print" onload="this.media='all'" with noscript fallback.
   baseTemplate = baseTemplate.replace(
     /<link rel="stylesheet" crossorigin href="(\/assets\/index-[^"]+\.css)">/,
-    `<link rel="preload" as="style" href="$1" />\n    <link rel="stylesheet" href="$1" />`
+    `<style id="critical-css">\n${CRITICAL_CSS}\n    </style>\n    <link rel="preload" as="style" href="$1" />\n    <link rel="stylesheet" href="$1" media="print" onload="this.media='all'" />\n    <noscript><link rel="stylesheet" href="$1" /></noscript>`
   );
 
   // Tokenized review invitations are served by the explicit Pages Function at
@@ -509,12 +708,21 @@ export async function prerender(): Promise<void> {
       const heroPreloadTags = firstHero && isHomepageRoute
         ? [
             `<link rel="preload" as="image" href="${escapeHtml(firstHero.avif.small)}" imagesrcset="${escapeHtml(`${firstHero.avif.small} 480w, ${firstHero.avif.medium} 960w`)}" imagesizes="100vw" type="image/avif" media="(max-width: 640px)" fetchpriority="high" />`,
-            `<link rel="preload" as="image" href="${escapeHtml(firstHero.avif.medium)}" imagesrcset="${escapeHtml(`${firstHero.avif.medium} 960w, ${firstHero.avif.desktop ? `${firstHero.avif.desktop} 1280w, ` : ""}${firstHero.avif.large} 1600w`)}" imagesizes="(max-width: 1024px) 100vw, 1280px" type="image/avif" media="(min-width: 641px)" fetchpriority="high" />`,
+            `<link rel="preload" as="image" href="${escapeHtml(firstHero.avif.medium)}" imagesrcset="${escapeHtml(`${firstHero.avif.medium} 960w, ${firstHero.avif.desktop ? `${firstHero.avif.desktop} 1280w, ` : ""}${firstHero.avif.large} 1600w`)}" imagesizes="(max-width: 640px) 100vw, (max-width: 1366px) 1280px, 100vw" type="image/avif" media="(min-width: 641px)" fetchpriority="high" />`,
           ]
         : [];
 
+      // Hoist hero preload tags immediately after viewport meta tag for fastest speculative preloader discovery
+      if (heroPreloadTags.length > 0) {
+        const heroPreloadBlock = "\n    " + heroPreloadTags.join("\n    ");
+        html = html.replace(
+          /(<meta name="viewport"[^>]*>)/i,
+          `$1${heroPreloadBlock}`
+        );
+      }
+
       // 2. Replace title and generic meta description with full metadata block
-      const fullHeadTags = [headTags, ...hoistedTags, ...heroPreloadTags].filter(Boolean).join("\n    ");
+      const fullHeadTags = [headTags, ...hoistedTags].filter(Boolean).join("\n    ");
       html = html.replace(/<title>.*?<\/title>/, fullHeadTags);
       html = html.replace(/<meta name="description" content="[^"]*" \/>\s*/, "");
 
