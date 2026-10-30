@@ -372,7 +372,11 @@ export function HomeBookingWidget() {
   }
 
   return (
-    <div id="home-booking-widget" className={`booking-reference booking-reference--${mode}`}>
+    <section
+      id="home-booking-widget"
+      className={`relative z-30 w-full -mt-12 sm:-mt-16 px-3 sm:px-6 lg:px-8 max-w-6xl mx-auto rounded-3xl glass-card-frosted p-2.5 sm:p-5 shadow-[0_20px_50px_rgba(15,19,26,0.12)] border border-white/80 booking-reference booking-reference--${mode}`}
+      aria-label="Book your taxi"
+    >
       <picture>
         <source
           type="image/avif"
@@ -730,6 +734,6 @@ export function HomeBookingWidget() {
           <span><SvgIcon name="support" size={15} /> 24/7 Support</span>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

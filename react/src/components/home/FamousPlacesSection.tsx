@@ -563,10 +563,8 @@ export function FamousPlacesSection() {
                       {place.driveTime}
                     </span>
                   </div>
-                  <div className="col-span-2 pt-1 border-t border-border-warm/40 flex items-center justify-between">
-                    <span className="text-on-surface-variant text-label-lg">
-                      Best Visit: <strong className="text-on-surface">{place.bestTime}</strong>
-                    </span>
+                  <div className="col-span-2 pt-1 border-t border-border-warm/40 flex items-center justify-between text-on-surface-variant text-label-lg">
+                    Best Visit: <strong className="text-on-surface">{place.bestTime}</strong>
                   </div>
                 </div>
 
@@ -582,8 +580,10 @@ export function FamousPlacesSection() {
                   ))}
                 </div>
 
-                {/* Action CTAs */}
-                <div className="mt-auto pt-3 border-t border-border-warm/40 flex items-center justify-between gap-2">
+              </div>
+
+              {/* Action CTAs */}
+              <div className="mt-auto px-4 pb-4 sm:px-5 sm:pb-5 pt-3 border-t border-border-warm/40 flex items-center justify-between gap-2">
                   <a
                     className="flex-1 min-h-[44px] py-2.5 px-3 rounded-lg bg-primary hover:bg-primary-container text-white font-label-lg text-xs font-semibold transition-all shadow-xs text-center active:scale-[0.98] inline-flex items-center justify-center gap-1"
                     href={
@@ -610,7 +610,6 @@ export function FamousPlacesSection() {
                     <WhatsAppIcon className="w-3.5 h-3.5 shrink-0 text-white" />
                     <span className="text-white font-semibold" style={{ color: "#ffffff" }}>WhatsApp</span>
                   </a>
-                </div>
               </div>
             </article>
           );

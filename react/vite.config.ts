@@ -17,6 +17,9 @@ export default defineConfig(({ mode }) => {
     root: fileURLToPath(new URL(".", import.meta.url)),
     base,
     plugins: [react(), tailwindcss()],
+    esbuild: {
+      drop: ["console", "debugger"],
+    },
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),

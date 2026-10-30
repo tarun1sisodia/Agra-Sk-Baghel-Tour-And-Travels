@@ -389,9 +389,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
         </section>
 
         {/* ── FLOATING FROSTED GLASS BOOKING DOCK ── */}
-        <section className="relative z-30 w-full -mt-12 sm:-mt-16 px-3 sm:px-6 lg:px-8 max-w-6xl mx-auto rounded-3xl glass-card-frosted p-2.5 sm:p-5 shadow-[0_20px_50px_rgba(15,19,26,0.12)] border border-white/80" aria-label="Book your taxi">
-          <HomeBookingWidget />
-        </section>
+        <HomeBookingWidget />
 
         {/* ── GLASS TRUST BANNER ── Spans 100% full width with smooth marquee */}
         <div className="w-full bg-surface-container-low/90 backdrop-blur-md border-y border-border-warm/50 py-3.5 overflow-hidden relative z-20 mt-8">
@@ -925,8 +923,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
         <section
           className="w-full py-space-3xl bg-surface-container-low"
         >
-          <div className="max-w-[1280px] mx-auto px-margin-mobile lg:px-margin">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+          <div className="max-w-[1280px] mx-auto px-margin-mobile lg:px-margin grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
               {/* Left */}
               <div className="lg:col-span-5 flex flex-col gap-space-md">
                 <div>
@@ -947,9 +944,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                     </div>
                   </a>
                   <a className="p-3.5 rounded-xl bg-surface-container-lowest hover:bg-surface-container transition-all flex items-center gap-3 shadow-sm border border-border-warm/40" href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noopener noreferrer">
-                    <span className="w-9 h-9 rounded-full bg-black text-white inline-flex items-center justify-center shrink-0 shadow-sm">
-                      <WhatsAppIcon className="w-[18px] h-[18px] shrink-0" />
-                    </span>
+                    <WhatsAppIcon className="w-9 h-9 p-2 rounded-full bg-black text-white shrink-0 shadow-sm" />
                     <div>
                       <span className="font-label-caps text-body-sm text-on-surface-variant block uppercase font-bold">WhatsApp</span>
                       <span className="font-title-md text-title-lg text-on-surface font-bold">Chat with Support</span>
@@ -966,8 +961,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
               </div>
 
               {/* Right — inquiry form with backend persistence */}
-              <div className="lg:col-span-7">
-                <div className="bg-surface-container-lowest p-5 sm:p-6 rounded-xl shadow-md border border-border-warm/40">
+              <div className="lg:col-span-7 bg-surface-container-lowest p-5 sm:p-6 rounded-xl shadow-md border border-border-warm/40">
                   <h3 className="font-headline-sm text-headline-sm font-normal text-on-surface mb-1">Send a booking inquiry</h3>
                   <p className="font-body-sm text-label-md text-on-surface-variant mb-space-md">
                     Inquiries are saved directly to our dispatch desk. You'll receive a verified quote in under 5 minutes.
@@ -1076,10 +1070,8 @@ export function HomePage({ language = "en" }: HomePageProps) {
                       </button>
                     </form>
                   )}
-                </div>
               </div>
             </div>
-          </div>
         </section>
     </main>
   );
