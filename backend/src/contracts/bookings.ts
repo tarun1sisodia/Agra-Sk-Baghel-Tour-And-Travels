@@ -13,14 +13,13 @@ export type BookingStatus =
   | "pending_payment"
   | "paid_confirmed"
   | "confirmed"
-  | "driver_assigned"
   | "in_transit"
   | "completed"
   | "cancelled"
   | "refunded";
 
-export type PaymentMethod = "upi" | "card" | "netbanking" | "paypal";
-export type PaymentProvider = "razorpay" | "paypal" | "card";
+export type PaymentMethod = "upi" | "netbanking";
+export type PaymentProvider = "razorpay";
 export type PaymentStatus = "captured" | "refunded" | "partially_refunded" | "pending" | "failed" | "needs_review";
 
 export type CanonicalBookingSelection =
@@ -52,6 +51,10 @@ export interface Booking {
   notes?: string;
   specialNotes?: string;
   createdAt: string;
+  // Admin trip completion fields
+  balanceCollectedByDriver?: boolean;
+  adminTripNotes?: string | null;
+  completedAt?: string | null;
   fare: FareSnapshot;
 }
 

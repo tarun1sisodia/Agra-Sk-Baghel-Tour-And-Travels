@@ -32,10 +32,11 @@ const base = z
     included_km: z.number().int().min(10).max(1000),
     covers: cleanText(2, 500),
     parking_note: cleanOptional(200),
-    fleet_prices: z.record(z.number().positive().max(1_000_000).finite()),
+    fleet_prices: z.record(z.string(), z.number().positive().max(1_000_000).finite()),
     use_per_km: z.boolean().default(false),
     extra_rates: z
       .record(
+        z.string(),
         z.object({
           per_km: z.number().positive().finite(),
           per_hr: z.number().positive().finite(),

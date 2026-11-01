@@ -39,7 +39,7 @@ const base = z
     nights: z.number().int().min(0).max(30).default(0),
     base_tier_code: cleanText(2, 40).default("sedan"),
     starting_price_inr: z.number().positive().max(1_000_000).finite(),
-    fleet_prices: z.record(z.number().positive().max(1_000_000).finite()),
+    fleet_prices: z.record(z.string(), z.number().positive().max(1_000_000).finite()),
     night_charge_inr: z.number().nonnegative().max(100_000).default(0),
     inclusions_highlight: cleanOptional(500),
     inclusions_note: cleanOptional(1000),

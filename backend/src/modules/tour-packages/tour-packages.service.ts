@@ -30,7 +30,7 @@ function toRecord(input: CreateTourPackageInput, now: string, id = newId()): Tou
     nights: input.nights,
     baseTierCode: input.base_tier_code,
     startingPriceInr: input.starting_price_inr,
-    fleetPrices: input.fleet_prices,
+    fleetPrices: input.fleet_prices as Record<string, number>,
     nightChargeInr: input.night_charge_inr,
     inclusionsHighlight: input.inclusions_highlight ?? null,
     inclusionsNote: input.inclusions_note ?? null,
@@ -117,7 +117,7 @@ export function createTourPackagesService(deps: {
         nights: input.nights ?? current.nights,
         baseTierCode: input.base_tier_code ?? current.baseTierCode,
         startingPriceInr: input.starting_price_inr ?? current.startingPriceInr,
-        fleetPrices: input.fleet_prices ?? current.fleetPrices,
+        fleetPrices: (input.fleet_prices ?? current.fleetPrices) as Record<string, number>,
         nightChargeInr: input.night_charge_inr !== undefined ? input.night_charge_inr : current.nightChargeInr,
         inclusionsHighlight:
           input.inclusions_highlight === undefined ? current.inclusionsHighlight : input.inclusions_highlight,

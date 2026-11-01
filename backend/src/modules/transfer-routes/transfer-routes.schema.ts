@@ -30,7 +30,7 @@ const base = z
     name: cleanText(2, 100),
     distance_text: cleanOptional(60),
     direction_note: cleanOptional(200),
-    fleet_prices: z.record(z.number().positive().max(1_000_000).finite()),
+    fleet_prices: z.record(z.string(), z.number().positive().max(1_000_000).finite()),
     use_per_km: z.boolean().default(false),
     night_charge_inr: z.number().nonnegative().max(100_000).default(0),
     status: z.enum(["draft", "published", "archived"]).optional(),

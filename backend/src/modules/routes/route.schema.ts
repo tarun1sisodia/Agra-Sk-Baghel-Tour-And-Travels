@@ -20,7 +20,7 @@ const fleetKeySchema = z.string().trim().transform((value, ctx) => {
   return canonical;
 });
 
-const faresInrSchema = z.record(z.number().positive().max(1_000_000).finite()).transform((record, ctx) => {
+const faresInrSchema = z.record(z.string(), z.number().positive().max(1_000_000).finite()).transform((record, ctx) => {
   const normalized: Record<VehicleTier, number> = {} as Record<VehicleTier, number>;
   for (const [key, amount] of Object.entries(record)) {
     const canonical = toCanonicalTierKey(key);
@@ -31,7 +31,7 @@ const faresInrSchema = z.record(z.number().positive().max(1_000_000).finite()).t
       });
       return z.NEVER;
     }
-    normalized[canonical] = amount;
+    normalized[canonical as VehicleTier] = amount as number;
   }
   return normalized;
 });

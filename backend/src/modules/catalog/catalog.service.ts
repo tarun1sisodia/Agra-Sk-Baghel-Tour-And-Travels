@@ -10,7 +10,7 @@ import {
   type CatalogMediaRecord,
 } from "../../types/domain.js";
 import type { FareCatalogRepository } from "../fare-catalog/fare-catalog.repository.js";
-import type { AttachMediaSchema, CreateCatalogSchema, PublicCatalogQuerySchema, UpdateCatalogSchema, UpdateMediaSchema } from "./catalog.schema.js";
+import type { AttachMediaSchema, BatchCatalogItemsSchema, CreateCatalogSchema, PublicCatalogQuerySchema, UpdateCatalogSchema, UpdateMediaSchema } from "./catalog.schema.js";
 import { mediaObjectPath, mimeTypeForPath, type MediaStorage } from "./media.storage.js";
 import type { z } from "zod";
 
@@ -354,6 +354,36 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
       const published = filter.tripType ? available.filter((item) => item.tripType === filter.tripType) : available;
       return Promise.all(
         published.map(async (item) => {
+          const media = (await deps.db.media.listByCatalogItem(item.id))
+            .filter((entry) => entry.status === "published")
+            .sort((a, b) => a.sortOrder - b.sortOrder || a.createdAt.localeCompare(b.createdAt));
+          return { ...publicCatalog(item), ...mediaSummary(media) };
+        }),
+      );
+    },
+
+    /**
+     * BATCH fetch catalog items by IDs or slugs.
+     * Optimized for single-page rendering with multiple items (e.g., home page, category pages).
+     */
+    async batchGetPublished(input: z.infer<typeof BatchCatalogItemsSchema>): Promise<any[]> {
+      if (!input.ids?.length && !input.slugs?.length) {
+        return [];
+      }
+
+      const whereClause = input.ids?.length
+        ? { id: { in: input.ids } }
+        : { slug: { in: input.slugs } };
+
+      const items = await deps.db.catalog.list({
+        status: "published",
+        ...whereClause,
+      });
+
+      const available = items.filter((item) => item.availability !== "unavailable");
+
+      return Promise.all(
+        available.map(async (item) => {
           const media = (await deps.db.media.listByCatalogItem(item.id))
             .filter((entry) => entry.status === "published")
             .sort((a, b) => a.sortOrder - b.sortOrder || a.createdAt.localeCompare(b.createdAt));
@@ -992,3 +1022,4 @@ function publicReview(review: {
     publishedAt: review.publishedAt,
   };
 }
+

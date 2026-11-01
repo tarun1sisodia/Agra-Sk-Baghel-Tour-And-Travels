@@ -81,10 +81,10 @@ export const AdminUpdateFareRulesSchema = z.object({
       }),
     )
     .optional(),
-  localPackages: z.record(z.any()).optional(),
-  airportTransfers: z.record(z.any()).optional(),
+  localPackages: z.record(z.string(), z.any()).optional(),
+  airportTransfers: z.record(z.string(), z.any()).optional(),
   notes: z.array(z.string()).optional(),
-  dynamicConfig: z.record(z.any()).optional(),
+  dynamicConfig: z.record(z.string(), z.any()).optional(),
 });
 
 export const AdminActivateFareRuleSchema = z.object({

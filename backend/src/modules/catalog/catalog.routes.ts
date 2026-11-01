@@ -30,6 +30,11 @@ export async function registerCatalogRoutes(
     config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
     handler: controller.getPublished,
   });
+  // Batch fetch catalog items by IDs or slugs (optimized for home page rendering).
+  app.post("/api/v1/catalog/batch", {
+    config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
+    handler: controller.batchGetPublished,
+  });
   // Inline (DB-backed) media bytes — immutable, long-cached.
   app.get("/api/v1/media/:id", {
     config: { rateLimit: { max: 300, timeWindow: "1 minute" } },

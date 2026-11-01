@@ -111,3 +111,9 @@ export const PublicCatalogQuerySchema = z.object({
   type: z.enum(CATALOG_TYPES).optional(),
   tripType: z.enum(TRIP_TYPES).optional(),
 });
+
+/** Batch catalog items by IDs or slugs. */
+export const BatchCatalogItemsSchema = z.object({
+  ids: z.array(z.string().min(1).max(80)).optional(),
+  slugs: z.array(z.string().min(2).max(80).regex(/^[a-z0-9-]+$/)).optional(),
+});

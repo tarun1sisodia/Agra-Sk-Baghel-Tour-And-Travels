@@ -5,6 +5,7 @@ import { CONTENT_ROLES, isOperationsRole, requireRole, SUPER_ADMIN_ROLES } from 
 import {
   AdminCatalogQuerySchema,
   AttachMediaSchema,
+  BatchCatalogItemsSchema,
   CatalogIdParamSchema,
   CatalogSlugParamSchema,
   CreateCatalogSchema,
@@ -158,6 +159,13 @@ export function createCatalogController(service: ReturnType<typeof createCatalog
       }
       reply.header("x-content-type-options", "nosniff");
       return reply.send(content.buffer);
+    },
+
+    /** PUBLIC — batch fetch catalog items by IDs or slugs. */
+    async batchGetPublished(request: FastifyRequest, reply: FastifyReply) {
+      const body = BatchCatalogItemsSchema.parse(request.body ?? {});
+      const data = await service.batchGetPublished(body);
+      return sendSuccess(reply, data);
     },
   };
 }

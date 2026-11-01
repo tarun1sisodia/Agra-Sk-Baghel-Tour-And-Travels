@@ -18,6 +18,14 @@ import { finalizeFare } from "./calculators/fare.finalizer.js";
 import { assertPromoEligibleForVehicle } from "./rules/promo.rules.js";
 import { findRoute, titleCase } from "./resolvers/route.resolver.js";
 
+// Fare calculation memoization cache (5 minute TTL)
+interface CachedFare {
+  result: FareEngineResult;
+  timestamp: number;
+}
+const FARE_CACHE = new Map<string, CachedFare>();
+const FARE_CACHE_TTL = 300_000; // 5 minutes
+
 // Re-exports for public domain API & backward compatibility
 export {
   calculateCancellationRefund,
@@ -128,10 +136,10 @@ export function calculateFare(input: FareEngineInput): FareEngineResult {
       input.ruleOverrides?.driverAllowance !== undefined
         ? input.ruleOverrides.driverAllowance
         : isTour || isAirport || isLocal
-        ? 0
-        : isForce
-        ? 500
-        : 0;
+          ? 0
+          : isForce
+            ? 500
+            : 0;
 
     const alwaysRoundTrip =
       isTour || isAirport || isLocal
@@ -253,3 +261,35 @@ export function ignoreClientMoney(body: Record<string, unknown>): void {
   delete body.advance;
   delete body.amountMinor;
 }
+
+/**
+ * Memoized fare calculation wrapper with 5-minute cache TTL.
+ * Uses a composite key based on distance, vehicle tier, trip type, and date.
+ */
+export function calculateFareMemoized(input: FareEngineInput): FareEngineResult {
+  // Generate cache key from input parameters
+  const cacheKey = JSON.stringify({
+    distanceKm: input.distanceKm,
+    vehicleTier: input.vehicleTier,
+    tripType: input.tripType,
+    pickupDate: input.pickupDatetime?.slice(0, 10),
+    packageId: input.packageId,
+    localPackageKey: input.localPackageKey,
+    promoCode: input.promoCode,
+  });
+
+  const cached = FARE_CACHE.get(cacheKey);
+  if (cached) {
+    const elapsed = Date.now() - cached.timestamp;
+    if (elapsed < FARE_CACHE_TTL) {
+      return cached.result;
+    }
+    // Remove expired entry
+    FARE_CACHE.delete(cacheKey);
+  }
+
+  const result = calculateFare(input);
+  FARE_CACHE.set(cacheKey, { result, timestamp: Date.now() });
+  return result;
+}
+
