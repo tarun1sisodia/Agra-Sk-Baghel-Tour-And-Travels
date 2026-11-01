@@ -164,7 +164,7 @@ export function buildFaqSchema(
  */
 export function buildLocalBusinessSchema(options?: LocalBusinessSchemaOptions) {
   const businessId = options?.id || `${CANONICAL_DOMAIN}/#business`;
-  const name = options?.name || "Agra SK Baghel Tour and Travels";
+  const name = options?.name || "Agra SK Baghel Tour & Travels";
   const url = options?.url || CANONICAL_DOMAIN;
   const image = options?.image || DEFAULT_OG_IMAGE;
   const includeRating = options?.includeAggregateRating ?? false;
@@ -260,20 +260,20 @@ export function buildTaxiServiceSchema(options: TaxiServiceSchemaOptions) {
     provider: {
       "@type": "LocalBusiness",
       "@id": `${CANONICAL_DOMAIN}/#business`,
-      name: "Agra SK Baghel Tour and Travels",
+      name: "Agra SK Baghel Tour & Travels",
     },
     areaServed: options.areaServed || ["Agra", "Delhi", "Jaipur", "Mathura", "Gwalior"],
     serviceType: options.serviceType || "Outstation & Local Cab Service",
     ...(options.offers && options.offers.length > 0
       ? {
-          offers: options.offers.map((offer) => ({
-            "@type": "Offer",
-            name: offer.name,
-            price: offer.price,
-            priceCurrency: offer.priceCurrency || "INR",
-            description: offer.description,
-          })),
-        }
+        offers: options.offers.map((offer) => ({
+          "@type": "Offer",
+          name: offer.name,
+          price: offer.price,
+          priceCurrency: offer.priceCurrency || "INR",
+          description: offer.description,
+        })),
+      }
       : {}),
   };
 }
@@ -292,31 +292,31 @@ export function buildTouristTripSchema(options: TouristTripSchemaOptions) {
     provider: {
       "@type": "LocalBusiness",
       "@id": `${CANONICAL_DOMAIN}/#business`,
-      name: "Agra SK Baghel Tour and Travels",
+      name: "Agra SK Baghel Tour & Travels",
     },
     ...(options.itinerary && options.itinerary.length > 0
       ? {
-          itinerary: {
-            "@type": "ItemList",
-            itemListElement: options.itinerary.map((step, idx) => ({
-              "@type": "ListItem",
-              position: idx + 1,
-              name: step.name,
-              description: step.description,
-            })),
-          },
-        }
+        itinerary: {
+          "@type": "ItemList",
+          itemListElement: options.itinerary.map((step, idx) => ({
+            "@type": "ListItem",
+            position: idx + 1,
+            name: step.name,
+            description: step.description,
+          })),
+        },
+      }
       : {}),
     ...(options.offers
       ? {
-          offers: {
-            "@type": "Offer",
-            price: options.offers.price,
-            priceCurrency: options.offers.priceCurrency || "INR",
-            availability: `https://schema.org/${options.offers.availability || "InStock"}`,
-            ...(options.offers.validFrom ? { validFrom: options.offers.validFrom } : {}),
-          },
-        }
+        offers: {
+          "@type": "Offer",
+          price: options.offers.price,
+          priceCurrency: options.offers.priceCurrency || "INR",
+          availability: `https://schema.org/${options.offers.availability || "InStock"}`,
+          ...(options.offers.validFrom ? { validFrom: options.offers.validFrom } : {}),
+        },
+      }
       : {}),
   };
 }
@@ -334,19 +334,19 @@ export function buildProductCarSchema(options: ProductCarSchemaOptions) {
     category: options.category || "Chauffeur-Driven Rental Car",
     ...(options.seatingCapacity
       ? {
-          seatingCapacity: options.seatingCapacity,
-        }
+        seatingCapacity: options.seatingCapacity,
+      }
       : {}),
     ...(options.offers
       ? {
-          offers: {
-            "@type": "Offer",
-            price: options.offers.price,
-            priceCurrency: options.offers.priceCurrency || "INR",
-            unitCode: options.offers.unitCode || "KMT",
-            availability: `https://schema.org/${options.offers.availability || "InStock"}`,
-          },
-        }
+        offers: {
+          "@type": "Offer",
+          price: options.offers.price,
+          priceCurrency: options.offers.priceCurrency || "INR",
+          unitCode: options.offers.unitCode || "KMT",
+          availability: `https://schema.org/${options.offers.availability || "InStock"}`,
+        },
+      }
       : {}),
   };
 }
@@ -361,7 +361,7 @@ export function buildWebSiteSchema(
   return {
     "@type": "WebSite",
     "@id": id,
-    name: "Agra SK Baghel Tour and Travels",
+    name: "Agra SK Baghel Tour & Travels",
     url: CANONICAL_DOMAIN,
     inLanguage: language === "hi" ? "hi-IN" : "en-IN",
     potentialAction: {

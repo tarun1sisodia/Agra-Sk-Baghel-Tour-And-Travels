@@ -122,8 +122,8 @@ export function PrimaryButton({
     size === "lg"
       ? EDITORIAL_BUTTONS.primaryLarge
       : size === "sm"
-      ? EDITORIAL_BUTTONS.primaryCompact
-      : EDITORIAL_BUTTONS.primary;
+        ? EDITORIAL_BUTTONS.primaryCompact
+        : EDITORIAL_BUTTONS.primary;
 
   const iconElement =
     typeof icon === "string" ? (
@@ -161,7 +161,7 @@ export interface WhatsAppButtonProps extends Omit<AnchorHTMLAttributes<HTMLAncho
 
 export function WhatsAppButton({
   size = "md",
-  inquiryText = "Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about cab bookings.",
+  inquiryText = "Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about cab bookings.",
   phone = contact.whatsapp,
   label = "WhatsApp Inquiry",
   className = "",
@@ -172,8 +172,8 @@ export function WhatsAppButton({
     size === "lg"
       ? EDITORIAL_BUTTONS.whatsappLarge
       : size === "sm"
-      ? EDITORIAL_BUTTONS.whatsappCompact
-      : EDITORIAL_BUTTONS.whatsapp;
+        ? EDITORIAL_BUTTONS.whatsappCompact
+        : EDITORIAL_BUTTONS.whatsapp;
 
   const iconSize = size === "lg" ? "w-4 h-4" : size === "sm" ? "w-3.5 h-3.5" : "w-4 h-4";
 
@@ -247,12 +247,12 @@ export function EditorialPill({
     variant === "gold"
       ? "bg-gold-accent/15 text-gold-accent border-gold-accent/30"
       : variant === "jade"
-      ? "bg-success-jade/15 text-success-jade border-success-jade/30"
-      : variant === "dark"
-      ? "bg-ink-charcoal text-ivory-surface border-white/10"
-      : variant === "sandstone"
-      ? "bg-sandstone-wash text-terracotta-sandstone border-border-warm/60"
-      : "bg-primary/10 text-primary border-primary/20";
+        ? "bg-success-jade/15 text-success-jade border-success-jade/30"
+        : variant === "dark"
+          ? "bg-ink-charcoal text-ivory-surface border-white/10"
+          : variant === "sandstone"
+            ? "bg-sandstone-wash text-terracotta-sandstone border-border-warm/60"
+            : "bg-primary/10 text-primary border-primary/20";
 
   return (
     <span
@@ -448,7 +448,7 @@ export function EditorialHero({
   backgroundImage,
   breadcrumbs = [{ label: "Home", href: "/" }],
   primaryAction,
-  whatsAppText = "Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about cab bookings.",
+  whatsAppText = "Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about cab bookings.",
   trustRibbon,
   children,
 }: EditorialHeroProps) {

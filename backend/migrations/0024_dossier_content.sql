@@ -102,7 +102,7 @@ CREATE INDEX IF NOT EXISTS idx_cancellation_policies_type_order ON cancellation_
 -- 7. Company Profile
 CREATE TABLE IF NOT EXISTS company_profile (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  brand_name TEXT NOT NULL DEFAULT 'SK Baghel Tour & Travels',
+  brand_name TEXT NOT NULL DEFAULT 'Agra SK Baghel Tour & Travels',
   office_address TEXT NOT NULL DEFAULT 'Taj Ganj, Agra, Uttar Pradesh 282001',
   primary_phone TEXT NOT NULL DEFAULT '+91 97628 17598',
   whatsapp_number TEXT NOT NULL DEFAULT '+91 97628 17598',
@@ -283,7 +283,7 @@ INSERT INTO company_profile (
   brand_name, office_address, primary_phone, whatsapp_number,
   email, gstin, operating_hours, maps_location, dossier_version, dossier_status
 ) VALUES (
-  'SK Baghel Tour & Travels',
+  'Agra SK Baghel Tour & Travels',
   'Taj Ganj, Agra, Uttar Pradesh 282001',
   '+91 97628 17598',
   '+91 97628 17598',

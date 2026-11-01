@@ -1,6 +1,6 @@
 # Verification and Lighthouse Audit Report
 
-**Project:** Agra SK Baghel Tour and Travels  
+**Project:** Agra SK Baghel Tour & Travels  
 **Repository:** `tarun1sisodia/Agra-Sk-Baghel-Tour-And-Travels`  
 **Branch audited:** `main` at `74abdb1` plus the fixes in this change  
 **Production site:** https://agraskbagheltourandtravels.com/  

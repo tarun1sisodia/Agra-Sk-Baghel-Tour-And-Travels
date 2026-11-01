@@ -51,7 +51,7 @@ const CANONICAL_CATEGORIES: Omit<ServiceCategory, "vehicleTypes" | "tariffSummar
     bookingUrl: "/book?category=outstation",
     secondaryUrl: "/routes",
     secondaryLabel: "Explore Outstation Routes",
-    inquiryText: "Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about Outstation Chauffeur Services.",
+    inquiryText: "Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about Outstation Chauffeur Services.",
   },
   {
     id: "local-sightseeing",
@@ -72,7 +72,7 @@ const CANONICAL_CATEGORIES: Omit<ServiceCategory, "vehicleTypes" | "tariffSummar
     bookingUrl: "/book?category=local",
     secondaryUrl: "/packages",
     secondaryLabel: "View Tour Packages",
-    inquiryText: "Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about Agra Local Sightseeing Cabs.",
+    inquiryText: "Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about Agra Local Sightseeing Cabs.",
   },
   {
     id: "transfers",
@@ -93,7 +93,7 @@ const CANONICAL_CATEGORIES: Omit<ServiceCategory, "vehicleTypes" | "tariffSummar
     bookingUrl: "/book?category=transfer",
     secondaryUrl: "/book",
     secondaryLabel: "Book Fast Transfer",
-    inquiryText: "Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about Airport / Station Transfers.",
+    inquiryText: "Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about Airport / Station Transfers.",
   },
   {
     id: "tour-packages",
@@ -114,7 +114,7 @@ const CANONICAL_CATEGORIES: Omit<ServiceCategory, "vehicleTypes" | "tariffSummar
     bookingUrl: "/book?category=tour",
     secondaryUrl: "/packages",
     secondaryLabel: "Explore Handcrafted Tours",
-    inquiryText: "Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about Handcrafted Tour Packages.",
+    inquiryText: "Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about Handcrafted Tour Packages.",
   },
 ];
 
@@ -130,7 +130,7 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
           setLiveFleet(fleet);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       active = false;
     };
@@ -210,7 +210,7 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
                   Book Cab Online
                 </PrimaryButton>
                 <WhatsAppButton
-                  inquiryText="Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about cab bookings."
+                  inquiryText="Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about cab bookings."
                   label="WhatsApp Desk"
                 />
               </div>
@@ -314,9 +314,8 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
                 {/* Detailed Information: Intentional Reveal on Scroll & Hover/Focus on Desktop; Tap on Mobile */}
                 <div
                   id={`details-${cat.id}`}
-                  className={`relative z-10 p-5 sm:p-6 lg:p-8 flex flex-col justify-end bg-gradient-to-t from-ink-midnight via-ink-midnight/95 to-transparent pt-6 sm:pt-10 transition-all duration-300 ${
-                    isExpanded ? "block" : "hidden sm:block sm:opacity-95 group-hover:opacity-100 group-focus-within:opacity-100"
-                  }`}
+                  className={`relative z-10 p-5 sm:p-6 lg:p-8 flex flex-col justify-end bg-gradient-to-t from-ink-midnight via-ink-midnight/95 to-transparent pt-6 sm:pt-10 transition-all duration-300 ${isExpanded ? "block" : "hidden sm:block sm:opacity-95 group-hover:opacity-100 group-focus-within:opacity-100"
+                    }`}
                 >
                   <div className="max-w-4xl">
                     <p className="font-body-md text-ivory-surface/85 text-sm sm:text-base leading-relaxed mb-4 max-w-3xl">
@@ -397,7 +396,7 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
               The 4 Uncompromising Standards
             </span>
             <h2 className={`${EDITORIAL_TYPOGRAPHY.sectionH2} hero-line mt-1`}>
-              Why Discerning Travelers Choose Agra SK Baghel Tour and Travels
+              Why Discerning Travelers Choose Agra SK Baghel Tour & Travels
             </h2>
             <p className={`${EDITORIAL_TYPOGRAPHY.body} mt-1.5`}>
               Over two decades serving Agra and North India with zero complaints and unmatched reliability.
@@ -464,7 +463,7 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
               Book Cab Online
             </PrimaryButton>
             <WhatsAppButton
-              inquiryText="Hello Agra SK Baghel Tour and Travels Desk, I would like to plan a custom trip."
+              inquiryText="Hello Agra SK Baghel Tour & Travels Desk, I would like to plan a custom trip."
               label="Chat on WhatsApp"
             />
           </div>

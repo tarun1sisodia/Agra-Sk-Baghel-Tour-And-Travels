@@ -46,7 +46,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                 <span className={EDITORIAL_TYPOGRAPHY.heroAccent}>Never an Anonymous Ride.</span>
               </h1>
               <p className={`${EDITORIAL_TYPOGRAPHY.lead} max-w-2xl`}>
-                For over 15 years, headquartered directly beside the Taj East Gate in Taj Ganj, Agra SK Baghel Tour and Travels has provided discerning travelers, families, and diplomats with peerless road journeys across
+                For over 15 years, headquartered directly beside the Taj East Gate in Taj Ganj, Agra SK Baghel Tour & Travels has provided discerning travelers, families, and diplomats with peerless road journeys across
                 Agra, the Golden Triangle, and North India.
               </p>
 
@@ -56,7 +56,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                 </PrimaryButton>
                 <WhatsAppButton
                   size="lg"
-                  inquiryText="Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about your chauffeur services in Agra."
+                  inquiryText="Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about your chauffeur services in Agra."
                   label="WhatsApp Taj Ganj Desk"
                 />
               </div>
@@ -357,7 +357,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
               Why Discerning Voyagers Avoid The App Lottery
             </h2>
             <p className={EDITORIAL_TYPOGRAPHY.body}>
-              Comparing Agra SK Baghel Tour and Travels with generic app-based rides and street touts operating around Agra
+              Comparing Agra SK Baghel Tour & Travels with generic app-based rides and street touts operating around Agra
               tourist stations.
             </p>
           </div>
@@ -371,7 +371,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                   <th className="py-2.5 px-4 font-title-md text-xs font-bold text-terracotta-sandstone bg-sandstone-wash">
                     <span className="flex items-center gap-1">
                       <span className="material-symbols-outlined text-terracotta-sandstone text-icon-16">stars</span>
-                      Agra SK Baghel Tour and Travels
+                      Agra SK Baghel Tour & Travels
                     </span>
                   </th>
                   <th className="py-2.5 px-4 font-title-md text-xs font-bold text-secondary">Anonymous App Cabs</th>
@@ -555,7 +555,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                   <span className="text-label-lg text-secondary font-mono">Golden Triangle 4-Day</span>
                 </div>
                 <p className="font-headline-sm text-xs sm:text-title-lg font-serif italic text-ink-charcoal leading-relaxed">
-                  “I arrange road delegations for visiting architectural academics. The punctuality of Agra SK Baghel Tour and Travels's desk
+                  “I arrange road delegations for visiting architectural academics. The punctuality of Agra SK Baghel Tour & Travels's desk
                   at Taj Ganj is the finest in Uttar Pradesh. Transparent invoicing and genuine warmth.”
                 </p>
               </div>
@@ -620,7 +620,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                 <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight/80 via-transparent to-transparent flex items-end p-space-md">
                   <div className="flex items-center justify-between w-full text-ivory-surface">
                     <div>
-                      <p className="font-title-md text-title-md font-serif">Agra SK Baghel Tour and Travels Taj Ganj Control Center</p>
+                      <p className="font-title-md text-title-md font-serif">Agra SK Baghel Tour & Travels Taj Ganj Control Center</p>
                       <p className="text-body-sm text-sandstone-wash/80">Active 24 Hours • 7 Days A Week</p>
                     </div>
                     <a
@@ -661,7 +661,7 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
               </PrimaryButton>
               <WhatsAppButton
                 size="lg"
-                inquiryText="Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about your chauffeur services in Agra."
+                inquiryText="Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about your chauffeur services in Agra."
                 label="WhatsApp Taj Ganj Desk"
               />
             </div>

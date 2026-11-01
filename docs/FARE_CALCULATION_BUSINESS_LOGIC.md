@@ -1,4 +1,4 @@
-# Fare Calculation Business Logic — SK Baghel Tour & Travels
+# Fare Calculation Business Logic — Agra SK Baghel Tour & Travels
 
 **Document Version:** 1.0.0  
 **Status:** Production-Ready Fare Calculation Specification  
@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary
 
-This document defines the **complete, authoritative business logic** for calculating total fare and all associated charges for customer bookings on the SK Baghel Tour & Travels platform.
+This document defines the **complete, authoritative business logic** for calculating total fare and all associated charges for customer bookings on the Agra SK Baghel Tour & Travels platform.
 
 ### Key Principles
 
@@ -975,7 +975,7 @@ interface FareCalculationAudit {
 | **Document Version** | 1.0.0 |
 | **Status** | Production-Ready |
 | **Last Updated** | 2026-11-01 |
-| **Author** | SK Baghel Tour & Travels Engineering Team |
+| **Author** | Agra SK Baghel Tour & Travels Engineering Team |
 | **Reviewers** | Product, Finance, Operations |
 | **Next Review** | 2027-01-01 |
 

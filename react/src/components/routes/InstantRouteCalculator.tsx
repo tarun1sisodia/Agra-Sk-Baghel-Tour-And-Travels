@@ -223,11 +223,10 @@ export function InstantRouteCalculator({
               key={tier.id}
               type="button"
               onClick={() => setSelectedTier(tier.id)}
-              className={`p-2.5 rounded-lg text-left transition-all border ${
-                selectedTier === tier.id
-                  ? "bg-primary-container text-on-primary-container border-primary font-semibold shadow-xs"
-                  : "bg-surface hover:bg-surface-container text-on-surface border-border-warm"
-              }`}
+              className={`p-2.5 rounded-lg text-left transition-all border ${selectedTier === tier.id
+                ? "bg-primary-container text-on-primary-container border-primary font-semibold shadow-xs"
+                : "bg-surface hover:bg-surface-container text-on-surface border-border-warm"
+                }`}
             >
               <div className="flex items-center gap-1.5 mb-0.5">
                 <span className="material-symbols-outlined text-icon-16 text-terracotta-sandstone">{tier.icon}</span>
@@ -293,7 +292,7 @@ export function InstantRouteCalculator({
             </a>
             <a
               href={`https://wa.me/${contact.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                `Hello Agra SK Baghel Tour and Travels, I would like to book a ${selectedTier.toUpperCase()} for ${matchedEntry.o} to ${matchedEntry.d} (${matchedEntry.km} km).`
+                `Hello Agra SK Baghel Tour & Travels, I would like to book a ${selectedTier.toUpperCase()} for ${matchedEntry.o} to ${matchedEntry.d} (${matchedEntry.km} km).`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -325,7 +324,7 @@ export function InstantRouteCalculator({
           </p>
           <a
             href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-              `Hello Agra SK Baghel Tour and Travels, I am looking for a custom route from ${originInput} to ${destInput}. Please provide availability and fare quotation.`
+              `Hello Agra SK Baghel Tour & Travels, I am looking for a custom route from ${originInput} to ${destInput}. Please provide availability and fare quotation.`
             )}`}
             target="_blank"
             rel="noopener noreferrer"

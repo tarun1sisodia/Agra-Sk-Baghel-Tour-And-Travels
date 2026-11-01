@@ -1,7 +1,7 @@
 ---
 version: v3.0
 name: Vercel Light Mode (21st.dev) + Saffron Gold Brand Accent
-description: Premium bilingual travel identity for SK Baghel Tour & Travels — Agra taxi, Tempo Traveller, and tours. Vercel shadcn/ui light-mode palette (pure #FFFFFF canvas, #FAFAFA alternates, near-black #0A0A0A text, Vercel neutral-500 #737373 muted, 6px radius) with Saffron Gold (#E5A044) as brand CTA and focus-ring accent. Geist/Inter prepended to UI font stack. Dark mode: Solar Dusk (unchanged).
+description: Premium bilingual travel identity for Agra SK Baghel Tour & Travels — Agra taxi, Tempo Traveller, and tours. Vercel shadcn/ui light-mode palette (pure #FFFFFF canvas, #FAFAFA alternates, near-black #0A0A0A text, Vercel neutral-500 #737373 muted, 6px radius) with Saffron Gold (#E5A044) as brand CTA and focus-ring accent. Geist/Inter prepended to UI font stack. Dark mode: Solar Dusk (unchanged).
 colors:
   bg: "#FFFFFF"
   bg-alt: "#FAFAFA"

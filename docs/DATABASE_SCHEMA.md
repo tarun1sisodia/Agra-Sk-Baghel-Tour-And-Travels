@@ -1,4 +1,4 @@
-# Database Schema & Migration Guide — SK Baghel Tour & Travels
+# Database Schema & Migration Guide — Agra SK Baghel Tour & Travels
 
 **Document Version:** 2.0.0 (Production Clean-Room Standard)
 **Status:** Production-Ready PostgreSQL Schema  
@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary
 
-This document describes the **correct, production-grade database architecture** for the SK Baghel Tour & Travels platform. It synthesizes lessons from 51 database migrations, identifying both what worked and what failed, and presents a clean, maintainable, and scalable schema.
+This document describes the **correct, production-grade database architecture** for the Agra SK Baghel Tour & Travels platform. It synthesizes lessons from 51 database migrations, identifying both what worked and what failed, and presents a clean, maintainable, and scalable schema.
 
 ### Key Principles
 
@@ -997,4 +997,4 @@ This database schema represents the **correct, production-grade approach** for b
 
 **Document Version:** 1.0.0  
 **Last Updated:** 2026-10-31  
-**Author:** SK Baghel Tour & Travels Engineering Team
+**Author:** Agra SK Baghel Tour & Travels Engineering Team

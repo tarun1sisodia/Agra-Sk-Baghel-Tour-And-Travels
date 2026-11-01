@@ -138,7 +138,7 @@ export function ContactCard() {
             href={`https://wa.me/${contact.whatsapp}`}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Chat with Agra SK Baghel Tour and Travels on WhatsApp"
+            aria-label="Chat with Agra SK Baghel Tour & Travels on WhatsApp"
           >
             <WhatsAppIcon className="w-4 h-4 shrink-0 text-white" />
             <span className="text-white" style={{ color: "#ffffff" }}>WhatsApp Desk ↗</span>
@@ -250,7 +250,7 @@ export function ContactCard() {
                   href={`https://wa.me/${contact.whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Message Agra SK Baghel Tour and Travels on WhatsApp"
+                  aria-label="Message Agra SK Baghel Tour & Travels on WhatsApp"
                   role="listitem"
                 >
                   <div className="contact-tile-icon" aria-hidden="true">
@@ -409,17 +409,15 @@ export function ContactCard() {
                   aria-label="Travel Inquiry Form"
                 >
                   <div
-                    className={`contact-form-group ${
-                      errors.name ? "has-error" : ""
-                    }`}
+                    className={`contact-form-group ${errors.name ? "has-error" : ""
+                      }`}
                   >
                     <label className="contact-form-label" htmlFor="contact-name">
                       Your Name <span aria-hidden="true">*</span>
                     </label>
                     <input
-                      className={`contact-form-input ${
-                        errors.name ? "input-error" : ""
-                      }`}
+                      className={`contact-form-input ${errors.name ? "input-error" : ""
+                        }`}
                       id="contact-name"
                       name="name"
                       type="text"
@@ -441,9 +439,8 @@ export function ContactCard() {
                   </div>
 
                   <div
-                    className={`contact-form-group ${
-                      errors.phone ? "has-error" : ""
-                    }`}
+                    className={`contact-form-group ${errors.phone ? "has-error" : ""
+                      }`}
                   >
                     <label
                       className="contact-form-label"
@@ -452,9 +449,8 @@ export function ContactCard() {
                       Phone Number <span aria-hidden="true">*</span>
                     </label>
                     <input
-                      className={`contact-form-input ${
-                        errors.phone ? "input-error" : ""
-                      }`}
+                      className={`contact-form-input ${errors.phone ? "input-error" : ""
+                        }`}
                       id="contact-phone"
                       name="phone"
                       type="tel"
@@ -477,9 +473,8 @@ export function ContactCard() {
                   </div>
 
                   <div
-                    className={`contact-form-group ${
-                      errors.message ? "has-error" : ""
-                    }`}
+                    className={`contact-form-group ${errors.message ? "has-error" : ""
+                      }`}
                   >
                     <label
                       className="contact-form-label"
@@ -488,9 +483,8 @@ export function ContactCard() {
                       Trip Details or Message <span aria-hidden="true">*</span>
                     </label>
                     <textarea
-                      className={`contact-form-textarea ${
-                        errors.message ? "input-error" : ""
-                      }`}
+                      className={`contact-form-textarea ${errors.message ? "input-error" : ""
+                        }`}
                       id="contact-message"
                       name="message"
                       rows={3}

@@ -1,4 +1,4 @@
-# Master Backend Operating Rules & Architectural Standard — SK Baghel Tour & Travels
+# Master Backend Operating Rules & Architectural Standard — Agra SK Baghel Tour & Travels
 
 **Document Version:** 3.0.0 (Production Clean-Room Standard)
 **Authority:** Single Source of Truth for all Backend Engineering, API Contracts, Database Models, Payment Flows, Performance Standards, and Integrations.
@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary & Purpose
 
-This document is the **single authoritative operational rule** for the SK Baghel Tour & Travels backend. It contains all core directives, architectural boundaries, API contracts, database schemas, security guardrails, and integration protocols.
+This document is the **single authoritative operational rule** for the Agra SK Baghel Tour & Travels backend. It contains all core directives, architectural boundaries, API contracts, database schemas, security guardrails, and integration protocols.
 
 ### Core Philosophy
 
@@ -521,6 +521,102 @@ This section defines non-negotiable performance guardrails for all backend servi
 
 ---
 
+## 11. Resilient UX: The 10 Mandatory States
+
+**Authority:** [`contracts/ux-states.ts`](../contracts/ux-states.ts) — Canonical contract | [`docs/RESILIENT_UX_10_STATES_SPEC.md`](./RESILIENT_UX_10_STATES_SPEC.md) — Full specification
+
+Every Agra SK Baghel Tour & Travels backend **MUST** support the 10 resilient UX states through API contracts and error handling.
+
+### 11.1 Error Response Format
+
+All API errors **MUST** return the `ActionableErrorEnvelope` structure:
+
+```json
+{
+  "code": "PAYMENT_DECLINED",
+  "title": "Payment Declined by Bank",
+  "fault_owner": "bank_gateway",
+  "explanation": "Your bank or UPI app declined the transaction. No money was deducted.",
+  "how_to_fix": "Try another UPI ID, use a different card, or retry below.",
+  "primary_action": "try_alternate_payment",
+  "primary_action_label": "Try Another Payment Method",
+  "field_fixes": [],
+  "request_id": "req_12345"
+}
+```
+
+### 11.2 Error Fault Classification
+
+| Fault Owner | HTTP Status | Description | Recovery Action |
+|-------------|-------------|-------------|-----------------|
+| `user_input` | 400 | Validation / missing field | `fix_inline_fields` |
+| `bank_gateway` | 402 | Bank declined / UPI timeout | `try_alternate_payment` |
+| `network` | 503 | Service unavailable | `reload_page` |
+| `auth_session` | 401 | Expired JWT / guest token | `reauthenticate_keep_draft` |
+| `server` | 500 | Internal API / DB issue | `contact_whatsapp_desk` |
+
+### 11.3 Recovery Action Labels
+
+| Action | Label |
+|--------|-------|
+| `retry_payment_method` | "Retry Payment" |
+| `try_alternate_payment` | "Try Another Payment Method" |
+| `refresh_live_fare` | "Refresh Live Fare" |
+| `reauthenticate_keep_draft` | "Sign In to Keep Draft" |
+| `fix_inline_fields` | "Fix Field Errors" |
+| `switch_to_lite_mode` | "Switch to Lite Mode" |
+| `contact_whatsapp_desk` | "Contact WhatsApp Desk" |
+| `reload_page` | "Reload Page" |
+
+### 11.4 Field Fix Support
+
+For validation errors, include `field_fixes` in the response:
+
+```json
+{
+  "code": "VALIDATION_ERROR",
+  "title": "Please Fix Field Errors",
+  "fault_owner": "user_input",
+  "explanation": "Some fields need correction before we can proceed.",
+  "how_to_fix": "Please correct the fields marked below.",
+  "primary_action": "fix_inline_fields",
+  "primary_action_label": "Fix Field Errors",
+  "field_fixes": [
+    {
+      "field": "email",
+      "issue": "Invalid email format",
+      "specific_fix": "Enter a valid email with a domain (e.g., user@gmail.com)"
+    },
+    {
+      "field": "phone",
+      "issue": "Invalid phone number",
+      "specific_fix": "Enter a 10-digit Indian phone number (e.g., 9876543210)"
+    }
+  ]
+}
+```
+
+### 11.5 Request ID
+
+Every error response **MUST** include a `request_id` for debugging:
+
+```typescript
+import { randomUUID } from "node:crypto";
+
+const requestId = randomUUID();
+// Include in error response and logs
+```
+
+### 11.6 Implementation Requirements
+
+- **Contract:** Import from `contracts/ux-states.ts` (never duplicate)
+- **Error Handling:** Use `classifyErrorFault()` and `resolveRecoveryAction()`
+- **Field Fixes:** Include `field_fixes` for validation errors
+- **Logging:** Log `request_id` for traceability
+- **Testing:** Backend tests for each error scenario
+
+---
+
 ## References
 
 - [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — Hosting, build commands, env vars
@@ -529,3 +625,5 @@ This section defines non-negotiable performance guardrails for all backend servi
 - [`docs/backend/API.md`](docs/backend/API.md) — API contract reference
 - [`docs/backend/ROUTE_AND_API_INVENTORY.md`](docs/backend/ROUTE_AND_API_INVENTORY.md) — Full route inventory
 - [`FRONTEND_RULES.md`](FRONTEND_RULES.md) — Frontend architectural standard
+- [`contracts/ux-states.ts`](../contracts/ux-states.ts) — Resilient UX contract
+- [`docs/RESILIENT_UX_10_STATES_SPEC.md`](./RESILIENT_UX_10_STATES_SPEC.md) — Full 10-state specification

@@ -291,7 +291,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
               onClick={() => { setAccountPromptDismissed(true); try { window.localStorage.setItem("arenaai:account-prompt-dismissed", "1"); } catch { } }}
               className="text-on-surface-variant hover:text-ink-midnight min-w-[48px] min-h-[48px] p-3 flex items-center justify-center rounded-lg shrink-0 cursor-pointer"
             >
-              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
           <div className="flex flex-wrap items-center gap-3 mt-3">
@@ -452,7 +452,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-space-lg max-w-5xl mx-auto text-on-surface-variant font-body-md text-body-md leading-relaxed">
               <div className="p-space-xl rounded-3xl glass-card-frosted shadow-md flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                 <p>
-                  Welcome to <strong className="text-on-surface font-semibold">Agra SK Baghel Tour and Travels</strong>, your premier companion for local sightseeing and outstation cab booking in Agra. Whether you need a hassle-free drop from <strong className="text-on-surface font-semibold">Agra Cantt railway station taxi service</strong>, an early morning <strong className="text-on-surface font-semibold">taj mahal sunrise tour package by car</strong>, or a comfortable family outstation trip, our well-maintained fleet and expert local chauffeurs ensure a smooth ride. We specialize in custom travel itineraries originating from Agra to anywhere across India, delivering unmatched safety, pocket-friendly transparent billing, and 24/7 client support.
+                  Welcome to <strong className="text-on-surface font-semibold">Agra SK Baghel Tour & Travels</strong>, your premier companion for local sightseeing and outstation cab booking in Agra. Whether you need a hassle-free drop from <strong className="text-on-surface font-semibold">Agra Cantt railway station taxi service</strong>, an early morning <strong className="text-on-surface font-semibold">taj mahal sunrise tour package by car</strong>, or a comfortable family outstation trip, our well-maintained fleet and expert local chauffeurs ensure a smooth ride. We specialize in custom travel itineraries originating from Agra to anywhere across India, delivering unmatched safety, pocket-friendly transparent billing, and 24/7 client support.
                 </p>
                 <div className="mt-4 pt-4 border-t border-border-warm/40 flex items-center justify-between text-primary font-semibold">
                   <a href="/en/packages/" className="inline-flex items-center gap-1 hover:underline">
@@ -491,8 +491,8 @@ export function HomePage({ language = "en" }: HomePageProps) {
                 type="button"
                 onClick={() => setPopularTripMode("oneway")}
                 className={`px-4 py-1.5 rounded-full font-label-caps text-xs uppercase tracking-wider font-bold transition-all ${popularTripMode === "oneway"
-                    ? "bg-primary text-white shadow-xs"
-                    : "text-on-surface hover:text-primary"
+                  ? "bg-primary text-white shadow-xs"
+                  : "text-on-surface hover:text-primary"
                   }`}
               >
                 One-Way Drop
@@ -501,8 +501,8 @@ export function HomePage({ language = "en" }: HomePageProps) {
                 type="button"
                 onClick={() => setPopularTripMode("round")}
                 className={`px-4 py-1.5 rounded-full font-label-caps text-xs uppercase tracking-wider font-bold transition-all ${popularTripMode === "round"
-                    ? "bg-primary text-white shadow-xs"
-                    : "text-on-surface hover:text-primary"
+                  ? "bg-primary text-white shadow-xs"
+                  : "text-on-surface hover:text-primary"
                   }`}
               >
                 Round-Trip Tour (300 km/day)
@@ -755,7 +755,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                           aria-label={`View Tour: ${pkg.name}`}
                         >
                           <span>View Tour</span>
-                          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                         </a>
                       </div>
                     </div>
@@ -1011,7 +1011,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                       </p>
                       <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
                         <a
-                          href={`https://wa.me/919762817598?text=${encodeURIComponent(`Hello Agra SK Baghel Tour and Travels, following up on my booking inquiry for ${origin} to ${destination} on ${inquiryDate}.`)}`}
+                          href={`https://wa.me/919762817598?text=${encodeURIComponent(`Hello Agra SK Baghel Tour & Travels, following up on my booking inquiry for ${origin} to ${destination} on ${inquiryDate}.`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{ color: "#ffffff" }}

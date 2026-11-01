@@ -1,4 +1,4 @@
-# Agent Runbook — SK Baghel Tour & Travels
+# Agent Runbook — Agra SK Baghel Tour & Travels
 
 ## 1. Session Start Checklist
 
@@ -181,4 +181,4 @@ For questions or issues:
 
 **Document Version:** 1.0.0  
 **Last Updated:** 2026-10-31  
-**Author:** SK Baghel Tour & Travels Engineering Team
+**Author:** Agra SK Baghel Tour & Travels Engineering Team

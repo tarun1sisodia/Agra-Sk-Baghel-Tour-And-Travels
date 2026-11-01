@@ -34,7 +34,7 @@ export function ReviewPage() {
   const token = tokenFromPath();
   const draftPreview = draftPreviewFromUrl();
   const isPreview = token === "preview" || (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("preview") === "true");
-  
+
   const [link, setLink] = useState<ReviewLinkResponse | null>(null);
   const [rating, setRating] = useState(5);
   const [displayName, setDisplayName] = useState(draftPreview.customerName || (isPreview ? "Valued Guest" : ""));

@@ -200,11 +200,10 @@ export function PoliciesPage({ user }: { user: AdminUser }) {
         <button
           type="button"
           onClick={() => setActiveTab("cancellation")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === "cancellation"
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${activeTab === "cancellation"
               ? "bg-gold text-surface-dark font-semibold shadow-sm"
               : "text-slate-400 hover:text-white hover:bg-surface-elevated"
-          }`}
+            }`}
         >
           <ShieldAlert className="h-4 w-4" />
           Cancellation Slabs ({cancellationPolicies.length})
@@ -212,11 +211,10 @@ export function PoliciesPage({ user }: { user: AdminUser }) {
         <button
           type="button"
           onClick={() => setActiveTab("pet")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === "pet"
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${activeTab === "pet"
               ? "bg-gold text-surface-dark font-semibold shadow-sm"
               : "text-slate-400 hover:text-white hover:bg-surface-elevated"
-          }`}
+            }`}
         >
           <Dog className="h-4 w-4" />
           Pet Taxi Policy
@@ -224,11 +222,10 @@ export function PoliciesPage({ user }: { user: AdminUser }) {
         <button
           type="button"
           onClick={() => setActiveTab("company")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === "company"
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${activeTab === "company"
               ? "bg-gold text-surface-dark font-semibold shadow-sm"
               : "text-slate-400 hover:text-white hover:bg-surface-elevated"
-          }`}
+            }`}
         >
           <Building className="h-4 w-4" />
           Company NAP Profile
@@ -236,11 +233,10 @@ export function PoliciesPage({ user }: { user: AdminUser }) {
         <button
           type="button"
           onClick={() => setActiveTab("monuments")}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-            activeTab === "monuments"
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${activeTab === "monuments"
               ? "bg-gold text-surface-dark font-semibold shadow-sm"
               : "text-slate-400 hover:text-white hover:bg-surface-elevated"
-          }`}
+            }`}
         >
           <Landmark className="h-4 w-4" />
           Monuments Knowledge Base ({monuments.length})
@@ -377,7 +373,7 @@ export function PoliciesPage({ user }: { user: AdminUser }) {
                     )}
                   </div>
                   <p className="text-xs text-slate-400">
-                    Official rules and guidelines for passengers traveling with pets in SK Baghel cabs.
+                    Official rules and guidelines for passengers traveling with pets in Agra SK Baghel cabs.
                   </p>
                 </div>
                 {canEdit && (
@@ -654,10 +650,10 @@ export function PoliciesPage({ user }: { user: AdminUser }) {
                     setEditingCancellation((p) =>
                       p
                         ? {
-                            ...p,
-                            feeRetainedPercent: Number(e.target.value),
-                            refundPercent: 100 - Number(e.target.value),
-                          }
+                          ...p,
+                          feeRetainedPercent: Number(e.target.value),
+                          refundPercent: 100 - Number(e.target.value),
+                        }
                         : null
                     )
                   }
@@ -675,10 +671,10 @@ export function PoliciesPage({ user }: { user: AdminUser }) {
                     setEditingCancellation((p) =>
                       p
                         ? {
-                            ...p,
-                            refundPercent: Number(e.target.value),
-                            feeRetainedPercent: 100 - Number(e.target.value),
-                          }
+                          ...p,
+                          refundPercent: Number(e.target.value),
+                          feeRetainedPercent: 100 - Number(e.target.value),
+                        }
                         : null
                     )
                   }

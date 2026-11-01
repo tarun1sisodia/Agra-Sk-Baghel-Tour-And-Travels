@@ -402,7 +402,6 @@ export const PublishEventItem = z.object({
   error_message: z.string().nullable().optional(),
 });
 export type PublishEventItem = z.infer<typeof PublishEventItem>;
-
 export const AdminAuditLogItem = z.object({
   id: Uuid,
   actor_id: z.string().nullable(),
@@ -415,4 +414,31 @@ export const AdminAuditLogItem = z.object({
   created_at: z.string(),
 });
 export type AdminAuditLogItem = z.infer<typeof AdminAuditLogItem>;
+
+// --- SEO Engine Contracts (Admin SEO Control Center) ---
+export const SeoMetadataItem = z.object({
+  id: Uuid,
+  url_path: z.string().min(1),
+  title: z.string().min(10).max(70),
+  description: z.string().min(50).max(170),
+  canonical_url: z.string().url(),
+  og_title: z.string().max(100).nullable().optional(),
+  og_description: z.string().max(200).nullable().optional(),
+  og_image_url: z.string().url().nullable().optional(),
+  noindex: z.boolean().default(false),
+  schema_json_ld: z.record(z.string(), z.unknown()).nullable().optional(),
+  updated_at: z.string(),
+});
+export type SeoMetadataItem = z.infer<typeof SeoMetadataItem>;
+
+export const SeoRedirectItem = z.object({
+  id: Uuid,
+  from_path: z.string().min(1),
+  to_path: z.string().min(1),
+  status_code: z.union([z.literal(301), z.literal(302)]).default(301),
+  is_active: z.boolean().default(true),
+  created_at: z.string(),
+});
+export type SeoRedirectItem = z.infer<typeof SeoRedirectItem>;
+
 

@@ -1,8 +1,8 @@
-# Deployment and CI/CD Guide — SK Baghel Tour & Travels
+# Deployment and CI/CD Guide — Agra SK Baghel Tour & Travels
 
 ## 1. Executive Summary
 
-This document describes the deployment architecture and CI/CD pipeline for the SK Baghel Tour & Travels monorepo. It covers the three independently deployable applications (customer site, admin panel, backend API), their hosting platforms, build processes, and automated verification gates.
+This document describes the deployment architecture and CI/CD pipeline for the Agra SK Baghel Tour & Travels monorepo. It covers the three independently deployable applications (customer site, admin panel, backend API), their hosting platforms, build processes, and automated verification gates.
 
 ### Architecture Overview
 

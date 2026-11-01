@@ -1,8 +1,8 @@
-# SK BAGHEL TOUR & TRAVELS — AGRA
+# Agra SK Baghel TOUR & TRAVELS — AGRA
 ## Commercial Fares, Tour Packages & Operating Rules Confirmation Dossier
 
 > **Document Type:** Client Commercial & Operating Policy Sign-Off  
-> **Prepared For:** Management / Owner, SK Baghel Tour & Travels, Agra  
+> **Prepared For:** Management / Owner, Agra SK Baghel Tour & Travels, Agra  
 > **Prepared By:** Engineering & Product Team  
 > **Date:** September 10, 2026  
 > **Version:** 1.0 (Master Pre-Launch Release)  
@@ -224,7 +224,7 @@ Please verify the official business credentials displayed on invoices and online
 
 | Detail | Current Setting in Codebase | Confirmed (Yes / Change Requested) |
 |---|---|:---:|
-| **Brand Name** | SK Baghel Tour & Travels | [ ] |
+| **Brand Name** | Agra SK Baghel Tour & Travels | [ ] |
 | **Office Address** | Near Taj East Gate Road, Taj Ganj, Agra, UP 282001 | [ ] |
 | **Primary Phone** | +91 98765 43210 *(Placeholder - replace with actual)* | [ ] |
 | **WhatsApp Number** | +91 98765 43210 *(Placeholder - replace with actual)* | [ ] |

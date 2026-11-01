@@ -51,7 +51,7 @@ INSERT INTO public.company_profile (
   operating_hours, maps_location, dossier_version, dossier_status
 )
 SELECT
-  'SK Baghel Tour & Travels',
+  'Agra SK Baghel Tour & Travels',
   'Taj Ganj, Agra, Uttar Pradesh 282001',
   '+91 97628 17598',
   '+91 97628 17598',

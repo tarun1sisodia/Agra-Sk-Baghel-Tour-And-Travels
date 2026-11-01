@@ -14,9 +14,9 @@ const copy = {
     packages: ["Curated journeys", "See more, without rushing.", "Private, chauffeur-driven itineraries built around Agra's landmarks and nearby cities."],
     services: ["Travel services", "One local team for the whole journey.", "From a Taj Mahal morning to a multi-city transfer, we keep the details simple."],
     contact: ["Contact", "Tell us where you want to go.", "Call or message the local desk and we will help you choose the right car and timing."],
-    about: ["About Agra SK Baghel Tour and Travels", "Local knowledge, dependable travel.", "We are an Agra-based travel desk for airport transfers, sightseeing, outstation taxis, and private tours."],
+    about: ["About Agra SK Baghel Tour & Travels", "Local knowledge, dependable travel.", "We are an Agra-based travel desk for airport transfers, sightseeing, outstation taxis, and private tours."],
     faq: ["Frequently asked questions", "Straight answers before you book.", "Here are the details travellers usually want to know."],
-    fallback: ["Agra SK Baghel Tour and Travels", "Plan your next journey from Agra.", "Explore our services, routes, vehicles, and private tour packages."]
+    fallback: ["Agra SK Baghel Tour & Travels", "Plan your next journey from Agra.", "Explore our services, routes, vehicles, and private tour packages."]
   },
   hi: {
     fleet: ["Our fleet", "Comfortable cars for every kind of journey.", "Choose a vehicle by group size, luggage, and the kind of road ahead."],
@@ -24,9 +24,9 @@ const copy = {
     packages: ["Curated journeys", "See more, without rushing.", "Private, chauffeur-driven itineraries built around Agra's landmarks and nearby cities."],
     services: ["Travel services", "One local team for the whole journey.", "From a Taj Mahal morning to a multi-city transfer, we keep the details simple."],
     contact: ["Contact", "Tell us where you want to go.", "Call or message the local desk and we will help you choose the right car and timing."],
-    about: ["About Agra SK Baghel Tour and Travels", "Local knowledge, dependable travel.", "We are an Agra-based travel desk for airport transfers, sightseeing, outstation taxis, and private tours."],
+    about: ["About Agra SK Baghel Tour & Travels", "Local knowledge, dependable travel.", "We are an Agra-based travel desk for airport transfers, sightseeing, outstation taxis, and private tours."],
     faq: ["Frequently asked questions", "Straight answers before you book.", "Here are the details travellers usually want to know."],
-    fallback: ["Agra SK Baghel Tour and Travels", "Plan your next journey from Agra.", "Explore our services, routes, vehicles, and private tour packages."]
+    fallback: ["Agra SK Baghel Tour & Travels", "Plan your next journey from Agra.", "Explore our services, routes, vehicles, and private tour packages."]
   }
 } as const;
 
@@ -101,7 +101,7 @@ function DetailPage({ detail, language }: { detail: Vehicle | Package | Route; l
   return (
     <main id="main-content" className="marketing-page">
       <section className="marketing-hero detail-hero">
-        <p className="eyebrow">Agra SK Baghel Tour and Travels</p>
+        <p className="eyebrow">Agra SK Baghel Tour & Travels</p>
         <h1>{title}</h1>
         <p className="hero-copy">{description}</p>
         <div className="hero-actions">

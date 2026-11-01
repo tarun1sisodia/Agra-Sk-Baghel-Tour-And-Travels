@@ -873,7 +873,7 @@ describe("Section 12.12: Booking and payment (BK-01 to PM-10)", () => {
     expect(body.to).toEqual(["aarav@example.com"]);
     expect(body.subject).toContain(`Confirmed: Your Chauffeur Booking Voucher [${booking.ticket_id}]`);
     expect(body.html).toContain(booking.ticket_id);
-    expect(body.html).toContain("SK BAGHEL TOUR &amp; TRAVELS");
+    expect(body.html).toContain("Agra SK Baghel TOUR &amp; TRAVELS");
     expect(body.html).toContain("Aarav Sharma");
     expect(body.html).toContain("pay_test_captured_123");
     expect(body.text).toContain(booking.ticket_id);

@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "SK Baghel Tour & Travels production API — fares, bookings, payments, dispatch, catalog.",
+  "description": "Agra SK Baghel Tour & Travels production API — fares, bookings, payments, dispatch, catalog.",
   "engines": {
     "node": ">=22"
   },
@@ -29,31 +29,31 @@
     "sync-contracts": "tsx ../contracts/scripts/sync-contracts.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1141.0",
-    "@fastify/cors": "^11.1.0",
-    "@fastify/helmet": "^13.0.2",
-    "@fastify/rate-limit": "^10.3.0",
-    "@pdfme/common": "^6.2.6",
-    "@pdfme/generator": "^6.2.6",
-    "@pdfme/schemas": "^6.2.6",
-    "@supabase/supabase-js": "^2.57.4",
-    "fastify": "^5.6.0",
-    "jose": "^6.1.0",
-    "mongodb": "^7.6.0",
-    "pg": "^8.16.3",
-    "pino": "^9.9.5",
-    "pino-pretty": "^13.1.1",
+    "@aws-sdk/client-s3": "^3.1161.0",
+    "@fastify/cors": "^11.3.1",
+    "@fastify/helmet": "^13.2.0",
+    "@fastify/rate-limit": "^11.2.1",
+    "@pdfme/common": "^6.2.8",
+    "@pdfme/generator": "^6.2.8",
+    "@pdfme/schemas": "^6.2.8",
+    "@supabase/supabase-js": "^2.118.0",
+    "fastify": "^5.12.7",
+    "jose": "^6.2.14",
+    "mongodb": "^7.8.0",
+    "pg": "^8.23.1",
+    "pino": "^10.4.0",
+    "pino-pretty": "^13.2.0",
     "razorpay": "^2.9.8",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@eslint/js": "^9.35.0",
-    "@types/node": "^22.18.1",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.6",
     "@types/pg": "^8.15.5",
-    "eslint": "^9.35.0",
-    "tsx": "^4.20.5",
-    "typescript": "^5.9.2",
-    "typescript-eslint": "^8.43.0",
-    "vitest": "^3.2.4"
+    "eslint": "^10.14.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.0.5"
   }
 }

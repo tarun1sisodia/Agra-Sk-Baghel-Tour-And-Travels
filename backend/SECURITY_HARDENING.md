@@ -1,4 +1,4 @@
-# Security Hardening & Edge Cases — SK Baghel Backend
+# Security Hardening & Edge Cases — Agra SK Baghel Backend
 
 This document describes the security hardening and edge-case handling implemented in response to audit findings that the backend was not following edge cases discussed on Medium, Reddit, and other forums, and was not securely written.
 

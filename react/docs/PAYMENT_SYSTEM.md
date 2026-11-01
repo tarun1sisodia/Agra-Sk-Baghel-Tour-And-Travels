@@ -1,4 +1,4 @@
-# Payment system — SK Baghel Tour & Travels
+# Payment system — Agra SK Baghel Tour & Travels
 
 **Status:** Specification only. Live Razorpay is **out of scope** until this document is followed end-to-end.  
 **Canonical product:** Agra SK Baghel Tour & Travels (`book.html` 5-step flow: Route → Vehicle → Details → Advance → Ticket).  
@@ -218,7 +218,7 @@ const rzp = new Razorpay({
   amount: order.amount,
   currency: order.currency,
   order_id: order.order_id,
-  name: "SK Baghel Tour & Travels",
+  name: "Agra SK Baghel Tour & Travels",
   description: "Advance for " + order.booking_id,
   prefill: { name, contact: phone },
   theme: { color: "#0B1F3A" },

@@ -177,11 +177,11 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
         prev.map((r) =>
           r.id === id
             ? {
-                ...r,
-                status: result.status,
-                showOnHomepage: result.showOnHomepage,
-                rejectionReason: action === "reject" ? reason || "Rejected during moderation." : r.rejectionReason,
-              }
+              ...r,
+              status: result.status,
+              showOnHomepage: result.showOnHomepage,
+              rejectionReason: action === "reject" ? reason || "Rejected during moderation." : r.rejectionReason,
+            }
             : r
         )
       );
@@ -196,8 +196,8 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
           action === "approve"
             ? "Review approved successfully."
             : action === "reject"
-            ? "Review rejected."
-            : "Review removed from homepage."
+              ? "Review rejected."
+              : "Review removed from homepage."
         );
       }
       setRejectingId(null);
@@ -245,9 +245,8 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
                   setFilter(t.value);
                   setRejectingId(null);
                 }}
-                className={`rounded-sm px-3 py-1.5 text-[13px] font-medium transition-colors ${
-                  filter === t.value ? "bg-surface text-ink shadow-card" : "text-ink-soft hover:text-ink"
-                }`}
+                className={`rounded-sm px-3 py-1.5 text-[13px] font-medium transition-colors ${filter === t.value ? "bg-surface text-ink shadow-card" : "text-ink-soft hover:text-ink"
+                  }`}
               >
                 {t.label} <span className="font-mono text-[11px] text-ink-faint">{t.count}</span>
               </button>
@@ -257,11 +256,10 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
       />
 
       <div
-        className={`mb-4 rounded-md border px-4 py-3 text-[13px] ${
-          publishedCount >= MIN_HOMEPAGE_MARQUEE_REVIEWS
-            ? "border-teal/20 bg-teal-soft text-teal"
-            : "border-gold/20 bg-gold-soft text-ink-soft"
-        }`}
+        className={`mb-4 rounded-md border px-4 py-3 text-[13px] ${publishedCount >= MIN_HOMEPAGE_MARQUEE_REVIEWS
+          ? "border-teal/20 bg-teal-soft text-teal"
+          : "border-gold/20 bg-gold-soft text-ink-soft"
+          }`}
         role="status"
       >
         <strong>Homepage review rotation: {publishedCount}/{MIN_HOMEPAGE_MARQUEE_REVIEWS} published reviews.</strong>{" "}
@@ -590,7 +588,7 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
                   </div>
                 )}
 
-                                {!review.consentPublic && (
+                {!review.consentPublic && (
                   <p className="mt-2 rounded-sm bg-error-soft px-3 py-2 text-[12px] leading-snug text-error">
                     ⚠ Customer did not consent to public use. Cannot be placed on website.
                   </p>
@@ -666,13 +664,13 @@ export function ReviewsPage({ user }: { user: AdminUser }) {
                           variant="gold"
                           size="sm"
                           disabled={!canPublish || !review.consentPublic || busyId === review.id}
-                           title={
-                             !canPublish
-                               ? "Publish requires super_admin role"
-                               : !review.consentPublic
-                               ? "Cannot publish: customer did not grant consent for public display"
-                               : "Publish review to customer homepage"
-                           }
+                          title={
+                            !canPublish
+                              ? "Publish requires super_admin role"
+                              : !review.consentPublic
+                                ? "Cannot publish: customer did not grant consent for public display"
+                                : "Publish review to customer homepage"
+                          }
                           onClick={() => act(review.id, "publish")}
                         >
                           <Globe className="h-3.5 w-3.5" /> Publish to Homepage

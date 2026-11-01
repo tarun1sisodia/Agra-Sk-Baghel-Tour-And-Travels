@@ -42,33 +42,33 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
   // Route stopovers based on destination
   const stopovers = isLocal
     ? [
-        { icon: "mosque", title: "Taj Mahal (East Gate)", desc: "Marvel at pristine white marble in the soft golden light of sunrise." },
-        { icon: "castle", title: "Agra Fort & Diwan-i-Khas", desc: "Explore the red sandstone imperial citadel of the Mughal Emperors." },
-        { icon: "park", title: "Mehtab Bagh Sunset", desc: "Witness the silhouette of the Taj Mahal across the sacred Yamuna river." },
-      ]
+      { icon: "mosque", title: "Taj Mahal (East Gate)", desc: "Marvel at pristine white marble in the soft golden light of sunrise." },
+      { icon: "castle", title: "Agra Fort & Diwan-i-Khas", desc: "Explore the red sandstone imperial citadel of the Mughal Emperors." },
+      { icon: "park", title: "Mehtab Bagh Sunset", desc: "Witness the silhouette of the Taj Mahal across the sacred Yamuna river." },
+    ]
     : route.id.includes("jaipur")
-    ? [
+      ? [
         { icon: "fort", title: "Fatehpur Sikri UNESCO Citadel", desc: "Optional 90-minute stop at Emperor Akbar's ghost capital and Buland Darwaza." },
         { icon: "flutter_dash", title: "Bharatpur Bird Sanctuary", desc: "A paradise for migratory birds and nature lovers midway along NH-21." },
         { icon: "stairs", title: "Abhaneri Stepwell (Chand Baori)", desc: "One of the world's deepest and most visually stunning geometric stepwells." },
       ]
-    : route.id.includes("mathura")
-    ? [
-        { icon: "temple_hindu", title: "Krishna Janmabhoomi Mathura", desc: "Sacred birth temple of Lord Krishna located on the historic NH-19 corridor." },
-        { icon: "temple_buddhist", title: "Prem Mandir Vrindavan", desc: "Stunning Italian white marble temple renowned for its evening light show." },
-        { icon: "water", title: "Yamuna Vishram Ghat", desc: "Peaceful boat rides and evening devotional aarti on the banks of Yamuna." },
-      ]
-    : route.id.includes("gwalior")
-    ? [
-        { icon: "phishing", title: "Chambal River Safari", desc: "Protected sanctuary famous for gharials, dolphins, and rare aquatic wildlife." },
-        { icon: "castle", title: "Gwalior Fort & Man Mandir", desc: "Hilltop fortress described by Mughal Emperor Babur as the 'pearl of fortresses'." },
-        { icon: "history_edu", title: "Jai Vilas Palace", desc: "19th-century royal palace housing the world's largest crystal chandeliers." },
-      ]
-    : [
-        { icon: "ev_station", title: "Expressway Rest Plaza", desc: "Modern expressway comfort stop with clean restrooms, branded food, and coffee." },
-        { icon: "temple_hindu", title: "Vrindavan Expressway Cut", desc: "Optional detour to Banke Bihari and ISKCON temples before entering Agra." },
-        { icon: "storefront", title: "Sikandra - Akbar's Tomb", desc: "Magnificent red sandstone mausoleum nestled in quiet deer park grounds." },
-      ];
+      : route.id.includes("mathura")
+        ? [
+          { icon: "temple_hindu", title: "Krishna Janmabhoomi Mathura", desc: "Sacred birth temple of Lord Krishna located on the historic NH-19 corridor." },
+          { icon: "temple_buddhist", title: "Prem Mandir Vrindavan", desc: "Stunning Italian white marble temple renowned for its evening light show." },
+          { icon: "water", title: "Yamuna Vishram Ghat", desc: "Peaceful boat rides and evening devotional aarti on the banks of Yamuna." },
+        ]
+        : route.id.includes("gwalior")
+          ? [
+            { icon: "phishing", title: "Chambal River Safari", desc: "Protected sanctuary famous for gharials, dolphins, and rare aquatic wildlife." },
+            { icon: "castle", title: "Gwalior Fort & Man Mandir", desc: "Hilltop fortress described by Mughal Emperor Babur as the 'pearl of fortresses'." },
+            { icon: "history_edu", title: "Jai Vilas Palace", desc: "19th-century royal palace housing the world's largest crystal chandeliers." },
+          ]
+          : [
+            { icon: "ev_station", title: "Expressway Rest Plaza", desc: "Modern expressway comfort stop with clean restrooms, branded food, and coffee." },
+            { icon: "temple_hindu", title: "Vrindavan Expressway Cut", desc: "Optional detour to Banke Bihari and ISKCON temples before entering Agra." },
+            { icon: "storefront", title: "Sikandra - Akbar's Tomb", desc: "Magnificent red sandstone mausoleum nestled in quiet deer park grounds." },
+          ];
 
   const faqItems = [
     {
@@ -180,22 +180,20 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
                   <button
                     type="button"
                     onClick={() => setTripType("one-way")}
-                    className={`px-4 py-2 rounded-md text-label-md font-semibold transition-all ${
-                      tripType === "one-way"
-                        ? "bg-primary text-white shadow-sm"
-                        : "text-on-surface-variant hover:text-ink-charcoal"
-                    }`}
+                    className={`px-4 py-2 rounded-md text-label-md font-semibold transition-all ${tripType === "one-way"
+                      ? "bg-primary text-white shadow-sm"
+                      : "text-on-surface-variant hover:text-ink-charcoal"
+                      }`}
                   >
                     One-Way Drop
                   </button>
                   <button
                     type="button"
                     onClick={() => setTripType("round-trip")}
-                    className={`px-4 py-2 rounded-md text-label-md font-semibold transition-all ${
-                      tripType === "round-trip"
-                        ? "bg-primary text-white shadow-sm"
-                        : "text-on-surface-variant hover:text-ink-charcoal"
-                    }`}
+                    className={`px-4 py-2 rounded-md text-label-md font-semibold transition-all ${tripType === "round-trip"
+                      ? "bg-primary text-white shadow-sm"
+                      : "text-on-surface-variant hover:text-ink-charcoal"
+                      }`}
                   >
                     Round-Trip Outstation
                   </button>

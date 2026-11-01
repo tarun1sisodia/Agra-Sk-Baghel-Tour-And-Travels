@@ -1,4 +1,4 @@
-# Frontend Architecture — SK Baghel Tour & Travels
+# Frontend Architecture — Agra SK Baghel Tour & Travels
 
 ## 1. Executive Summary & Purpose
 
@@ -6,7 +6,7 @@ This document describes the frontend architecture for the customer-facing React 
 
 ### Core Philosophy
 
-- **SSG-First Architecture**: All marketing pages are pre-rendered at build time for maximum SEO and performance
+- **SSG-First with Zero-Spinner Hydration**: All marketing pages are pre-rendered at build time; hydration happens without loading spinners
 - **Server-Authoritative Business Logic**: Fares, pricing, and booking creation happen exclusively on the backend
 - **Progressive Enhancement**: Static HTML with client-side hydration for interactivity
 - **Type-First Development**: Zod contracts shared between frontend and backend ensure type safety
@@ -97,7 +97,7 @@ react/
 │   │   ├── RichLandingPage.tsx # Rich landing page template
 │   │   └── avatar/            # Buddy avatar widget
 │   ├── config/                # Configuration files
-│   ├── contracts/             # Zod schemas for API contracts
+│   ├── contracts/             # Zod schemas for API contracts (shared from root)
 │   ├── data/                  # Static data and catalogues
 │   │   ├── catalogue.ts       # Exported static catalogues
 │   │   ├── contact.ts         # Contact information
@@ -177,7 +177,7 @@ const doHydrate = () => {
   root.render(appTree);
 };
 
-// Hydration strategy for SSG
+// Hydration strategy for SSG - Zero-Spinner approach
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", doHydrate);
 } else {
@@ -189,6 +189,7 @@ if (document.readyState === "loading") {
 - Error boundary wrapping entire app
 - Conditional hydration based on DOM ready state
 - Single root element requirement
+- **Zero-Spinner Hydration**: No loading spinner during hydration; static HTML is immediately interactive
 
 #### [`ServerApp.tsx`](react/src/app/ServerApp.tsx) - Server Entry Point
 
@@ -589,21 +590,19 @@ export function CustomerAuthProvider({ children }: { children: ReactNode }) {
 The booking flow uses a **server-authoritative state machine** with the following states:
 
 ```
-draft → pending_payment → paid_confirmed → confirmed → driver_assigned → in_transit → completed
-                                                                                          ↓
-                                                                      cancelled ← refunded
+draft → pending_payment → paid_confirmed → in_transit → completed
+                                          ↓
+                                  cancelled ← refunded
 ```
 
 **State Transitions:**
 1. **draft** - Booking created, awaiting payment
 2. **pending_payment** - Payment initiated, awaiting confirmation
 3. **paid_confirmed** - Payment verified, booking confirmed
-4. **confirmed** - Booking confirmed, awaiting assignment
-5. **driver_assigned** - Driver assigned to booking
-6. **in_transit** - Trip in progress
-7. **completed** - Trip completed
-8. **cancelled** - Booking cancelled
-9. **refunded** - Booking refunded
+4. **in_transit** - Trip in progress
+5. **completed** - Trip completed (with `balanceCollectedByDriver = true` updated by `super_admin`)
+6. **cancelled** - Booking cancelled
+7. **refunded** - Booking refunded
 
 ---
 
@@ -822,23 +821,61 @@ export function SeoHead({
 
 ## 10. Performance Optimization
 
-### 10.1 Code Splitting
+### 10.1 Code Splitting with Vite Bundle Splitting
 
 ```typescript
-// Lazy loading for pages
-const HomePage = lazy(() => import("../pages/HomePage"));
-const BookingPage = lazy(() => import("../features/booking/BookingPage"));
-const LoginPage = lazy(() => import("../pages/LoginPage"));
-
-// Suspense for loading state
-<Suspense fallback={null}>
-  <Route path="/" element={<HomePage />} />
-  <Route path="/booking" element={<BookingPage />} />
-  <Route path="/login" element={<LoginPage />} />
-</Suspense>
+// vite.config.ts - Manual chunk splitting for vendor libraries
+export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split React and ReactDOM into separate vendor chunks
+          "vendor-react": ["react", "react-dom", "react-dom/client"],
+          // Split Framer Motion separately
+          "vendor-motion": ["motion"],
+          // Split Supabase separately
+          "vendor-supabase": ["@supabase/supabase-js"],
+        },
+      },
+    },
+  },
+});
 ```
 
-### 10.2 Image Optimization
+**Benefits:**
+- Independent caching of vendor libraries
+- Reduced initial bundle size
+- Faster page loads with parallel downloads
+
+### 10.2 On-Demand Razorpay Script Loading
+
+```typescript
+// Lazy load Razorpay SDK only when payment is initiated
+let razorpayLoaded: Promise<void> | null = null;
+
+export async function loadRazorpayScript(): Promise<void> {
+  if (razorpayLoaded) return razorpayLoaded;
+  
+  razorpayLoaded = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Failed to load Razorpay script"));
+    document.head.appendChild(script);
+  });
+  
+  return razorpayLoaded;
+}
+```
+
+**Benefits:**
+- Razorpay SDK not loaded on initial page load
+- Reduced initial bundle size
+- Faster page loads for non-payment pages
+
+### 10.3 Image Optimization
 
 ```typescript
 // WebP format with fallback
@@ -858,7 +895,7 @@ const LoginPage = lazy(() => import("../pages/LoginPage"));
 </picture>
 ```
 
-### 10.3 Resource Prefetching
+### 10.4 Resource Prefetching
 
 #### [`prefetch.ts`](react/src/app/prefetch.ts) - Prefetch Utility
 
@@ -878,10 +915,10 @@ export function prefetchDocument(url: string): void {
 }
 ```
 
-### 10.4 Hydration Hygiene
+### 10.5 Hydration Hygiene
 
 ```typescript
-// Hydration strategy for SSG
+// Hydration strategy for SSG - Zero-Spinner approach
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", doHydrate);
 } else {
@@ -1143,9 +1180,10 @@ npm run build
 
 | Metric | Target | Measurement |
 |--------|--------|-------------|
-| LCP | < 2.5s | PageSpeed Insights |
-| FID | < 100ms | PageSpeed Insights |
-| CLS | < 0.1 | PageSpeed Insights |
+| LCP | < 2.0s | PageSpeed Insights |
+| INP | < 100ms | PageSpeed Insights |
+| CLS | < 0.05 | PageSpeed Insights |
+| PageSpeed | 95+ | PageSpeed Insights |
 
 ### 15.2 SEO Checklist
 
@@ -1167,7 +1205,7 @@ npm run build
 - [ ] Resource prefetching
 - [ ] Hydration hygiene
 - [ ] Bundle size monitoring
-- [ ] PageSpeed Insights > 90
+- [ ] PageSpeed Insights > 95
 
 ---
 

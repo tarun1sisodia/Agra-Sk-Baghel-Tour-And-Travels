@@ -1,4 +1,4 @@
-# Agent rules — SK Baghel Tour & Travels (monorepo)
+# Agent rules — Agra SK Baghel Tour & Travels (monorepo)
 
 This repository is a monorepo with three independently deployable applications:
 `react/` (customer site), `admin/` (operations desk) and `backend/` (API).

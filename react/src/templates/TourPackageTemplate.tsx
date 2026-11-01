@@ -204,8 +204,8 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
   const bookStep1Url = `/book.html?category=tour_package&product=${encodeURIComponent(packageSlug)}&from=${encodeURIComponent(packageSource)}&to=${encodeURIComponent(packageDestination)}`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
     grossPrice > 0
-      ? `Hello Agra SK Baghel Tour and Travels, I wish to reserve the tour package "${packageName}" (Starting ₹${grossPrice.toLocaleString("en-IN")}).`
-      : `Hello Agra SK Baghel Tour and Travels, I wish to reserve the tour package "${packageName}".`
+      ? `Hello Agra SK Baghel Tour & Travels, I wish to reserve the tour package "${packageName}" (Starting ₹${grossPrice.toLocaleString("en-IN")}).`
+      : `Hello Agra SK Baghel Tour & Travels, I wish to reserve the tour package "${packageName}".`
   )}`;
 
   const canonicalUrl = `${CANONICAL_DOMAIN}/en/packages/${packageSlug}/`;

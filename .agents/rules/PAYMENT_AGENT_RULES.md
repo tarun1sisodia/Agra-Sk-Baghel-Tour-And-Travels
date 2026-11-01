@@ -1,4 +1,4 @@
-# Agent rules — payments (SK Baghel)
+# Agent rules — payments (Agra SK Baghel)
 
 Read `docs/PAYMENT_SYSTEM.md` **before any payment work**. These rules override convenience.
 

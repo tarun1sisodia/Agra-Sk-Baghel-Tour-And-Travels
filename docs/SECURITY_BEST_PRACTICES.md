@@ -1,8 +1,8 @@
-# Security Best Practices Guide — SK Baghel Tour & Travels
+# Security Best Practices Guide — Agra SK Baghel Tour & Travels
 
 ## 1. Executive Summary
 
-This document outlines the comprehensive security strategy for SK Baghel Tour & Travels, covering authentication, authorization, data protection, payment security, and compliance. The strategy follows industry best practices and regulatory requirements to ensure the highest level of security for users, data, and business operations.
+This document outlines the comprehensive security strategy for Agra SK Baghel Tour & Travels, covering authentication, authorization, data protection, payment security, and compliance. The strategy follows industry best practices and regulatory requirements to ensure the highest level of security for users, data, and business operations.
 
 **Security Principles:**
 - Defense in depth
@@ -12,47 +12,47 @@ This document outlines the comprehensive security strategy for SK Baghel Tour & 
 - Incident response readiness
 
 **Compliance Requirements:**
-- GDPR (General Data Protection Regulation)
-- CCPA (California Consumer Privacy Act)
-- PCI-DSS (Payment Card Industry Data Security Standard)
-- Indian IT Act, 2000
-- DPDP Act (Digital Personal Data Protection Act, 2023)
+- DPDP Act (Digital Personal Data Protection Act, 2023) - **Primary focus**
+- GDPR (General Data Protection Regulation) - Secondary compliance
+- PCI-DSS (Payment Card Industry Data Security Standard) - Via Razorpay
 
 ---
 
 ## 2. Authentication Security
 
-### 2.1 JWT Token Security
+### 2.1 JWT Token Security with Asymmetric JWKS
 
 **Implementation:** [`backend/src/middlewares/authGuard.ts`](../backend/src/middlewares/authGuard.ts)
 
 **Key Security Features:**
 
-1. **Token Verification**
+1. **Asymmetric JWKS Verification**
    - Uses `jose` library for JWT verification
+   - Fetches JWKS (JSON Web Key Set) from Supabase well-known endpoint
    - Validates issuer (`iss`) and audience (`aud`) claims
    - Checks token expiration (`exp`)
    - Rejects tokens with invalid signatures
 
 2. **JWKS Caching**
-   - Implements JWKS (JSON Web Key Set) caching to reduce external requests
+   - Implements JWKS caching to reduce external requests
    - Cache key is the normalized Supabase URL
    - Prevents token replay attacks
+   - Automatic refresh on key rotation
 
-3. **Role Validation**
-   - Only trusts `app_metadata.role` (server-controlled)
-   - Never trusts `user_metadata.role` (client-writable)
-   - Validates role against allowed roles list
+3. **Server-Controlled Role Extraction**
+   - Only trusts `payload.app_metadata.role` (server-controlled)
+   - Never trusts `payload.user_metadata.role` (client-writable)
+   - Validates role against allowed roles list (`super_admin`, `developer`, `customer`)
 
 4. **Email Whitelist**
    - Admin access restricted to specific email addresses
    - `ADMIN_EMAIL` environment variable controls access
    - Case-insensitive email comparison
 
-**Security Best Practices:**
+**Security Implementation:**
 
 ```typescript
-// Token validation
+// Token validation with JWKS
 const { payload } = await jwtVerify(token, jwks, {
   issuer: [`${normalizedUrl}/auth/v1`, normalizedUrl, "supabase"],
   audience: "authenticated",
@@ -76,7 +76,7 @@ const role = USER_ROLES.includes(roleRaw as UserRole) ? (roleRaw as UserRole) : 
 **Admin Authentication:**
 1. Email/password authentication via Supabase
 2. Email whitelist enforcement
-3. Role-based access control
+3. Role-based access control (`super_admin` or `developer` only)
 4. Session timeout after inactivity
 5. Audit logging for all admin actions
 
@@ -104,24 +104,18 @@ const role = USER_ROLES.includes(roleRaw as UserRole) ? (roleRaw as UserRole) : 
 
 **Implementation:** [`backend/src/middlewares/roleGuard.ts`](../backend/src/middlewares/roleGuard.ts)
 
-**Role Hierarchy:**
+**Role Hierarchy (v3.0.0):**
 ```
 super_admin (full access)
-├── content_editor (content management)
-├── review_moderator (review moderation)
-├── dispatcher (booking dispatch)
-└── finance_operator (finance operations)
+└── developer (limited: Content, Catalog, Fleet, Media, SEO, Publishing)
 ```
 
 **Role Permissions:**
 
-| Role | Content | Reviews | Dispatch | Finance | Admin |
-|------|---------|---------|----------|---------|-------|
-| super_admin | ✓ | ✓ | ✓ | ✓ | ✓ |
-| content_editor | ✓ | ✗ | ✗ | ✗ | ✗ |
-| review_moderator | ✗ | ✓ | ✗ | ✗ | ✗ |
-| dispatcher | ✗ | ✗ | ✓ | ✗ | ✗ |
-| finance_operator | ✗ | ✗ | ✗ | ✓ | ✗ |
+| Role | Content | Catalog | Fleet | Media | SEO | Publishing | Admin |
+|------|---------|---------|-------|-------|-----|------------|-------|
+| super_admin | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| developer | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ |
 
 **Authorization Middleware:**
 
@@ -155,63 +149,37 @@ export function requireRole(request: FastifyRequest, roles: readonly UserRole[])
 
 ---
 
-## 4. Data Protection
+## 4. Data Protection & DPDP Act 2023 Compliance
 
-### 4.1 Database Security
+### 4.1 PII Masking
 
-**Implementation:** [`backend/src/db/postgres.ts`](../backend/src/db/postgres.ts)
+**Implementation:** [`backend/src/shared/pii.ts`](../backend/src/shared/pii.ts)
 
-**Security Features:**
+**PII Fields to Mask:**
+- Phone numbers: `+91-XXXXX-XXXXX`
+- Email addresses: `user@****.com`
+- Names: `J*** S***`
+- Addresses: Partial masking
 
-1. **Row-Level Security (RLS)**
-   - Enables per-row access control
-   - Prevents unauthorized data access
-   - Tenant isolation for multi-tenant data
+**Masking Implementation:**
 
-2. **Parameterized Queries**
-   - Prevents SQL injection attacks
-   - Uses pg library's built-in parameterization
-   - Never concatenates user input into queries
+```typescript
+export function maskPhone(phone: string): string {
+  if (!phone) return "";
+  const cleaned = phone.replace(/\D/g, "");
+  if (cleaned.length <= 6) return "XXXXXXX";
+  return `+91-XXXXX-${cleaned.slice(-5)}`;
+}
 
-3. **Connection Pooling**
-   - Secure connection management
-   - Automatic connection cleanup
-   - Connection timeout configuration
-
-**Example RLS Policy:**
-```sql
--- Customers can only see their own bookings
-CREATE POLICY customer_booking_policy ON bookings
-  FOR SELECT
-  USING (user_id = auth.uid() OR guest_access_token = current_setting('app.guest_token', true));
-
--- Admins can see all bookings
-CREATE POLICY admin_booking_policy ON bookings
-  FOR SELECT
-  USING (auth.role() = 'authenticated' AND EXISTS (
-    SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'super_admin'
-  ));
+export function maskEmail(email: string): string {
+  if (!email) return "";
+  const [local, domain] = email.split("@");
+  if (!domain) return "****@****";
+  return `${local.charAt(0)}***@${domain}`;
+}
 ```
 
-### 4.2 Data Encryption
-
-**At Rest:**
-- PostgreSQL encryption at rest (if using managed service)
-- Database backups encrypted
-- Sensitive data encrypted with AES-256
-
-**In Transit:**
-- TLS 1.3 for all external connections
-- HTTPS for all API endpoints
-- Secure WebSocket connections
-
-**Sensitive Data Fields:**
-- Phone numbers (encrypted)
-- Email addresses (encrypted)
-- Payment information (never stored)
-- PII data (minimized and encrypted)
-
-### 4.3 Data Minimization
+### 4.2 Data Minimization
 
 **Best Practices:**
 - Collect only necessary data
@@ -219,12 +187,29 @@ CREATE POLICY admin_booking_policy ON bookings
 - Anonymize data for analytics
 - Limit data retention periods
 
-**Data Retention:**
+**Data Retention (DPDP Act 2023):**
 - Active bookings: 7 years (legal requirement)
 - Completed bookings: 7 years
 - Inactive accounts: 2 years
 - Analytics data: 1 year
 - Audit logs: 5 years
+
+### 4.3 Consent Management
+
+**DPDP Act 2023 Requirements:**
+- Explicit consent for data processing
+- Purpose limitation (data used only for stated purpose)
+- Data accuracy (customers can request corrections)
+- Storage limitation (automatic deletion after retention period)
+- Integrity and confidentiality (security measures)
+- Accountability (data protection officer assigned)
+
+**Implementation:**
+- Consent management system
+- Data export functionality
+- Data deletion functionality
+- Privacy policy on website
+- Data processing agreements
 
 ---
 
@@ -242,9 +227,9 @@ CREATE POLICY admin_booking_policy ON bookings
    - Price validation before payment creation
 
 2. **Payment Verification**
-   - Webhook signature verification
+   - Webhook signature verification (HMAC-SHA256)
    - Order ID and payment ID matching
-   - Amount verification
+   - Amount verification (`amount_paise`)
    - Idempotency key for replay protection
 
 3. **Return URL Validation**
@@ -256,8 +241,8 @@ CREATE POLICY admin_booking_policy ON bookings
 
 ```typescript
 // Server-authoritative pricing
-const amountMinor = rupeesToPaise(booking.advanceAmount);
-if (!Number.isFinite(amountMinor) || amountMinor <= 0) {
+const amountPaise = rupeesToPaise(booking.advanceAmount);
+if (!Number.isFinite(amountPaise) || amountPaise <= 0) {
   throw new AppError("INVALID_AMOUNT", "Invalid booking amount.", 500);
 }
 
@@ -286,9 +271,9 @@ if (input.returnUrl && !isAllowedReturnUrl(input.returnUrl, allowedOrigins)) {
 ### 5.3 Payment Webhook Security
 
 **Webhook Verification:**
-1. Verify webhook signature
+1. Verify webhook signature (HMAC-SHA256)
 2. Check event ID for replay protection
-3. Validate amount matches order
+3. Validate amount matches order (`amount_paise`)
 4. Update payment status atomically
 5. Log all webhook events
 
@@ -447,7 +432,7 @@ logger.info("Request received", { method, url, body: redactedBody });
 - API abuse
 
 **Implementation:**
-- Audit logging in database
+- Audit logging in database (`admin_audit_logs` table)
 - CloudWatch alarms
 - Email notifications for critical events
 
@@ -487,9 +472,41 @@ logger.info("Request received", { method, url, body: redactedBody });
 
 ---
 
-## 9. Incident Response
+## 9. Zero Secret Leakage Guard
 
-### 9.1 Incident Classification
+### 9.1 Build-Time Secret Scanning
+
+**Implementation:** [`backend/scripts/audit-env-keys.ts`](../backend/scripts/audit-env-keys.ts)
+
+**Checks:**
+- No `.env` files committed to version control
+- No secrets in build output (`react/dist`, `admin/dist`)
+- No hardcoded credentials in source code
+- No secrets in error messages or logs
+
+### 9.2 Production Test-Auth Lockdown
+
+**Implementation:** [`backend/src/config/env.ts`](../backend/src/config/env.ts)
+
+**Production Rules:**
+- `TEST_AUTH_ENABLED` must be `false` in production
+- `ADMIN_EMAIL` whitelist enforced
+- All admin routes require valid JWT
+- No debug endpoints in production
+
+**Enforcement:**
+
+```typescript
+if (isProduction && env.TEST_AUTH_ENABLED === "true") {
+  throw new Error("TEST_AUTH_ENABLED must be false in production!");
+}
+```
+
+---
+
+## 10. Incident Response
+
+### 10.1 Incident Classification
 
 | Severity | Description | Response Time |
 |----------|-------------|---------------|
@@ -498,7 +515,7 @@ logger.info("Request received", { method, url, body: redactedBody });
 | Medium | Minor security issue | 4 hours |
 | Low | Non-critical security issue | 24 hours |
 
-### 9.2 Incident Response Steps
+### 10.2 Incident Response Steps
 
 1. **Identify**
    - Determine scope of incident
@@ -525,7 +542,7 @@ logger.info("Request received", { method, url, body: redactedBody });
    - Update security policies
    - Conduct training
 
-### 9.3 Contact Information
+### 10.3 Contact Information
 
 **Security Team:**
 - Security Lead: [email]
@@ -539,9 +556,27 @@ logger.info("Request received", { method, url, body: redactedBody });
 
 ---
 
-## 10. Compliance
+## 11. Compliance
 
-### 10.1 GDPR Compliance
+### 11.1 DPDP Act 2023 Compliance (Primary Focus)
+
+**Requirements:**
+- Consent for data processing
+- Data minimization
+- Purpose limitation
+- Data accuracy
+- Storage limitation
+- Integrity and confidentiality
+- Accountability
+
+**Implementation:**
+- Consent management system
+- Data minimization
+- Privacy policy
+- Data protection officer
+- Data processing agreements
+
+### 11.2 GDPR Compliance (Secondary)
 
 **Requirements:**
 - Explicit consent for data collection
@@ -558,22 +593,7 @@ logger.info("Request received", { method, url, body: redactedBody });
 - Privacy policy on website
 - Data processing agreements
 
-### 10.2 CCPA Compliance
-
-**Requirements:**
-- Notice at collection
-- Right to know
-- Right to delete
-- Right to opt-out
-- Non-discrimination
-
-**Implementation:**
-- Privacy policy
-- Cookie consent banner
-- Data deletion functionality
-- Opt-out mechanism
-
-### 10.3 PCI-DSS Compliance
+### 11.3 PCI-DSS Compliance
 
 **Requirements:**
 - Build and maintain secure network
@@ -589,44 +609,28 @@ logger.info("Request received", { method, url, body: redactedBody });
 - Secure API communication
 - Regular security audits
 
-### 10.4 DPDP Act (India)
-
-**Requirements:**
-- Consent for data processing
-- Data minimization
-- Purpose limitation
-- Data accuracy
-- Storage limitation
-- Integrity and confidentiality
-- Accountability
-
-**Implementation:**
-- Consent management
-- Data minimization
-- Privacy policy
-- Data protection officer
-- Data processing agreements
-
 ---
 
-## 11. Security Checklist
+## 12. Security Checklist
 
-### 11.1 Pre-Launch Checklist
+### 12.1 Pre-Launch Checklist
 
 - [ ] All secrets stored in environment variables
 - [ ] CORS configured with whitelist
 - [ ] Rate limiting enabled
 - [ ] Input validation on all endpoints
-- [ ] JWT token verification implemented
-- [ ] Role-based access control implemented
+- [ ] JWT token verification with JWKS implemented
+- [ ] Role-based access control implemented (`super_admin`, `developer` only)
 - [ ] Row-Level Security enabled
 - [ ] Payment webhook signature verification
 - [ ] SSL/TLS enabled
 - [ ] Security headers configured
 - [ ] Audit logging enabled
 - [ ] Incident response plan documented
+- [ ] PII masking implemented
+- [ ] DPDP Act 2023 compliance verified
 
-### 11.2 Post-Launch Checklist
+### 12.2 Post-Launch Checklist
 
 - [ ] Security monitoring enabled
 - [ ] Alerting configured
@@ -636,7 +640,7 @@ logger.info("Request received", { method, url, body: redactedBody });
 - [ ] Penetration testing completed
 - [ ] Vulnerability scanning scheduled
 
-### 11.3 Ongoing Security Tasks
+### 12.3 Ongoing Security Tasks
 
 **Daily:**
 - Monitor security logs
@@ -665,23 +669,24 @@ logger.info("Request received", { method, url, body: redactedBody });
 
 ---
 
-## 12. Security Resources
+## 13. Security Resources
 
-### 12.1 Official Resources
+### 13.1 Official Resources
 
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [CWE/SANS Top 25](https://cwe.mitre.org/top25/)
 - [NIST Cybersecurity Framework](https://www.nist.gov/cyberframework)
 - [PCI-DSS Requirements](https://www.pcisecuritystandards.org/)
+- [DPDP Act 2023](https://dpdpi.gov.in/)
 
-### 12.2 Tools
+### 13.2 Tools
 
 - [OWASP ZAP](https://www.zaproxy.org/) - Web application security scanner
 - [Nessus](https://www.tenable.com/products/nessus) - Vulnerability scanner
 - [Nmap](https://nmap.org/) - Network scanner
 - [Burp Suite](https://portswigger.net/burp) - Web application security testing
 
-### 12.3 Services
+### 13.3 Services
 
 - [Cloudflare WAF](https://www.cloudflare.com/products/waf/) - Web application firewall
 - [AWS WAF](https://aws.amazon.com/waf/) - Web application firewall
@@ -689,9 +694,9 @@ logger.info("Request received", { method, url, body: redactedBody });
 
 ---
 
-## 13. Conclusion
+## 14. Conclusion
 
-This Security Best Practices Guide provides a comprehensive framework for maintaining and improving SK Baghel Tour & Travels' security posture. By following these guidelines, the organization can protect user data, maintain business continuity, and comply with regulatory requirements.
+This Security Best Practices Guide provides a comprehensive framework for maintaining and improving Agra SK Baghel Tour & Travels' security posture. By following these guidelines, the organization can protect user data, maintain business continuity, and comply with regulatory requirements.
 
 **Key Takeaways:**
 1. Implement defense in depth with multiple security layers
@@ -699,6 +704,8 @@ This Security Best Practices Guide provides a comprehensive framework for mainta
 3. Secure by default - all security features enabled
 4. Regular security audits and monitoring
 5. Incident response readiness
+6. DPDP Act 2023 compliance as primary focus
+7. Zero secret leakage guard in CI/CD
 
 **Next Steps:**
 1. Implement all security recommendations

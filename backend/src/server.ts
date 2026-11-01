@@ -15,7 +15,7 @@ async function main(): Promise<void> {
       await notifications.processQueued();
     } catch (err) {
       logger.error({ err }, "notification worker error");
-    } 
+    }
   }, 15_000);
   workerInterval.unref();
 

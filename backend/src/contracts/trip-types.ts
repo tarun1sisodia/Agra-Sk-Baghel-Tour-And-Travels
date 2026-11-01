@@ -5,6 +5,12 @@
  * Contract: C-CONTRACT-ALL · contracts/LOCKED.md
  */
 /**
+ * GENERATED — do not edit by hand.
+ * Source: contracts/trip-types.ts
+ * Regenerate: npx tsx contracts/scripts/sync-contracts.ts
+ * Contract: C-CONTRACT-ALL · contracts/LOCKED.md
+ */
+/**
  * @file trip-types.ts — Canonical Trip Types contract for Agra SK Baghel Tour & Travels.
  * @usage Contract C-ENUM-002: Synchronized across backend, admin, and react.
  */

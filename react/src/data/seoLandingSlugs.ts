@@ -253,7 +253,7 @@ export const SEO_ROUTE_MAP: Record<string, RouteDetail> = Object.fromEntries(
 // Curated concise titles (<= 60 chars) and meta descriptions (120-155 chars) for strict SEO compliance
 export const SEO_ROUTE_METADATA: Record<string, { title: string; description: string }> = {
   "agra-local-full-day-tour": {
-    title: "Agra Local Full-Day Heritage Tour Taxi | SK Baghel",
+    title: "Agra Local Full-Day Heritage Tour Taxi | Agra SK Baghel",
     description: "Explore Taj Mahal, Agra Fort, Baby Taj & Mehtab Bagh with an expert chauffeur. Transparent full-day fares from ₹2,000. Book 24x7.",
   },
   "agra-cantt-station-transfer": {
@@ -261,11 +261,11 @@ export const SEO_ROUTE_METADATA: Record<string, { title: string; description: st
     description: "Reliable Agra Cantt (AGC) station taxi pickups & hotel drops from ₹799. 15-min early arrival guarantee. Free delay tracking.",
   },
   "fatehpur-sikri-excursion": {
-    title: "Fatehpur Sikri & Buland Darwaza Tour Taxi | SK Baghel",
+    title: "Fatehpur Sikri & Buland Darwaza Tour Taxi | Agra SK Baghel",
     description: "Same-day Fatehpur Sikri & Buland Darwaza taxi tour from ₹2,499. Highway NH21 corridor travel in private AC cabs with local drivers.",
   },
   "agra-to-sikandra-transfer": {
-    title: "Agra to Sikandra Akbar Tomb Taxi Tour | SK Baghel",
+    title: "Agra to Sikandra Akbar Tomb Taxi Tour | Agra SK Baghel",
     description: "Quick half-day Agra to Sikandra taxi tour from ₹1,499. Visit Akbar's Tomb & Guru Ka Tal with doorstep hotel pickup and drop.",
   },
   "mughal-bazaar-shopping-circuit": {

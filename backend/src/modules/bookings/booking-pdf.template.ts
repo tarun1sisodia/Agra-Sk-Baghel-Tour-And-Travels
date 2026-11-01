@@ -51,7 +51,7 @@ export interface BookingPdfInputData {
 
 export const bookingVoucherTemplate: Template = {
   // A4 landscape. The layout takes inspiration from the supplied cream-and-gold
-  // SK Baghel voucher: clean white data area, warm branded side panel and brown/gold accents.
+  // Agra SK Baghel voucher: clean white data area, warm branded side panel and brown/gold accents.
   basePdf: { width: 297, height: 210, padding: [8, 8, 8, 8] },
   schemas: [
     [

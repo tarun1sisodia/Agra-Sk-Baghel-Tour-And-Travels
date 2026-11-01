@@ -359,12 +359,12 @@ export async function prerender(): Promise<void> {
     .replace(/<title>.*?<\/title>/, "<title>Customer Reviews | Agra SK Baghel Travels</title>")
     .replace(
       /<meta name="description" content="[^"]*" \/>/,
-      '<meta name="description" content="Read authentic traveler reviews for Agra SK Baghel Tour and Travels. Verified ratings on private Taj Mahal tours, outstation cabs & Tempo Travellers." />',
+      '<meta name="description" content="Read authentic traveler reviews for Agra SK Baghel Tour & Travels. Verified ratings on private Taj Mahal tours, outstation cabs & Tempo Travellers." />',
     )
     .replace(
-    "</head>",
-    `<meta name="robots" content="noindex, nofollow" /><link rel="canonical" href="${CANONICAL_DOMAIN}/review" /></head>`,
-  );
+      "</head>",
+      `<meta name="robots" content="noindex, nofollow" /><link rel="canonical" href="${CANONICAL_DOMAIN}/review" /></head>`,
+    );
   await writeFile(join(dist, "review", "index.html"), reviewShell, "utf8");
 
   // Spin up Vite in middleware mode to load TypeScript/TSX modules with alias resolution
@@ -472,7 +472,7 @@ export async function prerender(): Promise<void> {
         `<meta property="og:image:alt" content="${escapeHtml(seo.title)}" />`,
         `<meta property="og:locale" content="${ogLocale}" />`,
         ogLocaleAlt ? `<meta property="og:locale:alternate" content="${ogLocaleAlt}" />` : "",
-        `<meta property="og:site_name" content="Agra SK Baghel Tour and Travels" />`,
+        `<meta property="og:site_name" content="Agra SK Baghel Tour & Travels" />`,
         `<meta property="og:type" content="website" />`,
         `<meta name="twitter:card" content="summary_large_image" />`,
         `<meta name="twitter:title" content="${escapeHtml(seo.title)}" />`,
@@ -508,9 +508,9 @@ export async function prerender(): Promise<void> {
       const isHomepageRoute = ["/", "/en/", "/hi/"].includes(route);
       const heroPreloadTags = firstHero && isHomepageRoute
         ? [
-            `<link rel="preload" as="image" href="${escapeHtml(firstHero.avif.small)}" imagesrcset="${escapeHtml(`${firstHero.avif.small} 480w, ${firstHero.avif.medium} 960w`)}" imagesizes="100vw" type="image/avif" media="(max-width: 640px)" fetchpriority="high" />`,
-            `<link rel="preload" as="image" href="${escapeHtml(firstHero.avif.medium)}" imagesrcset="${escapeHtml(`${firstHero.avif.medium} 960w, ${firstHero.avif.desktop ? `${firstHero.avif.desktop} 1280w, ` : ""}${firstHero.avif.large} 1600w`)}" imagesizes="(max-width: 1024px) 100vw, 1280px" type="image/avif" media="(min-width: 641px)" fetchpriority="high" />`,
-          ]
+          `<link rel="preload" as="image" href="${escapeHtml(firstHero.avif.small)}" imagesrcset="${escapeHtml(`${firstHero.avif.small} 480w, ${firstHero.avif.medium} 960w`)}" imagesizes="100vw" type="image/avif" media="(max-width: 640px)" fetchpriority="high" />`,
+          `<link rel="preload" as="image" href="${escapeHtml(firstHero.avif.medium)}" imagesrcset="${escapeHtml(`${firstHero.avif.medium} 960w, ${firstHero.avif.desktop ? `${firstHero.avif.desktop} 1280w, ` : ""}${firstHero.avif.large} 1600w`)}" imagesizes="(max-width: 1024px) 100vw, 1280px" type="image/avif" media="(min-width: 641px)" fetchpriority="high" />`,
+        ]
         : [];
 
       // 2. Replace title and generic meta description with full metadata block
@@ -576,8 +576,8 @@ export async function prerender(): Promise<void> {
       const targetFile = route === "/"
         ? join(dist, "index.html")
         : route.endsWith(".html")
-        ? join(dist, route.slice(1))
-        : join(dist, route.slice(1), "index.html");
+          ? join(dist, route.slice(1))
+          : join(dist, route.slice(1), "index.html");
 
       await mkdir(dirname(targetFile), { recursive: true });
       await writeFile(targetFile, html, "utf8");

@@ -249,7 +249,7 @@ export function Sidebar({
           onLogout={onLogout}
           collapsed={collapsed}
           onToggleCollapse={onToggleCollapse}
-          onNavigate={() => {}}
+          onNavigate={() => { }}
           showCollapseToggle
         />
       </aside>

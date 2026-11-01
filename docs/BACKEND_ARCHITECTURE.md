@@ -1,4 +1,4 @@
-# Backend Architecture Documentation — SK Baghel Tour & Travels
+# Backend Architecture Documentation — Agra SK Baghel Tour & Travels
 
 **Document Version:** 3.0.0  
 **Status:** Production Fastify 5 Architecture  
@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary
 
-The SK Baghel Tour & Travels backend is built with **Fastify 5.6.0** on **Node.js 22 LTS**, using **Supabase PostgreSQL** via `pg.Pool` for persistence, **Zod** for contract validation, and an **L1 In-Memory Cache** for sub-millisecond quote and catalog performance.
+The Agra SK Baghel Tour & Travels backend is built with **Fastify 5.6.0** on **Node.js 22 LTS**, using **Supabase PostgreSQL** via `pg.Pool` for persistence, **Zod** for contract validation, and an **L1 In-Memory Cache** for sub-millisecond quote and catalog performance.
 
 ### Key Architectural Principles
 

@@ -476,7 +476,7 @@ export function LiquidNavbar({
     const isAuditOrBot =
       typeof navigator !== "undefined" &&
       (Boolean((navigator as any).webdriver) ||
-       /bot|crawl|spider|google|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent));
+        /bot|crawl|spider|google|lighthouse|chrome-lighthouse|headless/i.test(navigator.userAgent));
 
     if (isMobileOrHidden || isAuditOrBot) {
       s.visible = false;
@@ -495,9 +495,9 @@ export function LiquidNavbar({
     const io =
       typeof IntersectionObserver !== "undefined"
         ? new IntersectionObserver(([e]) => {
-            s.visible = e.isIntersecting;
-            if (s.visible) loop();
-          })
+          s.visible = e.isIntersecting;
+          if (s.visible) loop();
+        })
         : null;
     if (navRef.current && io) io.observe(navRef.current);
     const vis = () => {
@@ -528,13 +528,13 @@ export function LiquidNavbar({
     const ro =
       typeof ResizeObserver !== "undefined"
         ? new ResizeObserver(() => {
-            const w = navRef.current?.offsetWidth ?? 0;
-            if (lastW < 0 || Math.abs(w - lastW) >= 2) {
-              lastW = w;
-              st.current.ready = false;
-              measureRef.current();
-            }
-          })
+          const w = navRef.current?.offsetWidth ?? 0;
+          if (lastW < 0 || Math.abs(w - lastW) >= 2) {
+            lastW = w;
+            st.current.ready = false;
+            measureRef.current();
+          }
+        })
         : null;
     if (navRef.current && ro) ro.observe(navRef.current);
     return () => ro?.disconnect();
@@ -578,7 +578,7 @@ export function LiquidNavbar({
       o.connect(g).connect(ctx.destination);
       o.start(t);
       o.stop(t + 0.18);
-    } catch {}
+    } catch { }
   };
 
   const select = (i: number) => {

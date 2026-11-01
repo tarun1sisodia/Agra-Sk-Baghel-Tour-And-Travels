@@ -152,7 +152,7 @@ Per executive mandate, the customer portal operates as an authentic private bout
   - **Error Handling**: Displays dismissible amber error alert if network or token fails, with "Dismiss" button.
   - **Download Execution**: Fetches binary PDF from backend, downloads `${ticketId}-confirmation-voucher.pdf` with `%PDF` header.
 - **Voucher Layout & Content**:
-  - Header: SK Baghel Luxury branding (`#8B2E0B` Terracotta), Ticket ID, booking timestamp.
+  - Header: Agra SK Baghel Luxury branding (`#8B2E0B` Terracotta), Ticket ID, booking timestamp.
   - Passenger & Journey: Customer Name, Phone, Pickup Address, Drop Address, Scheduled Date & IST Time.
   - Vehicle & Chauffeur: Assigned Vehicle Model (e.g. Toyota Innova Crysta), Luggage capacity, 2-Hour Chauffeur Dispatch Protocol notice.
   - Financial Ledger: Total Guaranteed Fare, Advance Paid Online (28%), Balance Due in Cash to Chauffeur (72%).

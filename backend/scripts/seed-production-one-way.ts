@@ -78,7 +78,7 @@ async function run() {
     // Ensure admin profile exists in public.profiles with super_admin role
     await client.query(
       `INSERT INTO public.profiles (id, email, phone, full_name, role, created_at, updated_at)
-       VALUES ($1, $2, '+919762817598', 'SK Baghel Admin', 'super_admin', NOW(), NOW())
+       VALUES ($1, $2, '+919762817598', 'Agra SK Baghel Admin', 'super_admin', NOW(), NOW())
        ON CONFLICT (id) DO UPDATE SET role = 'super_admin', email = $2, phone = '+919762817598', updated_at = NOW()`,
       [adminUserId, adminEmail]
     );

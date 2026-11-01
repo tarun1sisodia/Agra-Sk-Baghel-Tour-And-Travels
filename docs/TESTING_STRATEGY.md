@@ -1,8 +1,8 @@
-# Testing Strategy — SK Baghel Tour & Travels
+# Testing Strategy — Agra SK Baghel Tour & Travels
 
 ## 1. Executive Summary
 
-This document describes the testing strategy for the SK Baghel Tour & Travels monorepo. It covers the three-tier testing approach (unit, integration, E2E), the testing frameworks used, and the CI/CD verification gates that ensure code quality and prevent regressions.
+This document describes the testing strategy for the Agra SK Baghel Tour & Travels monorepo. It covers the three-tier testing approach (unit, integration, E2E), the testing frameworks used, and the CI/CD verification gates that ensure code quality and prevent regressions.
 
 ### Testing Philosophy
 
@@ -56,9 +56,78 @@ This document describes the testing strategy for the SK Baghel Tour & Travels mo
 
 ---
 
-## 3. Backend Testing
+## 3. Three-Tier Verification Architecture (v3.0.0)
 
-### 3.1 Test Framework
+### 3.1 Tier 1: Contract & Type Gate
+
+**Purpose**: Catch contract violations and type errors before runtime
+
+**Tests**:
+- [`contracts.test.ts`](backend/tests/unit/contracts.test.ts) - API contract validation
+- [`fare-engine.test.ts`](backend/tests/unit/fare-engine.test.ts) - Fare calculation tests
+- [`bookings-payments.test.ts`](backend/tests/unit/bookings-payments.test.ts) - Booking and payment tests
+- [`rbac-permissions.test.ts`](backend/tests/unit/rbac-permissions.test.ts) - Role-based access control tests
+
+**Run Command**:
+```bash
+npm run verify  # Runs all contract and type checks
+```
+
+### 3.2 Tier 2: Backend Unit & Integration Suite
+
+**Purpose**: Validate business logic and API interactions
+
+**Mandatory Test Suites**:
+1. **contracts.test.ts** - Contract validation
+   - Validates `BookingCreateResponse` structure
+   - Validates `PublishedCatalogResponse` and `PublishedProductDetail`
+   - Validates `PaymentOrderResponse`
+   - Validates `PublicReviewItem` and `PublicGalleryItem`
+   - Validates `AdminAuditLogItem` and `PublishEventItem`
+
+2. **fare-engine.test.ts** - Fare calculation tests
+   - One-way fixed price quotes
+   - Round-trip fare calculations
+   - Night charge calculations
+   - Halt charge calculations
+   - Fixed category pricing (local packages, transfers, tour packages)
+   - Explicit charges (tolls, parking)
+   - Advance and rounding calculations
+
+3. **bookings-payments.test.ts** - Booking and payment tests
+   - Booking creation and status transitions
+   - Payment creation and verification
+   - Razorpay webhook processing
+   - Price change handling
+   - Idempotency and replay protection
+
+4. **rbac-permissions.test.ts** - Role-based access control tests
+   - `super_admin` full access verification
+   - `developer` limited access verification
+   - Admin routes require valid JWT
+   - Role extraction from `payload.app_metadata.role`
+
+### 3.3 Tier 3: SEO/Build & E2E Gate
+
+**Purpose**: Validate production readiness and user journeys
+
+**Tests**:
+- [`validate-seo-artifacts.ts`](react/scripts/validate-seo-artifacts.ts) - SEO validation
+- [`validate-pagespeed-guardrails.ts`](react/scripts/validate-pagespeed-guardrails.ts) - Performance validation
+- [`audit-seo.ts`](react/scripts/audit-seo.ts) - SEO audit
+- TestSprite E2E tests for customer site
+- TestSprite E2E tests for admin panel
+
+**Run Command**:
+```bash
+npm run verify  # Runs all verification gates
+```
+
+---
+
+## 4. Backend Testing
+
+### 4.1 Test Framework
 
 #### [`vitest.config.ts`](backend/vitest.config.ts) - Vitest Configuration
 
@@ -92,7 +161,7 @@ export default defineConfig({
 - Sequential test execution for deterministic order
 - File parallelism disabled for consistent state
 
-### 3.2 Test Organization
+### 4.2 Test Organization
 
 ```
 backend/tests/
@@ -137,7 +206,7 @@ backend/tests/
     └── security-findings.test.ts
 ```
 
-### 3.3 Test Helpers
+### 4.3 Test Helpers
 
 #### [`helpers.ts`](backend/tests/helpers.ts) - Test Utilities
 
@@ -192,7 +261,7 @@ export const sampleDraft = {
 };
 ```
 
-### 3.4 Test Fixtures
+### 4.4 Test Fixtures
 
 #### [`fixtures/fare-fixture.ts`](backend/tests/fixtures/fare-fixture.ts) - Test Data
 
@@ -263,19 +332,9 @@ export const FIXTURE_ROUTES = {
   },
   // ... more routes
 };
-
-export const FIXTURE_ROUTE_VEHICLES = {
-  DEL: {
-    DZ: {
-      one_way_amount: 2500,
-      round_trip_enabled: true,
-    },
-  },
-  // ... more route-vehicle mappings
-};
 ```
 
-### 3.5 Unit Test Examples
+### 4.5 Unit Test Examples
 
 #### [`fare-engine.test.ts`](backend/tests/unit/fare-engine.test.ts) - Fare Calculation Tests
 
@@ -420,7 +479,7 @@ describe("Bookings and Payments Integration", () => {
 });
 ```
 
-### 3.6 Contract Tests
+### 4.6 Contract Tests
 
 #### [`contracts.test.ts`](backend/tests/unit/contracts.test.ts) - API Contract Validation
 
@@ -519,7 +578,7 @@ describe("Phase 1 Contract Synchronizations & Validation", () => {
 });
 ```
 
-### 3.7 Security Tests
+### 4.7 Security Tests
 
 #### [`security-findings.test.ts`](backend/tests/unit/security-findings.test.ts) - Security Validation
 
@@ -574,7 +633,7 @@ describe("Security Findings", () => {
 });
 ```
 
-### 3.8 Running Backend Tests
+### 4.8 Running Backend Tests
 
 ```bash
 # Run all backend tests
@@ -592,9 +651,9 @@ npm test -- --watch
 
 ---
 
-## 4. Frontend Testing
+## 5. Frontend Testing
 
-### 4.1 Test Framework
+### 5.1 Test Framework
 
 The frontend uses **TestSprite** for E2E testing and **Vitest** for unit/integration tests.
 
@@ -611,7 +670,7 @@ The frontend uses **TestSprite** for E2E testing and **Vitest** for unit/integra
 - Run mobile and desktop viewports
 - Do not modify application code or database to force a pass
 
-### 4.2 Test Categories
+### 5.2 Test Categories
 
 | Category | Purpose | Examples |
 |----------|---------|----------|
@@ -624,7 +683,7 @@ The frontend uses **TestSprite** for E2E testing and **Vitest** for unit/integra
 | **Responsive Tests** | Verify responsive design | Mobile, tablet, desktop viewports |
 | **Accessibility Tests** | Verify accessibility | Keyboard navigation, screen reader support |
 
-### 4.3 TestSprite Test Suite
+### 5.3 TestSprite Test Suite
 
 #### [`CUSTOMER_REACT_PRD_TESTSPRITE.md`](react/CUSTOMER_REACT_PRD_TESTSPRITE.md) - Customer Site PRD
 
@@ -649,7 +708,7 @@ The frontend uses **TestSprite** for E2E testing and **Vitest** for unit/integra
 11. Invalid/expired review token cannot create falsely verified public review
 12. No private keys/secrets in `react/dist`, HTML, source maps, browser storage, network responses, or console logs
 
-### 4.4 Running Frontend Tests
+### 5.4 Running Frontend Tests
 
 ```bash
 # Run catalog source tests
@@ -667,9 +726,9 @@ npm run test -- scripts/home-booking-widget.test.ts
 
 ---
 
-## 5. CI/CD Verification Gates
+## 6. CI/CD Verification Gates
 
-### 5.1 GitHub Actions Workflow
+### 6.1 GitHub Actions Workflow
 
 #### [`.github/workflows/ci.yml`](.github/workflows/ci.yml) - CI Workflow
 
@@ -739,7 +798,7 @@ jobs:
           if [ $found -eq 1 ]; then exit 1; fi
 ```
 
-### 5.2 Verification Pipeline
+### 6.2 Verification Pipeline
 
 ```bash
 # Full verification (CI contract)
@@ -754,7 +813,7 @@ npm run build:all
 npm run healthcheck
 ```
 
-### 5.3 Build Verification
+### 6.3 Build Verification
 
 **Build Output Verification:**
 - `react/dist/index.html` exists
@@ -766,9 +825,9 @@ npm run healthcheck
 
 ---
 
-## 6. Test Coverage Metrics
+## 7. Test Coverage Metrics
 
-### 6.1 Backend Coverage
+### 7.1 Backend Coverage
 
 | Test File | Lines | Functions | Branches | Statements |
 |-----------|-------|-----------|----------|------------|
@@ -777,7 +836,7 @@ npm run healthcheck
 | contracts.test.ts | 339 | 100% | 100% | 100% | 100% |
 | **Total** | 2098 | 100% | 100% | 100% | 100% |
 
-### 6.2 Frontend Coverage
+### 7.2 Frontend Coverage
 
 | Test File | Lines | Functions | Branches | Statements |
 |-----------|-------|-----------|----------|------------|
@@ -788,9 +847,9 @@ npm run healthcheck
 
 ---
 
-## 7. Testing Best Practices
+## 8. Testing Best Practices
 
-### 7.1 Unit Testing
+### 8.1 Unit Testing
 
 - **Isolate** business logic from external dependencies
 - **Use fixtures** for test data consistency
@@ -798,7 +857,7 @@ npm run healthcheck
 - **Verify return values** and side effects
 - **Use descriptive test names** that explain what is being tested
 
-### 7.2 Integration Testing
+### 8.2 Integration Testing
 
 - **Test component interactions** and API contracts
 - **Verify database queries** and repository operations
@@ -806,7 +865,7 @@ npm run healthcheck
 - **Use in-memory repositories** for fast, isolated tests
 - **Verify data persistence** and retrieval
 
-### 7.3 E2E Testing
+### 8.3 E2E Testing
 
 - **Test complete user journeys** from start to finish
 - **Verify backend contracts** and persisted state
@@ -814,7 +873,7 @@ npm run healthcheck
 - **Exercise negative cases** with safe malformed values
 - **Run on multiple viewports** and browsers
 
-### 7.4 Contract Testing
+### 8.4 Contract Testing
 
 - **Share Zod schemas** between frontend and backend
 - **Validate request/response** bodies at API boundaries
@@ -824,9 +883,9 @@ npm run healthcheck
 
 ---
 
-## 8. Test Data Management
+## 9. Test Data Management
 
-### 8.1 Test Fixtures
+### 9.1 Test Fixtures
 
 Test fixtures are stored in `backend/tests/fixtures/` and include:
 
@@ -837,7 +896,7 @@ Test fixtures are stored in `backend/tests/fixtures/` and include:
 | `payment-fixture.ts` | Payment test data |
 | `user-fixture.ts` | User test data |
 
-### 8.2 Test Data Generation
+### 9.2 Test Data Generation
 
 ```typescript
 function futureIso(daysAhead = 17): string {
@@ -866,9 +925,9 @@ export const sampleDraft = {
 
 ---
 
-## 9. Test Environment
+## 10. Test Environment
 
-### 9.1 Backend Test Environment
+### 10.1 Backend Test Environment
 
 ```bash
 NODE_ENV=test
@@ -880,7 +939,7 @@ RAZORPAY_KEY_SECRET=rzp_test_secret
 RAZORPAY_WEBHOOK_SECRET=whsec_razorpay_test
 ```
 
-### 9.2 Frontend Test Environment
+### 10.2 Frontend Test Environment
 
 ```bash
 CUSTOMER_BASE_URL=https://skbagheltravels-customer.coccoder999.workers.dev
@@ -895,9 +954,9 @@ TEST_RUN_ID=TS-CUS-<unique_id>
 
 ---
 
-## 10. Test Reporting
+## 11. Test Reporting
 
-### 10.1 Backend Test Output
+### 11.1 Backend Test Output
 
 ```bash
 $ npm test
@@ -912,7 +971,7 @@ Snapshots:   0
 Time:        12.345s
 ```
 
-### 10.2 Frontend Test Output
+### 11.2 Frontend Test Output
 
 ```bash
 $ npm run test:catalog-sources
@@ -934,22 +993,22 @@ Time:        8.765s
 
 ---
 
-## 11. References
+## 12. References
 
-### 11.1 Documentation
+### 12.1 Documentation
 
 - [`backend/README.md`](backend/README.md) - Backend README
 - [`react/README.md`](react/README.md) - React app README
 - [`react/TESTSPRITE_CUSTOMER_REACT_EXECUTION_PROMPT.md`](react/TESTSPRITE_CUSTOMER_REACT_EXECUTION_PROMPT.md) - TestSprite execution guide
 - [`admin/ADMIN_PRD_TESTSPRITE.md`](admin/ADMIN_PRD_TESTSPRITE.md) - Admin PRD for TestSprite
 
-### 11.2 Configuration Files
+### 12.2 Configuration Files
 
 - [`backend/vitest.config.ts`](backend/vitest.config.ts) - Vitest configuration
 - [`.github/workflows/ci.yml`](.github/workflows/ci.yml) - CI workflow
 - [`package.json`](package.json) - Root workspace scripts
 
-### 11.3 Test Files
+### 12.3 Test Files
 
 - [`backend/tests/`](backend/tests/) - Backend test directory
 - [`react/scripts/`](react/scripts/) - Frontend test scripts

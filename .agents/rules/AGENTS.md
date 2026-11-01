@@ -1,4 +1,4 @@
-# AI Operating Rules — SK Baghel Tour & Travels
+# AI Operating Rules — Agra SK Baghel Tour & Travels
 
 This workspace follows the multi-phase monorepo protocol (`react/`, `admin/`, `backend/`)
 governed by the root `AGENTS.md` and operational docs.

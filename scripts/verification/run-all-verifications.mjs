@@ -14,7 +14,7 @@ import { runLegacySafetyVerification } from "./test-legacy-safety.mjs";
 async function main() {
   const targetUrl = process.env.API_BASE_URL || API_BASE_URL;
   console.log("\x1b[1m\x1b[36m============================================================\x1b[0m");
-  console.log("\x1b[1m\x1b[36m AGRA SK BAGHEL TOUR & TRAVELS — VERIFICATION SUITE RUNNER  \x1b[0m");
+  console.log("\x1b[1m\x1b[36m Agra SK Baghel TOUR & TRAVELS — VERIFICATION SUITE RUNNER  \x1b[0m");
   console.log("\x1b[1m\x1b[36m============================================================\x1b[0m");
   console.log(`Endpoint target: ${targetUrl}\n`);
 

@@ -27,14 +27,14 @@ export type SiteConfig = {
 };
 
 export const siteConfig: SiteConfig = {
-  name: "Agra SK Baghel Tour and Travels",
+  name: "Agra SK Baghel Tour & Travels",
   domain: resolveSiteOrigin(
     import.meta.env.VITE_SITE_URL,
     (import.meta.env.VITE_SITE_MODE === "production"
       ? "production"
       : import.meta.env.MODE === "development"
-      ? "development"
-      : "preview") as SiteOriginMode,
+        ? "development"
+        : "preview") as SiteOriginMode,
   ),
   defaultLanguage: "en",
   supportedLanguages: ["en", "hi"],

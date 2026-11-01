@@ -48,7 +48,7 @@ AI-generated design clusters around these tells — challenge all of them:
 - Feature lists should name the outcome, not the mechanism.
 - Avoid "seamlessly" — it means the writer doesn't know what the product does.
 
-## Applying this to SK Baghel Tour & Travels (this project)
+## Applying this to Agra SK Baghel Tour & Travels (this project)
 
 **Design read:** Premium heritage-tour taxi service based in Agra, India. Audience is domestic and international tourists. Visual language should evoke luxury heritage travel — Mughal architecture, warm sandstone, refined elegance — NOT a generic cab-app UI.
 

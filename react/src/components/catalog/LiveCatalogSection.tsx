@@ -96,7 +96,7 @@ export function LiveCatalogSection({
         {items.map((item) => {
           const detailUrl = `/en/packages/${item.slug}/`;
           const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-            `Hello Agra SK Baghel Tour and Travels, I am interested in the ${item.title}.`,
+            `Hello Agra SK Baghel Tour & Travels, I am interested in the ${item.title}.`,
           )}`;
           const availability = AVAILABILITY_BADGE[item.availability];
           const cover = item.coverImage;

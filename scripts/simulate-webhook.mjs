@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * SK Baghel Tour & Travels — Localhost Razorpay Webhook Simulator
+ * Agra SK Baghel Tour & Travels — Localhost Razorpay Webhook Simulator
  *
  * Use this script to simulate the Razorpay `payment.captured` webhook on localhost
  * so that a test booking transitions to `paid_confirmed` without needing a public tunnel.

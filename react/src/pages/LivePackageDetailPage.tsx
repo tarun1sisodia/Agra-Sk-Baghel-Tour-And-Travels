@@ -49,7 +49,7 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
   // Dynamic SEO for runtime catalog items.
   useEffect(() => {
     if (status !== "ready" || !item) return;
-    document.title = `${item.title} — Private Tour & Fares | Agra SK Baghel Tour and Travels`;
+    document.title = `${item.title} — Private Tour & Fares | Agra SK Baghel Tour & Travels`;
     const setMeta = (selector: string, attr: string, value: string) => {
       let el = document.head.querySelector<HTMLMetaElement>(selector);
       if (!el) {
@@ -61,7 +61,7 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
       el.setAttribute(attr, value);
     };
     setMeta('meta[name="description"]', "content", item.shortDescription);
-    setMeta('meta[property="og:title"]', "content", `${item.title} | Agra SK Baghel Tour and Travels`);
+    setMeta('meta[property="og:title"]', "content", `${item.title} | Agra SK Baghel Tour & Travels`);
     setMeta('meta[property="og:description"]', "content", item.shortDescription);
     if (item.coverImage?.url) {
       setMeta('meta[property="og:image"]', "content", resolveCatalogMediaUrl(item.coverImage.url));
@@ -85,7 +85,7 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
   }
 
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-    `Hello Agra SK Baghel Tour and Travels, I am interested in the ${item.title}${item.availability === "unavailable" ? " (custom availability enquiry)" : item.startingPriceInr != null && item.startingPriceInr > 0 ? ` (from ₹${item.startingPriceInr.toLocaleString("en-IN")})` : " (custom quote enquiry)"}.`,
+    `Hello Agra SK Baghel Tour & Travels, I am interested in the ${item.title}${item.availability === "unavailable" ? " (custom availability enquiry)" : item.startingPriceInr != null && item.startingPriceInr > 0 ? ` (from ₹${item.startingPriceInr.toLocaleString("en-IN")})` : " (custom quote enquiry)"}.`,
   )}`;
   const totalFare = item.startingPriceInr != null && item.startingPriceInr > 0 ? item.startingPriceInr : 0;
   const advanceFare = Math.round(totalFare * 0.28);
@@ -165,9 +165,8 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
                     onClick={() => setActiveImage(idx)}
                     aria-label={`View photo: ${img.altText}`}
                     aria-current={idx === activeImage}
-                    className={`shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                      idx === activeImage ? "border-primary" : "border-transparent opacity-70 hover:opacity-100"
-                    }`}
+                    className={`shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 transition-colors ${idx === activeImage ? "border-primary" : "border-transparent opacity-70 hover:opacity-100"
+                      }`}
                   >
                     <img
                       src={resolveCatalogMediaUrl(img.url)}

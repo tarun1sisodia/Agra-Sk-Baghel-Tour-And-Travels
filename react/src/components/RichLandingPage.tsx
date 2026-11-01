@@ -44,7 +44,7 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
         serviceType: route.type === "local" ? "Local Sightseeing Taxi" : "Outstation Taxi Service",
         provider: {
           "@type": "LocalBusiness",
-          name: "Agra SK Baghel Tour and Travels",
+          name: "Agra SK Baghel Tour & Travels",
           telephone: contact.phone,
           email: contact.email,
           url: "https://agraskbagheltourandtravels.com/",
@@ -539,7 +539,7 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
                 Official Registered Tourist Transport
               </Eyebrow>
               <CardTitle className="text-xl sm:text-[1.375rem] mt-1">
-                Agra SK Baghel Tour and Travels — Operations &amp; Dispatch Offices
+                Agra SK Baghel Tour & Travels — Operations &amp; Dispatch Offices
               </CardTitle>
               <BodyText>
                 Operating government-approved tourist commercial fleets across Agra and North India. For inquiries, hotel pickups, or airport dispatches, connect with our centralized teams:

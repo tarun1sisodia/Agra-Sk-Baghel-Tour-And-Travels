@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * SK Baghel Tour & Travels — Localhost Monorepo Runner
+ * Agra SK Baghel Tour & Travels — Localhost Monorepo Runner
  * Starts Backend (port 4000), React Customer (port 5173), and Admin Desk (port 5174).
  * Handles clean shutdown across all children on SIGINT/SIGTERM.
  */
@@ -20,7 +20,7 @@ const services = [
 
 const processes = [];
 
-console.log("\x1b[1m\x1b[33m%s\x1b[0m", "Starting SK Baghel Localhost Monorepo Environment...");
+console.log("\x1b[1m\x1b[33m%s\x1b[0m", "Starting Agra SK Baghel Localhost Monorepo Environment...");
 console.log("  • Backend API:        http://localhost:4000");
 console.log("  • Customer Site:      http://localhost:5173");
 console.log("  • Operations Desk:    http://localhost:5174");

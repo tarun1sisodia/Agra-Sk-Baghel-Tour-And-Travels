@@ -1,4 +1,4 @@
-    # SEO Engine Documentation — Agra SK Baghel Tour & Travels
+# SEO Engine Documentation — Agra SK Baghel Tour & Travels
 
 ## 1. Overview
 
@@ -11,424 +11,236 @@ This document defines the SEO engine for Agra SK Baghel Tour & Travels platform.
 - Real-time SEO monitoring
 
 **Key Components:**
-- Metadata Manager
-- URL Manager
-- Schema Generator
-- Localization Engine
-- Sitemap Engine
+- Database-Backed Metadata (`seo_metadata` table)
+- Database-Backed Redirects (`seo_redirects` table)
+- Deterministic Fallback Templates
 - SEO Validation Engine
 - SEO Dashboard
 
 ---
 
-## 2. SEO Engine Architecture
+## 2. Database-Backed Metadata
 
-### 2.1 SEO Engine Components
+### 2.1 Database Schema
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        SEO Engine Architecture                      │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                       │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐      │
-│  │  Metadata       │  │  URL Manager    │  │  Schema         │      │
-│  │  Manager        │  │                 │  │  Generator      │      │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘      │
-│         │                      │                      │              │
-│         └──────────────────────┴──────────────────────┘              │
-│                                │                                      │
-│                        ┌───────▼───────┐                             │
-│                        │  SEO Engine   │                             │
-│                        └───────┬───────┘                             │
-│                                │                                      │
-│         ┌──────────────────────┴──────────────────────┐              │
-│         │                      │                      │              │
-│  ┌──────▼───────┐  ┌──────────▼──────────┐  ┌────────▼─────────┐    │
-│  │ Localization │  │  Sitemap Engine     │  │  SEO Validation  │    │
-│  │ Engine       │  │                     │  │  Engine          │    │
-│  └──────────────┘  └─────────────────────┘  └──────────────────┘    │
-│                                                                       │
-│                              ┌────────┐                               │
-│                              │ SEO    │                               │
-│                              │ Dashboard │                             │
-│                              └────────┘                               │
-└─────────────────────────────────────────────────────────────────────┘
+```sql
+CREATE TABLE seo_metadata (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  url_path VARCHAR(255) NOT NULL UNIQUE,
+  title VARCHAR(70) NOT NULL,
+  description VARCHAR(170) NOT NULL,
+  canonical_url VARCHAR(2048) NOT NULL,
+  og_title VARCHAR(100),
+  og_description VARCHAR(200),
+  og_image_url VARCHAR(2048),
+  noindex BOOLEAN DEFAULT FALSE,
+  schema_json_ld JSONB,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_seo_metadata_url_path ON seo_metadata(url_path);
 ```
 
-### 2.2 SEO Data Flow
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        SEO Data Flow                                │
-├─────────────────────────────────────────────────────────────────────┤
-│ 1. Admin creates/updates content                                    │
-│    ↓                                                                 │
-│ 2. SEO metadata entered (title, description, canonical, etc.)       │
-│    ↓                                                                 │
-│ 3. SEO engine validates metadata                                    │
-│    ↓                                                                 │
-│ 4. SEO data stored in database                                      │
-│    ↓                                                                 │
-│ 5. Content published                                                │
-│    ↓                                                                 │
-│ 6. SEO data rendered in HTML                                        │
-│    ↓                                                                 │
-│ 7. Sitemap updated                                                  │
-│    ↓                                                                 │
-│ 8. SEO dashboard updated                                            │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 3. Metadata Manager
-
-### 3.1 Metadata Fields
-
-| Field | Type | Required | Max Length | Description |
-|-------|------|----------|------------|-------------|
-| title | string | Yes | 60 | Page title for SERP |
-| description | string | Yes | 160 | Meta description for SERP |
-| canonical | string | Yes | 2048 | Canonical URL |
-| keywords | string | No | 255 | SEO keywords |
-| og:title | string | Yes | 100 | Open Graph title |
-| og:description | string | Yes | 200 | Open Graph description |
-| og:image | string | Yes | 2048 | Open Graph image |
-| twitter:title | string | Yes | 70 | Twitter card title |
-| twitter:description | string | Yes | 200 | Twitter card description |
-| twitter:image | string | Yes | 2048 | Twitter card image |
-
-### 3.2 Metadata Schema
+### 2.2 Metadata Contract
 
 ```typescript
-export interface SEOMetadata {
-  id: string;
-  url: string;
-  title: string;
-  description: string;
-  canonical: string;
-  keywords?: string;
-  ogTitle?: string;
-  ogDescription?: string;
-  ogImage?: string;
-  twitterTitle?: string;
-  twitterDescription?: string;
-  twitterImage?: string;
-  noindex?: boolean;
-  nofollow?: boolean;
-  hreflang?: HreflangAlternate[];
-  schema?: SchemaData;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface HreflangAlternate {
-  hreflang: string;
-  href: string;
-}
-
-export interface SchemaData {
-  type: string;
-  data: Record<string, unknown>;
-}
+export const SeoMetadataItem = z.object({
+  id: Uuid,
+  url_path: z.string().min(1),
+  title: z.string().min(10).max(70),
+  description: z.string().min(50).max(170),
+  canonical_url: z.string().url(),
+  og_title: z.string().max(100).nullable().optional(),
+  og_description: z.string().max(200).nullable().optional(),
+  og_image_url: z.string().url().nullable().optional(),
+  noindex: z.boolean().default(false),
+  schema_json_ld: z.record(z.string(), z.unknown()).nullable().optional(),
+  updated_at: z.string(),
+});
+export type SeoMetadataItem = z.infer<typeof SeoMetadataItem>;
 ```
 
-### 3.3 Metadata Manager API
+### 2.3 Repository Implementation
 
 ```typescript
-export interface SEOMetadataManager {
-  getMetadata(url: string): Promise<SEOMetadata | null>;
-  saveMetadata(metadata: SEOMetadata): Promise<void>;
-  deleteMetadata(url: string): Promise<void>;
-  validateMetadata(metadata: SEOMetadata): ValidationResult;
+export interface SeoMetadataRepository {
+  getByPath(urlPath: string): Promise<SeoMetadataItem | null>;
+  upsert(record: Omit<SeoMetadataItem, 'id' | 'updated_at'>): Promise<SeoMetadataItem>;
+  listActiveRedirects(): Promise<SeoRedirectItem[]>;
 }
 
-export class SEOMetadataManagerImpl implements SEOMetadataManager {
-  async getMetadata(url: string): Promise<SEOMetadata | null> {
-    // Query database for metadata
+export class PostgresSeoMetadataRepository implements SeoMetadataRepository {
+  async getByPath(urlPath: string): Promise<SeoMetadataItem | null> {
+    const result = await this.client.query<SeoMetadataItem>(
+      `SELECT * FROM seo_metadata WHERE url_path = $1`,
+      [urlPath]
+    );
+    return result.rows[0] ?? null;
   }
   
-  async saveMetadata(metadata: SEOMetadata): Promise<void> {
-    // Save metadata to database
-  }
-  
-  async deleteMetadata(url: string): Promise<void> {
-    // Delete metadata from database
-  }
-  
-  async validateMetadata(metadata: SEOMetadata): Promise<ValidationResult> {
-    // Validate metadata
+  async upsert(record: Omit<SeoMetadataItem, 'id' | 'updated_at'>): Promise<SeoMetadataItem> {
+    const result = await this.client.query<SeoMetadataItem>(
+      `INSERT INTO seo_metadata (url_path, title, description, canonical_url, og_title, og_description, og_image_url, noindex, schema_json_ld)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       ON CONFLICT (url_path) DO UPDATE SET
+         title = EXCLUDED.title,
+         description = EXCLUDED.description,
+         canonical_url = EXCLUDED.canonical_url,
+         og_title = EXCLUDED.og_title,
+         og_description = EXCLUDED.og_description,
+         og_image_url = EXCLUDED.og_image_url,
+         noindex = EXCLUDED.noindex,
+         schema_json_ld = EXCLUDED.schema_json_ld,
+         updated_at = NOW()
+       RETURNING *`,
+      [record.url_path, record.title, record.description, record.canonical_url, record.og_title, record.og_description, record.og_image_url, record.noindex, record.schema_json_ld]
+    );
+    return result.rows[0];
   }
 }
 ```
 
 ---
 
-## 4. URL Manager
+## 3. Database-Backed Redirects
 
-### 4.1 URL Fields
+### 3.1 Database Schema
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| slug | string | Yes | URL slug |
-| canonical | string | Yes | Canonical URL |
-| redirect | string | No | Redirect URL |
-| redirectType | number | No | HTTP redirect type (301, 302) |
+```sql
+CREATE TABLE seo_redirects (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  from_path VARCHAR(255) NOT NULL,
+  to_path VARCHAR(255) NOT NULL,
+  status_code SMALLINT NOT NULL DEFAULT 301,
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
-### 4.2 URL Schema
-
-```typescript
-export interface SEOURL {
-  id: string;
-  url: string;
-  slug: string;
-  canonical: string;
-  redirect?: string;
-  redirectType?: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+CREATE INDEX idx_seo_redirects_from_path ON seo_redirects(from_path);
+CREATE INDEX idx_seo_redirects_is_active ON seo_redirects(is_active);
 ```
 
-### 4.3 URL Manager API
+### 3.2 Redirect Contract
 
 ```typescript
-export interface SEOURLManager {
-  getURL(url: string): Promise<SEOURL | null>;
-  saveURL(url: SEOURL): Promise<void>;
-  deleteURL(url: string): Promise<void>;
-  validateSlug(slug: string): ValidationResult;
-  generateSlug(title: string): string;
+export const SeoRedirectItem = z.object({
+  id: Uuid,
+  from_path: z.string().min(1),
+  to_path: z.string().min(1),
+  status_code: z.union([z.literal(301), z.literal(302)]).default(301),
+  is_active: z.boolean().default(true),
+  created_at: z.string(),
+});
+export type SeoRedirectItem = z.infer<typeof SeoRedirectItem>;
+```
+
+### 3.3 Repository Implementation
+
+```typescript
+export interface SeoRedirectRepository {
+  listActiveRedirects(): Promise<SeoRedirectItem[]>;
+  getByFromPath(fromPath: string): Promise<SeoRedirectItem | null>;
 }
 
-export class SEOURLManagerImpl implements SEOURLManager {
-  async getURL(url: string): Promise<SEOURL | null> {
-    // Query database for URL
+export class PostgresSeoRedirectRepository implements SeoRedirectRepository {
+  async listActiveRedirects(): Promise<SeoRedirectItem[]> {
+    const result = await this.client.query<SeoRedirectItem>(
+      `SELECT * FROM seo_redirects WHERE is_active = TRUE ORDER BY created_at DESC`
+    );
+    return result.rows;
   }
   
-  async saveURL(url: SEOURL): Promise<void> {
-    // Save URL to database
-  }
-  
-  async deleteURL(url: string): Promise<void> {
-    // Delete URL from database
-  }
-  
-  async validateSlug(slug: string): Promise<ValidationResult> {
-    // Validate slug uniqueness
-  }
-  
-  generateSlug(title: string): string {
-    // Generate slug from title
+  async getByFromPath(fromPath: string): Promise<SeoRedirectItem | null> {
+    const result = await this.client.query<SeoRedirectItem>(
+      `SELECT * FROM seo_redirects WHERE from_path = $1 AND is_active = TRUE`,
+      [fromPath]
+    );
+    return result.rows[0] ?? null;
   }
 }
 ```
 
 ---
 
-## 5. Schema Generator
+## 4. Deterministic Fallback Templates
 
-### 5.1 Schema Types
+### 4.1 Route Templates
 
-| Type | Description | Required Fields |
-|------|-------------|-----------------|
-| WebSite | Website schema | name, url,potentialAction |
-| LocalBusiness | Local business schema | name, address, telephone |
-| TourPackage | Tour package schema | name, description, offers |
-| Product | Product schema | name, description, offers |
-| Review | Review schema | itemReviewed, reviewRating |
-| BreadcrumbList | Breadcrumb schema | itemListElement |
+**Tour Packages:**
+- Title: `{Package Name} - {Duration} Tour Package from {Source} | Agra SK Baghel Tour & Travels`
+- Description: `Book {Package Name} tour package. {Duration} days. {Inclusions}. Best rates guaranteed.`
+- Canonical: `/packages/{slug}`
+- Schema: `TourPackage`
 
-### 5.2 Schema Schema
+**Routes:**
+- Title: `{Source} to {Destination} Taxi - Book Online | Agra SK Baghel Tour & Travels`
+- Description: `Book affordable taxi from {Source} to {Destination}. {Distance} km. {Duration}. 24/7 support.`
+- Canonical: `/routes/{slug}`
+- Schema: `Product`
+
+**Local Packages:**
+- Title: `{Package Name} - {Duration} Local Sightseeing | Agra SK Baghel Tour & Travels`
+- Description: `Book {Package Name} local sightseeing package. {Duration} hours. {Inclusions}. Best rates guaranteed.`
+- Canonical: `/packages/local/{slug}`
+- Schema: `Product`
+
+**Transfers:**
+- Title: `{Route Name} Transfer - Airport/Railway Station Taxi | Agra SK Baghel Tour & Travels`
+- Description: `Book {Route Name} transfer. {Distance} km. {Duration}. 24/7 airport/railway station service.`
+- Canonical: `/transfers/{slug}`
+- Schema: `Service`
+
+**Monuments:**
+- Title: `{Monument Name} - Entry Tickets, Timings, History | Agra SK Baghel Tour & Travels`
+- Description: `Visit {Monument Name}. Book entry tickets online. {Description}. Best prices guaranteed.`
+- Canonical: `/monuments/{slug}`
+- Schema: `LocalBusiness`
+
+### 4.2 Fallback Logic
 
 ```typescript
-export interface SchemaData {
-  type: string;
-  data: Record<string, unknown>;
-}
-
-export interface SEOSchema {
-  id: string;
-  url: string;
-  type: string;
-  data: SchemaData;
-  isValid: boolean;
-  errors?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-```
-
-### 5.3 Schema Generator API
-
-```typescript
-export interface SEOSchemaGenerator {
-  generateSchema(url: string, contentType: string, content: any): SchemaData;
-  validateSchema(schema: SchemaData): ValidationResult;
-}
-
-export class SEOSchemaGeneratorImpl implements SEOSchemaGenerator {
-  async generateSchema(url: string, contentType: string, content: any): Promise<SchemaData> {
-    // Generate schema based on content type
+export function getSeoFallback(pathname: string): SeoMetadata {
+  // Check database-backed metadata first
+  const dbMetadata = seoMetadataRepo.getByPath(pathname);
+  if (dbMetadata) return dbMetadata;
+  
+  // Fall back to deterministic template based on route type
+  if (pathname.startsWith('/packages/')) {
+    return getTourPackageFallback(pathname);
+  } else if (pathname.startsWith('/routes/')) {
+    return getRouteFallback(pathname);
+  } else if (pathname.startsWith('/packages/local/')) {
+    return getLocalPackageFallback(pathname);
+  } else if (pathname.startsWith('/transfers/')) {
+    return getTransferFallback(pathname);
+  } else if (pathname.startsWith('/monuments/')) {
+    return getMonumentFallback(pathname);
   }
   
-  async validateSchema(schema: SchemaData): Promise<ValidationResult> {
-    // Validate schema
-  }
+  // Default fallback
+  return getDefaultFallback(pathname);
 }
 ```
 
 ---
 
-## 6. Localization Engine
+## 5. SEO Validation Engine
 
-### 6.1 Language Support
-
-| Language | Code | Description |
-|----------|------|-------------|
-| English | en-IN | English (India) |
-| Hindi | hi-IN | Hindi (India) |
-| Default | x-default | Default language |
-
-### 6.2 Hreflang Schema
-
-```typescript
-export interface HreflangAlternate {
-  hreflang: string;
-  href: string;
-}
-
-export interface SEOHreflang {
-  id: string;
-  url: string;
-  alternates: HreflangAlternate[];
-  createdAt: string;
-  updatedAt: string;
-}
-```
-
-### 6.3 Localization Engine API
-
-```typescript
-export interface SEOLocalizationEngine {
-  getAlternates(url: string): Promise<HreflangAlternate[]>;
-  saveAlternates(url: string, alternates: HreflangAlternate[]): Promise<void>;
-  validateAlternates(alternates: HreflangAlternate[]): ValidationResult;
-}
-
-export class SEOLocalizationEngineImpl implements SEOLocalizationEngine {
-  async getAlternates(url: string): Promise<HreflangAlternate[]> {
-    // Query database for alternates
-  }
-  
-  async saveAlternates(url: string, alternates: HreflangAlternate[]): Promise<void> {
-    // Save alternates to database
-  }
-  
-  async validateAlternates(alternates: HreflangAlternate[]): Promise<ValidationResult> {
-    // Validate alternates
-  }
-}
-```
-
----
-
-## 7. Sitemap Engine
-
-### 7.1 Sitemap Structure
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://agraskbagheltourandtravels.com/</loc>
-    <lastmod>2024-01-01T00:00:00Z</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://agraskbagheltourandtravels.com/packages/golden-triangle</loc>
-    <lastmod>2024-01-01T00:00:00Z</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-</urlset>
-```
-
-### 7.2 Sitemap Schema
-
-```typescript
-export interface SitemapEntry {
-  path: string;
-  lastmod?: string;
-  changefreq?: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
-  priority?: number;
-}
-
-export interface Sitemap {
-  id: string;
-  entries: SitemapEntry[];
-  isValid: boolean;
-  errors?: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-```
-
-### 7.3 Sitemap Engine API
-
-```typescript
-export interface SitemapEngine {
-  generateSitemap(): Promise<Sitemap>;
-  getSitemap(): Promise<Sitemap>;
-  updateSitemap(): Promise<void>;
-  validateSitemap(sitemap: Sitemap): ValidationResult;
-}
-
-export class SitemapEngineImpl implements SitemapEngine {
-  async generateSitemap(): Promise<Sitemap> {
-    // Generate sitemap from database
-  }
-  
-  async getSitemap(): Promise<Sitemap> {
-    // Get sitemap from database
-  }
-  
-  async updateSitemap(): Promise<void> {
-    // Update sitemap in database
-  }
-  
-  async validateSitemap(sitemap: Sitemap): Promise<ValidationResult> {
-    // Validate sitemap
-  }
-}
-```
-
----
-
-## 8. SEO Validation Engine
-
-### 8.1 Validation Rules
+### 5.1 Validation Rules
 
 **Title Validation:**
 - Required: Yes
-- Length: 50-60 characters
+- Length: 10-70 characters
 - Unique: Yes (per page)
 
 **Description Validation:**
 - Required: Yes
-- Length: 150-160 characters
+- Length: 50-170 characters
 - Unique: Yes (per page)
 
 **Canonical Validation:**
 - Required: Yes
 - Format: Valid URL
-- Unique: Yes (per page)
-
-**Slug Validation:**
-- Required: Yes
-- Format: Valid slug
 - Unique: Yes (per page)
 
 **Image Validation:**
@@ -441,7 +253,7 @@ export class SitemapEngineImpl implements SitemapEngine {
 - Format: Valid JSON-LD
 - Type: Valid schema type
 
-### 8.2 Validation Schema
+### 5.2 Validation Schema
 
 ```typescript
 export interface ValidationResult {
@@ -462,14 +274,13 @@ export interface ValidationWarning {
 }
 ```
 
-### 8.3 Validation Engine API
+### 5.3 Validation Engine API
 
 ```typescript
 export interface SEOValidationEngine {
   validatePage(url: string): Promise<ValidationResult>;
-  validateMetadata(metadata: SEOMetadata): ValidationResult;
+  validateMetadata(metadata: SeoMetadataItem): ValidationResult;
   validateSchema(schema: SchemaData): ValidationResult;
-  validateSitemap(sitemap: Sitemap): ValidationResult;
 }
 
 export class SEOValidationEngineImpl implements SEOValidationEngine {
@@ -477,25 +288,21 @@ export class SEOValidationEngineImpl implements SEOValidationEngine {
     // Validate all SEO aspects for page
   }
   
-  async validateMetadata(metadata: SEOMetadata): Promise<ValidationResult> {
+  async validateMetadata(metadata: SeoMetadataItem): Promise<ValidationResult> {
     // Validate metadata
   }
   
   async validateSchema(schema: SchemaData): Promise<ValidationResult> {
     // Validate schema
   }
-  
-  async validateSitemap(sitemap: Sitemap): Promise<ValidationResult> {
-    // Validate sitemap
-  }
 }
 ```
 
 ---
 
-## 9. SEO Dashboard
+## 6. SEO Dashboard
 
-### 9.1 Dashboard Metrics
+### 6.1 Dashboard Metrics
 
 | Metric | Description |
 |--------|-------------|
@@ -508,7 +315,7 @@ export class SEOValidationEngineImpl implements SEOValidationEngine {
 | Missing Images | Number of pages missing images |
 | Schema Issues | Number of pages with schema issues |
 
-### 9.2 Dashboard Schema
+### 6.2 Dashboard Schema
 
 ```typescript
 export interface SEODashboard {
@@ -524,7 +331,7 @@ export interface SEODashboard {
 }
 ```
 
-### 9.3 Dashboard API
+### 6.3 Dashboard API
 
 ```typescript
 export interface SEODashboardAPI {
@@ -550,64 +357,9 @@ export class SEODashboardAPIImpl implements SEODashboardAPI {
 
 ---
 
-## 10. SEO Templates
+## 7. SEO Publishing Rules
 
-### 10.1 Tour Package Template
-
-**Title:** `{Package Name} - {Duration} Tour Package from {Source} | Agra SK Baghel Tour & Travels`
-
-**Description:** `Book {Package Name} tour package. {Duration} days. {Inclusions}. Best rates guaranteed.`
-
-**Canonical:** `https://agraskbagheltourandtravels.com/packages/{slug}`
-
-**Open Graph:**
-- og:title: `{Package Name} - {Duration} Tour Package`
-- og:description: `{Inclusions}. Best rates guaranteed.`
-- og:image: `{Package Image URL}`
-
-**Schema:** `TourPackage`
-
-**Breadcrumbs:** `Home > Packages > {Package Name}`
-
-### 10.2 Route Template
-
-**Title:** `{Source} to {Destination} Taxi - Book Online | Agra SK Baghel Tour & Travels`
-
-**Description:** `Book affordable taxi from {Source} to {Destination}. {Distance} km. {Duration}. 24/7 support.`
-
-**Canonical:** `https://agraskbagheltourandtravels.com/routes/{slug}`
-
-**Open Graph:**
-- og:title: `{Source} to {Destination} Taxi`
-- og:description: `{Distance} km. {Duration}. Best rates.`
-- og:image: `{Route Image URL}`
-
-**Schema:** `Product`
-
-**Breadcrumbs:** `Home > Routes > {Source} to {Destination}`
-
-### 10.3 Destination Template
-
-**Title:** `{Destination} Travel Guide - Things to Do | Agra SK Baghel Tour & Travels`
-
-**Description:** `Plan your trip to {Destination}. Best places to visit, activities, and travel tips.`
-
-**Canonical:** `https://agraskbagheltourandtravels.com/destinations/{slug}`
-
-**Open Graph:**
-- og:title: `{Destination} Travel Guide`
-- og:description: `Best places to visit and activities.`
-- og:image: `{Destination Image URL}`
-
-**Schema:** `Place`
-
-**Breadcrumbs:** `Home > Destinations > {Destination}`
-
----
-
-## 11. SEO Publishing Rules
-
-### 11.1 Indexability Rules
+### 7.1 Indexability Rules
 
 A page is indexable if:
 - Status is 'published'
@@ -617,7 +369,7 @@ A page is indexable if:
 - No 'noindex' directive
 - Content meets minimum quality requirements
 
-### 11.2 Publishing Workflow
+### 7.2 Publishing Workflow
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -645,22 +397,20 @@ A page is indexable if:
 
 ---
 
-## 12. Conclusion
+## 8. Conclusion
 
 This SEO engine documentation provides a comprehensive framework for managing SEO in the Agra SK Baghel Tour & Travels platform.
 
 **Key Takeaways:**
-1. Centralized SEO management with database-driven configuration
-2. Automated SEO validation across all public pages
-3. Metadata, URL, schema, and localization management
-4. Sitemap generation and validation
-5. Real-time SEO monitoring with dashboard
+1. Database-driven SEO with `seo_metadata` and `seo_redirects` tables
+2. Deterministic fallback templates for all route types
+3. Automated SEO validation across all public pages
+4. Real-time SEO monitoring with dashboard
+5. Admin SEO Control Center for manual overrides
 
 **Next Steps:**
 1. Implement metadata manager
-2. Build URL manager
-3. Create schema generator
-4. Set up localization engine
-5. Build sitemap engine
-6. Implement SEO validation engine
-7. Create SEO dashboard
+2. Build redirect manager
+3. Create fallback template engine
+4. Set up SEO validation engine
+5. Build SEO dashboard

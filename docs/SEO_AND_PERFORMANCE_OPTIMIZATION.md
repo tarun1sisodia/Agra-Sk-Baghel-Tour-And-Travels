@@ -1,8 +1,8 @@
-# SEO and Performance Optimization Guide — SK Baghel Tour & Travels
+# SEO and Performance Optimization Guide — Agra SK Baghel Tour & Travels
 
 ## 1. Executive Summary
 
-This document outlines the comprehensive SEO and performance optimization strategy for SK Baghel Tour & Travels, a premium heritage-tour taxi service based in Agra, India. The strategy is built around official Google resources and industry best practices to ensure maximum visibility, accessibility, and user experience.
+This document outlines the comprehensive SEO and performance optimization strategy for Agra SK Baghel Tour & Travels, a premium heritage-tour taxi service based in Agra, India. The strategy is built around official Google resources and industry best practices to ensure maximum visibility, accessibility, and user experience.
 
 **Official Resources Used:**
 - [Google Search Console](https://search.google.com/search-console)
@@ -11,11 +11,11 @@ This document outlines the comprehensive SEO and performance optimization strate
 - [Screaming Frog SEO Spider](https://www.screamingfrog.co.uk/seo-spider)
 - [Google SEO Starter Guide](https://developers.google.com/search/docs/fundamentals/seo-starter-guide)
 
-**Performance Targets:**
-- PageSpeed Insights Score: 90+ (Mobile & Desktop)
-- Core Web Vitals: All passing (LCP < 2.5s, FID < 100ms, CLS < 0.1)
-- First Contentful Paint (FCP): < 1.8s
-- Time to Interactive (TTI): < 3.5s
+**Performance Targets (v3.0.0):**
+- PageSpeed Insights Score: 95+ (Mobile & Desktop)
+- Core Web Vitals: All passing (LCP < 2.0s, INP < 100ms, CLS < 0.05)
+- First Contentful Paint (FCP): < 1.5s
+- Time to Interactive (TTI): < 3.0s
 
 ---
 
@@ -205,7 +205,7 @@ Structured data helps search engines understand page content and enables rich re
 {
   "@context": "https://schema.org",
   "@type": "TaxiService",
-  "name": "SK Baghel Tour & Travels",
+  "name": "Agra SK Baghel Tour & Travels",
   "image": "https://agraskbagheltourandtravels.com/logo.png",
   "telephone": "+91-XXXXXXXXXX",
   "address": {
@@ -236,7 +236,7 @@ Structured data helps search engines understand page content and enables rich re
 {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "SK Baghel Tour & Travels",
+  "name": "Agra SK Baghel Tour & Travels",
   "url": "https://agraskbagheltourandtravels.com",
   "potentialAction": {
     "@type": "SearchAction",
@@ -263,14 +263,14 @@ Structured data helps search engines understand page content and enables rich re
 **Rules:**
 - Length: 50-60 characters (Google truncates at ~600 pixels)
 - Include primary keyword near the beginning
-- Brand name at the end: "Page Title - SK Baghel Tour & Travels"
+- Brand name at the end: "Page Title - Agra SK Baghel Tour & Travels"
 - Unique for each page
 - Avoid keyword stuffing
 
 **Examples:**
-- Home: "SK Baghel Tour & Travels - Premium Taxi Service in Agra"
-- Route: "Agra to Delhi Taxi - Book Online | SK Baghel Tour & Travels"
-- Package: "Golden Triangle Tour Package - 3 Days | SK Baghel Tour & Travels"
+- Home: "Agra SK Baghel Tour & Travels - Premium Taxi Service in Agra"
+- Route: "Agra to Delhi Taxi - Book Online | Agra SK Baghel Tour & Travels"
+- Package: "Golden Triangle Tour Package - 3 Days | Agra SK Baghel Tour & Travels"
 
 #### 2.3.2 Meta Description Optimization
 
@@ -297,7 +297,7 @@ Structured data helps search engines understand page content and enables rich re
 
 **Example Structure:**
 ```html
-<h1>SK Baghel Tour & Travels - Premium Taxi Service in Agra</h1>
+<h1>Agra SK Baghel Tour & Travels - Premium Taxi Service in Agra</h1>
 <h2>Our Services</h2>
 <h3>Airport Transfers</h3>
 <h3>Outstation Trips</h3>
@@ -328,7 +328,7 @@ Structured data helps search engines understand page content and enables rich re
 
 Google's Core Web Vitals measure user experience on three key metrics:
 
-#### 3.1.1 Largest Contentful Paint (LCP) < 2.5s
+#### 3.1.1 Largest Contentful Paint (LCP) < 2.0s
 
 LCP measures when the largest content element becomes visible.
 
@@ -349,7 +349,7 @@ LCP measures when the largest content element becomes visible.
    - Inline critical CSS
    - Defer non-critical JavaScript
 
-**Implementation:** [`react/scripts/validate-pagespeed-guardrails.ts`](../react/scripts/validate-pagespeed-guardrails.ts)
+**Implementation:** [`react/scripts/validate-seo-artifacts.ts`](../react/scripts/validate-seo-artifacts.ts)
 
 ```typescript
 // Enforces hero image preloads with high priority
@@ -357,9 +357,9 @@ LCP measures when the largest content element becomes visible.
 // Validates critical path font deferral
 ```
 
-#### 3.1.2 First Input Delay (FID) < 100ms
+#### 3.1.2 Interaction to Next Paint (INP) < 100ms
 
-FID measures interactivity to the first user input.
+INP measures interactivity to user input (replaces FID in Core Web Vitals v3).
 
 **Optimization Techniques:**
 
@@ -390,7 +390,7 @@ const doHydrate = () => {
 };
 ```
 
-#### 3.1.3 Cumulative Layout Shift (CLS) < 0.1
+#### 3.1.3 Cumulative Layout Shift (CLS) < 0.05
 
 CLS measures visual stability during page load.
 
@@ -492,11 +492,93 @@ For PWA capabilities, implement a service worker to cache static assets and enab
 
 ---
 
-## 4. SEO Validation and Audit Process
+## 4. Build-Time SEO & Performance Validation Pipeline
 
-### 4.1 Automated SEO Validation
+### 4.1 Validation Steps
 
-#### 4.1.1 Sitemap and Robots.txt Validation
+The project implements a comprehensive build-time validation pipeline to enforce SEO and performance guardrails:
+
+#### 4.1.1 validate-site-config
+
+**Script:** [`react/scripts/validate-site-config.ts`](../react/scripts/validate-site-config.ts)
+
+**Validation Checks:**
+- Site configuration JSON is valid
+- All required fields present
+- URLs use HTTPS protocol
+- Canonical domain matches
+
+#### 4.1.2 build-manifest
+
+**Script:** [`react/scripts/build-manifest.ts`](../react/scripts/build-manifest.ts)
+
+**Validation Checks:**
+- Build manifest is generated
+- All chunks are accounted for
+- Entry points are valid
+- No duplicate chunk names
+
+#### 4.1.3 vite build
+
+**Script:** `npm run build`
+
+**Validation Checks:**
+- Build completes without errors
+- All assets are generated
+- No console errors during build
+- Bundle sizes are within limits
+
+#### 4.1.4 prerender
+
+**Script:** [`react/scripts/prerender.ts`](../react/scripts/prerender.ts)
+
+**Validation Checks:**
+- All routes are prerendered
+- HTML files are generated
+- SEO metadata is embedded
+- No hydration mismatches
+
+#### 4.1.5 validate-seo-artifacts
+
+**Script:** [`react/scripts/validate-seo-artifacts.ts`](../react/scripts/validate-seo-artifacts.ts)
+
+**Validation Checks:**
+- Sitemap.xml uses HTTPS and canonical domain
+- All sitemap URLs are unique
+- Hreflang alternates are properly formatted
+- Legacy redirect aliases are excluded
+- Hindi indexing is disabled when not enabled
+
+#### 4.1.6 validate-pagespeed-guardrails
+
+**Script:** [`react/scripts/validate-pagespeed-guardrails.ts`](../react/scripts/validate-pagespeed-guardrails.ts)
+
+**Validation Checks:**
+- Hero image preloads with high priority
+- Responsive image delivery on mobile viewports
+- Critical path font deferral
+- Hydration parity markers (prevents React Error #418)
+- Accessibility touch targets (48px minimum)
+
+### 4.2 Run Command
+
+```bash
+npm run verify
+```
+
+This single command runs all validation steps in sequence:
+1. Typecheck (React, Admin, Backend)
+2. Backend unit tests
+3. Build (React, Admin, Backend)
+4. SEO & Performance validation
+
+---
+
+## 5. SEO Validation and Audit Process
+
+### 5.1 Automated SEO Validation
+
+#### 5.1.1 Sitemap and Robots.txt Validation
 
 **Script:** [`react/scripts/validate-seo-artifacts.ts`](../react/scripts/validate-seo-artifacts.ts)
 
@@ -512,7 +594,7 @@ For PWA capabilities, implement a service worker to cache static assets and enab
 npx tsx react/scripts/validate-seo-artifacts.ts
 ```
 
-#### 4.1.2 PageSpeed Guardrail Validation
+#### 5.1.2 PageSpeed Guardrail Validation
 
 **Script:** [`react/scripts/validate-pagespeed-guardrails.ts`](../react/scripts/validate-pagespeed-guardrails.ts)
 
@@ -528,7 +610,7 @@ npx tsx react/scripts/validate-seo-artifacts.ts
 npx tsx react/scripts/validate-pagespeed-guardrails.ts
 ```
 
-### 4.2 SEO Audit Script
+### 5.2 SEO Audit Script
 
 **Script:** [`react/scripts/audit-seo.ts`](../react/scripts/audit-seo.ts)
 
@@ -557,9 +639,9 @@ Page: /index.html
   ✓ Canonical URL: https://agraskbagheltourandtravels.com/ (valid)
 ```
 
-### 4.3 Manual SEO Testing Tools
+### 5.3 Manual SEO Testing Tools
 
-#### 4.3.1 Google Search Console
+#### 5.3.1 Google Search Console
 
 **Key Reports to Monitor:**
 - Performance: Clicks, impressions, CTR, position
@@ -574,20 +656,20 @@ Page: /index.html
 - Verify sitemap submissions
 - Address mobile usability issues
 
-#### 4.3.2 PageSpeed Insights
+#### 5.3.2 PageSpeed Insights
 
 **Key Metrics:**
-- LCP (Largest Contentful Paint): < 2.5s
-- FID (First Input Delay): < 100ms
-- CLS (Cumulative Layout Shift): < 0.1
-- Interaction to Next Paint (INP): < 200ms
+- LCP (Largest Contentful Paint): < 2.0s
+- INP (Interaction to Next Paint): < 100ms
+- CLS (Cumulative Layout Shift): < 0.05
+- PageSpeed Score: 95+
 
 **Weekly Actions:**
 - Test homepage and key landing pages
 - Review opportunity suggestions
 - Address critical issues first
 
-#### 4.3.3 Google Rich Results Test
+#### 5.3.3 Google Rich Results Test
 
 **Key Checks:**
 - Breadcrumbs render correctly
@@ -600,7 +682,7 @@ Page: /index.html
 - Verify review schema
 - Check local business markup
 
-#### 4.3.4 Screaming Frog SEO Spider
+#### 5.3.4 Screaming Frog SEO Spider
 
 **Key Reports:**
 - Response Codes: 200, 301, 404, 500
@@ -618,7 +700,7 @@ Page: /index.html
 - Verify meta tags
 - Analyze internal linking
 
-#### 4.3.5 Google SEO Starter Guide
+#### 5.3.5 Google SEO Starter Guide
 
 **Key Topics:**
 - Make a site with a search engine-friendly structure
@@ -636,9 +718,9 @@ Page: /index.html
 
 ---
 
-## 5. Official SEO Resources
+## 6. Official SEO Resources
 
-### 5.1 Google Search Console
+### 6.1 Google Search Console
 
 **URL:** https://search.google.com/search-console
 
@@ -659,14 +741,14 @@ Page: /index.html
 4. Configure search appearance
 5. Monitor performance reports
 
-### 5.2 PageSpeed Insights
+### 6.2 PageSpeed Insights
 
 **URL:** https://pagespeed.web.dev
 
 **Purpose:** Analyze page performance and get optimization recommendations.
 
 **Key Features:**
-- LCP, FID, CLS metrics
+- LCP, INP, CLS metrics
 - Field data from Chrome User Experience Report
 - Lab data from Lighthouse
 - Optimization opportunities
@@ -678,7 +760,7 @@ Page: /index.html
 3. Address critical issues
 4. Monitor improvements
 
-### 5.3 Google Rich Results Test
+### 6.3 Google Rich Results Test
 
 **URL:** https://search.google.com/test/rich-results
 
@@ -697,7 +779,7 @@ Page: /index.html
 3. Fix any errors
 4. Test again after fixes
 
-### 5.4 Screaming Frog SEO Spider
+### 6.4 Screaming Frog SEO Spider
 
 **URL:** https://www.screamingfrog.co.uk/seo-spider
 
@@ -716,7 +798,7 @@ Page: /index.html
 3. Review reports
 4. Export data for analysis
 
-### 5.5 Google SEO Starter Guide
+### 6.5 Google SEO Starter Guide
 
 **URL:** https://developers.google.com/search/docs/fundamentals/seo-starter-guide
 
@@ -738,9 +820,9 @@ Page: /index.html
 
 ---
 
-## 6. SEO Implementation Checklist
+## 7. SEO Implementation Checklist
 
-### 6.1 Pre-Launch Checklist
+### 7.1 Pre-Launch Checklist
 
 - [ ] Sitemap.xml generated and validated
 - [ ] robots.txt configured correctly
@@ -750,10 +832,10 @@ Page: /index.html
 - [ ] Internal linking structure complete
 - [ ] Schema.org markup implemented
 - [ ] Mobile usability verified
-- [ ] PageSpeed Insights score > 90
+- [ ] PageSpeed Insights score > 95
 - [ ] Core Web Vitals passing
 
-### 6.2 Post-Launch Checklist
+### 7.2 Post-Launch Checklist
 
 - [ ] Google Search Console verified
 - [ ] Sitemap submitted to Google Search Console
@@ -765,7 +847,7 @@ Page: /index.html
 - [ ] Twitter card configured
 - [ ] Open Graph tags configured
 
-### 6.3 Ongoing SEO Tasks
+### 7.3 Ongoing SEO Tasks
 
 **Daily:**
 - Monitor Google Search Console for new errors
@@ -790,23 +872,23 @@ Page: /index.html
 
 ---
 
-## 7. Performance Optimization Checklist
+## 8. Performance Optimization Checklist
 
-### 7.1 Core Web Vitals
+### 8.1 Core Web Vitals
 
-- [ ] LCP < 2.5s
-- [ ] FID < 100ms
-- [ ] CLS < 0.1
-- [ ] INP < 200ms
+- [ ] LCP < 2.0s
+- [ ] INP < 100ms
+- [ ] CLS < 0.05
+- [ ] PageSpeed Score 95+
 
-### 7.2 Image Optimization
+### 8.2 Image Optimization
 
 - [ ] All images in WebP format
 - [ ] Responsive images with srcset
 - [ ] Width and height attributes on all images
 - [ ] Lazy loading for below-fold images
 
-### 7.3 Code Optimization
+### 8.3 Code Optimization
 
 - [ ] Code splitting implemented
 - [ ] Tree shaking enabled
@@ -814,14 +896,14 @@ Page: /index.html
 - [ ] Non-critical JS deferred
 - [ ] Font-display: swap on all fonts
 
-### 7.4 Caching
+### 8.4 Caching
 
 - [ ] Static assets cached for 1 year
 - [ ] HTML files not cached
 - [ ] API responses cached appropriately
 - [ ] Service worker implemented (optional)
 
-### 7.5 Accessibility
+### 8.5 Accessibility
 
 - [ ] All images have alt text
 - [ ] Touch targets minimum 48px
@@ -831,9 +913,9 @@ Page: /index.html
 
 ---
 
-## 8. Troubleshooting Common SEO Issues
+## 9. Troubleshooting Common SEO Issues
 
-### 8.1 Duplicate Content
+### 9.1 Duplicate Content
 
 **Symptoms:**
 - Multiple URLs with same content
@@ -845,7 +927,7 @@ Page: /index.html
 - Add rel="nofollow" to duplicate pages
 - Use hreflang for language variations
 
-### 8.2 Slow Page Load
+### 9.2 Slow Page Load
 
 **Symptoms:**
 - High LCP score
@@ -858,7 +940,7 @@ Page: /index.html
 - Use CDN for static assets
 - Enable browser caching
 
-### 8.3 Mobile Usability Issues
+### 9.3 Mobile Usability Issues
 
 **Symptoms:**
 - Search console shows mobile usability errors
@@ -871,7 +953,7 @@ Page: /index.html
 - Use legible font sizes
 - Avoid intrusive interstitials
 
-### 8.4 Schema Markup Errors
+### 9.4 Schema Markup Errors
 
 **Symptoms:**
 - Rich results not showing
@@ -885,7 +967,7 @@ Page: /index.html
 
 ---
 
-## 9. SEO and Performance Tools Summary
+## 10. SEO and Performance Tools Summary
 
 | Tool | Purpose | Frequency |
 |------|---------|-----------|
@@ -897,13 +979,13 @@ Page: /index.html
 
 ---
 
-## 10. Conclusion
+## 11. Conclusion
 
-This SEO and Performance Optimization Guide provides a comprehensive framework for maintaining and improving SK Baghel Tour & Travels' search visibility and user experience. By following these guidelines and using the official Google resources, the site can achieve and maintain top rankings for relevant keywords.
+This SEO and Performance Optimization Guide provides a comprehensive framework for maintaining and improving Agra SK Baghel Tour & Travels' search visibility and user experience. By following these guidelines and using the official Google resources, the site can achieve and maintain top rankings for relevant keywords.
 
 **Key Takeaways:**
 1. Implement automated SEO validation in CI/CD pipeline
-2. Monitor Core Web Vitals weekly
+2. Monitor Core Web Vitals weekly (LCP < 2.0s, INP < 100ms, CLS < 0.05)
 3. Use structured data for rich results
 4. Maintain high-quality, unique content
 5. Build quality backlinks from travel industry sites

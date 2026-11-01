@@ -65,7 +65,7 @@ async function checkPostgres(databaseUrl: string): Promise<DbCheckResult> {
       error: err instanceof Error ? err.message : String(err),
     };
   } finally {
-    await client.end().catch(() => {});
+    await client.end().catch(() => { });
   }
 }
 
@@ -114,13 +114,13 @@ async function checkMongo(mongoUri: string): Promise<DbCheckResult> {
       error: err instanceof Error ? err.message : String(err),
     };
   } finally {
-    await client.close().catch(() => {});
+    await client.close().catch(() => { });
   }
 }
 
 async function main(): Promise<void> {
   console.log("==================================================");
-  console.log("  SK Baghel Tour & Travels — Database Check");
+  console.log("  Agra SK Baghel Tour & Travels — Database Check");
   console.log("==================================================\n");
 
   let env;

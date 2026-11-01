@@ -1,6 +1,6 @@
-# Documentation Index — SK Baghel Tour & Travels
+# Documentation Index — Agra SK Baghel Tour & Travels
 
-This directory contains comprehensive documentation for the SK Baghel Tour & Travels platform. Use this index to find the right document for your task.
+This directory contains comprehensive documentation for the Agra SK Baghel Tour & Travels platform. Use this index to find the right document for your task.
 
 ---
 
@@ -130,4 +130,4 @@ This directory contains comprehensive documentation for the SK Baghel Tour & Tra
 ---
 
 **Last Updated:** 2026-10-31  
-**Maintained By:** SK Baghel Tour & Travels Engineering Team
+**Maintained By:** Agra SK Baghel Tour & Travels Engineering Team

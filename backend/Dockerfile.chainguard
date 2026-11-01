@@ -1,4 +1,4 @@
-# Chainguard zero-CVE production container for the SK Baghel Tour & Travels API.
+# Chainguard zero-CVE production container for the Agra SK Baghel Tour & Travels API.
 # Uses cgr.dev/chainguard/node images for minimal attack surface, non-root execution, and continuous CVE patching.
 # Compatible with Dependabot and automated security bot package pulls.
 

@@ -1,4 +1,4 @@
-# Master Frontend Operating Rules & Architectural Standard — SK Baghel Tour & Travels
+# Master Frontend Operating Rules & Architectural Standard — Agra SK Baghel Tour & Travels
 
 **Document Version:** 3.0.0 (Production Clean-Room Standard)
 **Authority:** Single Source of Truth for all Frontend Engineering, Design System, Typography, Component Architecture, State Management, and SSG.  
@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary & Purpose
 
-This document is the **single authoritative operating standard** for the SK Baghel Tour & Travels frontend monorepo. It defines architectural boundaries, design tokens, typography scale, component blueprints, SSG requirements, and backend integration protocols.
+This document is the **single authoritative operating standard** for the Agra SK Baghel Tour & Travels frontend monorepo. It defines architectural boundaries, design tokens, typography scale, component blueprints, SSG requirements, and backend integration protocols.
 
 ### Core Philosophy
 
@@ -350,6 +350,86 @@ Before completing any frontend task:
 
 ---
 
+## 11. Resilient UX: The 10 Mandatory States
+
+**Authority:** [`contracts/ux-states.ts`](../contracts/ux-states.ts) — Canonical contract | [`docs/RESILIENT_UX_10_STATES_SPEC.md`](./RESILIENT_UX_10_STATES_SPEC.md) — Full specification
+
+Every Agra SK Baghel Tour & Travels frontend **MUST** implement all 10 resilient UX states. This is not optional — it is the baseline user experience standard.
+
+### 11.1 The 10 States
+
+| # | State | When to Show | Contract Type |
+|---|-------|--------------|---------------|
+| 1 | **Empty** | No data, no errors, no loading | `EmptyStateConfig` |
+| 2 | **Loading** | Data being fetched/processed | `LoadingStateConfig` |
+| 3 | **Error** | Something went wrong | `ActionableErrorEnvelope` |
+| 4 | **Offline** | User is offline | `OfflineStateConfig` |
+| 5 | **Slow Network** | Network is slow (>3s) | `SlowNetworkStateConfig` |
+| 6 | **No Search Results** | No matches found | `NoSearchResultsStateConfig` |
+| 7 | **Permission Denied** | Permission required | `PermissionDeniedStateConfig` |
+| 8 | **Session Expired** | JWT/guest token expired | `SessionExpiredStateConfig` |
+| 9 | **Validation Failure** | Inline field errors | `ValidationFailureEnvelope` |
+| 10 | **Success** | Operation completed | `SuccessStateConfig` |
+
+### 11.2 Error Fault Classification
+
+Every error **MUST** be classified by fault owner:
+
+| Fault Owner | Description | Recovery Action |
+|-------------|-------------|-----------------|
+| `user_input` | Validation / missing field | `fix_inline_fields` |
+| `bank_gateway` | Bank declined / UPI timeout | `try_alternate_payment` |
+| `network` | Offline / DNS / timeout | `reload_page` |
+| `auth_session` | Expired JWT / guest token | `reauthenticate_keep_draft` |
+| `server` | Internal API / DB issue | `contact_whatsapp_desk` |
+
+### 11.3 Recovery Actions
+
+| Action | When to Use |
+|--------|-------------|
+| `retry_payment_method` | Payment declined, retry same method |
+| `try_alternate_payment` | Card declined, suggest alternate |
+| `refresh_live_fare` | Fare changed, show updated quote |
+| `reauthenticate_keep_draft` | Session expired, preserve form state |
+| `fix_inline_fields` | Validation errors, show field fixes |
+| `switch_to_lite_mode` | Slow network, show text-only view |
+| `contact_whatsapp_desk` | Server error, contact support |
+| `reload_page` | Network error, reload page |
+
+### 11.4 Implementation Requirements
+
+- **Contract:** Import from `contracts/ux-states.ts` (never duplicate)
+- **State Manager:** Use `useResilientState()` hook for automatic state transitions
+- **Error Handling:** Classify errors with `classifyErrorFault()` and `resolveRecoveryAction()`
+- **Field Fixes:** Show inline fixes with `resolveFieldFixes()`
+- **Testing:** E2E tests for each state transition
+
+### 11.5 Example: Booking Payment Error
+
+```tsx
+import { classifyErrorFault, resolveRecoveryAction } from "contracts/ux-states";
+
+function handlePaymentError(error: Error, httpStatus: number) {
+  const faultOwner = classifyErrorFault(error.code, httpStatus);
+  const recoveryAction = resolveRecoveryAction(faultOwner, error.code);
+  
+  setResilientState({
+    type: "error",
+    config: {
+      code: error.code,
+      title: "Payment Declined by Bank",
+      faultOwner,
+      explanation: "Your bank or UPI app declined the transaction.",
+      howToFix: "Try another UPI ID or use a different card.",
+      primaryAction: recoveryAction,
+      primaryActionLabel: getRecoveryActionLabel(recoveryAction),
+    },
+  });
+}
+```
+
+---
+
 ## References
 
 - [`docs/project/DESIGN.md`](docs/project/DESIGN.md) — Visual tokens & typography spec
@@ -361,3 +441,5 @@ Before completing any frontend task:
 - [`docs/PAYMENT_SYSTEM.md`](docs/PAYMENT_SYSTEM.md) — Razorpay payment spec
 - [`BACKEND_RULES.md`](BACKEND_RULES.md) — Backend API contracts
 - [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — Deployment config
+- [`contracts/ux-states.ts`](../contracts/ux-states.ts) — Resilient UX contract
+- [`docs/RESILIENT_UX_10_STATES_SPEC.md`](./RESILIENT_UX_10_STATES_SPEC.md) — Full 10-state specification

@@ -1,4 +1,4 @@
-# Project Architecture — SK Baghel Tour & Travels
+# Project Architecture — Agra SK Baghel Tour & Travels
 
 **Document Version:** 1.0.0  
 **Status:** Production-Ready Monorepo Architecture  
@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary
 
-This document describes the **correct, production-grade architecture** for building a full-stack travel booking platform like SK Baghel Tour & Travels. It synthesizes lessons from 861 commits of real-world development, identifying both what worked and what failed, and presents a clean, maintainable, and scalable architecture.
+This document describes the **correct, production-grade architecture** for building a full-stack travel booking platform like Agra SK Baghel Tour & Travels. It synthesizes lessons from 861 commits of real-world development, identifying both what worked and what failed, and presents a clean, maintainable, and scalable architecture.
 
 ### Architecture Philosophy
 
@@ -672,4 +672,4 @@ This architecture represents the **correct, production-grade approach** for buil
 
 **Document Version:** 1.0.0  
 **Last Updated:** 2026-10-31  
-**Author:** SK Baghel Tour & Travels Engineering Team
+**Author:** Agra SK Baghel Tour & Travels Engineering Team

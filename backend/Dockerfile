@@ -1,4 +1,4 @@
-# Multi-stage production image for the SK Baghel Tour & Travels API.
+# Multi-stage production image for the Agra SK Baghel Tour & Travels API.
 #
 # Stage contract:
 #   deps      -> full dependency tree (incl. devDeps) used only for compilation

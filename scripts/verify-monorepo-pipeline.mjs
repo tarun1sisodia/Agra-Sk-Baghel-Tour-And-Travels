@@ -53,7 +53,7 @@ function run(cmd, cwd = rootDir) {
 }
 
 console.log(`\n${colors.bold}${colors.cyan}======================================================${colors.reset}`);
-console.log(`${colors.bold}${colors.cyan}  🛡️ SK Baghel Tour & Travels — Monorepo Pipeline Check${colors.reset}`);
+console.log(`${colors.bold}${colors.cyan}  🛡️ Agra SK Baghel Tour & Travels — Monorepo Pipeline Check${colors.reset}`);
 console.log(`${colors.bold}${colors.cyan}======================================================${colors.reset}\n`);
 
 // 1. Purge all dist directories to simulate clean checkout

@@ -18,16 +18,16 @@ export { mapApiReviewToCardReview };
 
 const publishedReviewsList: readonly Review[] = Array.isArray(rawReviews)
   ? (rawReviews as any[])
-      .slice(0, 30)
-      .map((r) => ({
-        name: String(r.name || r.display_name || "").trim(),
-        place: String(r.place || r.tour_name || r.route_text || "Agra & Outstation").trim(),
-        rating: Math.min(5, Math.max(1, Number(r.rating) || 5)),
-        quote: String(r.quote || r.review_text || "").trim(),
-        role: r.role ? String(r.role).trim() : undefined,
-        is_verified: Boolean(r.is_verified ?? true),
-      }))
-      .filter((r) => Boolean(r.name && r.quote))
+    .slice(0, 30)
+    .map((r) => ({
+      name: String(r.name || r.display_name || "").trim(),
+      place: String(r.place || r.tour_name || r.route_text || "Agra & Outstation").trim(),
+      rating: Math.min(5, Math.max(1, Number(r.rating) || 5)),
+      quote: String(r.quote || r.review_text || "").trim(),
+      role: r.role ? String(r.role).trim() : undefined,
+      is_verified: Boolean(r.is_verified ?? true),
+    }))
+    .filter((r) => Boolean(r.name && r.quote))
   : [];
 const MIN_REVIEWS_FOR_MARQUEE = 10;
 const homepageReviews = publishedReviewsList.length >= MIN_REVIEWS_FOR_MARQUEE

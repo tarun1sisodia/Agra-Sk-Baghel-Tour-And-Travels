@@ -129,7 +129,7 @@ export function ProductDetailPage({ category, code }: ProductDetailPageProps) {
   const isArchived = product.status === "archived";
   const bookingUrl = `/book?category=${product.category}&product=${product.code}`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-    `Hello SK Baghel Travels, I am interested in ${product.name} (${product.code}). Please assist with availability and booking.`
+    `Hello Agra SK Baghel Travels, I am interested in ${product.name} (${product.code}). Please assist with availability and booking.`
   )}`;
 
   return (
@@ -393,10 +393,10 @@ export function ProductDetailPage({ category, code }: ProductDetailPageProps) {
                         rp.category === "outstation"
                           ? `/en/${rp.code}/`
                           : rp.category === "local_package"
-                          ? `/en/local-packages/${rp.code}/`
-                          : rp.category === "transfer"
-                          ? `/en/transfers/${rp.code}/`
-                          : `/en/packages/${rp.code}/`
+                            ? `/en/local-packages/${rp.code}/`
+                            : rp.category === "transfer"
+                              ? `/en/transfers/${rp.code}/`
+                              : `/en/packages/${rp.code}/`
                       }
                       className="group block rounded-md border border-hairline p-3 transition-colors hover:border-gold-border hover:bg-gold-wash/40"
                     >

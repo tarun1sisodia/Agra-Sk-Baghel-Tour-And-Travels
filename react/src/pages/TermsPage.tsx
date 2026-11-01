@@ -87,7 +87,7 @@ export function TermsPage({ language = "en" }: TermsPageProps) {
               Terms of Service &amp; Operational Charter
             </h1>
             <p className="text-on-surface-variant font-body-lg text-xs sm:text-title-lg leading-relaxed mb-6">
-              Binding operational agreement between Agra SK Baghel Tour and Travels (Agra) and the reserving guest or corporate
+              Binding operational agreement between Agra SK Baghel Tour & Travels (Agra) and the reserving guest or corporate
               client. Transparent commercial tariffs with zero hidden conditions.
             </p>
             <p className="text-xs text-on-surface-variant mb-3">Last updated: 22 October 2026</p>
@@ -115,7 +115,7 @@ export function TermsPage({ language = "en" }: TermsPageProps) {
         <div className="p-4 sm:p-5 rounded-xl bg-sandstone-wash/40 border border-border-warm/70">
           <h2 className="font-headline-sm text-sm sm:text-base font-bold text-ink-charcoal mb-2">Charter Purpose &amp; Enforceability</h2>
           <p className="text-body-md sm:text-xs text-on-surface-variant leading-relaxed">
-            This document constitutes a binding operational agreement between <strong>Agra SK Baghel Tour and Travels Agra</strong> and
+            This document constitutes a binding operational agreement between <strong>Agra SK Baghel Tour & Travels</strong> and
             the reserving passenger or corporate institution. All chauffeurs, fleet categories, point-to-point drops, and multi-day
             heritage circuits are regulated strictly according to the transparent commercial tariffs established below. No verbal
             modification by individual drivers is recognized.
@@ -224,15 +224,15 @@ export function TermsPage({ language = "en" }: TermsPageProps) {
                         Number(slab.refundPercent) >= 100
                           ? "text-success-jade font-bold"
                           : Number(slab.refundPercent) > 0
-                          ? "text-primary font-bold"
-                          : "text-secondary font-bold"
+                            ? "text-primary font-bold"
+                            : "text-secondary font-bold"
                       }
                     >
                       {Number(slab.refundPercent) === 100
                         ? "100% Full Refund of Token"
                         : Number(slab.refundPercent) === 0
-                        ? (slab.ruleText || "Token retained to cover dispatch fuel")
-                        : `${slab.refundPercent}% Token Refund (${slab.ruleText})`}
+                          ? (slab.ruleText || "Token retained to cover dispatch fuel")
+                          : `${slab.refundPercent}% Token Refund (${slab.ruleText})`}
                     </span>
                   </div>
                   {Number(slab.refundPercent) > 0 && slab.refundTimelineNote?.trim() && (
@@ -272,15 +272,15 @@ export function TermsPage({ language = "en" }: TermsPageProps) {
                         Number(slab.refundPercent) >= 100
                           ? "text-success-jade font-bold"
                           : Number(slab.refundPercent) > 0
-                          ? "text-primary font-bold"
-                          : "text-secondary font-bold"
+                            ? "text-primary font-bold"
+                            : "text-secondary font-bold"
                       }
                     >
                       {Number(slab.refundPercent) === 100
                         ? "100% Refund"
                         : Number(slab.refundPercent) === 0
-                        ? (slab.ruleText || "Advance forfeited")
-                        : `${slab.refundPercent}% Refund (${slab.ruleText})`}
+                          ? (slab.ruleText || "Advance forfeited")
+                          : `${slab.refundPercent}% Refund (${slab.ruleText})`}
                     </span>
                   </div>
                   {Number(slab.refundPercent) > 0 && slab.refundTimelineNote?.trim() && (
@@ -316,7 +316,7 @@ export function TermsPage({ language = "en" }: TermsPageProps) {
             <h2 className="font-headline-md text-sm sm:text-base font-bold text-ink-charcoal">Agra Legal Jurisdiction</h2>
           </div>
           <p className="text-body-md sm:text-xs text-on-surface-variant leading-relaxed">
-            Any dispute, controversy, or claim arising out of or relating to services rendered by Agra SK Baghel Tour and Travels shall
+            Any dispute, controversy, or claim arising out of or relating to services rendered by Agra SK Baghel Tour & Travels shall
             be subject exclusively to the jurisdiction of the competent courts of law located in Agra, Uttar Pradesh, India.
           </p>
         </div>
@@ -331,7 +331,7 @@ export function TermsPage({ language = "en" }: TermsPageProps) {
             Please include the booking reference and journey date where available so we can locate the relevant record.
           </p>
           <div className="rounded-xl border border-border-warm bg-surface-container-lowest p-4 space-y-1 text-body-md sm:text-xs text-on-surface-variant">
-            <p><strong className="text-ink-charcoal">Agra SK Baghel Tour and Travels</strong></p>
+            <p><strong className="text-ink-charcoal">Agra SK Baghel Tour & Travels</strong></p>
             <p>{contact.address}</p>
             <p>Email: <a className="text-primary underline" href={`mailto:${contact.email}`}>{contact.email}</a></p>
             <p>Telephone: <a className="text-primary underline" href={`tel:${contact.phone}`}>{contact.phoneDisplay}</a></p>

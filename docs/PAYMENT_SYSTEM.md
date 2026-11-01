@@ -1,4 +1,4 @@
-# Payment System Specification — SK Baghel Tour & Travels
+# Payment System Specification — Agra SK Baghel Tour & Travels
 
 **Document Version:** 3.0.0  
 **Status:** Production Specification (Fastify 5 + PostgreSQL + React 19 + Razorpay)  

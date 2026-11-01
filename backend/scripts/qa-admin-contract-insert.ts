@@ -8,7 +8,7 @@ import type { CreateTransferRouteInput } from "../src/modules/transfer-routes/tr
 
 try {
   process.loadEnvFile?.(".env");
-} catch {}
+} catch { }
 process.env.NODE_ENV = "development";
 process.env.ALLOW_TEST_AUTH = "true";
 
@@ -334,7 +334,7 @@ const transferFixtures: CreateTransferRouteInput[] = [
 
 async function runQaDataInsertion() {
   console.log("==================================================================");
-  console.log("  SK Baghel Tour & Travels — QA Data Insertion via Real Admin APIs");
+  console.log("  Agra SK Baghel Tour & Travels — QA Data Insertion via Real Admin APIs");
   console.log("==================================================================");
 
   const env = loadEnv();

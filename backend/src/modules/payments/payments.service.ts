@@ -648,7 +648,7 @@ export class PaymentsService {
           <!-- Header -->
           <tr>
             <td style="background-color: #7c2d12; padding: 28px 32px; text-align: left;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: -0.02em;">AGRA SK BAGHEL TOUR &amp; TRAVELS</h1>
+              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: -0.02em;">Agra SK Baghel TOUR &amp; TRAVELS</h1>
               <p style="margin: 4px 0 0 0; color: #fed7aa; font-size: 13px; font-weight: 400;">Agra's Trusted Chauffeur &amp; Tour Service &bull; Est. 2013</p>
             </td>
           </tr>

@@ -333,9 +333,8 @@ export function TransferDetailPage({ item }: TransferDetailPageProps) {
                   >
                     <span className="font-title-md text-title-md text-ink-charcoal font-serif font-bold">{faq.q}</span>
                     <span
-                      className={`material-symbols-outlined text-terracotta-sandstone text-icon-22 transition-transform duration-200 shrink-0 ${
-                        isOpen ? "rotate-180" : ""
-                      }`}
+                      className={`material-symbols-outlined text-terracotta-sandstone text-icon-22 transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180" : ""
+                        }`}
                     >
                       keyboard_arrow_down
                     </span>

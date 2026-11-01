@@ -33,10 +33,10 @@ const SITE_ORIGIN_MODE: SiteOriginMode =
     : process.env.VITE_SITE_MODE === "production" ||
       process.env.CF_PAGES_BRANCH === "main" ||
       process.env.RELEASE_BUILD === "1"
-    ? "production"
-    : process.env.CF_PAGES_BRANCH
-    ? "preview"
-    : "development";
+      ? "production"
+      : process.env.CF_PAGES_BRANCH
+        ? "preview"
+        : "development";
 
 export const CANONICAL_DOMAIN = resolveSiteOrigin(process.env.VITE_SITE_URL, SITE_ORIGIN_MODE);
 export const HINDI_INDEXING_ENABLED = isHindiIndexingEnabled(process.env.VITE_HINDI_INDEXING_ENABLED);
@@ -469,7 +469,7 @@ ${xmlUrls}
 }
 
 export function generateRobotsTxt(): string {
-  return `# Robots.txt — Agra SK Baghel Tour and Travels Agra
+  return `# Robots.txt — Agra SK Baghel Tour & Travels
 User-agent: *
 Allow: /
 Disallow: /book.html
@@ -500,14 +500,14 @@ export async function generateSitemapAndRobots(options: { requireBuiltArtifacts?
   const allEntries = getSitemapEntries();
   const entries = options.requireBuiltArtifacts
     ? allEntries.filter((entry) => {
-        const englishBuilt = hasBuiltArtifact(entry.path);
-        const hindiBuilt = !HINDI_INDEXING_ENABLED || !entry.hiPath || hasBuiltArtifact(entry.hiPath);
-        if (!englishBuilt || !hindiBuilt) {
-          console.warn(`⚠️ Sitemap skipped URL without a built HTML artifact: ${entry.path}`);
-          return false;
-        }
-        return true;
-      })
+      const englishBuilt = hasBuiltArtifact(entry.path);
+      const hindiBuilt = !HINDI_INDEXING_ENABLED || !entry.hiPath || hasBuiltArtifact(entry.hiPath);
+      if (!englishBuilt || !hindiBuilt) {
+        console.warn(`⚠️ Sitemap skipped URL without a built HTML artifact: ${entry.path}`);
+        return false;
+      }
+      return true;
+    })
     : allEntries;
   const sitemapXml = generateSitemapXml(entries);
   const robotsTxt = generateRobotsTxt();

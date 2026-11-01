@@ -8,18 +8,18 @@ import type { VehicleTier } from "./vehicle-tiers.js";
 import type { TripType } from "./trip-types.js";
 
 export interface FareSnapshot {
-  baseFare: number;
-  nightAllowance: number;
-  driverAllowance: number;
-  tollsTaxes: number;
-  promoDiscount: number;
-  discountAmount?: number;
-  totalFare: number;
-  advancePaid: number;
-  advanceAmount?: number;
-  balancePayable: number;
-  balanceAmount?: number;
-  currency?: string;
+  baseFare: number; // INR Rupees (whole number)
+  nightAllowance: number; // INR Rupees (whole number)
+  driverAllowance: number; // INR Rupees (whole number)
+  tollsTaxes: number; // INR Rupees (whole number)
+  promoDiscount: number; // INR Rupees (whole number)
+  discountAmount?: number; // INR Rupees (whole number)
+  totalFare: number; // INR Rupees (whole number)
+  advancePaid: number; // INR Rupees (whole number)
+  advanceAmount?: number; // INR Rupees (whole number)
+  balancePayable: number; // INR Rupees (whole number)
+  balanceAmount?: number; // INR Rupees (whole number)
+  currency?: "INR"; // Always INR
   fareVersion?: string;
   label?: string;
   duration?: string;

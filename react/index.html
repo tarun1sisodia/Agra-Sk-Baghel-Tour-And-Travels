@@ -1,103 +1,104 @@
 <!doctype html>
 <html lang="en-IN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#FAFAFA" />
-    <link rel="icon" type="image/svg+xml" href="/assets/brand/favicon.svg" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-    <link rel="icon" type="image/x-icon" sizes="48x48" href="/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <meta name="description" content="Reliable taxi service in Agra for local sightseeing & outstation tours. Chauffeur-driven Sedans, Ertiga, Innova & Tempo Travellers. Call +91 97628 17598." />
-    <meta name="msvalidate.01" content="FA4C3483EAF5A665A604BB8C47218554" />
-    <!-- LocationIQ: browser-direct calls are a degraded fallback only (the
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#FAFAFA" />
+  <link rel="icon" type="image/svg+xml" href="/assets/brand/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+  <link rel="icon" type="image/x-icon" sizes="48x48" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta name="description"
+    content="Reliable taxi service in Agra for local sightseeing & outstation tours. Chauffeur-driven Sedans, Ertiga, Innova & Tempo Travellers. Call +91 97628 17598." />
+  <meta name="msvalidate.01" content="FA4C3483EAF5A665A604BB8C47218554" />
+  <!-- LocationIQ: browser-direct calls are a degraded fallback only (the
          backend proxy /api/v1/locations/autocomplete is primary), so no
          preconnect — PageSpeed flagged it as unused. -->
-    <!-- Critical Text Fonts: Self-Hosted Plus Jakarta Sans & EB Garamond -->
-    <link rel="preload" href="/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/eb-garamond-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <!-- Material Symbols: Non-critical icon font loaded asynchronously via idle/interaction without blocking FCP/LCP -->
-    <script>
-      (function () {
-        var iconsLoaded = false;
-        function loadIcons() {
-          if (iconsLoaded) return;
-          if (typeof navigator !== "undefined" && (Boolean(navigator.webdriver) || /bot|crawler|spider|lighthouse|headless/i.test(navigator.userAgent))) {
-            return;
-          }
-          iconsLoaded = true;
-          ['scroll', 'touchstart', 'pointerdown', 'keydown', 'click'].forEach(function (evt) {
-            window.removeEventListener(evt, loadIcons, { passive: true });
-          });
-          var link = document.createElement("link");
-          link.rel = "stylesheet";
-          link.href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap";
-          document.head.appendChild(link);
+  <!-- Critical Text Fonts: Self-Hosted Plus Jakarta Sans & EB Garamond -->
+  <link rel="preload" href="/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/eb-garamond-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <!-- Material Symbols: Non-critical icon font loaded asynchronously via idle/interaction without blocking FCP/LCP -->
+  <script>
+    (function () {
+      var iconsLoaded = false;
+      function loadIcons() {
+        if (iconsLoaded) return;
+        if (typeof navigator !== "undefined" && (Boolean(navigator.webdriver) || /bot|crawler|spider|lighthouse|headless/i.test(navigator.userAgent))) {
+          return;
         }
+        iconsLoaded = true;
         ['scroll', 'touchstart', 'pointerdown', 'keydown', 'click'].forEach(function (evt) {
-          window.addEventListener(evt, loadIcons, { passive: true, once: true });
+          window.removeEventListener(evt, loadIcons, { passive: true });
         });
-        if ("requestIdleCallback" in window) {
-          window.requestIdleCallback(function () {
-            setTimeout(loadIcons, 20000);
-          }, { timeout: 25000 });
-        } else {
+        var link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap";
+        document.head.appendChild(link);
+      }
+      ['scroll', 'touchstart', 'pointerdown', 'keydown', 'click'].forEach(function (evt) {
+        window.addEventListener(evt, loadIcons, { passive: true, once: true });
+      });
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(function () {
           setTimeout(loadIcons, 20000);
-        }
-      })();
-    </script>
-    <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap" rel="stylesheet" />
-    </noscript>
-    <title>Taxi Service in Agra | Agra SK Baghel Tour and Travels</title>
-    <!-- Google Tag Manager — deferred until user interaction so it never contends
+        }, { timeout: 25000 });
+      } else {
+        setTimeout(loadIcons, 20000);
+      }
+    })();
+  </script>
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap" rel="stylesheet" />
+  </noscript>
+  <title>Taxi Service in Agra | Agra SK Baghel Tour & Travels</title>
+  <!-- Google Tag Manager — deferred until user interaction so it never contends
          with LCP or main thread on the critical path (PageSpeed: ~90KB unused GTM JS & Clarity cookie errors). -->
-    <script>
-      (function () {
-        var gtmLoaded = false;
-        function loadGTM() {
-          if (gtmLoaded) return;
-          if (typeof navigator !== "undefined" && (Boolean(navigator.webdriver) || /bot|crawler|spider|lighthouse|headless/i.test(navigator.userAgent))) {
-            return;
-          }
-          gtmLoaded = true;
-          ['scroll', 'touchstart', 'pointerdown', 'keydown', 'click'].forEach(function (evt) {
-            window.removeEventListener(evt, loadGTM, { passive: true });
-          });
-          (function (w, d, s, l, i) {
-            w[l] = w[l] || [];
-            w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
-            var f = d.getElementsByTagName(s)[0],
-              j = d.createElement(s),
-              dl = l != "dataLayer" ? "&l=" + l : "";
-            j.async = true;
-            j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-            f.parentNode.insertBefore(j, f);
-          })(window, document, "script", "dataLayer", "GTM-KFXGSK7H");
+  <script>
+    (function () {
+      var gtmLoaded = false;
+      function loadGTM() {
+        if (gtmLoaded) return;
+        if (typeof navigator !== "undefined" && (Boolean(navigator.webdriver) || /bot|crawler|spider|lighthouse|headless/i.test(navigator.userAgent))) {
+          return;
         }
+        gtmLoaded = true;
         ['scroll', 'touchstart', 'pointerdown', 'keydown', 'click'].forEach(function (evt) {
-          window.addEventListener(evt, loadGTM, { passive: true, once: true });
+          window.removeEventListener(evt, loadGTM, { passive: true });
         });
-      })();
-    </script>
-    <!-- End Google Tag Manager -->
-  </head>
-  <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript>
-      <iframe
-        src="https://www.googletagmanager.com/ns.html?id=GTM-KFXGSK7H"
-        height="0"
-        width="0"
-        style="display: none; visibility: hidden"
-        title="Google Tag Manager"
-      ></iframe>
-    </noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    <div id="root"></div>
-    <noscript id="js-fallback">
-      <p style="padding:12px;background:#fff3cd;color:#856404;margin:0;text-align:center;font-size:14px;">JavaScript is recommended for dynamic calculations and interactive booking. Call us 24×7 at <a href="tel:+919762817598" style="color:#b8941f;font-weight:700;">+91 97628 17598</a>.</p>
-    </noscript>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+        (function (w, d, s, l, i) {
+          w[l] = w[l] || [];
+          w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+          var f = d.getElementsByTagName(s)[0],
+            j = d.createElement(s),
+            dl = l != "dataLayer" ? "&l=" + l : "";
+          j.async = true;
+          j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+          f.parentNode.insertBefore(j, f);
+        })(window, document, "script", "dataLayer", "GTM-KFXGSK7H");
+      }
+      ['scroll', 'touchstart', 'pointerdown', 'keydown', 'click'].forEach(function (evt) {
+        window.addEventListener(evt, loadGTM, { passive: true, once: true });
+      });
+    })();
+  </script>
+  <!-- End Google Tag Manager -->
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KFXGSK7H" height="0" width="0"
+      style="display: none; visibility: hidden" title="Google Tag Manager"></iframe>
+  </noscript>
+  <!-- End Google Tag Manager (noscript) -->
+  <div id="root"></div>
+  <noscript id="js-fallback">
+    <p style="padding:12px;background:#fff3cd;color:#856404;margin:0;text-align:center;font-size:14px;">JavaScript is
+      recommended for dynamic calculations and interactive booking. Call us 24×7 at <a href="tel:+919762817598"
+        style="color:#b8941f;font-weight:700;">+91 97628 17598</a>.</p>
+  </noscript>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>

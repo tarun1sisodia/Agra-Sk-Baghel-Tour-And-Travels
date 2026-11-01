@@ -179,18 +179,18 @@ function getSeoBase(
     const labels: Record<string, string> = {
       "tempo-traveller-on-rent-agra": "Tempo Traveller on Rent in Agra | 12–24 Seater, ₹25/km",
       "same-day-agra-tour-from-delhi": "Same Day Agra Tour from Delhi | Private Car",
-      "delhi-to-agra-taxi": "Delhi to Agra Taxi | One-Way ₹3,499 | SK Baghel",
+      "delhi-to-agra-taxi": "Delhi to Agra Taxi | One-Way ₹3,499 | Agra SK Baghel",
       "agra-local-sightseeing-taxi": "Agra Local Sightseeing Taxi | Agra SK Baghel",
       "12-seater-tempo-traveller-agra": "12 Seater Tempo Traveller Agra | Agra SK Baghel",
       "taj-mahal-taxi-service": "Taj Mahal Taxi Service Agra | One-Day & Full-Day Cabs",
     };
-    const rawTitle = labels[section] || `${titleCaseSlug(section)} | SK Baghel Travels`;
-    const title = rawTitle.length <= 55 ? rawTitle : `${titleCaseSlug(section)} | SK Baghel`;
+    const rawTitle = labels[section] || `${titleCaseSlug(section)} | Agra SK Baghel Travels`;
+    const title = rawTitle.length <= 55 ? rawTitle : `${titleCaseSlug(section)} | Agra SK Baghel`;
     return { title, description: `${title}. Verified drivers, transparent fare confirmation and easy phone or WhatsApp booking.`, ogImage: "/assets/brand/og-banner.webp", keywords: [title, "Agra taxi", "Agra cab booking"] };
   }
   if (isBooking) {
     return {
-      title: "Book a ride | Agra SK Baghel Tour and Travels",
+      title: "Book a ride | Agra SK Baghel Tour & Travels",
       description: "Compare vehicles and prepare a transparent mock booking from Agra.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Agra taxi booking", "Agra cab reservation", "online taxi booking Agra"],
@@ -226,14 +226,14 @@ function getSeoBase(
 
   const resolvedDossierMonument = dossierMonument ?? (pathname.includes("/monuments/")
     ? publishedMonuments.find((item) => {
-        const slug = item.slug ?? item.monumentCode ?? (item.name ? item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "");
-        return pathname.replace(/\/$/, "").endsWith(`/monuments/${slug}`);
-      })
+      const slug = item.slug ?? item.monumentCode ?? (item.name ? item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "");
+      return pathname.replace(/\/$/, "").endsWith(`/monuments/${slug}`);
+    })
     : undefined);
 
   if (resolvedDossierTour) {
     const fare = Number(resolvedDossierTour.startingPriceInr || resolvedDossierTour.fleetPrices?.sedan || 0);
-    const priceSuffix = fare > 0 ? ` @ ₹${fare.toLocaleString("en-IN")} | SK Baghel` : " | SK Baghel Travels";
+    const priceSuffix = fare > 0 ? ` @ ₹${fare.toLocaleString("en-IN")} | Agra SK Baghel` : " | Agra SK Baghel Travels";
     const maxName = Math.max(10, 54 - priceSuffix.length);
     const titleName = resolvedDossierTour.name.length > maxName ? `${resolvedDossierTour.name.slice(0, maxName - 1).trimEnd()}…` : resolvedDossierTour.name;
     const descPrefix = fare > 0 ? `${resolvedDossierTour.name} from ₹${fare.toLocaleString("en-IN")}. ` : `${resolvedDossierTour.name}. `;
@@ -247,7 +247,7 @@ function getSeoBase(
 
   if (resolvedDossierTransfer) {
     const fare = Number(resolvedDossierTransfer.fleetPrices?.sedan ?? 0);
-    const priceSuffix = fare > 0 ? ` Taxi @ ₹${fare.toLocaleString("en-IN")} | SK Baghel` : " Taxi | SK Baghel Travels";
+    const priceSuffix = fare > 0 ? ` Taxi @ ₹${fare.toLocaleString("en-IN")} | Agra SK Baghel` : " Taxi | Agra SK Baghel Travels";
     const maxName = Math.max(10, 54 - priceSuffix.length);
     const titleName = resolvedDossierTransfer.name.length > maxName ? `${resolvedDossierTransfer.name.slice(0, maxName - 1).trimEnd()}…` : resolvedDossierTransfer.name;
     const descPrefix = fare > 0 ? `${resolvedDossierTransfer.name} from ₹${fare.toLocaleString("en-IN")}. ` : `${resolvedDossierTransfer.name}. `;
@@ -261,7 +261,7 @@ function getSeoBase(
 
   if (resolvedDossierLocal) {
     const fare = Number(resolvedDossierLocal.fleetPrices?.sedan ?? 0);
-    const priceSuffix = fare > 0 ? ` @ ₹${fare.toLocaleString("en-IN")} | SK Baghel` : " | SK Baghel Travels";
+    const priceSuffix = fare > 0 ? ` @ ₹${fare.toLocaleString("en-IN")} | Agra SK Baghel` : " | Agra SK Baghel Travels";
     const maxName = Math.max(10, 54 - priceSuffix.length);
     const titleName = resolvedDossierLocal.name.length > maxName ? `${resolvedDossierLocal.name.slice(0, maxName - 1).trimEnd()}…` : resolvedDossierLocal.name;
     const descPrefix = fare > 0 ? `${resolvedDossierLocal.name} from ₹${fare.toLocaleString("en-IN")} ` : `${resolvedDossierLocal.name} `;
@@ -274,7 +274,7 @@ function getSeoBase(
   }
 
   if (resolvedDossierMonument) {
-    const title = (resolvedDossierMonument.metaTitle || `${resolvedDossierMonument.name} Tour & Cab Booking | SK Baghel`).slice(0, 58);
+    const title = (resolvedDossierMonument.metaTitle || `${resolvedDossierMonument.name} Tour & Cab Booking | Agra SK Baghel`).slice(0, 58);
     const description = (resolvedDossierMonument.metaDescription || `Visit ${resolvedDossierMonument.name} in Agra (${resolvedDossierMonument.visitingHours}). ${resolvedDossierMonument.closedNote}. Book private AC cab with verified driver.`).slice(0, 155);
     return {
       title,
@@ -293,7 +293,7 @@ function getSeoBase(
         resolvedDynamicItem.shortDescription ||
         "Private tour with transparent fares, verified drivers and easy phone or WhatsApp booking.",
       ogImage: resolvedDynamicItem.coverImage?.url || "/assets/brand/og-banner.webp",
-      keywords: [resolvedDynamicItem.title, "Agra tour package", "private taxi Agra", "Agra SK Baghel Tour and Travels"],
+      keywords: [resolvedDynamicItem.title, "Agra tour package", "private taxi Agra", "Agra SK Baghel Tour & Travels"],
     };
   }
   if (resolvedDynamicRoute) {
@@ -321,7 +321,7 @@ function getSeoBase(
 
   if (vehicle) {
     return {
-      title: `${vehicle.name} Rental in Agra | SK Baghel`,
+      title: `${vehicle.name} Rental in Agra | Agra SK Baghel`,
       description: `${vehicle.blurb} Compare seats (${vehicle.seats}), luggage (${vehicle.bags}), outstation rate from ₹${vehicle.perKm}/km, local & transfers.`,
       ogImage: vehicle.image,
       keywords: [vehicle.name, `${vehicle.name} Agra`, `${vehicle.name} rental`, "Agra taxi fleet", "outstation cab Agra"],
@@ -330,7 +330,7 @@ function getSeoBase(
 
   if (tour) {
     return {
-      title: `${tour.name} | SK Baghel Travels`,
+      title: `${tour.name} | Agra SK Baghel Travels`,
       description: `${tour.blurb} 100% private sanitized AC cab, verified guide, transparent all-inclusive fares. Book online or call 24x7.`,
       ogImage: tour.image,
       keywords: [tour.name, `${tour.name} Agra`, "Taj Mahal private tour", "Agra tour package", "sightseeing cab Agra"],
@@ -350,16 +350,16 @@ function getSeoBase(
 
   if (section === "home") {
     return {
-      title: "Taxi Service in Agra | SK Baghel Tour & Travels",
+      title: "Taxi Service in Agra | Agra SK Baghel Tour & Travels",
       description: "Book reliable taxi service in Agra for local sightseeing and outstation tours. Chauffeur-driven Sedans, Innova and Tempo Travellers. Call +91 97628 17598.",
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: ["taxi service in agra", "cab booking in agra", "car rental in agra", "agra tour and travels", "local sightseeing taxi in agra", "agra cantt railway station taxi service", "best taxi in agra tour", "agra car rental with driver", "Agra SK Baghel Tour and Travels"],
+      keywords: ["taxi service in agra", "cab booking in agra", "car rental in agra", "agra tour and travels", "local sightseeing taxi in agra", "agra cantt railway station taxi service", "best taxi in agra tour", "agra car rental with driver", "Agra SK Baghel Tour & Travels"],
     };
   }
 
   if (section === "services") {
     return {
-      title: "Taxi Services in Agra | SK Baghel Tour & Travels",
+      title: "Taxi Services in Agra | Agra SK Baghel Tour & Travels",
       description: "Agra taxi services: One-way outstation cabs to Delhi and Jaipur from ₹3,499, local sightseeing packages from ₹1,900, Tempo Travellers, and 24x7 transfers.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Agra taxi services", "outstation cabs Agra", "local sightseeing Agra", "airport transfers Agra", "tempo traveller rental"],
@@ -368,7 +368,7 @@ function getSeoBase(
 
   if (section === "routes") {
     return {
-      title: "Outstation Taxi Service Agra | SK Baghel Travels",
+      title: "Outstation Taxi Service Agra | Agra SK Baghel Travels",
       description: "Book outstation taxi service from Agra. One-way and round-trip transfers to Delhi, Jaipur, Mathura, Vrindavan, and Lucknow at lowest guaranteed rates.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["outstation taxi service from agra", "agra to delhi taxi one way", "agra to jaipur cab fare", "agra to mathura vrindavan tour taxi", "agra to delhi airport cab booking", "outstation cab booking agra"],
@@ -377,7 +377,7 @@ function getSeoBase(
 
   if (section === "packages") {
     return {
-      title: "Local Sightseeing Taxi Agra | SK Baghel Travels",
+      title: "Local Sightseeing Taxi Agra | Agra SK Baghel Travels",
       description: "Hire a local sightseeing taxi in Agra. Low-cost customized day packages covering Taj Mahal, Agra Fort and Mehtab Bagh with expert local driver-guides.",
       ogImage: "/assets/packages/taj-dawn.webp",
       keywords: ["agra local sightseeing taxi", "same day taj mahal tour package", "taj mahal sunrise tour package by car", "agra one day tour taxi fare", "agra tour and travels local package"],
@@ -386,7 +386,7 @@ function getSeoBase(
 
   if (section === "monuments") {
     return {
-      title: "Monuments of Agra Guide & Cabs | SK Baghel",
+      title: "Monuments of Agra Guide & Cabs | Agra SK Baghel",
       description: "Visiting hours, ticket guidelines & private AC cab transfers for Taj Mahal, Agra Fort, Fatehpur Sikri and Mehtab Bagh with transparent rates.",
       ogImage: "/assets/places/agra-taj-mahal.webp",
       keywords: ["Monuments of Agra", "Taj Mahal guide", "Agra Fort", "Fatehpur Sikri", "Agra sightseeing monuments"],
@@ -395,7 +395,7 @@ function getSeoBase(
 
   if (section === "fleet") {
     return {
-      title: "Tempo Traveller & Cab Booking Agra | SK Baghel",
+      title: "Tempo Traveller & Cab Booking Agra | Agra SK Baghel",
       description: "Rent Tempo Travellers (9-26 seats) or hire Innova Crysta in Agra for outstation and sightseeing. Chauffeur-driven luxury cabs at budget-friendly rates.",
       ogImage: "/assets/fleet/innova.webp",
       keywords: ["innova crysta rental in agra", "tempo traveller booking agra", "9 12 16 seater tempo traveller agra", "ertiga taxi booking agra", "suv cab service agra"],
@@ -404,10 +404,10 @@ function getSeoBase(
 
   if (section === "about") {
     return {
-      title: "About Us | Agra SK Baghel Tour & Travels Agra",
+      title: "About Us | Agra SK Baghel Tour & Travels",
       description: "Founded in Taj Ganj, Agra. Over 15 years of trusted chauffeur-driven outstation cabs, verified drivers, and transparent zero-commission heritage tours.",
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: ["About Agra SK Baghel Tour and Travels", "Agra travel desk", "Taj Ganj taxi service", "verified drivers Agra", "heritage tours"],
+      keywords: ["About Agra SK Baghel Tour & Travels", "Agra travel desk", "Taj Ganj taxi service", "verified drivers Agra", "heritage tours"],
     };
   }
 
@@ -416,7 +416,7 @@ function getSeoBase(
       title: "Contact Us: 24×7 Travel Desk | Agra SK Baghel",
       description: "Get in touch with our 24×7 Taj Ganj dispatch desk for outstation cabs, sunrise Taj Mahal tours, and luxury group travel in Agra. Call +91 97628 17598.",
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: ["Contact Agra SK Baghel Tour and Travels", "Agra taxi phone number", "Taj Ganj dispatch desk", "24x7 cab booking"],
+      keywords: ["Contact Agra SK Baghel Tour & Travels", "Agra taxi phone number", "Taj Ganj dispatch desk", "24x7 cab booking"],
     };
   }
 
@@ -440,7 +440,7 @@ function getSeoBase(
 
   if (section === "privacy") {
     return {
-      title: "Privacy Policy | Agra SK Baghel Tour & Travels Agra",
+      title: "Privacy Policy | Agra SK Baghel Tour & Travels",
       description: "Learn how we handle Google Sign-In, travel and booking information, service providers, retention, and privacy requests.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Privacy policy", "DPDP Act 2023", "passenger data protection", "confidentiality"],
@@ -449,7 +449,7 @@ function getSeoBase(
 
   if (section === "rent" || pathname.includes("/taxis/rent") || pathname.includes("/rent")) {
     return {
-      title: "Rent a Taxi in Agra: Fleet & Cabs | SK Baghel Travels",
+      title: "Rent a Taxi in Agra: Fleet & Cabs | Agra SK Baghel Travels",
       description: "Rent verified taxis in Agra with dedicated chauffeurs. Browse Sedans, SUVs, Luxury and Tempo Travellers. Transparent call-first quotes and doorstep pickup.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Agra taxi rental", "rent a cab Agra", "Agra car rental with driver", "Tempo Traveller rental Agra"],
@@ -458,14 +458,14 @@ function getSeoBase(
 
   if (section === "404") {
     return {
-      title: "404 Page Not Found — Agra SK Baghel Tour and Travels Agra",
+      title: "404 Page Not Found — Agra SK Baghel Tour & Travels",
       description: "Uncharted route — let us guide you back. Search verified Agra cabs, outstation routes and private tour packages.",
       ogImage: "/assets/brand/og-banner.webp",
     };
   }
 
   return {
-    title: `${section.replaceAll("-", " ")} | SK Baghel Travels`,
+    title: `${section.replaceAll("-", " ")} | Agra SK Baghel Travels`,
     description: "Agra taxi, outstation cabs, Tempo Travellers and private tours with transparent fares.",
     ogImage: "/assets/brand/og-banner.webp",
   };
@@ -478,7 +478,7 @@ function clampSeoTitle(value: string, max = 55): string {
   if (clean.includes(" | ")) {
     const [topic] = clean.split(" | ");
     if (topic && topic.length + 14 <= max) {
-      return `${topic} | SK Baghel`;
+      return `${topic} | Agra SK Baghel`;
     }
   }
   return `${clean.slice(0, max - 1).trimEnd()}…`;
@@ -589,12 +589,12 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
   const dynamicRouteItem = !isEntityDetail ? publishedRoutes.find((item) => pathname.replace(/\/$/, "").endsWith(`/${item.slug}`)) : undefined;
   const catalogRouteMatch = !isEntityDetail && !dynamicRouteItem
     ? ((generatedCatalog as any)?.routes as Route[] || []).find((item) => {
-        const taxiSlug = `${item.from}-to-${item.to}-taxi`;
-        return (
-          pathname.replace(/\/$/, "").endsWith(`/${taxiSlug}`) ||
-          pathname.replace(/\/$/, "").endsWith(`/${item.id}`)
-        );
-      })
+      const taxiSlug = `${item.from}-to-${item.to}-taxi`;
+      return (
+        pathname.replace(/\/$/, "").endsWith(`/${taxiSlug}`) ||
+        pathname.replace(/\/$/, "").endsWith(`/${item.id}`)
+      );
+    })
     : undefined;
   const dynamicRoute = dynamicRouteItem ? toFrontendRoute(dynamicRouteItem) : catalogRouteMatch;
 
@@ -605,17 +605,17 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
   });
   const dynamicPackage = pathname.includes("/packages/")
     ? publishedCatalog.find((item) => {
-        const itemSlug = item.slug || (item as any).packageCode || (item as any).package_code;
-        return itemSlug && pathname.replace(/\/$/, "").endsWith(`/packages/${itemSlug}`);
-      })
+      const itemSlug = item.slug || (item as any).packageCode || (item as any).package_code;
+      return itemSlug && pathname.replace(/\/$/, "").endsWith(`/packages/${itemSlug}`);
+    })
     : undefined;
 
   // Phase 6 Dossier Resolvers
   const dossierTourPackage = pathname.includes("/packages/")
     ? publishedTourPackages.find((item) => {
-        const itemSlug = item.slug || (item as any).packageCode || (item as any).package_code;
-        return itemSlug && pathname.replace(/\/$/, "").endsWith(`/packages/${itemSlug}`);
-      })
+      const itemSlug = item.slug || (item as any).packageCode || (item as any).package_code;
+      return itemSlug && pathname.replace(/\/$/, "").endsWith(`/packages/${itemSlug}`);
+    })
     : undefined;
 
   const dossierTransferRoute = pathname.includes("/transfers/")
@@ -628,9 +628,9 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
 
   const dossierMonument = pathname.includes("/monuments/")
     ? publishedMonuments.find((item) => {
-        const slug = item.slug ?? item.monumentCode ?? (item.name ? item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "");
-        return pathname.replace(/\/$/, "").endsWith(`/monuments/${slug}`);
-      })
+      const slug = item.slug ?? item.monumentCode ?? (item.name ? item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "");
+      return pathname.replace(/\/$/, "").endsWith(`/monuments/${slug}`);
+    })
     : undefined;
 
   const matchedVehicle =
@@ -736,72 +736,72 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
         <SiteLayout currentPath={pathname}>
           <Suspense fallback={null}>
             {is404 ? (
-            <NotFoundPage language={language} />
-          ) : isAuthCallback ? (
-            <AuthCallbackPage />
-          ) : isMyBookings ? (
-            <MyBookingsPage />
-          ) : isPaymentResume ? (
-            <PaymentResumePage />
-          ) : isBookingConfirmation ? (
-            <BookingConfirmationPage />
-          ) : isLogin ? (
-            <LoginPage />
-          ) : isReview ? (
-            <ReviewPage />
-          ) : isBooking ? (
-            <BookingPage />
-          ) : isHome ? (
-            <HomePage language={language} />
-          ) : matchedRoute ? (
-            <RouteDetailPage language={language} route={matchedRoute} />
-          ) : dynamicRoute ? (
-            <RouteDetailPage language={language} route={dynamicRoute} />
-          ) : matchedPackage ? (
-            <PackageDetailPage language={language} pkg={matchedPackage} />
-          ) : dossierTourPackage ? (
-            <PackageDetailPage language={language} pkg={toDossierTourPackage(dossierTourPackage)} />
-          ) : dynamicPackage ? (
-            <LivePackageDetailPage slug={dynamicPackage.slug} initialItem={dynamicPackage as unknown as PublicCatalogItem} />
-          ) : dossierTransferRoute ? (
-            <TransferDetailPage language={language} item={dossierTransferRoute} />
-          ) : dossierLocalPackage ? (
-            <LocalPackageDetailPage language={language} item={dossierLocalPackage} />
-          ) : dossierMonument ? (
-            <MonumentDetailPage language={language} item={dossierMonument} />
-          ) : isRental ? (
-            <RentalPage language={language} />
-          ) : cleanProductMatch ? (
-            <ProductDetailPage category={cleanProductMatch.category} code={cleanProductMatch.code} />
-          ) : matchedVehicle ? (
-            <VehicleDetailPage language={language} vehicle={matchedVehicle} />
-          ) : isSeoLanding ? (
-            <SeoLandingPage slug={section as SeoLandingSlug} />
-          ) : section === "services" ? (
-            <ServicesPage language={language} />
-          ) : section === "routes" ? (
-            <RoutesPage language={language} />
-          ) : section === "packages" ? (
-            <PackagesPage language={language} />
-          ) : section === "monuments" || cleanPath === "/monuments" || cleanPath === "/en/monuments" ? (
-            <MonumentsPage language={language} />
-          ) : section === "fleet" ? (
-            <FleetPage language={language} />
-          ) : section === "about" ? (
-            <AboutPage language={language} />
-          ) : section === "contact" ? (
-            <ContactPage language={language} />
-          ) : section === "faq" ? (
-            <FaqPage language={language} />
-          ) : section === "terms" ? (
-            <TermsPage language={language} />
-          ) : section === "privacy" ? (
-            <PrivacyPage language={language} />
-          ) : isMarketingHub || pathname.startsWith("/en/") || pathname.startsWith("/hi/") ? (
-            <MarketingPage language={language} section={section} />
-          ) : (
-            <NotFoundPage language={language} />
-          )}
+              <NotFoundPage language={language} />
+            ) : isAuthCallback ? (
+              <AuthCallbackPage />
+            ) : isMyBookings ? (
+              <MyBookingsPage />
+            ) : isPaymentResume ? (
+              <PaymentResumePage />
+            ) : isBookingConfirmation ? (
+              <BookingConfirmationPage />
+            ) : isLogin ? (
+              <LoginPage />
+            ) : isReview ? (
+              <ReviewPage />
+            ) : isBooking ? (
+              <BookingPage />
+            ) : isHome ? (
+              <HomePage language={language} />
+            ) : matchedRoute ? (
+              <RouteDetailPage language={language} route={matchedRoute} />
+            ) : dynamicRoute ? (
+              <RouteDetailPage language={language} route={dynamicRoute} />
+            ) : matchedPackage ? (
+              <PackageDetailPage language={language} pkg={matchedPackage} />
+            ) : dossierTourPackage ? (
+              <PackageDetailPage language={language} pkg={toDossierTourPackage(dossierTourPackage)} />
+            ) : dynamicPackage ? (
+              <LivePackageDetailPage slug={dynamicPackage.slug} initialItem={dynamicPackage as unknown as PublicCatalogItem} />
+            ) : dossierTransferRoute ? (
+              <TransferDetailPage language={language} item={dossierTransferRoute} />
+            ) : dossierLocalPackage ? (
+              <LocalPackageDetailPage language={language} item={dossierLocalPackage} />
+            ) : dossierMonument ? (
+              <MonumentDetailPage language={language} item={dossierMonument} />
+            ) : isRental ? (
+              <RentalPage language={language} />
+            ) : cleanProductMatch ? (
+              <ProductDetailPage category={cleanProductMatch.category} code={cleanProductMatch.code} />
+            ) : matchedVehicle ? (
+              <VehicleDetailPage language={language} vehicle={matchedVehicle} />
+            ) : isSeoLanding ? (
+              <SeoLandingPage slug={section as SeoLandingSlug} />
+            ) : section === "services" ? (
+              <ServicesPage language={language} />
+            ) : section === "routes" ? (
+              <RoutesPage language={language} />
+            ) : section === "packages" ? (
+              <PackagesPage language={language} />
+            ) : section === "monuments" || cleanPath === "/monuments" || cleanPath === "/en/monuments" ? (
+              <MonumentsPage language={language} />
+            ) : section === "fleet" ? (
+              <FleetPage language={language} />
+            ) : section === "about" ? (
+              <AboutPage language={language} />
+            ) : section === "contact" ? (
+              <ContactPage language={language} />
+            ) : section === "faq" ? (
+              <FaqPage language={language} />
+            ) : section === "terms" ? (
+              <TermsPage language={language} />
+            ) : section === "privacy" ? (
+              <PrivacyPage language={language} />
+            ) : isMarketingHub || pathname.startsWith("/en/") || pathname.startsWith("/hi/") ? (
+              <MarketingPage language={language} section={section} />
+            ) : (
+              <NotFoundPage language={language} />
+            )}
           </Suspense>
         </SiteLayout>
       </CustomerAuthProvider>

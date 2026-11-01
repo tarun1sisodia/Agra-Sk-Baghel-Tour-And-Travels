@@ -347,7 +347,7 @@ export class SitemapGenerator {
 
 ---
 
-## 8. Publishing Worker
+## 8. Publication Worker
 
 ### 8.1 Worker Architecture
 

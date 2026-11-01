@@ -113,7 +113,7 @@ export function SignoffPage({ user }: { user: AdminUser }) {
       <PageHeader
         eyebrow="Verification & Compliance"
         title="Client Dossier Sign-Off (Dossier §12)"
-        description="Verification checklist with SK Baghel stakeholders for operational, commercial, and policy rules confirmation."
+        description="Verification checklist with Agra SK Baghel stakeholders for operational, commercial, and policy rules confirmation."
       />
 
       {feedback && (
@@ -168,9 +168,8 @@ export function SignoffPage({ user }: { user: AdminUser }) {
           </div>
           <div className="h-2.5 w-full overflow-hidden rounded-full bg-surface-dark border border-hairline">
             <div
-              className={`h-full transition-all duration-500 ${
-                allApproved ? "bg-emerald-500" : "bg-gradient-to-r from-amber-500 to-gold"
-              }`}
+              className={`h-full transition-all duration-500 ${allApproved ? "bg-emerald-500" : "bg-gradient-to-r from-amber-500 to-gold"
+                }`}
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
@@ -275,8 +274,8 @@ function SignoffRow({
                 localStatus === "approved"
                   ? "border-emerald-500 text-emerald-400 font-medium"
                   : localStatus === "modification_requested"
-                  ? "border-rose-500 text-rose-400 font-medium"
-                  : "text-amber-400"
+                    ? "border-rose-500 text-rose-400 font-medium"
+                    : "text-amber-400"
               }
             >
               <option value="pending">Pending Review</option>

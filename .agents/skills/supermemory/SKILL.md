@@ -1,12 +1,12 @@
 ---
 name: supermemory
 description: >-
-  Persistent memory and long-term project context recall for SK Baghel Tour & Travels (ArenaAI).
+  Persistent memory and long-term project context recall for Agra SK Baghel Tour & Travels (ArenaAI).
   Use to query past architectural decisions, verify design locks and client pricing rules,
   and remember key milestones using Supermemory API / CLI with namespace 'sk_baghel_travels'.
 ---
 
-# Supermemory Context Integration — SK Baghel Tour & Travels
+# Supermemory Context Integration — Agra SK Baghel Tour & Travels
 
 Supermemory provides persistent memory across coding sessions for this project.
 It prevents context loss across agent turns and long-term conversations.

@@ -419,11 +419,10 @@ export function FamousPlacesSection() {
               key={cat.id}
               type="button"
               onClick={() => setActiveCategory(cat.id as any)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-label-lg transition-all font-semibold ${
-                activeCategory === cat.id
-                  ? "bg-primary text-white shadow-sm font-bold"
-                  : "text-on-surface-variant hover:text-on-surface hover:bg-sandstone-wash"
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-label-lg transition-all font-semibold ${activeCategory === cat.id
+                ? "bg-primary text-white shadow-sm font-bold"
+                : "text-on-surface-variant hover:text-on-surface hover:bg-sandstone-wash"
+                }`}
             >
               {cat.label}
             </button>
@@ -500,11 +499,10 @@ export function FamousPlacesSection() {
                     key={img.url}
                     type="button"
                     onClick={() => handleSelectImage(place.id, idx)}
-                    className={`relative w-14 h-10 rounded-md overflow-hidden shrink-0 transition-all border ${
-                      currentImgIdx === idx
-                        ? "ring-2 ring-primary border-primary scale-[1.03] shadow-xs"
-                        : "opacity-65 hover:opacity-100 border-border-warm/60"
-                    }`}
+                    className={`relative w-14 h-10 rounded-md overflow-hidden shrink-0 transition-all border ${currentImgIdx === idx
+                      ? "ring-2 ring-primary border-primary scale-[1.03] shadow-xs"
+                      : "opacity-65 hover:opacity-100 border-border-warm/60"
+                      }`}
                     title={img.caption}
                     aria-label={`View photo ${idx + 1}: ${img.caption}`}
                   >
@@ -596,7 +594,7 @@ export function FamousPlacesSection() {
                     className="min-h-[44px] px-3.5 py-2.5 rounded-lg bg-black hover:bg-neutral-900 border border-white/20 text-white font-label-lg text-xs font-semibold shadow-xs transition-all active:scale-[0.98] inline-flex items-center gap-1.5 shrink-0"
                     style={{ color: "#ffffff" }}
                     href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-                      `Hello Agra SK Baghel Tour and Travels Desk, I would like to inquire about a taxi trip to ${place.name} (${place.distance}).`
+                      `Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about a taxi trip to ${place.name} (${place.distance}).`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -654,7 +652,7 @@ export function FamousPlacesSection() {
                   className="px-4 py-2 rounded-lg bg-black hover:bg-neutral-900 border border-white/20 text-white font-label-lg text-xs font-semibold inline-flex items-center gap-2 active:scale-[0.98]"
                   style={{ color: "#ffffff" }}
                   href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-                    `Hello Agra SK Baghel Tour and Travels, I am inquiring about visiting ${modalImage.title}.`
+                    `Hello Agra SK Baghel Tour & Travels, I am inquiring about visiting ${modalImage.title}.`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"

@@ -320,7 +320,7 @@ const FLEET_FAQS = [
   },
   {
     q: "Are the vehicles yellow-plate commercial tourist cabs?",
-    a: "Every vehicle operated by Agra SK Baghel Tour and Travels carries a registered commercial yellow plate, All-India Tourist Permit (AITP), up-to-date fitness certificates, and comprehensive passenger insurance.",
+    a: "Every vehicle operated by Agra SK Baghel Tour & Travels carries a registered commercial yellow plate, All-India Tourist Permit (AITP), up-to-date fitness certificates, and comprehensive passenger insurance.",
   },
 ];
 
@@ -383,7 +383,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
           setLocalPrices(p8.fleetPrices);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
 
     return () => {
       isMounted = false;
@@ -516,7 +516,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                 Hire Innova Crysta, Ertiga, or Tempo Traveller in Agra for Family Tours
               </h2>
               <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                Traveling with a large family group or corporate team requires unmatched comfort and ample luggage space. At <strong className="text-on-surface font-semibold">Agra SK Baghel Tour and Travels</strong>, we manage a diverse, well-maintained commercial fleet tailored specifically to your group size.
+                Traveling with a large family group or corporate team requires unmatched comfort and ample luggage space. At <strong className="text-on-surface font-semibold">Agra SK Baghel Tour & Travels</strong>, we manage a diverse, well-maintained commercial fleet tailored specifically to your group size.
               </p>
             </div>
             <div className="glass-card-frosted p-6 sm:p-8 rounded-3xl border border-white/60 shadow-xs flex flex-col gap-2.5">
@@ -551,11 +551,10 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
               key={cat.id}
               type="button"
               onClick={() => setActiveCategory(cat.id as any)}
-              className={`px-4 py-2 rounded-xl font-label-caps text-xs uppercase tracking-wider transition-all whitespace-nowrap font-bold ${
-                activeCategory === cat.id
-                  ? "bg-primary text-white shadow-md scale-[1.02]"
-                  : "bg-surface-container/70 hover:bg-surface-container-high text-on-surface-variant border border-border-warm/40"
-              }`}
+              className={`px-4 py-2 rounded-xl font-label-caps text-xs uppercase tracking-wider transition-all whitespace-nowrap font-bold ${activeCategory === cat.id
+                ? "bg-primary text-white shadow-md scale-[1.02]"
+                : "bg-surface-container/70 hover:bg-surface-container-high text-on-surface-variant border border-border-warm/40"
+                }`}
             >
               {cat.label}
             </button>
@@ -631,168 +630,168 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
             </div>
           ) : (
             filteredVehicles.map((veh) => (
-            <article
-              key={veh.id}
-              className="glass-card-frosted rounded-3xl shadow-sm border border-white/60 overflow-hidden grid grid-cols-1 lg:grid-cols-12 items-stretch transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-            >
-              <div className="lg:col-span-5 relative min-h-[190px] sm:min-h-[220px] lg:min-h-[260px] bg-sandstone-wash overflow-hidden">
-                <img
-                  className="w-full h-full object-cover min-h-[190px] sm:min-h-[220px] lg:min-h-[260px]"
-                  src={veh.image}
-                  alt={veh.name}
-                />
-                <div className="absolute top-3 left-3 right-3 flex justify-between items-start pointer-events-none">
-                  <span className="inline-block px-2.5 py-0.5 rounded bg-sandstone-wash/95 backdrop-blur-sm text-terracotta-sandstone font-label-caps text-label-caps uppercase tracking-wider shadow-xs font-bold">
-                    {veh.highlightBadge}
-                  </span>
-                </div>
-              </div>
-
-              <div className="lg:col-span-7 p-3.5 sm:p-4.5 lg:p-5 flex flex-col justify-between">
-                <div>
-                  <div className="flex flex-wrap items-baseline justify-between gap-2 mb-1.5">
-                    <h2 className="font-headline-md text-base sm:text-lg text-ink-charcoal font-semibold">
-                      {veh.name}
-                    </h2>
-                    <span className="font-label-caps text-label-lg px-2 py-0.5 rounded bg-sandstone-wash text-ink-charcoal font-bold border border-border-warm">
-                      {veh.classTag}
+              <article
+                key={veh.id}
+                className="glass-card-frosted rounded-3xl shadow-sm border border-white/60 overflow-hidden grid grid-cols-1 lg:grid-cols-12 items-stretch transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              >
+                <div className="lg:col-span-5 relative min-h-[190px] sm:min-h-[220px] lg:min-h-[260px] bg-sandstone-wash overflow-hidden">
+                  <img
+                    className="w-full h-full object-cover min-h-[190px] sm:min-h-[220px] lg:min-h-[260px]"
+                    src={veh.image}
+                    alt={veh.name}
+                  />
+                  <div className="absolute top-3 left-3 right-3 flex justify-between items-start pointer-events-none">
+                    <span className="inline-block px-2.5 py-0.5 rounded bg-sandstone-wash/95 backdrop-blur-sm text-terracotta-sandstone font-label-caps text-label-caps uppercase tracking-wider shadow-xs font-bold">
+                      {veh.highlightBadge}
                     </span>
                   </div>
-                  <p className="font-body-sm text-body-md sm:text-label-md text-on-surface-variant mb-space-sm leading-relaxed">
-                    {veh.description}
-                  </p>
+                </div>
 
-                  {/* Pricing Banner (Compact -20%) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-surface-container-low p-2 sm:p-2.5 rounded-lg mb-space-sm border border-border-warm/60 text-center">
-                    <div className="py-0.5">
-                      <span className="block font-label-caps text-label-caps text-secondary uppercase font-semibold">
-                        Outstation Rate
+                <div className="lg:col-span-7 p-3.5 sm:p-4.5 lg:p-5 flex flex-col justify-between">
+                  <div>
+                    <div className="flex flex-wrap items-baseline justify-between gap-2 mb-1.5">
+                      <h2 className="font-headline-md text-base sm:text-lg text-ink-charcoal font-semibold">
+                        {veh.name}
+                      </h2>
+                      <span className="font-label-caps text-label-lg px-2 py-0.5 rounded bg-sandstone-wash text-ink-charcoal font-bold border border-border-warm">
+                        {veh.classTag}
                       </span>
-                      <div className="flex items-baseline justify-center gap-0.5 mt-0.5">
-                        {veh.rates.outstationPerKm ? (
-                          <>
-                            <span className="font-price-display text-base sm:text-lg text-terracotta-sandstone font-bold">
-                              ₹{veh.rates.outstationPerKm}
+                    </div>
+                    <p className="font-body-sm text-body-md sm:text-label-md text-on-surface-variant mb-space-sm leading-relaxed">
+                      {veh.description}
+                    </p>
+
+                    {/* Pricing Banner (Compact -20%) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-surface-container-low p-2 sm:p-2.5 rounded-lg mb-space-sm border border-border-warm/60 text-center">
+                      <div className="py-0.5">
+                        <span className="block font-label-caps text-label-caps text-secondary uppercase font-semibold">
+                          Outstation Rate
+                        </span>
+                        <div className="flex items-baseline justify-center gap-0.5 mt-0.5">
+                          {veh.rates.outstationPerKm ? (
+                            <>
+                              <span className="font-price-display text-base sm:text-lg text-terracotta-sandstone font-bold">
+                                ₹{veh.rates.outstationPerKm}
+                              </span>
+                              <span className="font-body-sm text-body-sm text-on-surface-variant font-medium">/ km</span>
+                            </>
+                          ) : (
+                            <span className="font-body-sm text-label-md text-terracotta-sandstone font-semibold">
+                              On request
                             </span>
-                            <span className="font-body-sm text-body-sm text-on-surface-variant font-medium">/ km</span>
-                          </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="bg-surface-container-high/40 rounded py-0.5 px-1 sm:border-x sm:border-border-warm/40">
+                        <span className="block font-label-caps text-label-caps text-secondary uppercase font-semibold">
+                          8h/80Km Local
+                        </span>
+                        {veh.rates.local8h80km ? (
+                          <span className="block font-price-display text-base text-ink-charcoal font-bold mt-0.5">
+                            ₹{veh.rates.local8h80km.toLocaleString("en-IN")}
+                          </span>
                         ) : (
-                          <span className="font-body-sm text-label-md text-terracotta-sandstone font-semibold">
+                          <span className="block font-body-sm text-label-md text-ink-charcoal font-semibold mt-0.5">
                             On request
                           </span>
                         )}
+                        <span className="block font-body-sm text-label-caps text-on-surface-variant">Standard Day</span>
+                      </div>
+                      <div className="py-0.5">
+                        <span className="block font-label-caps text-label-caps text-secondary uppercase font-semibold">
+                          Full Day Agra
+                        </span>
+                        {veh.rates.fullDayYamuna ? (
+                          <span className="block font-price-display text-base text-ink-charcoal font-bold mt-0.5">
+                            ₹{veh.rates.fullDayYamuna.toLocaleString("en-IN")}
+                          </span>
+                        ) : (
+                          <span className="block font-body-sm text-label-md text-ink-charcoal font-semibold mt-0.5">
+                            On request
+                          </span>
+                        )}
+                        <span className="block font-body-sm text-label-caps text-success-jade font-semibold">Tolls Included</span>
                       </div>
                     </div>
-                    <div className="bg-surface-container-high/40 rounded py-0.5 px-1 sm:border-x sm:border-border-warm/40">
-                      <span className="block font-label-caps text-label-caps text-secondary uppercase font-semibold">
-                        8h/80Km Local
-                      </span>
-                      {veh.rates.local8h80km ? (
-                        <span className="block font-price-display text-base text-ink-charcoal font-bold mt-0.5">
-                          ₹{veh.rates.local8h80km.toLocaleString("en-IN")}
+
+                    {/* Technical Specs Grid (Compact -20%) */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 mb-space-sm">
+                      <div className="bg-surface-container p-2 rounded border border-border-warm/50 flex flex-col justify-between">
+                        <span className="flex items-center gap-1 font-label-caps text-label-caps text-secondary uppercase font-bold">
+                          <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">
+                            airline_seat_recline_normal
+                          </span>
+                          Seats
                         </span>
-                      ) : (
-                        <span className="block font-body-sm text-label-md text-ink-charcoal font-semibold mt-0.5">
-                          On request
+                        <span className="font-title-md text-body-md text-ink-charcoal mt-0.5 block font-semibold">{veh.specs.seats}</span>
+                      </div>
+                      <div className="bg-surface-container p-2 rounded border border-border-warm/50 flex flex-col justify-between">
+                        <span className="flex items-center gap-1 font-label-caps text-label-caps text-secondary uppercase font-bold">
+                          <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">luggage</span>
+                          Luggage
                         </span>
-                      )}
-                      <span className="block font-body-sm text-label-caps text-on-surface-variant">Standard Day</span>
+                        <span className="font-title-md text-body-md text-ink-charcoal mt-0.5 block font-semibold">{veh.specs.luggage}</span>
+                      </div>
+                      <div className="bg-surface-container p-2 rounded border border-border-warm/50 flex flex-col justify-between">
+                        <span className="flex items-center gap-1 font-label-caps text-label-caps text-secondary uppercase font-bold">
+                          <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">ac_unit</span>
+                          Climate
+                        </span>
+                        <span className="font-title-md text-body-md text-ink-charcoal mt-0.5 block font-semibold">{veh.specs.climate}</span>
+                      </div>
+                      <div className="bg-surface-container p-2 rounded border border-border-warm/50 flex flex-col justify-between">
+                        <span className="flex items-center gap-1 font-label-caps text-label-caps text-secondary uppercase font-bold">
+                          <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">directions_car</span>
+                          Engine
+                        </span>
+                        <span className="font-title-md text-body-md text-ink-charcoal mt-0.5 block font-semibold">{veh.specs.fuel}</span>
+                      </div>
                     </div>
-                    <div className="py-0.5">
-                      <span className="block font-label-caps text-label-caps text-secondary uppercase font-semibold">
-                        Full Day Agra
-                      </span>
-                      {veh.rates.fullDayYamuna ? (
-                        <span className="block font-price-display text-base text-ink-charcoal font-bold mt-0.5">
-                          ₹{veh.rates.fullDayYamuna.toLocaleString("en-IN")}
+
+                    {/* Amenities & Best Suited */}
+                    <div className="flex flex-col gap-1 mb-space-sm text-on-surface-variant font-body-sm text-label-lg">
+                      <div className="flex items-start gap-1.5">
+                        <span className="material-symbols-outlined text-icon-14 text-success-jade shrink-0 mt-0.5">check_circle</span>
+                        <span>
+                          <strong>Complimentary Amenities:</strong> {veh.amenities.join(" · ")}
                         </span>
-                      ) : (
-                        <span className="block font-body-sm text-label-md text-ink-charcoal font-semibold mt-0.5">
-                          On request
+                      </div>
+                      <div className="flex items-start gap-1.5">
+                        <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone shrink-0 mt-0.5">stars</span>
+                        <span>
+                          <strong>Best Suited For:</strong> {veh.bestSuitedFor}
                         </span>
-                      )}
-                      <span className="block font-body-sm text-label-caps text-success-jade font-semibold">Tolls Included</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Technical Specs Grid (Compact -20%) */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 mb-space-sm">
-                    <div className="bg-surface-container p-2 rounded border border-border-warm/50 flex flex-col justify-between">
-                      <span className="flex items-center gap-1 font-label-caps text-label-caps text-secondary uppercase font-bold">
-                        <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">
-                          airline_seat_recline_normal
-                        </span>
-                        Seats
-                      </span>
-                      <span className="font-title-md text-body-md text-ink-charcoal mt-0.5 block font-semibold">{veh.specs.seats}</span>
-                    </div>
-                    <div className="bg-surface-container p-2 rounded border border-border-warm/50 flex flex-col justify-between">
-                      <span className="flex items-center gap-1 font-label-caps text-label-caps text-secondary uppercase font-bold">
-                        <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">luggage</span>
-                        Luggage
-                      </span>
-                      <span className="font-title-md text-body-md text-ink-charcoal mt-0.5 block font-semibold">{veh.specs.luggage}</span>
-                    </div>
-                    <div className="bg-surface-container p-2 rounded border border-border-warm/50 flex flex-col justify-between">
-                      <span className="flex items-center gap-1 font-label-caps text-label-caps text-secondary uppercase font-bold">
-                        <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">ac_unit</span>
-                        Climate
-                      </span>
-                      <span className="font-title-md text-body-md text-ink-charcoal mt-0.5 block font-semibold">{veh.specs.climate}</span>
-                    </div>
-                    <div className="bg-surface-container p-2 rounded border border-border-warm/50 flex flex-col justify-between">
-                      <span className="flex items-center gap-1 font-label-caps text-label-caps text-secondary uppercase font-bold">
-                        <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">directions_car</span>
-                        Engine
-                      </span>
-                      <span className="font-title-md text-body-md text-ink-charcoal mt-0.5 block font-semibold">{veh.specs.fuel}</span>
-                    </div>
-                  </div>
-
-                  {/* Amenities & Best Suited */}
-                  <div className="flex flex-col gap-1 mb-space-sm text-on-surface-variant font-body-sm text-label-lg">
-                    <div className="flex items-start gap-1.5">
-                      <span className="material-symbols-outlined text-icon-14 text-success-jade shrink-0 mt-0.5">check_circle</span>
-                      <span>
-                        <strong>Complimentary Amenities:</strong> {veh.amenities.join(" · ")}
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-1.5">
-                      <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone shrink-0 mt-0.5">stars</span>
-                      <span>
-                        <strong>Best Suited For:</strong> {veh.bestSuitedFor}
-                      </span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-space-xs border-t border-border-warm/60">
+                    <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                      <a
+                        className="w-full sm:w-auto px-3.5 py-2 rounded-lg bg-black hover:bg-neutral-900 border border-white/10 text-white font-label-lg text-xs inline-flex items-center justify-center gap-1.5 transition-colors shrink-0 font-semibold active:scale-[0.98]"
+                        style={{ color: "#ffffff" }}
+                        href={`https://wa.me/919762817598?text=Inquiry%20for%20${encodeURIComponent(veh.name)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <WhatsAppIcon className="w-3.5 h-3.5 shrink-0 text-white" />
+                        <span className="text-white font-semibold" style={{ color: "#ffffff" }}>WhatsApp Inquiry</span>
+                      </a>
+                      <a
+                        className="w-full sm:w-auto px-4 py-2 rounded-lg bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-lg text-xs inline-flex items-center justify-center gap-1.5 shadow-xs transition-all shrink-0 font-semibold"
+                        href={`/book.html?category=outstation&car=${veh.id}`}
+                      >
+                        <span>Book {veh.name.split(" ")[0]}</span>
+                        <span className="material-symbols-outlined text-icon-15">arrow_forward</span>
+                      </a>
                     </div>
                   </div>
                 </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-space-xs border-t border-border-warm/60">
-                  <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                    <a
-                      className="w-full sm:w-auto px-3.5 py-2 rounded-lg bg-black hover:bg-neutral-900 border border-white/10 text-white font-label-lg text-xs inline-flex items-center justify-center gap-1.5 transition-colors shrink-0 font-semibold active:scale-[0.98]"
-                      style={{ color: "#ffffff" }}
-                      href={`https://wa.me/919762817598?text=Inquiry%20for%20${encodeURIComponent(veh.name)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <WhatsAppIcon className="w-3.5 h-3.5 shrink-0 text-white" />
-                      <span className="text-white font-semibold" style={{ color: "#ffffff" }}>WhatsApp Inquiry</span>
-                    </a>
-                    <a
-                      className="w-full sm:w-auto px-4 py-2 rounded-lg bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-lg text-xs inline-flex items-center justify-center gap-1.5 shadow-xs transition-all shrink-0 font-semibold"
-                      href={`/book.html?category=outstation&car=${veh.id}`}
-                    >
-                      <span>Book {veh.name.split(" ")[0]}</span>
-                      <span className="material-symbols-outlined text-icon-15">arrow_forward</span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </article>
-          ))
-        )}
-      </div>
-    </section>
+              </article>
+            ))
+          )}
+        </div>
+      </section>
 
       {/* 3B. EXTENDED FLEET GALLERY & BESPOKE MODELS */}
       <section className="w-full bg-sandstone-wash/20 py-10 sm:py-space-xl border-t border-border-warm/70">

@@ -1,4 +1,4 @@
-# Animation Verification Rules — SK Baghel Tour & Travels
+# Animation Verification Rules — Agra SK Baghel Tour & Travels
 
 > **Core Mandate:**
 > **"Fast content + subtle motion + real HTML + excellent accessibility"**  
