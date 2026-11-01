@@ -9,12 +9,12 @@
 # Keep the Node major in sync with backend/package.json "engines" and the
 # NODE_VERSION used by .github/workflows/quality.yml.
 
-FROM node:22-alpine AS deps
+FROM node:26-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json tsconfig.json tsconfig.build.json ./
@@ -22,12 +22,12 @@ COPY src ./src
 RUN npm run build
 
 # DevDependencies (typescript, vitest, eslint, tsx) never reach production.
-FROM node:22-alpine AS prod-deps
+FROM node:26-alpine AS prod-deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
-FROM node:22-alpine AS runner
+FROM node:26-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup -S skb && adduser -S skb -G skb
