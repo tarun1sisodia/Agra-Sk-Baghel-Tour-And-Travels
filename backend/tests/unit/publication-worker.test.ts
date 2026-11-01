@@ -628,7 +628,7 @@ describe("PublicationWorker (Section 12.17: PB-04 to PB-06)", () => {
     expect(verified).toBe(true);
   });
 
-  it("verifyDeployment: resolves transfer route from transfer_routes table", async () => {
+  it("verifyDeployment: resolves transfer route from transfers table", async () => {
     const customPool = {
       query: vi.fn().mockImplementation(async (sql: string) => {
         if (sql.includes("FROM transfers")) {

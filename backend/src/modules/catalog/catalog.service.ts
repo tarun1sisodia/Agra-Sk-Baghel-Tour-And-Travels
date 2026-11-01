@@ -194,7 +194,8 @@ export function createCatalogService(deps: { db: Repositories; clock: Clock; med
       }
     }
 
-    // 5. Incorporate dedicated transfer_routes table (authoritative for airport and railway transfers)
+    // 5. Incorporate transfer routes (airport and railway transfers) from the
+    // `transfers` table (the transferRoutes repository persists to `transfers`).
     if (deps.db.transferRoutes) {
       const dbTransfers = await deps.db.transferRoutes.list({ status: "published", limit: 500 });
       for (const item of dbTransfers.items || []) {

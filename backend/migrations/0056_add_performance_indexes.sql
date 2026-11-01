@@ -1,16 +1,18 @@
--- Migration: 0053_add_performance_indexes.sql
+-- Migration: 0056_add_performance_indexes.sql
 -- Phase H2: Database performance optimization
 --
 -- Adds additional indexes for common query patterns to improve read performance
 -- without impacting write performance significantly.
 --
 -- NOTE: this file was originally numbered 0043 and was written against the
--- pre-0038 schema (transfer_routes, reviews, promo_codes, publication_outbox,
--- bookings.pickup_datetime). Migration 0038 dropped/rebuilt those relations and
--- 0052 recreates transfer_routes, so this file is renumbered to run after 0052
--- and is defensive about tables that may no longer exist. It was renamed rather
--- than edited in place so that databases which already recorded the old
--- `0043_add_performance_indexes.sql` id do not hit a checksum-drift failure.
+-- pre-0038 schema (reviews, promo_codes, publication_outbox,
+-- bookings.pickup_datetime). Migration 0038 dropped/rebuilt those relations,
+-- so this file is renumbered to run after the rebuild and is defensive about
+-- tables that may no longer exist (indexes for them are created only where the
+-- table is present). It was renamed rather than edited in place so that
+-- databases which already recorded the old id do not hit a checksum-drift
+-- failure. Transfer-route queries are indexed separately on the `transfers`
+-- table (see 0055_standardize_on_transfers.sql).
 
 -- 1. Index for catalog items by status and type (used in public catalog queries)
 CREATE INDEX IF NOT EXISTS idx_catalog_items_status_type
@@ -40,18 +42,7 @@ ON outstation_routes (status);
 CREATE INDEX IF NOT EXISTS idx_local_packages_status
 ON local_packages (status);
 
--- 8. Index for transfer_routes by status (used in published transfer queries).
--- transfer_routes is recreated by 0052; guard so this file stays safe to run
--- against databases where it is absent.
-DO $$
-BEGIN
-  IF to_regclass('public.transfer_routes') IS NOT NULL THEN
-    CREATE INDEX IF NOT EXISTS idx_transfer_routes_status
-    ON transfer_routes (status);
-  END IF;
-END $$;
-
--- 9. Index for monuments by status (used in published monument queries). The
+-- 8. Index for monuments by status (used in published monument queries). The
 -- monuments table (0024) has no status column in the current schema; create the
 -- index only on databases where a legacy variant carries one.
 DO $$
@@ -64,41 +55,41 @@ BEGIN
   END IF;
 END $$;
 
--- 10. Index for bookings by customer_phone (used in customer lookup queries)
+-- 9. Index for bookings by customer_phone (used in customer lookup queries)
 CREATE INDEX IF NOT EXISTS idx_bookings_customer_phone
 ON bookings (customer_phone);
 
--- 11. Index for bookings by customer_name (used in customer lookup queries)
+-- 10. Index for bookings by customer_name (used in customer lookup queries)
 CREATE INDEX IF NOT EXISTS idx_bookings_customer_name
 ON bookings (customer_name);
 
--- 12. Index for bookings by pickup timestamp (used in dispatch and scheduling
+-- 11. Index for bookings by pickup timestamp (used in dispatch and scheduling
 -- queries). Column is pickup_at since the 0038 rebuild (it was pickup_datetime
 -- before).
 CREATE INDEX IF NOT EXISTS idx_bookings_pickup_at
 ON bookings (pickup_at);
 
--- 13. Index for bookings by status (used in status filter queries)
+-- 12. Index for bookings by status (used in status filter queries)
 CREATE INDEX IF NOT EXISTS idx_bookings_status
 ON bookings (status);
 
--- 14. Index for payments by booking_id (used in payment lookup queries)
+-- 13. Index for payments by booking_id (used in payment lookup queries)
 CREATE INDEX IF NOT EXISTS idx_payments_booking_id
 ON payments (booking_id);
 
--- 15. Index for payments by status (used in payment status queries)
+-- 14. Index for payments by status (used in payment status queries)
 CREATE INDEX IF NOT EXISTS idx_payments_status
 ON payments (status);
 
--- 16. Index for inquiries by phone (used in inquiry lookup queries)
+-- 15. Index for inquiries by phone (used in inquiry lookup queries)
 CREATE INDEX IF NOT EXISTS idx_inquiries_phone
 ON inquiries (phone);
 
--- 17. Index for inquiries by status (used in inquiry status queries)
+-- 16. Index for inquiries by status (used in inquiry status queries)
 CREATE INDEX IF NOT EXISTS idx_inquiries_status
 ON inquiries (status);
 
--- 18/19. Indexes for reviews (used in item review queries). The reviews table
+-- 17. Indexes for reviews (used in item review queries). The reviews table
 -- was dropped by the 0038 fare-system rebuild; create the indexes only when a
 -- database still carries the legacy table.
 DO $$
@@ -117,7 +108,7 @@ BEGIN
   END IF;
 END $$;
 
--- 20. Index for publication_outbox by status (used in publish queue queries).
+-- 18. Index for publication_outbox by status (used in publish queue queries).
 -- No migration creates this table (legacy/manual schema); index it if present.
 DO $$
 BEGIN
@@ -129,15 +120,15 @@ BEGIN
   END IF;
 END $$;
 
--- 21. Index for site_publish_events by entity_id and entity_type (used in publish tracking)
+-- 19. Index for site_publish_events by entity_id and entity_type (used in publish tracking)
 CREATE INDEX IF NOT EXISTS idx_site_publish_events_entity
 ON site_publish_events (entity_id, entity_type);
 
--- 22. Index for site_publish_events by status (used in publish status queries)
+-- 20. Index for site_publish_events by status (used in publish status queries)
 CREATE INDEX IF NOT EXISTS idx_site_publish_events_status
 ON site_publish_events (status);
 
--- 23/24. Indexes for promo_codes (used in promo validation queries). The
+-- 21. Indexes for promo_codes (used in promo validation queries). The
 -- promo_codes table was dropped by the 0038 fare-system rebuild; create the
 -- indexes only when a database still carries the legacy table.
 DO $$

@@ -9,6 +9,8 @@ The **Transfers** module manages fixed-rate and per-km pickup and drop services 
 - **Flight & Train Tracking**: Handles flight/train arrival details for driver scheduling.
 
 ## 3. Database Architecture
-- **Table**: `public.transfer_routes` (view: `transfers`).
+- **Table**: `public.transfers` (created by migration 0038; the legacy
+  `transfer_routes` table was dropped by 0038 and is retired by 0055).
 - **Primary Key**: `id` (UUID).
-- **Unique Constraint**: `route_code` (e.g., `kheria-airport`, `delhi-igi-airport`).
+- **Unique Constraint**: `code` (e.g., `kheria-airport`, `delhi-igi-airport`).
+- **Per-vehicle prices**: `fare_rules` (`category = 'transfer'`, joined by `transfer_id`).
