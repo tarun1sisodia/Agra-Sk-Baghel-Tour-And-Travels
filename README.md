@@ -22,9 +22,6 @@ npm run verify          # typecheck + test + production build for everything
 
 Run a single application:
 
-The TestSprite QA context, synthetic fixtures, and separate customer/admin/API
-test plans are documented in [`testsprite/README.md`](./testsprite/README.md).
-
 ```bash
 npm run customer:dev    # customer site   http://localhost:5173
 npm run admin:dev       # admin panel     http://localhost:5174
