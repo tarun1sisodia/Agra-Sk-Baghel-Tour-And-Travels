@@ -15,6 +15,51 @@ import type {
   UploadTourPackageImageInput,
 } from "./tour-packages.schema.js";
 
+// Status transition rules: only super_admin can publish/archive
+// draft -> published (via publish action or create with published status)
+// draft -> archived (via archive action or create with archived status)
+// published -> archived (via archive action)
+// published -> published (no-op, allowed for status field updates)
+// archived -> published (via publish action only)
+// archived -> archived (no-op, allowed for status field updates)
+type StatusTransition = {
+  from: "draft" | "published" | "archived";
+  to: "draft" | "published" | "archived";
+  allowed: boolean;
+  requiresSuperAdmin: boolean;
+};
+
+const ALLOWED_TRANSITIONS: StatusTransition[] = [
+  { from: "draft", to: "draft", allowed: true, requiresSuperAdmin: false },
+  { from: "draft", to: "published", allowed: true, requiresSuperAdmin: true },
+  { from: "draft", to: "archived", allowed: true, requiresSuperAdmin: true },
+  { from: "published", to: "draft", allowed: false, requiresSuperAdmin: false },
+  { from: "published", to: "published", allowed: true, requiresSuperAdmin: false },
+  { from: "published", to: "archived", allowed: true, requiresSuperAdmin: true },
+  { from: "archived", to: "draft", allowed: false, requiresSuperAdmin: false },
+  { from: "archived", to: "published", allowed: true, requiresSuperAdmin: true },
+  { from: "archived", to: "archived", allowed: true, requiresSuperAdmin: false },
+];
+
+function validateStatusTransition(currentStatus: string, newStatus: string): { valid: boolean; error?: string; requiresSuperAdmin?: boolean } {
+  const transition = ALLOWED_TRANSITIONS.find(
+    (t) => t.from === currentStatus && t.to === newStatus
+  );
+  if (!transition) {
+    return {
+      valid: false,
+      error: `Invalid status transition from "${currentStatus}" to "${newStatus}".`,
+    };
+  }
+  if (!transition.allowed) {
+    return {
+      valid: false,
+      error: `Transition from "${currentStatus}" to "${newStatus}" is not allowed.`,
+    };
+  }
+  return { valid: true, requiresSuperAdmin: transition.requiresSuperAdmin };
+}
+
 const MAX_CACHE_SIZE = 50; // Maximum number of media files to cache in memory
 const MAX_FILE_SIZE = 5_000_000; // 5MB max file size for security
 
@@ -52,6 +97,7 @@ export function createTourPackagesService(deps: {
   db: Repositories;
   clock: Clock;
   mediaStorage?: MediaStorage | null;
+  bumpManifest?: () => void;
 }) {
   return {
     async list(query: { status?: string; q?: string; page?: number; limit?: number }) {
@@ -75,6 +121,16 @@ export function createTourPackagesService(deps: {
       if (existing) throw Errors.conflict("PACKAGE_CODE_TAKEN", "Package code is already in use.");
       const now = toIso(deps.clock.now());
       const record = toRecord(input, now);
+      const status = record.status ?? "draft";
+
+      // Validate status transition - only super_admin can create with published/archived status
+      if (status !== "draft") {
+        const { valid, error } = validateStatusTransition("draft", status);
+        if (!valid) {
+          throw Errors.unprocessable("INVALID_STATUS_TRANSITION", error || "Invalid status transition");
+        }
+      }
+
       return deps.db.transaction(async (tx) => {
         const item = await tx.tourPackages.create(record);
         if (item.status === "published") {
@@ -84,6 +140,7 @@ export function createTourPackagesService(deps: {
             eventType: "published",
           });
         }
+        deps.bumpManifest?.();
         return item;
       });
     },
@@ -95,19 +152,35 @@ export function createTourPackagesService(deps: {
           "Package code cannot change after creation — it forms the public URL."
         );
       }
+
+      // Validate status transition if status is being changed
+      const newStatus = input.status ?? current.status;
+      if (newStatus !== current.status) {
+        const { valid, error } = validateStatusTransition(current.status, newStatus);
+        if (!valid) {
+          throw Errors.unprocessable("INVALID_STATUS_TRANSITION", error || "Invalid status transition");
+        }
+      }
+
       const now = toIso(deps.clock.now());
       const priceEdited =
         (input.starting_price_inr !== undefined && input.starting_price_inr !== current.startingPriceInr) ||
         (input.fleet_prices !== undefined && JSON.stringify(input.fleet_prices) !== JSON.stringify(current.fleetPrices));
       const contentEdited =
         priceEdited ||
+        (input.name !== undefined && input.name !== current.name) ||
+        (input.duration_text !== undefined && input.duration_text !== current.durationText) ||
+        (input.days !== undefined && input.days !== current.days) ||
+        (input.nights !== undefined && input.nights !== current.nights) ||
         (input.source !== undefined && input.source !== current.source) ||
         (input.destination !== undefined && input.destination !== current.destination) ||
         (input.inclusions !== undefined && JSON.stringify(input.inclusions) !== JSON.stringify(current.inclusions)) ||
         (input.exclusions !== undefined && JSON.stringify(input.exclusions) !== JSON.stringify(current.exclusions)) ||
         (input.itinerary !== undefined && JSON.stringify(input.itinerary) !== JSON.stringify(current.itinerary)) ||
         (input.image_url !== undefined && input.image_url !== current.imageUrl) ||
-        (input.gallery !== undefined && JSON.stringify(input.gallery) !== JSON.stringify(current.gallery));
+        (input.gallery !== undefined && JSON.stringify(input.gallery) !== JSON.stringify(current.gallery)) ||
+        (input.inclusions_highlight !== undefined && input.inclusions_highlight !== current.inclusionsHighlight) ||
+        (input.inclusions_note !== undefined && input.inclusions_note !== current.inclusionsNote);
 
       const merged: TourPackageRecord = {
         ...current,
@@ -129,7 +202,7 @@ export function createTourPackagesService(deps: {
         itinerary: input.itinerary !== undefined ? input.itinerary : (current.itinerary ?? []),
         imageUrl: input.image_url !== undefined ? input.image_url : current.imageUrl,
         gallery: input.gallery !== undefined ? input.gallery : (current.gallery ?? []),
-        status: input.status ?? current.status,
+        status: newStatus,
         isActive: input.is_active !== undefined ? input.is_active : current.isActive,
         updatedAt: now,
       };
@@ -143,6 +216,7 @@ export function createTourPackagesService(deps: {
             eventType: priceEdited ? "price_changed" : "updated",
           });
         }
+        deps.bumpManifest?.();
         return updated;
       });
     },
@@ -160,6 +234,7 @@ export function createTourPackagesService(deps: {
           entityId: item.id,
           eventType: "published",
         });
+        deps.bumpManifest?.();
         return updated;
       });
     },
@@ -177,6 +252,7 @@ export function createTourPackagesService(deps: {
           entityId: item.id,
           eventType: "archived",
         });
+        deps.bumpManifest?.();
         return updated;
       });
     },
@@ -220,6 +296,13 @@ export function createTourPackagesService(deps: {
       const buffer = Buffer.from(input.dataBase64, "base64");
       const storagePath = `packages/${filename}`;
       let url = `/api/v1/tour-packages/media/${filename}`;
+      // Enforce file size limit at upload time (same as download limit)
+      if (buffer.length > MAX_FILE_SIZE) {
+        throw Errors.unprocessable(
+          "FILE_TOO_LARGE",
+          `Image size (${Math.round(buffer.length / 1024)} KB) exceeds maximum allowed size of ${MAX_FILE_SIZE / 1024} KB.`
+        );
+      }
 
       if (deps.mediaStorage) {
         try {
@@ -229,8 +312,16 @@ export function createTourPackagesService(deps: {
             mimeType: input.mimeType,
           });
         } catch (err: any) {
-          console.warn(`[TourPackages] Remote media storage upload failed (${err?.message}); using server media endpoint.`);
+          console.error(`[TourPackages] Remote media storage upload failed (${err?.message}); image will not be durable.`);
+          // Don't return success if storage upload failed
+          throw Errors.unprocessable(
+            "STORAGE_UPLOAD_FAILED",
+            `Image upload to storage failed. Please try again. Error: ${err?.message}`
+          );
         }
+      } else {
+        // No storage configured - warn but allow in-memory fallback for development
+        console.warn("[TourPackages] No media storage configured; images will only be available in server memory.");
       }
 
       // Keep cache for fast retrieval and local/fallback serving
@@ -257,6 +348,7 @@ export function createTourPackagesService(deps: {
 
           // Security: Check file size before caching
           if (buffer.length > MAX_FILE_SIZE) {
+            console.warn(`[TourPackages] Storage file ${filename} exceeds size limit (${buffer.length} bytes > ${MAX_FILE_SIZE} bytes)`);
             return null;
           }
 
@@ -278,7 +370,8 @@ export function createTourPackagesService(deps: {
 
           inMemoryMediaCache.set(filename, { buffer, mimeType });
           return { buffer, mimeType };
-        } catch {
+        } catch (err: any) {
+          console.error(`[TourPackages] Storage read failed for ${filename}: ${err?.message}`);
           return null;
         }
       }

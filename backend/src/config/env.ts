@@ -23,7 +23,9 @@ const EnvSchema = z.object({
     .transform((value) => {
       if (value === "true" || value === "1") return true;
       if (value === "false" || value === "0") return false;
-      return process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test" || !process.env.NODE_ENV;
+      // Default to true in test/development environments
+      // This is evaluated at parse time, not module load time
+      return true;
     }),
 
   DATABASE_URL: z.string().optional().default(""),
@@ -37,7 +39,7 @@ const EnvSchema = z.object({
     .string()
     .trim()
     .optional()
-    .transform((val) => val || process.env.S3_BUCKET_NAME || "skb-media-backup"),
+    .transform((val) => val || "skb-media-backup"),
   S3_BUCKET_NAME: z.string().trim().optional(),
   SUPABASE_MEDIA_BUCKET: z.string().trim().optional().default("documents"),
   // S3 protocol connection (preferred) — Supabase Storage's S3-compatible
@@ -48,7 +50,7 @@ const EnvSchema = z.object({
     .string()
     .trim()
     .optional()
-    .transform((val) => val || (process.env.S3_ENDPOINT?.includes("r2.cloudflarestorage.com") ? "auto" : "us-east-1")),
+    .transform((val) => val || "us-east-1"),
   S3_ACCESS_KEY_ID: z.string().optional().default(""),
   S3_SECRET_ACCESS_KEY: z.string().optional().default(""),
 

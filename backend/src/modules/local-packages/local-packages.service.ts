@@ -30,7 +30,7 @@ function toRecord(input: CreateLocalPackageInput, now: string, id = newId()): Lo
   };
 }
 
-export function createLocalPackagesService(deps: { db: Repositories; clock: Clock }) {
+export function createLocalPackagesService(deps: { db: Repositories; clock: Clock; bumpManifest?: () => void }) {
   return {
     async list(query: { status?: string; q?: string; page?: number; limit?: number }) {
       return deps.db.localPackages.list(query as any);
@@ -62,6 +62,7 @@ export function createLocalPackagesService(deps: { db: Repositories; clock: Cloc
             eventType: "published",
           });
         }
+        deps.bumpManifest?.();
         return item;
       });
     },
@@ -72,6 +73,15 @@ export function createLocalPackagesService(deps: { db: Repositories; clock: Cloc
       const priceEdited =
         (input.fleet_prices !== undefined && JSON.stringify(input.fleet_prices) !== JSON.stringify(current.fleetPrices)) ||
         (input.extra_rates !== undefined && JSON.stringify(input.extra_rates) !== JSON.stringify(current.extraRates));
+      const contentEdited =
+        priceEdited ||
+        (input.name !== undefined && input.name !== current.name) ||
+        (input.duration_hours !== undefined && input.duration_hours !== current.durationHours) ||
+        (input.included_km !== undefined && input.included_km !== current.includedKm) ||
+        (input.covers !== undefined && input.covers !== current.covers) ||
+        (input.parking_note !== undefined && input.parking_note !== current.parkingNote) ||
+        (input.use_per_km !== undefined && input.use_per_km !== current.usePerKm) ||
+        (input.night_charge_inr !== undefined && input.night_charge_inr !== current.nightChargeInr);
 
       const merged: LocalSightseeingPackageRecord = {
         ...current,
@@ -91,13 +101,14 @@ export function createLocalPackagesService(deps: { db: Repositories; clock: Cloc
 
       return deps.db.transaction(async (tx) => {
         const updated = await tx.localPackages.update(merged);
-        if (current.status === "published" && priceEdited) {
+        if (current.status === "published" && contentEdited) {
           await tx.publishEvents.enqueue({
             entityType: "local_package",
             entityId: current.id,
-            eventType: "price_changed",
+            eventType: priceEdited ? "price_changed" : "updated",
           });
         }
+        deps.bumpManifest?.();
         return updated;
       });
     },
@@ -115,6 +126,7 @@ export function createLocalPackagesService(deps: { db: Repositories; clock: Cloc
           entityId: item.id,
           eventType: "published",
         });
+        deps.bumpManifest?.();
         return updated;
       });
     },
@@ -132,6 +144,7 @@ export function createLocalPackagesService(deps: { db: Repositories; clock: Cloc
           entityId: item.id,
           eventType: "archived",
         });
+        deps.bumpManifest?.();
         return updated;
       });
     },

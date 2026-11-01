@@ -94,7 +94,7 @@ export async function triggerFrontendRebuild(reasonOrInput?: string | DeployHook
     attemptedAt,
   };
 
-  const hook = (process.env.CLOUDFLARE_DEPLOY_HOOK_URL || process.env.PAGES_DEPLOY_HOOK_URL)?.trim();
+  const hook = (process.env.CLOUDFLARE_DEPLOY_HOOK_URL || process.env.PAGES_DEPLOY_HOOK_URL || "").trim();
   if (!hook) {
     return recordAttempt({
       ...base,

@@ -279,13 +279,12 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
   const mediaStorage = createMediaStorage(env, app.log);
   app.log.info(
     mediaStorage
-      ? `Catalog media uploads → "${mediaStorage.bucket}" bucket via ${
-          mediaStorage.backend === "resilient-dual"
-            ? "Resilient Dual Storage (Primary: Cloudflare R2 S3, Secondary: Supabase Storage)"
-            : mediaStorage.backend === "s3"
-            ? "S3 protocol"
-            : "Supabase Storage SDK"
-        }`
+      ? `Catalog media uploads → "${mediaStorage.bucket}" bucket via ${mediaStorage.backend === "resilient-dual"
+        ? "Resilient Dual Storage (Primary: Cloudflare R2 S3, Secondary: Supabase Storage)"
+        : mediaStorage.backend === "s3"
+          ? "S3 protocol"
+          : "Supabase Storage SDK"
+      }`
       : "Catalog media uploads → inline DB storage (no S3_* or SUPABASE_SERVICE_ROLE_KEY configured)",
   );
   const farePool: pg.Pool | null =
@@ -297,9 +296,9 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
   const inquiryService = createInquiryService({ db, clock });
   const rentalEnquiryService = createRentalEnquiryService({ db, clock, fareCatalogRepo });
   const routeService = createRouteService({ db, clock, bumpManifest: () => catalogService.bumpManifest() });
-  const tourPackagesService = createTourPackagesService({ db, clock, mediaStorage });
-  const transferRoutesService = createTransferRoutesService({ db, clock });
-  const localPackagesService = createLocalPackagesService({ db, clock });
+  const tourPackagesService = createTourPackagesService({ db, clock, mediaStorage, bumpManifest: () => catalogService.bumpManifest() });
+  const transferRoutesService = createTransferRoutesService({ db, clock, bumpManifest: () => catalogService.bumpManifest() });
+  const localPackagesService = createLocalPackagesService({ db, clock, bumpManifest: () => catalogService.bumpManifest() });
   const cancellationPoliciesService = createCancellationPoliciesService({ db, clock });
   const monumentsService = createMonumentsService({ db, clock });
   const petPolicyService = createPetPolicyService({ db, clock });

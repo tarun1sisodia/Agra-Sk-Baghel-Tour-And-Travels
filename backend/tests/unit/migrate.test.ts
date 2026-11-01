@@ -41,7 +41,7 @@ function queryTexts(client: MockClient): string[] {
 describe("runMigrations", () => {
   beforeEach(() => {
     pgMock.clients.length = 0;
-    pgMock.Client.mockReset();
+    pgMock.Client.mockRestore();
     pgMock.Client.mockImplementation(() => {
       const client: MockClient = {
         connect: vi.fn().mockResolvedValue(undefined),

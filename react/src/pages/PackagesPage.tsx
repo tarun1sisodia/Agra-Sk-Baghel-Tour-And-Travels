@@ -409,7 +409,7 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeImageIndices, setActiveImageIndices] = useState<Record<string, number>>({});
   const [modalImage, setModalImage] = useState<{ url: string; title: string; caption?: string } | null>(null);
-  
+
   const initialPackageList = useMemo(() => {
     const map = new Map<string, TourPackage>();
     for (const p of staticPackages) {
@@ -436,17 +436,12 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
     loadPublishedPackages()
       .then((items) => {
         if (isMounted && items && items.length > 0) {
-          const map = new Map<string, TourPackage>();
-          for (const dp of dossierTourPackages) {
-            map.set(dp.slug, dp);
-          }
-          for (const p of items) {
-            map.set(p.slug, p);
-          }
-          setPackageList(Array.from(map.values()));
+          // Use live API results as the authoritative source
+          // The backend already filters for published packages
+          setPackageList(items);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       isMounted = false;
     };
@@ -488,22 +483,22 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
       const hasRecognizedFleet = Boolean(
         fp &&
         ((fp.sedan != null && Number(fp.sedan) > 0) ||
-         (fp.ertiga != null && Number(fp.ertiga) > 0) ||
-         (fp.innova != null && Number(fp.innova) > 0) ||
-         (fp.tempo != null && Number(fp.tempo) > 0) ||
-         (fp.urbania != null && Number(fp.urbania) > 0))
+          (fp.ertiga != null && Number(fp.ertiga) > 0) ||
+          (fp.innova != null && Number(fp.innova) > 0) ||
+          (fp.tempo != null && Number(fp.tempo) > 0) ||
+          (fp.urbania != null && Number(fp.urbania) > 0))
       );
       const vehiclePrices: { label: string; price: string }[] = hasRecognizedFleet && fp
         ? [
-            ...(fp.sedan != null && Number(fp.sedan) > 0 ? [{ label: "Sedan", price: `₹${Number(fp.sedan).toLocaleString("en-IN")}` }] : []),
-            ...(fp.ertiga != null && Number(fp.ertiga) > 0 ? [{ label: "Ertiga", price: `₹${Number(fp.ertiga).toLocaleString("en-IN")}` }] : []),
-            ...(fp.innova != null && Number(fp.innova) > 0 ? [{ label: "Innova", price: `₹${Number(fp.innova).toLocaleString("en-IN")}` }] : []),
-            ...(fp.tempo != null && Number(fp.tempo) > 0 ? [{ label: "Tempo", price: `₹${Number(fp.tempo).toLocaleString("en-IN")}` }] : []),
-            ...(fp.urbania != null && Number(fp.urbania) > 0 ? [{ label: "Urbania", price: `₹${Number(fp.urbania).toLocaleString("en-IN")}` }] : []),
-          ]
+          ...(fp.sedan != null && Number(fp.sedan) > 0 ? [{ label: "Sedan", price: `₹${Number(fp.sedan).toLocaleString("en-IN")}` }] : []),
+          ...(fp.ertiga != null && Number(fp.ertiga) > 0 ? [{ label: "Ertiga", price: `₹${Number(fp.ertiga).toLocaleString("en-IN")}` }] : []),
+          ...(fp.innova != null && Number(fp.innova) > 0 ? [{ label: "Innova", price: `₹${Number(fp.innova).toLocaleString("en-IN")}` }] : []),
+          ...(fp.tempo != null && Number(fp.tempo) > 0 ? [{ label: "Tempo", price: `₹${Number(fp.tempo).toLocaleString("en-IN")}` }] : []),
+          ...(fp.urbania != null && Number(fp.urbania) > 0 ? [{ label: "Urbania", price: `₹${Number(fp.urbania).toLocaleString("en-IN")}` }] : []),
+        ]
         : pkg.from != null && Number(pkg.from) > 0
-        ? [{ label: "Starting From", price: `₹${Number(pkg.from).toLocaleString("en-IN")}` }]
-        : [{ label: "All Vehicles", price: "On request" }];
+          ? [{ label: "Starting From", price: `₹${Number(pkg.from).toLocaleString("en-IN")}` }]
+          : [{ label: "All Vehicles", price: "On request" }];
 
       return {
         pkg,
@@ -857,17 +852,17 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
             const images: Array<{ url: string; caption: string; alt: string }> =
               pkg.gallery && pkg.gallery.length > 0
                 ? pkg.gallery.map((g, i) => ({
-                    url: resolveCatalogMediaUrl(g.url),
-                    caption: g.caption || `${pkg.name} — Photo ${i + 1}`,
-                    alt: g.alt || `${pkg.name} view ${i + 1}`,
-                  }))
+                  url: resolveCatalogMediaUrl(g.url),
+                  caption: g.caption || `${pkg.name} — Photo ${i + 1}`,
+                  alt: g.alt || `${pkg.name} view ${i + 1}`,
+                }))
                 : [
-                    {
-                      url: resolveCatalogMediaUrl(pkg.image),
-                      caption: `${pkg.name} signature route`,
-                      alt: pkg.name,
-                    },
-                  ];
+                  {
+                    url: resolveCatalogMediaUrl(pkg.image),
+                    caption: `${pkg.name} signature route`,
+                    alt: pkg.name,
+                  },
+                ];
             const currentImgIdx = activeImageIndices[pkg.id] ?? 0;
             const activeImg = images[currentImgIdx] ?? images[0];
 
@@ -943,11 +938,10 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
                         key={idx}
                         type="button"
                         onClick={() => setActiveImageIndices((prev) => ({ ...prev, [pkg.id]: idx }))}
-                        className={`relative w-12 h-9 rounded overflow-hidden shrink-0 transition-all border ${
-                          currentImgIdx === idx
-                            ? "ring-2 ring-primary border-primary scale-[1.03] shadow-xs"
-                            : "opacity-65 hover:opacity-100 border-border-warm/60"
-                        }`}
+                        className={`relative w-12 h-9 rounded overflow-hidden shrink-0 transition-all border ${currentImgIdx === idx
+                          ? "ring-2 ring-primary border-primary scale-[1.03] shadow-xs"
+                          : "opacity-65 hover:opacity-100 border-border-warm/60"
+                          }`}
                         title={img.caption}
                         aria-label={`View photo ${idx + 1}: ${img.caption}`}
                       >

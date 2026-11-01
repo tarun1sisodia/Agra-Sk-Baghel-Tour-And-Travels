@@ -73,8 +73,8 @@ export async function resolveFleet(
 
   const rule = await db.fareRules.getActive();
   const cfgVehicles =
-    rule && Array.isArray((rule.config as Record<string, unknown>).vehicles)
-      ? ((rule.config as Record<string, unknown>).vehicles as Array<Record<string, unknown>>)
+    rule && Array.isArray((rule.config as Record<string, unknown>)?.vehicles)
+      ? ((rule.config as Record<string, unknown>)?.vehicles as Array<Record<string, unknown>>)
       : [];
 
   const vehicles = base.map((v) => {

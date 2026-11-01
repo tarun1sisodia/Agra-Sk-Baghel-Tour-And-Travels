@@ -11,5 +11,6 @@ export function getRequestContext(): RequestContextStore | undefined {
 }
 
 export function getCorrelationId(): string | undefined {
-  return requestContext.getStore()?.correlationId;
+  const store = requestContext.getStore();
+  return store?.correlationId;
 }

@@ -27,7 +27,7 @@ function toRecord(input: CreateTransferRouteInput, now: string, id = newId()): T
   };
 }
 
-export function createTransferRoutesService(deps: { db: Repositories; clock: Clock }) {
+export function createTransferRoutesService(deps: { db: Repositories; clock: Clock; bumpManifest?: () => void }) {
   return {
     async list(query: { status?: string; q?: string; page?: number; limit?: number }) {
       return deps.db.transferRoutes.list(query as any);
@@ -59,6 +59,7 @@ export function createTransferRoutesService(deps: { db: Repositories; clock: Clo
             eventType: "published",
           });
         }
+        deps.bumpManifest?.();
         return item;
       });
     },
@@ -69,6 +70,13 @@ export function createTransferRoutesService(deps: { db: Repositories; clock: Clo
       const priceEdited =
         input.fleet_prices !== undefined &&
         JSON.stringify(input.fleet_prices) !== JSON.stringify(current.fleetPrices);
+      const contentEdited =
+        priceEdited ||
+        (input.name !== undefined && input.name !== current.name) ||
+        (input.distance_text !== undefined && input.distance_text !== current.distanceText) ||
+        (input.direction_note !== undefined && input.direction_note !== current.directionNote) ||
+        (input.use_per_km !== undefined && input.use_per_km !== current.usePerKm) ||
+        (input.night_charge_inr !== undefined && input.night_charge_inr !== current.nightChargeInr);
 
       const merged: TransferRouteRecord = {
         ...current,
@@ -85,13 +93,14 @@ export function createTransferRoutesService(deps: { db: Repositories; clock: Clo
 
       return deps.db.transaction(async (tx) => {
         const updated = await tx.transferRoutes.update(merged);
-        if (current.status === "published" && priceEdited) {
+        if (current.status === "published" && contentEdited) {
           await tx.publishEvents.enqueue({
             entityType: "transfer",
             entityId: current.id,
-            eventType: "price_changed",
+            eventType: priceEdited ? "price_changed" : "updated",
           });
         }
+        deps.bumpManifest?.();
         return updated;
       });
     },
@@ -109,6 +118,7 @@ export function createTransferRoutesService(deps: { db: Repositories; clock: Clo
           entityId: item.id,
           eventType: "published",
         });
+        deps.bumpManifest?.();
         return updated;
       });
     },
@@ -126,6 +136,7 @@ export function createTransferRoutesService(deps: { db: Repositories; clock: Clo
           entityId: item.id,
           eventType: "archived",
         });
+        deps.bumpManifest?.();
         return updated;
       });
     },
