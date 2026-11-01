@@ -27,7 +27,7 @@ export type ResolvedDossierContext = ResolvedProductContext;
 /**
  * Resolves published product database entities across:
  * - tour_packages (fixed fleet prices, nights, upgrades)
- * - transfers (airport/station transfers)
+ * - transfer_routes (airport/station transfers)
  * - local_packages (8hr-80km, 12hr-120km, extra rates)
  * - routes (corridor rates, tolls, driver charges)
  * - active fare_rules configuration
