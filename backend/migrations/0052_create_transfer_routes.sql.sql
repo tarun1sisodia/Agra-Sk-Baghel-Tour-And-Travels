@@ -1,7 +1,7 @@
 -- Create transfer_routes table (recreated after fare system rebuild)
 -- This table stores airport/station transfer route definitions
 
-CREATE TABLE IF NOT EXISTS transfer_routes (
+CREATE TABLE IF NOT EXISTS transfers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   route_code TEXT NOT NULL UNIQUE CHECK (route_code ~ '^[a-z0-9-]{2,80}$'),
   name TEXT NOT NULL,
