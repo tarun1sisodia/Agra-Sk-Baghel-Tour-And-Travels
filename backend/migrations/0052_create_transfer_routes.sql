@@ -1,7 +1,11 @@
 -- Create transfer_routes table (recreated after fare system rebuild)
--- This table stores airport/station transfer route definitions
+-- This table stores airport/station transfer route definitions.
+-- NOTE: this file previously created a misspelled `transfers_routes` table while
+-- every statement below referenced `transfer_routes`, so the migration failed
+-- with: relation "transfer_routes" does not exist. Fixed to create the correct
+-- table name.
 
-CREATE TABLE IF NOT EXISTS transfers_routes (
+CREATE TABLE IF NOT EXISTS transfer_routes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   route_code TEXT NOT NULL UNIQUE CHECK (route_code ~ '^[a-z0-9-]{2,80}$'),
   name TEXT NOT NULL,
