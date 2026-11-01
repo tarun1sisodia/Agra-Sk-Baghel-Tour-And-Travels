@@ -1,6 +1,6 @@
 # Master Frontend Operating Rules & Architectural Standard — SK Baghel Tour & Travels
 
-**Document Version:** 2.0.0 (Updated for production codebase)  
+**Document Version:** 3.0.0 (Production Clean-Room Standard)
 **Authority:** Single Source of Truth for all Frontend Engineering, Design System, Typography, Component Architecture, State Management, and SSG.  
 **Target Applications:** `react/` (Customer Experience Site) · `admin/` (Operations Desk).  
 **Applies To:** All AI agents, frontend developers, and UI/UX engineers.
@@ -14,7 +14,7 @@ This document is the **single authoritative operating standard** for the SK Bagh
 ### Core Philosophy
 
 1. **Restrained Luxury Aesthetic:** Design inspired by premium heritage travel. Warm sandstone surfaces, authentic terracotta pigments, deep ink neutrals, subtle gold accents. Never use loud or generic colors.
-2. **Harmonious Typography:** Hero headlines use EB Garamond (26px desktop, 20px mobile — never larger). Body copy uses Plus Jakarta Sans (9.5px–12px compact metadata). Never create ballooned or shouting text.
+2. **Harmonious Typography:** Hero headlines use EB Garamond (36px desktop, 28px mobile — never larger). Body copy uses Plus Jakarta Sans (9.5px–12px compact metadata). Never create ballooned or shouting text.
 3. **Design Token Supremacy:** Every color, font size, spacing, and border-radius is derived from `@theme` tokens in `react/src/styles/theme.css`. This is a **TailwindCSS v4** project (`@import "tailwindcss"` + `@theme {}` block). Never use hardcoded color values.
 4. **Server-Authoritative Fares:** The frontend shows fare estimates for UX, but financial authority belongs to `backend/modules/fare-engine/`. Client never submits totals as truth.
 5. **SSG Pre-rendering:** All 31 customer pages pre-render to static HTML at build time. Dynamic data hydrates after page load.
@@ -261,7 +261,7 @@ Authentication uses **Supabase Auth + Google OAuth**:
 - `react/src/auth/` — auth context, hooks, protected route wrappers.
 - Google Sign-In OAuth flow via Supabase with redirect to `/auth/callback`.
 - Guest bookings allowed (no login required by default — controlled by `CUSTOMER_AUTH_REQUIRED_FOR_NEW_BOOKINGS` backend env).
-- Admin panel uses Supabase Auth with `user_role` check (must be `super_admin` or `dispatcher`).
+- Admin panel uses Supabase Auth with `user_role` check (must be `super_admin` or `developer`).
 
 ---
 
@@ -305,12 +305,42 @@ VITE_GOOGLE_CLIENT_ID=...
 
 ---
 
-## 10. Developer Hygiene Checklist
+## 10. High-Performance Frontend Engineering Standards
+
+This section defines non-negotiable performance guardrails for all frontend applications.
+
+### 10.1 L1 In-Memory Catalog/Fare Cache
+
+- **Catalog Cache**: `react/src/services/catalog.ts` caches published catalog in memory via `fetch` response caching.
+- **Fare Cache**: `react/src/fares.ts` caches fare calculations in memory for repeated product views.
+- **Invalidation**: Both caches are cleared on page navigation or explicit user action.
+
+### 10.2 Cloudflare Edge Caching
+
+- **Static assets**: `react/dist/` served via Cloudflare Pages with 1-year cache.
+- **SSG rebuild**: `PublicationWorker` fires `PAGES_DEPLOY_HOOK_URL` on every content publish.
+- **API caching**: `/api/v1/content/manifest` cached at edge for 60 seconds.
+
+### 10.3 Optimized Hydration
+
+- **Suspense boundaries**: All async data wrapped in `<Suspense>` with loading skeletons.
+- **Code splitting**: Route-based code splitting via Vite dynamic imports.
+- **Image optimization**: All images use `<Image>` component with `priority` for above-the-fold images.
+
+### 10.4 Mobile Performance
+
+- **Touch target minimum**: 44×44px (or accessible hit-slop padding).
+- **Scroll performance**: Native browser scrolling only; no wheel event interception.
+- **Animation budget**: All animations use `transform` and `opacity` only; never `top/left` or `width/height`.
+
+---
+
+## 11. Developer Hygiene Checklist
 
 Before completing any frontend task:
 
 1. ✅ No locked component from `DESIGN_LOCKS.md` was altered without permission.
-2. ✅ No headline font exceeds 26px desktop / 20px mobile.
+2. ✅ No headline font exceeds 36px desktop / 28px mobile.
 3. ✅ No hardcoded hex colors — only design tokens.
 4. ✅ Native scrolling unaffected (no wheel event listeners, no overflow locking).
 5. ✅ All new routes added to pre-render script if they need SSG.

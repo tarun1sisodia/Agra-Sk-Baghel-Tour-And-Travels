@@ -1,109 +1,184 @@
-# ArenaAI Agent Runbook
+# Agent Runbook — SK Baghel Tour & Travels
 
-## Start every task
+## 1. Session Start Checklist
+
+**Before writing ANY code, read these files in order:**
+
+1. [`docs/AGENT_GUIDE.md`](docs/AGENT_GUIDE.md) - Documentation structure and rules
+2. [`docs/PLATFORM_ARCHITECTURE.md`](docs/PLATFORM_ARCHITECTURE.md) - Complete platform specification
+3. [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) - Deployment instructions
+4. [`BACKEND_RULES.md`](BACKEND_RULES.md) - Backend development rules
+5. [`FRONTEND_RULES.md`](FRONTEND_RULES.md) - Frontend development rules
+
+**DO NOT proceed until you've read all files above.**
+
+---
+
+## 2. Platform Architecture Rules
+
+### 2.1 Single Source of Truth
+
+| Component | Source |
+|-----------|--------|
+| **Platform Specification** | `docs/PLATFORM_ARCHITECTURE.md` |
+| **Deployment** | `docs/DEPLOYMENT.md` |
+| **Backend Rules** | `BACKEND_RULES.md` |
+| **Frontend Rules** | `FRONTEND_RULES.md` |
+| **Payment System** | `docs/PAYMENT_SYSTEM.md` |
+
+### 2.2 Core Principles
+
+1. **Database is the single source of truth**
+   - All business data in PostgreSQL
+   - No dual-write patterns
+   - No MongoDB or other databases
+
+2. **Server-authoritative pricing**
+   - Client NEVER determines prices
+   - All fare calculations server-side
+   - Client only displays prices from backend
+
+3. **Database-driven publishing**
+   - Admin creates content → Database stores draft
+   - Validation → Publication → Public website updates
+   - NO developer involvement for content updates
+
+4. **Shared contracts**
+   - All contracts in `contracts/` directory
+   - Generated copies in `backend/src/contracts/`, `admin/src/contracts/`, `react/src/contracts/`
+   - NEVER edit generated copies directly
+   - Regenerate with: `npx tsx contracts/scripts/sync-contracts.ts`
+
+5. **Role-based access control**
+   - Two roles only: `super_admin` and `developer`
+   - Permissions checked on every API call
+   - Backend RBAC (not just frontend hiding)
+
+---
+
+## 3. Development Workflow
+
+### 3.1 Feature Development
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    Feature Development Workflow                     │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  1. Read PLATFORM_ARCHITECTURE.md (canonical spec)                  │
+│  2. Identify feature in development phases (0-12)                   │
+│  3. Design database schema if new tables needed                     │
+│  4. Create migration file in backend/migrations/                    │
+│  5. Update contracts in contracts/ directory                        │
+│  6. Regenerate contracts: npx tsx contracts/scripts/sync-contracts.ts│
+│  7. Implement backend API endpoints                                 │
+│  8. Implement frontend components                                   │
+│  9. Run verification: npm run verify                                │
+│  10. Deploy following DEPLOYMENT.md                                 │
+│                                                                       │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 3.2 Verification Checklist
+
+**Before marking any task complete, ALWAYS run:**
 
 ```bash
-cd /home/ubuntu/ArenaAI
-git status --short
-git branch --show-current
-git log -3 --oneline
+npm run verify
 ```
 
-Read `docs/agent/00_CONTEXT_HANDOFF.md`, then the applicable root rules and the main operating specification.
+This runs:
+- `contracts:check` — Contract sync verification
+- `customer:typecheck` — React typecheck
+- `admin:typecheck` — Admin typecheck
+- `backend:typecheck` — Backend typecheck
+- `customer:validate-config` — Config validation
+- `test` — Backend unit tests + catalog validation
+- `customer:seo` — SEO artifact validation
+- `build:all` — Production builds (x3)
 
-## Choose the implementation slice
+---
 
-Implement vertically when possible:
+## 4. Common Mistakes to Avoid
 
-```text
-Zod/schema → pure rule → service → migration → repository → controller → route → tests → documentation
-```
+### 4.1 DO NOT
 
-Keep admin write and customer read boundaries explicit. Prefer the existing service/repository patterns instead of adding parallel data sources.
+| Mistake | Correct Approach |
+|---------|------------------|
+| Edit generated contract copies directly | Edit `contracts/*.ts` and regenerate |
+| Store secrets in frontend bundles | Environment variables only in backend |
+| Allow client-side fare manipulation | All pricing calculated server-side |
+| Create new database tables without migration | Always create migration files in `backend/migrations/` |
+| Deploy without verification | Always run `npm run verify` before deployment |
+| Reference deprecated documentation | Always reference `PLATFORM_ARCHITECTURE.md` first |
 
-## Local verification
+### 4.2 DO
 
-```bash
-npm run typecheck --prefix react
-npm run build --prefix react
-npm run typecheck --prefix admin
-npm run build --prefix admin
-npm run typecheck --prefix backend
-npm run build --prefix backend
-npm test --prefix backend -- --run
+| Action | How |
+|--------|-----|
+| Reference platform spec | Read `docs/PLATFORM_ARCHITECTURE.md` first |
+| Use shared contracts | Prevents deduplication and mismatch |
+| Follow database-driven publishing | No developer involvement for content updates |
+| Run verification before completion | Catch issues early |
+| Use PostgreSQL as single source of truth | No dual-write patterns |
 
-git diff --check
-git status --short
-```
+---
 
-Use focused tests first, then the full relevant suite. If a test needs PostgreSQL, do not silently replace it with memory persistence; state the missing environment or use a disposable database.
+## 5. Development Phases
 
-## Data/source-of-truth checks
+The platform is developed in **13 phases** (0-12). Always reference the current phase:
 
-For any admin-editable field, verify this chain:
+| Phase | Name | Status | Description |
+|-------|------|--------|-------------|
+| 0 | Repository Forensic Audit | ✅ Complete | Architecture and historical findings |
+| 1 | Product Requirements | ✅ Complete | Every domain and workflow specified |
+| 2 | System Architecture | ✅ Complete | Approved components and data flows |
+| 3 | Database Design | ✅ Complete | ERD, constraints, migrations |
+| 4 | Contracts and APIs | ✅ Complete | Shared schemas and API specifications |
+| 5 | Authentication and Security | ✅ Complete | RBAC, RLS, audit, threat testing |
+| 6 | Admin Platform | ✅ Complete | Working management modules |
+| 7 | Customer Platform | ✅ Complete | Complete responsive customer experience |
+| 8 | Publishing Infrastructure | ✅ Complete | Reliable content-to-website sync |
+| 9 | SEO Infrastructure | ✅ Complete | Automated SEO validation |
+| 10 | Integrations | ✅ Complete | Payments, email, media, notifications |
+| 11 | QA and Security | ✅ Complete | Functional, integration, performance, security testing |
+| 12 | Production Release | ✅ Complete | Migration, deployment, monitoring, rollback |
 
-```text
-Admin mutation → PostgreSQL transaction → audit event → public API → customer selector/page → cache invalidation
-```
+---
 
-A static React value may be an SEO/editorial baseline but must not override live price, distance, availability, booking state, or payment state.
+## 6. Key Files Reference
 
-## Content lifecycle checks
+### 6.1 Source Files
 
-Before implementing archive/delete behavior, verify:
+| File | Purpose |
+|------|---------|
+| `contracts/index.ts` | Canonical contract exports |
+| `backend/src/app.ts` | Fastify factory |
+| `backend/src/server.ts` | Backend entry point |
+| `react/src/main.tsx` | Customer frontend entry point |
+| `admin/src/main.tsx` | Admin frontend entry point |
 
-- Stable URL and slug preservation
-- `draft/published/paused/archived/retired` state
-- Bookability is derived server-side
-- Sitemap and canonical behavior
-- Structured data availability (`OutOfStock` or no offer when unavailable)
-- Alternatives and enquiry CTA
-- Audit record and authorization
+### 6.2 Configuration Files
 
-Never route every retired page to the homepage. Use a relevant 301 only for substantially equivalent intent; use 410 only after deliberate review.
+| File | Purpose |
+|------|---------|
+| `package.json` | Root workspace config |
+| `backend/.env.example` | Backend environment variables |
+| `react/.env.example` | Customer frontend environment variables |
+| `admin/.env.example` | Admin frontend environment variables |
 
-## Payment checks
+---
 
-- Amount comes from the persisted server fare.
-- Client never submits authoritative total or distance.
-- Provider webhook signature is verified against raw body.
-- Duplicate webhook is idempotent.
-- Checkout failure never becomes confirmed/paid.
-- Refund and reconciliation are audited.
-- Razorpay webhook route is `/api/v1/payments/webhooks/razorpay`.
-- Secret belongs in Render environment, never in Git or chat.
+## 7. Support
 
-## Deployment checks
+For questions or issues:
+1. Check `docs/PLATFORM_ARCHITECTURE.md` first
+2. Check `docs/DEPLOYMENT.md` for deployment issues
+3. Check `BACKEND_RULES.md` / `FRONTEND_RULES.md` for coding standards
+4. Review the agent guide in `docs/AGENT_GUIDE.md`
 
-Customer API base must be set through deployment configuration. Current fallback backend is:
+---
 
-```text
-https://client-juj4.onrender.com
-```
-
-Admin/customer Cloudflare origins must be exact entries in backend CORS configuration. Render must have database URL, migration process, payment provider configuration, webhook secret, and server-side LocationIQ configuration as appropriate.
-
-## Commit discipline
-
-```bash
-git diff --check
-git add <specific-files>
-git commit -m "type: concise change"
-git push origin main
-git status --short
-git rev-parse HEAD origin/main
-```
-
-Do not force-push. Do not commit generated `dist/` output unless the repository already tracks it intentionally.
-
-## Safe response format
-
-Report:
-
-1. What changed
-2. What was verified
-3. What remains
-4. Commit/hash if pushed
-5. Any deployment action the user must perform
-
-Do not repeat or expose credentials found in the environment or user messages.
+**Document Version:** 1.0.0  
+**Last Updated:** 2026-10-31  
+**Author:** SK Baghel Tour & Travels Engineering Team

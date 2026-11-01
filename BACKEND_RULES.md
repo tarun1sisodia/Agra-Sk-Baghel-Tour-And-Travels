@@ -1,8 +1,8 @@
 # Master Backend Operating Rules & Architectural Standard — SK Baghel Tour & Travels
 
-**Document Version:** 2.0.0 (Updated for production codebase)  
-**Authority:** Single Source of Truth for all Backend Engineering, API Contracts, Database Models, Payment Flows, and Integrations.  
-**Target Service:** `backend/` (Node.js LTS, TypeScript, Fastify, Zod, Supabase PostgreSQL via `pg` pool, Razorpay, Resend, WhatsApp Cloud API).  
+**Document Version:** 3.0.0 (Production Clean-Room Standard)
+**Authority:** Single Source of Truth for all Backend Engineering, API Contracts, Database Models, Payment Flows, Performance Standards, and Integrations.
+**Target Service:** `backend/` (Node.js 22 LTS, TypeScript, Fastify 5, Zod, Supabase PostgreSQL via `pg` pool, Razorpay, Resend, WhatsApp Cloud API).
 **Applies To:** All AI agents, backend developers, and full-stack integrators.
 
 ---
@@ -14,9 +14,20 @@ This document is the **single authoritative operational rule** for the SK Baghel
 ### Core Philosophy
 
 1. **Financial Truth is Absolute:** The server is the sole financial authority. The client never determines fares, advances, or payment states.
-2. **One Database Owner per Domain:** All transactional and content data lives in Supabase PostgreSQL (accessed via `pg` pool). MongoDB is not used in production scope.
-3. **Scope is Explicit:** Customer website + admin panel. No driver app, no driver GPS, no live tracking, no WebSocket telemetry.
-4. **Repository Pattern:** All DB access goes through the `Repositories` interface (`backend/src/db/types.ts`). Dual implementations: `postgres.ts` (production) and `memory.ts` (tests/dev without DB).
+2. **Standardized Integer Money:**
+   - All Catalog, Fare, Promo, and Booking amounts in PostgreSQL and APIs are **whole integer INR Rupees (`INTEGER`)**.
+   - All Razorpay Gateway amounts in `payments` and `refunds` are **integer Indian Paise (`BIGINT`, `amount_paise = advance_amount * 100`)**.
+   - Never use `FLOAT`, `REAL`, or `NUMERIC` for currency.
+3. **One Database Owner per Domain:** All transactional and content data lives in Supabase PostgreSQL (accessed via `pg.Pool`). MongoDB and Redis are not used.
+4. **Explicit Operational Scope (No Driver Assignment):**
+   - Customer website + Admin panel only. No driver app, no driver GPS, no driver assignment step.
+   - Customer pays a **28% Advance** online via Razorpay (`paid_confirmed`).
+   - Customer pays the remaining **72% Balance** directly to the driver upon trip completion.
+   - `super_admin` updates the trip status (`paid_confirmed` → `in_transit` → `completed`) directly in the Admin panel.
+5. **Two Staff Roles Only (`user_role_enum`):**
+   - `super_admin`: Full access to all platform modules (Bookings, Payments, Refunds, Catalog, Fares, Promos, Reviews, SEO, Publishing, Settings, Audit Logs).
+   - `developer`: Access strictly limited to Content, Catalog (Routes, Tours, Local Packages, Transfers, Fleet, Monuments), Media Library, SEO Control Center, and Publishing.
+   - `customer`: Public authenticated user (or guest via `x-guest-token`).
 
 ---
 
@@ -24,11 +35,12 @@ This document is the **single authoritative operational rule** for the SK Baghel
 
 | Priority | Document | Path | Scope |
 |:---:|---|---|---|
-| **1** | `BACKEND_RULES.md` | Root | **This file — supreme law** |
-| **2** | `docs/PAYMENT_SYSTEM.md` | `docs/` | Razorpay zero-miss payment rules |
-| **3** | `.agents/rules/PAYMENT_AGENT_RULES.md` | `.agents/rules/` | Financial security guardrails |
-| **4** | `docs/backend/API.md` | `docs/backend/` | Route inventory |
-| **5** | `docs/backend/ROUTE_AND_API_INVENTORY.md` | `docs/backend/` | Detailed route contracts |
+| **1** | `BACKEND_RULES.md` | Root | **This file — supreme backend law** |
+| **2** | `docs/PLATFORM_ARCHITECTURE.md` | `docs/` | Complete platform & contract specification |
+| **3** | `docs/DATABASE_SCHEMA.md` | `docs/` | Authoritative PostgreSQL DDL & indexing |
+| **4** | `docs/BACKEND_ARCHITECTURE.md` | `docs/` | Fastify internals, repositories, workers |
+| **5** | `docs/PAYMENT_SYSTEM.md` | `docs/` | Razorpay zero-miss payment & webhook rules |
+| **6** | `docs/RBAC.md` | `docs/` | `super_admin` vs `developer` permission matrix |
 
 ---
 
@@ -89,23 +101,23 @@ Pass `Repositories` via dependency injection from `app.ts`. Never import `postgr
 - Driver contact visible only to verified customer + admin.
 - Zero secrets, tokens, or credentials in logs (Pino redaction configured).
 
-### Law 8: Explicit Booking State Machine
+### Law 8: Explicit Booking State Machine (No Driver Assignment)
 
 ```
-draft → pending_payment → paid_confirmed → driver_assigned → in_transit → completed
+draft → pending_payment → paid_confirmed → in_transit → completed
                         ↘ cancelled
-paid_confirmed / driver_assigned → refunded
+paid_confirmed / in_transit → cancelled | refunded
 ```
 
-- `paid_confirmed` = advance verified. Driver not yet assigned.
-- `driver_assigned` = admin-only, manual, post-payment.
-- Invalid transitions → `INVALID_TRIP_TRANSITION` (HTTP 400).
+- `paid_confirmed` = 28% advance verified; 72% balance payable to driver upon completion.
+- `in_transit` = `super_admin` marks trip active in Admin panel.
+- `completed` = `super_admin` marks trip completed and records `balance_collected_by_driver = true`.
+- Invalid transitions throw `AppError("INVALID_TRIP_TRANSITION", ..., 400)`.
 
-### Law 9: Publication Worker for Content Deploys
+### Law 9: Publication Outbox Worker for Content Deploys
 
-- When admin publishes content (routes, packages, monuments), a Cloudflare Pages deploy hook is fired via `PublicationWorker` (`modules/publishing/publication-worker.ts`).
-- Hook URL is `PAGES_DEPLOY_HOOK_URL` env var.
-- This triggers SSG re-build on Cloudflare Pages to update the customer site.
+- When `super_admin` or `developer` publishes content (routes, packages, transfers, monuments, SEO), an event is written to `publishing_outbox`.
+- `PublicationWorker` (`modules/publishing/publication-worker.ts`) invalidates the Fastify in-memory catalog cache and fires `PAGES_DEPLOY_HOOK_URL` to trigger a Cloudflare Pages rebuild.
 
 ### Law 10: Disciplined Vertical Slice Implementation
 
@@ -271,7 +283,6 @@ type BookingStatus =
   | 'draft'
   | 'pending_payment'
   | 'paid_confirmed'
-  | 'driver_assigned'
   | 'in_transit'
   | 'completed'
   | 'cancelled'
@@ -355,7 +366,7 @@ interface ApiResponse<T> {
 | `GET/PATCH` | `/admin/dossier-signoffs` | Client approval tracking |
 | `GET/POST/PATCH/DELETE` | `/admin/promos` | Promo code management |
 | `GET` | `/admin/bookings` | Paginated bookings list |
-| `PATCH` | `/admin/bookings/:id/assign` | Assign driver (manual) |
+| `PATCH` | `/admin/bookings/:id/status` | Update trip status (super_admin only) |
 | `POST` | `/admin/refunds` | Initiate Razorpay refund |
 | `GET` | `/admin/reviews` | Reviews queue |
 | `POST` | `/admin/reviews/:id/approve` | Approve review |
@@ -411,7 +422,7 @@ Razorpay fires webhook → POST /api/v1/payments/webhook
        ↓
 Customer browser polls GET /api/v1/bookings/:ticketId until paid_confirmed
        ↓
-Admin manually assigns driver → PATCH /api/v1/admin/bookings/:id/assign
+super_admin updates trip status in Admin panel → paid_confirmed → in_transit → completed
 ```
 
 ### Webhook Verification
@@ -457,7 +468,38 @@ When admin publishes any content entity:
 
 ---
 
-## 12. Key Implementation Rules for Agents
+## 12. High-Performance Backend Engineering Standards
+
+This section defines non-negotiable performance guardrails for all backend services.
+
+### 12.1 L1 In-Memory Catalog/Fare Cache
+
+- **Catalog Cache**: `backend/src/modules/catalog/catalog.service.ts` caches published catalog in Fastify server instance memory.
+- **Fare Cache**: `backend/src/modules/fare-catalog/fare-catalog.service.ts` caches active fare rules in memory.
+- **Invalidation**: Both caches are cleared on `publishing_outbox` event via `PublicationWorker`.
+- **Never serve stale data**: Cache TTL = 0 (on-demand refresh only).
+
+### 12.2 Non-Blocking Razorpay Webhooks
+
+- **Webhook handler** (`backend/src/modules/payments/webhook.controller.ts`) MUST NOT block on external calls.
+- **Async notification enqueue**: Email/WhatsApp notifications enqueued via `notifications` repository; processed by `NotificationWorker`.
+- **Idempotency first**: `webhooks.hasEvent(eventId)` checked BEFORE any state change.
+
+### 12.3 Single-Roundtrip SQL
+
+- **No N+1 queries**: All related data fetched in one query via `JOIN` or `array_agg`.
+- **Repository methods** (`backend/src/db/postgres.ts`) never call other repository methods.
+- **Batch operations**: `bookings.list()` returns all required fields in one query.
+
+### 12.4 Cloudflare Edge Caching
+
+- **Static assets**: `react/dist/` served via Cloudflare Pages with 1-year cache.
+- **Content manifest**: `/api/v1/content/manifest` cached at edge for 60 seconds.
+- **SSG rebuild**: `PublicationWorker` fires `PAGES_DEPLOY_HOOK_URL` on every content publish.
+
+---
+
+## 13. Key Implementation Rules for Agents
 
 1. **Never import `postgres.ts` directly in modules** — always receive `Repositories` via DI from `app.ts`.
 2. **Never add new env vars** without adding them to `backend/src/config/env.ts` Zod schema first.
@@ -469,7 +511,7 @@ When admin publishes any content entity:
 
 ---
 
-## 13. Deployment
+## 14. Deployment
 
 - **Platform:** Render (Node.js web service)
 - **Build command:** `npm --prefix backend run build`
