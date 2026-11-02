@@ -195,13 +195,13 @@ services:
 
 ```dockerfile
 # Stage 1: deps - Full dependency tree for compilation
-FROM node:22-alpine AS deps
+FROM node:24-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
 # Stage 2: build - TypeScript compilation
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json tsconfig.json tsconfig.build.json ./
@@ -209,13 +209,13 @@ COPY src ./src
 RUN npm run build
 
 # Stage 3: prod-deps - Pruned production dependencies
-FROM node:22-alpine AS prod-deps
+FROM node:24-alpine AS prod-deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 # Stage 4: runner - Minimal runtime image
-FROM node:22-alpine AS runner
+FROM node:24-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup -S skb && adduser -S skb -G skb
@@ -291,7 +291,7 @@ command = "npm ci && npm run build"
 publish = "dist"
 
 [build.environment]
-NODE_VERSION = "22"
+NODE_VERSION = "24"
 
 [[redirects]]
 from = "/*"
@@ -380,7 +380,7 @@ command = "npm ci && npm run build"
 publish = "dist"
 
 [build.environment]
-NODE_VERSION = "22"
+NODE_VERSION = "24"
 
 [[redirects]]
 from = "/*"

@@ -693,10 +693,10 @@ jobs:
 
     steps:
       - name: Checkout Codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js Runtime
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: "npm"
