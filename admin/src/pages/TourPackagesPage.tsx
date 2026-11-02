@@ -105,7 +105,7 @@ export function TourPackagesPage({ user }: { user: AdminUser }) {
         days: form.days,
         nights: form.nights,
         base_tier_code: form.baseTierCode,
-        starting_price_inr: form.startingPriceInr > 0 ? form.startingPriceInr : null,
+        starting_price_inr: form.startingPriceInr,
         fleet_prices: form.fleetPrices,
         night_charge_inr: form.nightChargeInr ?? 0,
         source: form.source.trim() || "Agra",

@@ -374,7 +374,7 @@ export function calcFare(params: CalcFareParams): FareQuote | null {
 
   if (packageId) {
     const pack = packageLookup(packageId);
-    if (!pack || pack.from == null || pack.from <= 0) return null;
+    if (!pack) return null;
     const total = pack.from;
     const advance = advanceOf(total);
     return {

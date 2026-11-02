@@ -81,8 +81,7 @@ export function resolvePackageFleetPrice(
     }
   }
 
-  // An existing unpriced content record must never inherit a legacy demo fare.
-  if (!row && totalFare <= 0) {
+  if (totalFare <= 0) {
     const pack = packageByIdOrSlug(packageCodeOrId);
     if (pack) {
       packageCode = pack.id;

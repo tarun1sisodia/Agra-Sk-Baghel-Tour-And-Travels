@@ -732,9 +732,9 @@ export function HomePage({ language = "en" }: HomePageProps) {
                         <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-ink-midnight/80 text-tertiary-fixed font-label-caps text-label-caps uppercase font-bold backdrop-blur-sm">
                           {pkg.kicker || duration}
                         </span>
-                        {pkg.from != null && pkg.from > 0 && <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-terracotta-deep text-white font-price-display text-sm font-bold">
+                        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-terracotta-deep text-white font-price-display text-sm font-bold">
                           {fromPrice}
-                        </div>}
+                        </div>
                       </div>
                       <div className="p-3.5 flex-1 flex flex-col gap-2">
                         <h3 className="font-title-md text-title-lg font-bold text-on-surface group-hover:text-primary transition-colors leading-snug">{pkg.name}</h3>

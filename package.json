@@ -11,7 +11,7 @@
     "install:all": "npm ci && npm --prefix react ci && npm --prefix admin ci && npm --prefix backend ci",
     "contracts:sync": "node --experimental-strip-types contracts/scripts/sync-contracts.ts",
     "contracts:check": "node --experimental-strip-types contracts/scripts/sync-contracts.ts --check",
-    "verify": "npm run packages:check && npm run contracts:check && npm run customer:typecheck && npm run admin:typecheck && npm run backend:typecheck && npm run customer:validate-config && npm test && npm run customer:seo && npm run build:all",
+    "verify": "npm run contracts:check && npm run customer:typecheck && npm run admin:typecheck && npm run backend:typecheck && npm run customer:validate-config && npm test && npm run customer:seo && npm run build:all",
     "verify:pipeline": "node scripts/verify-monorepo-pipeline.mjs",
     "typecheck": "npm run customer:typecheck && npm run admin:typecheck && npm run backend:typecheck",
     "dev": "npm --prefix react run dev",
@@ -46,9 +46,7 @@
     "deploy:customer": "npm --prefix react ci && VITE_API_BASE_URL=https://api.agraskbagheltourandtravels.com VITE_SITE_URL=https://agraskbagheltourandtravels.com VITE_SITE_MODE=production RELEASE_BUILD=1 npm run customer:build && npx wrangler pages deploy react/dist --project-name skbagheltravels-customer",
     "deploy:admin": "npm --prefix admin ci && VITE_API_BASE_URL=https://api.agraskbagheltourandtravels.com npm run admin:build && npx wrangler pages deploy admin/dist --project-name skbagheltravels-admin",
     "beacon": "beacon",
-    "beacon:stop": "beacon stop",
-    "packages:sync": "node scripts/sync-agra-package-seeds.mjs",
-    "packages:check": "node scripts/sync-agra-package-seeds.mjs --check"
+    "beacon:stop": "beacon stop"
   },
   "dependencies": {
     "ai-visibility": "^0.10.0",

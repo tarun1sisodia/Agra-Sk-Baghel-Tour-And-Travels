@@ -1,5 +1,4 @@
 import { describe, it, expect } from "vitest";
-import agraSeeds from "../../src/db/agra-packages.seed.json" with { type: "json" };
 import { QuotesService } from "../../src/modules/quotes/quotes.service.js";
 import type {
   FareCatalogRepository,
@@ -541,32 +540,4 @@ describe("Quotes Service & Options Selector (Sections 12.9 & 12.10)", () => {
       ).rejects.toThrow("NOT_FOUND");
     });
   });
-});
-
-
-describe("Unpriced researched Agra tours", () => {
-  for (const pkg of agraSeeds) {
-    it(`${pkg.packageCode}: cannot offer a car or create a payable quote without fare rules`, async () => {
-      const repo = createMockRepo();
-      repo.getFareRules = async () => [];
-      repo.getTourPackageByIdOrCode = async () => ({
-        id: pkg.id, code: pkg.packageCode, name: pkg.name,
-        duration_text: pkg.durationText, days: pkg.days, nights: pkg.nights,
-        source: pkg.source, destination: pkg.destination, status: "published",
-        description: pkg.inclusionsHighlight, inclusions_highlight: pkg.inclusionsHighlight,
-        inclusions_note: pkg.inclusionsNote, image_url: pkg.imageUrl, gallery: pkg.gallery,
-        inclusions: pkg.inclusions, exclusions: pkg.exclusions, itinerary: pkg.itinerary,
-        created_at: pkg.createdAt,
-      }) as TourPackageEntity;
-      const noFareService = new QuotesService(repo, testClock);
-      const request = {
-        category: "tour_package" as const, tour_package_id: pkg.id,
-        passenger_count: 2, pickup_at: "2026-10-12T10:00:00+05:30",
-      };
-      const options = await noFareService.options(request);
-      expect(options.groups).toEqual([]);
-      await expect(noFareService.quote({ ...request, vehicle_model_id: FIXTURE_CARS.DZ.id }))
-        .rejects.toThrow("VEHICLE_NOT_AVAILABLE");
-    });
-  }
 });

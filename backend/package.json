@@ -26,8 +26,7 @@
     "audit:env": "tsx scripts/audit-env-keys.ts",
     "test:e2e-pipeline": "tsx scripts/test-e2e-pipeline.ts",
     "list:storage": "tsx scripts/list-storage-objects.ts",
-    "sync-contracts": "tsx ../contracts/scripts/sync-contracts.ts",
-    "seed:agra-packages": "tsx scripts/seed-agra-packages.ts"
+    "sync-contracts": "tsx ../contracts/scripts/sync-contracts.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1141.0",

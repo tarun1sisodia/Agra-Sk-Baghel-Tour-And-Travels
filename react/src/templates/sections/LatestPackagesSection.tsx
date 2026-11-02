@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import generatedPublishedTourPackages from "../../data/generated-published-tour-packages.json";
-import { contact } from "../../data/contact";
 import { resolveCatalogMediaUrl } from "../../services/catalog";
 
 
@@ -16,7 +15,7 @@ export interface LatestTourPackageItem {
   duration_text?: string;
   days?: number;
   nights?: number;
-  startingPriceInr?: number | null;
+  startingPriceInr?: number;
   starting_price_inr?: number;
   fleetPrices?: Record<string, number>;
   fleet_prices?: Record<string, number>;
@@ -90,8 +89,7 @@ export function LatestPackagesSection({
             const startingFare = Number(p.startingPriceInr || p.starting_price_inr || fleetPrices.sedan || minFleetPrice || 0);
             const token = startingFare > 0 ? Math.round(startingFare * 0.28) : 0;
             const packageUrl = `/en/packages/${p.slug}/`;
-            const bookingUrl = `/book.html?category=tour_package&product=${encodeURIComponent(p.slug)}&from=${encodeURIComponent(p.source || "Agra")}&to=${encodeURIComponent(p.destination || p.name)}`;
-            const bookUrl = startingFare > 0 ? bookingUrl : `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(`I am interested in ${p.name}. Please help me plan this itinerary.`)}`;
+            const bookUrl = `/book.html?category=tour_package&product=${encodeURIComponent(p.slug)}&from=${encodeURIComponent(p.source || "Agra")}&to=${encodeURIComponent(p.destination || p.name)}`;
             const rawImg = p.gallery?.[0]?.url || p.image || "/assets/packages/taj-dawn.webp";
             const imageUrl = resolveCatalogMediaUrl(rawImg);
 
@@ -132,7 +130,7 @@ export function LatestPackagesSection({
                     </p>
 
                     <div className="flex flex-col pt-2 border-t border-border-warm/30">
-                      {startingFare > 0 && <span className="text-xs uppercase text-secondary font-semibold">Starting Tour Fare</span>}
+                      <span className="text-xs uppercase text-secondary font-semibold">Starting Tour Fare</span>
                       {startingFare > 0 ? (
                         <>
                           <div className="flex items-baseline gap-1 mt-0.5">
@@ -148,7 +146,7 @@ export function LatestPackagesSection({
                       ) : (
                         <div className="flex items-baseline gap-1 mt-0.5">
                           <span className="font-headline-md text-headline-sm text-secondary font-serif font-bold">
-                            View the itinerary
+                            On request
                           </span>
                         </div>
                       )}
@@ -166,7 +164,7 @@ export function LatestPackagesSection({
                       href={bookUrl}
                       className="inline-flex items-center justify-center gap-1 py-2 px-3 rounded text-label-md font-semibold text-white bg-terracotta-deep hover:bg-terracotta-sunlit transition-all text-center shadow-xs"
                     >
-                      <span>{startingFare > 0 ? "Reserve" : "Enquire"}</span>
+                      <span>Reserve</span>
                       <span className="material-symbols-outlined text-icon-16">arrow_forward</span>
                     </a>
                   </div>

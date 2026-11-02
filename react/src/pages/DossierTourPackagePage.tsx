@@ -10,10 +10,10 @@ export interface DossierTourPackageItem {
   durationText: string;
   days: number;
   nights: number;
-  baseTierCode: string | null;
-  startingPriceInr: number | null;
+  baseTierCode: string;
+  startingPriceInr: number;
   fleetPrices: Record<string, number>;
-  nightChargeInr: number | null;
+  nightChargeInr: number;
   inclusionsHighlight?: string | null;
   inclusionsNote?: string | null;
   status: string;

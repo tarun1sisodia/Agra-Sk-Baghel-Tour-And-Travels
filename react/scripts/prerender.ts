@@ -71,9 +71,14 @@ const vehicleRoutes = [
   "urbania",
 ];
 
-const packageRoutes = (JSON.parse(readFileSync(join(reactRoot, "src/data/generated-published-tour-packages.json"), "utf8")) as Array<{ packageCode: string; status: string }>)
-  .filter((pkg) => pkg.status === "published")
-  .map((pkg) => pkg.packageCode);
+const packageRoutes = [
+  "taj-mahal-sunrise-tour",
+  "agra-sightseeing",
+  "agra-unhurried",
+  "mathura-vrindavan",
+  "gatimaan-express-agra-tour",
+  "golden-triangle",
+];
 
 function getPublishedPackageRoutes(): string[] {
   const snapshotPath = join(reactRoot, "src", "data", "generated-published-catalog.json");
