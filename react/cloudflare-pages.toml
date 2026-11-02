@@ -9,8 +9,8 @@ command = "npm ci && npm run build"
 output_dir = "dist"
 
 [vars]
-# Node 22+ is required: prerender uses --experimental-strip-types.
-NODE_VERSION = "22"
+# Node 24 is required: prerender uses --experimental-strip-types.
+NODE_VERSION = "24"
 VITE_BASE_PATH = "/"
 # Set VITE_API_BASE_URL in the CF Pages dashboard (Production + Preview).
 # Do NOT commit real values here — this file is public.

@@ -5,7 +5,7 @@
   "type": "module",
   "description": "SK Baghel Tour & Travels production API — fares, bookings, payments, dispatch, catalog.",
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",

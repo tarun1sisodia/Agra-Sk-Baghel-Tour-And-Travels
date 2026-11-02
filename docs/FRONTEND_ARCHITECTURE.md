@@ -1047,7 +1047,7 @@ command = "npm run build:all"
 publish = "dist"
 
 [build.environment]
-NODE_VERSION = "22"
+NODE_VERSION = "24"
 
 [[redirects]]
 from = "/*"

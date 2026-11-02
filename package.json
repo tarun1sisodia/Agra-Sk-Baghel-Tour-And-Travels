@@ -5,7 +5,7 @@
   "type": "module",
   "description": "SK Baghel Tour & Travels — monorepo for the customer site (react/), operations desk (admin/) and API (backend/).",
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "scripts": {
     "install:all": "npm ci && npm --prefix react ci && npm --prefix admin ci && npm --prefix backend ci",
