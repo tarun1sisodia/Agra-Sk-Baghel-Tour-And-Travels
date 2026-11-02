@@ -4,23 +4,10 @@ import { createTestApp } from "../helpers.js";
 
 describe("Transfer Creation E2E", () => {
     let app: any;
-    let token: string;
 
     beforeAll(async () => {
-        app = await createTestApp();
-
-        // Login as admin to get token
-        const loginRes = await app.inject({
-            method: "POST",
-            url: "/api/v1/auth/login",
-            payload: {
-                email: "skbagheltravels@gmail.com",
-                password: "Tarun@123",
-            },
-        });
-
-        const loginData = JSON.parse(loginRes.payload);
-        token = loginData.data.token;
+        // createTestApp returns { app, db, ... }; app is the Fastify instance.
+        ({ app } = await createTestApp());
     });
 
     afterAll(async () => {
@@ -32,7 +19,8 @@ describe("Transfer Creation E2E", () => {
             method: "POST",
             url: "/api/v1/ops/admin/transfer-routes",
             headers: {
-                Authorization: `Bearer ${token}`,
+                // Test-auth convention (ALLOW_TEST_AUTH is enabled in the test app).
+                Authorization: "Bearer test-content_editor",
             },
             payload: {
                 route_code: "test-delhi-airport-to-agra",
@@ -64,7 +52,7 @@ describe("Transfer Creation E2E", () => {
             method: "GET",
             url: "/api/v1/ops/admin/transfer-routes",
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: "Bearer test-content_editor",
             },
             query: {
                 status: "all",

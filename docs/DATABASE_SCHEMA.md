@@ -82,7 +82,7 @@ All monetary amounts use **integer types** to avoid floating-point precision err
 │  │  │  - outstation_routes (long-distance routes)                    │  │   │
 │  │  │  - local_packages (sightseeing packages)                       │  │   │
 │  │  │  - tour_packages (multi-day tours)                             │  │   │
-│  │  │  - transfer_routes (airport/station transfers)                 │  │   │
+│  │  │  - transfers (airport/station transfers)                       │  │   │
 │  │  │  - monuments (sightseeing spots)                               │  │   │
 │  │  │  - cancellation_policies (refund rules)                        │  │   │
 │  │  └────────────────────────────────────────────────────────────────┘  │   │
@@ -351,21 +351,31 @@ CREATE TYPE payment_status_enum AS ENUM ('pending', 'captured', 'failed', 'refun
 | `is_active` | BOOLEAN | Active flag |
 | `created_at` | TIMESTAMPTZ | Creation timestamp |
 
-#### `transfer_routes`
+#### `transfers`
+
+Transfer products (airport/station pickups). This is the single source of
+truth for transfer routes — the legacy `transfer_routes` table (migration
+0024) was dropped by the 0038 rebuild and is retired (see migration 0055).
+Per-vehicle prices live in `fare_rules` (`category = 'transfer'`, joined by
+`transfer_id`), not on this table.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | `id` | UUID | Primary key |
-| `route_code` | TEXT | Unique route code |
+| `code` | TEXT | Unique route code (slug) |
 | `name` | TEXT | Route name |
-| `distance_text` | TEXT | Distance description |
-| `direction_note` | TEXT | Direction information |
-| `fleet_prices` | JSONB | Per-vehicle pricing |
-| `use_per_km` | BOOLEAN | Per-km pricing flag |
-| `night_charge_inr` | NUMERIC(10,2) | Night charge |
+| `pickup_name` | TEXT | Pickup location |
+| `drop_name` | TEXT | Drop location |
+| `description` | TEXT | Route description |
+| `inclusions_highlight` | TEXT | Key inclusions |
+| `inclusions_note` | TEXT | Inclusion details |
+| `image_url` | TEXT | Hero image |
+| `gallery` | JSONB | Array of gallery images |
+| `inclusions` | JSONB | Inclusion list |
+| `exclusions` | JSONB | Exclusion list |
 | `status` | TEXT | draft, published, archived |
-| `is_active` | BOOLEAN | Active flag |
 | `created_at` | TIMESTAMPTZ | Creation timestamp |
+| `updated_at` | TIMESTAMPTZ | Last update timestamp |
 
 #### `monuments`
 
