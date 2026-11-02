@@ -285,14 +285,9 @@ const vehicleSlugs = [
 ];
 
 // 6 Tour Packages
-const packageSlugs = [
-  "taj-mahal-sunrise-tour",
-  "agra-sightseeing",
-  "agra-unhurried",
-  "mathura-vrindavan",
-  "gatimaan-express-agra-tour",
-  "golden-triangle",
-];
+const packageSlugs = (JSON.parse(readFileSync(join(reactRoot, "src/data/generated-published-tour-packages.json"), "utf8")) as Array<{ packageCode: string; status: string }>)
+  .filter((pkg) => pkg.status === "published")
+  .map((pkg) => pkg.packageCode);
 
 // 8 Route Pairs (English and Hindi transliterated pairs)
 const routePairs: Array<{ en: string; hi: string }> = [

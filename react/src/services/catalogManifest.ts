@@ -1,4 +1,5 @@
 import type { TourPackage } from "../data";
+import { mapTourPackage } from "../data/tourPackage";
 import { getApiBaseUrl } from "./api";
 import { resolveCatalogMediaUrl } from "./catalog";
 import generatedPublishedLocalPackages from "../data/generated-published-local-packages.json";
@@ -227,93 +228,12 @@ export async function loadPublishedPackages(): Promise<TourPackage[]> {
   return ((generatedPublishedTourPackages as any[]) || []).map(toDossierTourPackage);
 }
 
-export function toTourPackage(item: any): TourPackage {
-  let fleetPrices: Record<string, number> = {};
-  if (item.fleetPrices && typeof item.fleetPrices === "object") {
-    fleetPrices = { ...item.fleetPrices };
-  } else if (item.fleet_prices && typeof item.fleet_prices === "object") {
-    fleetPrices = { ...item.fleet_prices };
-  } else if (Array.isArray(item.upgrades)) {
-    for (const u of item.upgrades) {
-      if (u.vehId && typeof u.price === "number") {
-        fleetPrices[u.vehId] = u.price;
-      }
-    }
-  }
-
-  const priceValues = Object.values(fleetPrices).filter((v) => typeof v === "number" && v > 0);
-  const minFleetPrice = priceValues.length > 0 ? Math.min(...priceValues) : 0;
-  const startingPrice = Number(
-    item.startingPriceInr ||
-    item.starting_price_inr ||
-    minFleetPrice ||
-    item.from ||
-    0
-  );
-  const slug = String(item.slug ?? item.packageCode ?? item.package_code ?? item.id);
-  const inclusions = Array.isArray(item.inclusions) && item.inclusions.length > 0
-    ? item.inclusions
-    : [
-      "Private AC vehicle & dedicated verified chauffeur",
-      "All highway tolls & monument parking fees included",
-      "Doorstep pickup & drop-off from hotel or station",
-    ];
-  const exclusions = Array.isArray(item.exclusions) && item.exclusions.length > 0
-    ? item.exclusions
-    : [
-      "Monument entry tickets",
-      "Meals & personal expenses",
-    ];
-  const source = item.source || "Agra";
-  const destination = item.destination || item.name;
-
-  const rawImage = item.imageUrl || item.image_url || item.image || (item.gallery?.[0]?.url || item.gallery?.[0]) || "";
-  const image = rawImage ? resolveCatalogMediaUrl(rawImage) : "";
-  console.log("[toTourPackage] Raw image URL:", rawImage, "-> Resolved:", image);
-
-  const rawGallery = Array.isArray(item.gallery) ? item.gallery : [];
-  console.log("[toTourPackage] Raw gallery:", rawGallery);
-  const gallery = rawGallery
-    .filter(Boolean)
-    .map((g: any, i: number) => {
-      if (typeof g === "string") {
-        const resolved = resolveCatalogMediaUrl(g);
-        console.log(`[toTourPackage] Gallery item ${i} (string):`, g, "->", resolved);
-        return {
-          url: resolved,
-          alt: `${item.name || "Tour"} photo ${i + 1}`,
-          caption: `${item.name || "Tour"} view ${i + 1}`,
-        };
-      }
-      const resolved = resolveCatalogMediaUrl(g.url);
-      console.log(`[toTourPackage] Gallery item ${i} (object):`, g.url, "->", resolved);
-      return {
-        url: resolved,
-        alt: g.alt || `${item.name || "Tour"} photo ${i + 1}`,
-        caption: g.caption || `${item.name || "Tour"} view ${i + 1}`,
-      };
-    });
-  console.log("[toTourPackage] Processed gallery:", gallery);
-
+export function toTourPackage(item: unknown): TourPackage {
+  const pkg = mapTourPackage(item);
   return {
-    id: slug,
-    slug,
-    name: item.name,
-    kicker: `${item.days ?? 1} Day${(item.days ?? 1) > 1 ? "s" : ""} Private Tour`,
-    duration: item.durationText || `${item.days ?? 1} Day`,
-    from: startingPrice,
-    image,
-    gallery: gallery.length > 0 ? gallery : [{ url: image, alt: item.name, caption: `${item.name} cover` }],
-    source,
-    destination,
-    fleetPrices,
-    days: item.days,
-    nights: item.nights,
-    places: [source, destination, "Heritage Sites"],
-    blurb: item.inclusionsHighlight || "Private sanitized AC cab, dedicated verified chauffeur & monument sightseeing.",
-    includes: inclusions,
-    excludes: exclusions,
-    itinerary: Array.isArray(item.itinerary) ? item.itinerary : [],
+    ...pkg,
+    image: resolveCatalogMediaUrl(pkg.image),
+    gallery: pkg.gallery?.map((image) => ({ ...image, url: resolveCatalogMediaUrl(image.url) })),
   };
 }
 

@@ -1,19 +1,4 @@
-/**
- * CoverflowCarousel — 3D Perspective Sightseeing & Packages Carousel (Phase R5.6)
- *
- * Displays the 6 curated tour packages in an interactive 3D coverflow showcase:
- * 1. Same Day Agra Taj Mahal Tour (₹3,499)
- * 2. Taj Mahal Sunrise Tour (₹12,999)
- * 3. Mathura & Vrindavan Darshan (₹4,200)
- * 4. Same Day Agra by Gatimaan Train (₹14,999)
- * 5. Agra Overnight Experience (₹7,800)
- * 6. Golden Triangle Tour (₹18,500)
- *
- * Left column: Active package kicker, title, blurb, monument pills, all-inclusive fare,
- * and WhatsApp + details CTAs.
- * Right column: 3D perspective stage with cover reflections, glass badges, arrow navigation,
- * and pagination indicator dots.
- */
+/** Browse published itineraries; unpriced content shows duration, never a demo fare. */
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { packages, type Package } from "../../data/catalogue";
@@ -68,7 +53,7 @@ export function CoverflowCarousel() {
   // Active tour package
   const activePackage: Package = packages[activeIndex] ?? packages[0];
   const waText = encodeURIComponent(
-    `Hello, I would like to inquire about the ${activePackage.name} tour package (₹${formatInr(activePackage.from)}).`
+    `Hello, I would like to inquire about the ${activePackage.name} tour package.`
   );
   const waUrl = `https://wa.me/${contact.whatsapp}?text=${waText}`;
 
@@ -99,10 +84,10 @@ export function CoverflowCarousel() {
           </div>
 
           {/* Fare display */}
-          <div className="coverflow-fare-wrap">
-            <span className="coverflow-fare-label">All-inclusive starting fare</span>
+          {activePackage.from != null && activePackage.from > 0 && <div className="coverflow-fare-wrap">
+            <span className="coverflow-fare-label">Starting fare</span>
             <p className="coverflow-fare">₹{formatInr(activePackage.from)}</p>
-          </div>
+          </div>}
 
           {/* Action CTAs */}
           <div className="coverflow-actions">
@@ -187,7 +172,7 @@ export function CoverflowCarousel() {
                           •
                         </span>
                         <span className="coverflow-card-badge-fare">
-                          ₹{formatInr(pkg.from)}
+                          {pkg.from != null && pkg.from > 0 ? `₹${formatInr(pkg.from)}` : pkg.duration}
                         </span>
                       </div>
 

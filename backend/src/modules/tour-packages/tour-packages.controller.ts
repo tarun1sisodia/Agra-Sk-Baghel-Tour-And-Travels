@@ -26,7 +26,9 @@ export function createTourPackagesController(service: ReturnType<typeof createTo
           const specificUpgrades = await service.listUpgrades(item.id);
           return {
             ...item,
-            upgrades: specificUpgrades.length > 0 ? specificUpgrades : globalUpgrades,
+            upgrades: item.startingPriceInr || Object.keys(item.fleetPrices).length
+              ? (specificUpgrades.length > 0 ? specificUpgrades : globalUpgrades)
+              : [],
           };
         })
       );
@@ -41,7 +43,7 @@ export function createTourPackagesController(service: ReturnType<typeof createTo
       }
       const specificUpgrades = await service.listUpgrades(item.id);
       const upgrades = specificUpgrades.length > 0 ? specificUpgrades : await service.listUpgrades(null);
-      return sendSuccess(reply, { ...item, upgrades });
+      return sendSuccess(reply, { ...item, upgrades: item.startingPriceInr || Object.keys(item.fleetPrices).length ? upgrades : [] });
     },
     async list(request: FastifyRequest, reply: FastifyReply) {
       admin(request);

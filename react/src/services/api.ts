@@ -4,7 +4,10 @@
  */
 
 export function getApiBaseUrl(): string {
-  const envUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim().replace(/\/+$/, "");
+  const configuredUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim();
+  // Vite proxies /api to the server. A preview browser must not call its own localhost.
+  if (configuredUrl === "/" || (import.meta.env.DEV && !configuredUrl)) return "";
+  const envUrl = configuredUrl?.replace(/\/+$/, "");
   if (
     typeof window !== "undefined" &&
     (window.location.hostname === "localhost" ||
