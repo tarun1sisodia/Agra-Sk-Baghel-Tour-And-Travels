@@ -24,7 +24,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
     "clsx": "^2.1.1",
-    "framer-motion": "^13.4.4",
+    "framer-motion": "^14.8.0",
     "lucide-react": "^1.48.0",
     "motion": "^13.4.4",
     "react": "^19.1.1",
