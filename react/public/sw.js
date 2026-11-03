@@ -12,7 +12,6 @@ const STATIC_ASSETS = [
     '/icon-192.png',
     '/robots.txt',
     '/sitemap.xml',
-    '/manifest.json',
     '/assets/brand/og-banner.webp',
     '/assets/brand/favicon.svg',
     '/assets/brand/logos/01-roadline-lockup-light.svg',
@@ -32,7 +31,13 @@ self.addEventListener('install', (event) => {
         caches.open(CACHE_NAME)
             .then((cache) => {
                 console.log('[SW] Caching static assets');
-                return cache.addAll(STATIC_ASSETS);
+                // Cache individually so one missing asset (e.g. a removed file)
+                // cannot fail the whole install.
+                return Promise.allSettled(
+                    STATIC_ASSETS.map((asset) => cache.add(asset).catch((err) => {
+                        console.warn('[SW] Skipping uncacheable asset:', asset, err);
+                    }))
+                );
             })
             .then(() => self.skipWaiting())
     );
