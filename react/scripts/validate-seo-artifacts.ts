@@ -302,7 +302,37 @@ async function main(): Promise<void> {
     await assertArtifactExists(new URL(pathname, CANONICAL_DOMAIN), "404 recovery target");
   }
 
+  // Static SEO & AI readiness artifacts (copied from public/ by Vite publicDir)
+  const aiTxt = await readFile(join(distDir, "ai.txt"), "utf8");
+  assert.ok(aiTxt.includes(CANONICAL_DOMAIN + "/llms.txt"), "ai.txt must link llms.txt on the canonical origin.");
+  assert.ok(aiTxt.includes(CANONICAL_DOMAIN + "/sitemap.xml"), "ai.txt must link sitemap.xml on the canonical origin.");
+  assert.equal(/workers\.dev|localhost|127\.0\.0\.1/i.test(aiTxt), false, "ai.txt must not reference preview/loopback hosts.");
+
+  const llmsTxt = await readFile(join(distDir, "llms.txt"), "utf8");
+  for (const m of llmsTxt.matchAll(/\((https:\/\/[^)\s]+)\)/g)) {
+    assertPublicHttpsUrl(m[1]!, "llms.txt link");
+  }
+  assert.ok(llmsTxt.includes("# Agra SK Baghel Tour"), "llms.txt must carry the business H1.");
+
+  const humansTxt = await readFile(join(distDir, "humans.txt"), "utf8");
+  assert.ok(humansTxt.includes(CANONICAL_DOMAIN), "humans.txt must reference the canonical site.");
+
+  const securityTxt = await readFile(join(distDir, ".well-known", "security.txt"), "utf8");
+  assert.match(securityTxt, /^Contact:\s*mailto:\S+/im, "security.txt must have a Contact field (RFC 9116).");
+  const expires = securityTxt.match(/^Expires:\s*(\S+)/im)?.[1];
+  assert.ok(expires, "security.txt must have an Expires field (RFC 9116).");
+  const expiresDate = new Date(expires!);
+  assert.ok(expiresDate.getTime() > Date.now(), "security.txt Expires must be in the future.");
+  assert.ok(expiresDate.getTime() <= Date.now() + 366 * 24 * 3600 * 1000, "security.txt Expires must be within one year.");
+  assert.match(securityTxt, new RegExp("^Canonical:\\s*" + CANONICAL_DOMAIN.replace(/\./g, "\\.") + "/.well-known/security.txt", "im"),
+    "security.txt Canonical must be the production .well-known URL.");
+
+  // robots.txt: production sitemap ref + AI crawler policy groups
+  assert.ok(/^User-agent:\s*GPTBot\s*$/im.test(robots) && /^Disallow:\s*\/$/m.test(robots), "robots.txt must include AI training-crawler policy groups.");
+  assert.ok(!/^User-agent:\s*Googlebot\s*$/im.test(robots + "\nDisallow: /"), "Googlebot must not be blocked.");
+
   console.log("SEO artifact checks passed: " + htmlFiles.length + " HTML files, " + sitemapUrls.length + " sitemap URLs, canonical origin " + CANONICAL_DOMAIN + ".");
+  console.log("SEO & AI readiness artifacts validated: robots.txt, sitemap.xml, ai.txt, llms.txt, humans.txt, .well-known/security.txt (ads.txt: N/A — no ad inventory).");
 }
 
 main().catch((error) => {

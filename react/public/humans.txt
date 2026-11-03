@@ -1,0 +1,9 @@
+# humans.txt — Agra SK Baghel Tour & Travels
+# Only verified public information; no personal or infrastructure details.
+
+Site: https://agraskbagheltourandtravels.com/
+Business: Agra SK Baghel Tour & Travels — taxi, tour and travel desk, Taj Ganj, Agra, India.
+Contact: +91 97628 17598 (phone/WhatsApp) · https://agraskbagheltourandtravels.com/en/contact/
+
+Built with: React, Vite, TypeScript; hosted on Cloudflare Pages; backend API on Render.
+Standards: robots.txt, sitemap.xml, llms.txt, ai.txt, /.well-known/security.txt.
