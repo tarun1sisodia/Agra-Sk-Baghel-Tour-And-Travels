@@ -297,7 +297,7 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
                         selectedImageIndex === idx ? "border-primary ring-2 ring-primary/40 scale-102" : "border-border-warm opacity-70 hover:opacity-100"
                       }`}
                     >
-                      <img src={img} alt={`${item.name} thumb ${idx + 1}`} className="w-full h-full object-cover" />
+                      <img src={img} alt={`${item.name} thumb ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     </button>
                   ))}
                 </div>
