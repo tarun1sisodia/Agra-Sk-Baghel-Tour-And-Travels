@@ -94,22 +94,12 @@ export function CanonicalFleetPricingGrid({
   };
 
   const handlePriceChange = (model: CleanVehicleModel, val: number | undefined) => {
-    // Save under canonical model ID as well as slug key for full compatibility
-    const grpCode = model.group_code.toLowerCase().replace(/[\s_]+/g, "-");
+    // Save per-model only: canonical model ID plus the slugified model-name key.
+    // Do NOT mirror the value onto group/tier keys (e.g. "sedan") — that made
+    // every model in a group inherit the same price on the customer side.
+    const slugName = model.model_name.toLowerCase().replace(/[\s_]+/g, "-");
     onChange(model.id, val);
-    // Also mirror to group/tier code for backward compatibility
-    onChange(grpCode, val);
-    if (model.display_name.toLowerCase().includes("dzire")) onChange("sedan", val);
-    if (model.display_name.toLowerCase().includes("ertiga")) onChange("ertiga", val);
-    if (model.display_name.toLowerCase().includes("innova")) {
-      onChange("innova", val);
-      onChange("innova-crysta", val);
-    }
-    if (model.display_name.toLowerCase().includes("traveller")) {
-      onChange("tempo", val);
-      onChange("tempo-traveller", val);
-    }
-    if (model.display_name.toLowerCase().includes("urbania")) onChange("urbania", val);
+    onChange(slugName, val);
   };
 
   if (loading) {
