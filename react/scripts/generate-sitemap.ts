@@ -322,7 +322,7 @@ export function getSitemapEntries(): SitemapEntry[] {
   }
 
   // Public legal pages used by the website footer and Google OAuth verification.
-  for (const path of ["/privacy-policy/", "/terms-and-conditions/"]) {
+  for (const path of ["/privacy-policy/", "/terms-and-conditions/", "/cookie-policy/"]) {
     entries.push({
       path,
       priority: 0.7,

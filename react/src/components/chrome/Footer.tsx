@@ -1,3 +1,4 @@
+import { openCookieSettings } from "../consent/cookieConsent";
 import { BrandLogo } from "./BrandLogo";
 import { contact } from "../../data/contact";
 import { prefetchDocument } from "../../app/prefetch";
@@ -212,6 +213,10 @@ export function Footer({ className = "" }: FooterProps) {
             <a href="/privacy-policy/" className="hover:text-amber-200 transition-colors py-2 min-h-[44px] inline-flex items-center">Privacy Policy</a>
             <span className="text-border-warm">•</span>
             <a href="/terms-and-conditions/" className="hover:text-amber-200 transition-colors py-2 min-h-[44px] inline-flex items-center">Terms of Service</a>
+            <span className="text-border-warm">•</span>
+            <a href="/cookie-policy/" className="hover:text-amber-200 transition-colors py-2 min-h-[44px] inline-flex items-center">Cookie Policy</a>
+            <span className="text-border-warm">•</span>
+            <button type="button" onClick={() => openCookieSettings()} className="hover:text-amber-200 transition-colors py-2 min-h-[44px] inline-flex items-center underline underline-offset-2">Cookie Settings</button>
             <span className="text-border-warm">•</span>
             <a href="/en/faq/" className="hover:text-amber-200 transition-colors py-2 min-h-[44px] inline-flex items-center">FAQ & Cancellation</a>
           </div>

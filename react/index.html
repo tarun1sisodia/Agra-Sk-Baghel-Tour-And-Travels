@@ -74,6 +74,13 @@
           if (typeof navigator !== "undefined" && (Boolean(navigator.webdriver) || /bot|crawler|spider|lighthouse|headless/i.test(navigator.userAgent))) {
             return;
           }
+          // Consent gate: never load GTM unless the user opted in to analytics or marketing,
+          // and never when the browser sends a Global Privacy Control signal.
+          try {
+            if (navigator.globalPrivacyControl === true) return;
+            var c = JSON.parse(localStorage.getItem("skb-consent-v1") || "null");
+            if (!c || (!c.analytics && !c.marketing)) return;
+          } catch (e) { return; }
           gtmLoaded = true;
           ['scroll', 'touchstart', 'pointerdown', 'keydown', 'click'].forEach(function (evt) {
             window.removeEventListener(evt, loadGTM, { passive: true });

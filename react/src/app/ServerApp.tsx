@@ -12,6 +12,7 @@ import { ContactPage } from "../pages/ContactPage";
 import { FaqPage } from "../pages/FaqPage";
 import { TermsPage } from "../pages/TermsPage";
 import { PrivacyPage } from "../pages/PrivacyPage";
+import { CookiePolicyPage } from "../pages/CookiePolicyPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { RouteDetailPage } from "../pages/RouteDetailPage";
 import { PackageDetailPage } from "../pages/PackageDetailPage";
@@ -140,6 +141,7 @@ export function getMarketingPath(pathname: string) {
   const rawSegment = localizedSegments.at(-1)?.replace(/\.html$/, "") ?? "home";
   const routeAliases: Record<string, string> = {
     "privacy-policy": "privacy",
+    "cookie-policy": "cookie",
     "terms-and-conditions": "terms",
     "terms-of-service": "terms",
   };
@@ -441,6 +443,15 @@ function getSeoBase(
       description: "Review our transparent commercial terms: 24-hr cab cancellation with 100% refund, 6-tier tour schedule, 300 km/day outstation rules, and Agra jurisdiction.".slice(0, 155),
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Terms and conditions", "Agra taxi cancellation policy", "tour refund schedule", "commercial terms"],
+    };
+  }
+
+  if (section === "cookie") {
+    return {
+      title: "Cookie Policy | Agra SK Baghel Tour & Travels",
+      description: "How Agra SK Baghel Tour & Travels uses essential, analytics and marketing cookies, and how to change your preferences.",
+      ogImage: "/assets/brand/og-banner.webp",
+      keywords: ["Cookie policy", "cookie consent", "analytics cookies", "marketing cookies"],
     };
   }
 
@@ -803,6 +814,8 @@ export function ServerApp({ pathname: propPathname }: AppProps = {}) {
             <TermsPage language={language} />
           ) : section === "privacy" ? (
             <PrivacyPage language={language} />
+          ) : section === "cookie" ? (
+            <CookiePolicyPage language={language} />
           ) : isMarketingHub || pathname.startsWith("/en/") || pathname.startsWith("/hi/") ? (
             <MarketingPage language={language} section={section} />
           ) : (

@@ -244,6 +244,7 @@ async function main(): Promise<void> {
   for (const rule of [
     "/en/privacy /privacy-policy/ 301",
     "/en/terms /terms-and-conditions/ 301",
+    "/en/cookie /cookie-policy/ 301",
     "/en/agra-to-mathura-taxi-service /en/agra-to-mathura-taxi/ 301",
   ]) {
     assert.ok(redirectRules.split(/\r?\n/).includes(rule), "Missing Cloudflare Pages redirect: " + rule);
