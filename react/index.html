@@ -16,6 +16,10 @@
     <!-- Critical Text Fonts: Self-Hosted Plus Jakarta Sans & EB Garamond -->
     <link rel="preload" href="/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/eb-garamond-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Warm the connection to the Material Symbols icon-font origin now, so the
+         idle/interaction-deferred stylesheet + woff2 don't pay DNS/TLS cost later -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- LCP hero image (first slide): preload so mobile LCP is not delayed by JS discovery -->
     <link
       rel="preload"
