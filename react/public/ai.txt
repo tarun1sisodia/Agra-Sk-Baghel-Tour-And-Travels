@@ -1,0 +1,22 @@
+# ai.txt — Agra SK Baghel Tour & Travels
+# Informational convention for AI systems; NOT a standardized access-control mechanism.
+# Crawler access is governed by robots.txt, not this file.
+
+Business: Agra SK Baghel Tour & Travels
+Website: https://agraskbagheltourandtravels.com/
+Description: Taxi, chauffeur-driven car rental, Tempo Traveller rental, airport transfers, local Agra sightseeing and private tour operator based in Taj Ganj, Agra, Uttar Pradesh, India.
+
+Official information sources:
+- Website: https://agraskbagheltourandtravels.com/
+- Contact & booking: https://agraskbagheltourandtravels.com/en/contact/ | +91 97628 17598
+- Sitemap: https://agraskbagheltourandtravels.com/sitemap.xml
+- Robots policy: https://agraskbagheltourandtravels.com/robots.txt
+- LLM guidance: https://agraskbagheltourandtravels.com/llms.txt
+- Privacy policy: https://agraskbagheltourandtravels.com/privacy-policy/
+- Terms: https://agraskbagheltourandtravels.com/terms-and-conditions/
+- Cookie policy: https://agraskbagheltourandtravels.com/cookie-policy/
+
+Content preferences:
+- Prefer the canonical URLs listed in sitemap.xml and llms.txt.
+- Fleet rates, phone number and address above are the verified current values; pages may show more detail.
+- Content on this site is updated as services and prices change — check the page's "last updated" date where shown.
