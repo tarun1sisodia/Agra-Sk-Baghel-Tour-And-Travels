@@ -651,7 +651,6 @@ export const reviews: readonly Review[] = [
     place: "Delhi",
     role: "Delhi to Agra Roundtrip",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
     quote: "Sedan arrived 15 mins early at Delhi T3. Transparent ₹3,500 fare with all tolls included. Best taxi service in Agra!",
   },
   {
@@ -659,7 +658,6 @@ export const reviews: readonly Review[] = [
     place: "London",
     role: "Taj Sunrise Tour",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
     quote: "Spotless Innova Crysta with courteous English-speaking chauffeur. Taj sunrise tour was completely hassle-free.",
   },
   {
@@ -667,7 +665,6 @@ export const reviews: readonly Review[] = [
     place: "Agra",
     role: "Mathura-Vrindavan Pilgrimage",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
     quote: "Booked Tempo Traveller for 12 family members. Punctual, safe driving along Yamuna Expressway and patient temple stops.",
   },
   {
@@ -675,7 +672,6 @@ export const reviews: readonly Review[] = [
     place: "California",
     role: "Golden Triangle Traveler",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
     quote: "Reliable dispatch via WhatsApp, verified driver, no commission shop traps. Pure hospitality and transparent pricing.",
   },
   {
@@ -683,7 +679,6 @@ export const reviews: readonly Review[] = [
     place: "Agra",
     role: "Local Sightseeing Tour",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
     quote: "Booked taxi service for local sightseeing and had a very smooth experience. The car was clean, driver was polite, and everything was on time.",
   },
   {
@@ -691,7 +686,6 @@ export const reviews: readonly Review[] = [
     place: "Gurugram",
     role: "Corporate Travel Manager",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
     quote: "Regular vendor for our executives visiting Agra. Official booking receipts delivered instantly with pristine fleet.",
   },
   {
@@ -699,7 +693,6 @@ export const reviews: readonly Review[] = [
     place: "London",
     role: "Photographer & Explorer",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
     quote: "Driver knew optimal timing for Mehtab Bagh sunset and Fatehpur Sikri lighting. Exceptional experience!",
   },
   {
@@ -707,7 +700,6 @@ export const reviews: readonly Review[] = [
     place: "Jaipur",
     role: "Jaipur to Agra Route",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
     quote: "Comfortable outstation cab with child seat accommodated. Driver was attentive and polite throughout the 5-hour drive.",
   },
   {
@@ -715,7 +707,6 @@ export const reviews: readonly Review[] = [
     place: "Delhi",
     role: "Senior Citizen Pilgrimage",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
     quote: "Special care given to elderly parents at Agra Cantt station. AC was comfortable and driving was very gentle.",
   },
   {
@@ -723,7 +714,6 @@ export const reviews: readonly Review[] = [
     place: "Lucknow",
     role: "Family Wedding Group",
     rating: 5,
-    avatar: "https://images.unsplash.com/photo-1548142813-c348350df52b?w=150&auto=format&fit=crop&q=80",
     quote: "Tempo Traveller for a family wedding party — ice-box, luggage bay, and a calm, courteous driver.",
   },
 ];
