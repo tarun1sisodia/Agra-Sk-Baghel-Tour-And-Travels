@@ -1,0 +1,42 @@
+name: Render Live Check
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    # Every 15 minutes so a dead/broken render is detected quickly
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render-live:
+    name: "Customer site render is live"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check deployed render
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Verify rendered pages are live
+        run: node scripts/verify-render-live.mjs
+        env:
+          RENDER_BASE_URL: "https://agraskbagheltourandtravels.com"
+          RENDER_CHECK_TIMEOUT_MS: "20000"
+          RENDER_CHECK_ATTEMPTS: "2"
+
+      - name: Publish render-live summary
+        if: always()
+        run: |
+          echo "## Render live status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "Checked homepage, routes, fleet, monuments, a route page, a vehicle page, and a DB-published package page on https://agraskbagheltourandtravels.com — each must return HTTP 200, contain the Agra SK Baghel Tour & Travels brand, render an H1, and NOT be the 404 page." >> $GITHUB_STEP_SUMMARY
