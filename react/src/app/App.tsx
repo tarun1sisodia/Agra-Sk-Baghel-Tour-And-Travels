@@ -14,6 +14,7 @@ const ContactPage = lazy(() => import("../pages/ContactPage").then((m) => ({ def
 const FaqPage = lazy(() => import("../pages/FaqPage").then((m) => ({ default: m.FaqPage })));
 const TermsPage = lazy(() => import("../pages/TermsPage").then((m) => ({ default: m.TermsPage })));
 const PrivacyPage = lazy(() => import("../pages/PrivacyPage").then((m) => ({ default: m.PrivacyPage })));
+const CookiePolicyPage = lazy(() => import("../pages/CookiePolicyPage").then((m) => ({ default: m.CookiePolicyPage })));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage })));
 const RouteDetailPage = lazy(() => import("../pages/RouteDetailPage").then((m) => ({ default: m.RouteDetailPage })));
 const PackageDetailPage = lazy(() => import("../pages/PackageDetailPage").then((m) => ({ default: m.PackageDetailPage })));
@@ -59,6 +60,7 @@ export function getMarketingPath(pathname: string) {
   const rawSegment = localizedSegments.at(-1)?.replace(/\.html$/, "") ?? "home";
   const routeAliases: Record<string, string> = {
     "privacy-policy": "privacy",
+    "cookie-policy": "cookie",
     "terms-and-conditions": "terms",
     "terms-of-service": "terms",
   };
@@ -288,6 +290,15 @@ export function getSeo(
       description: "Review our transparent commercial terms: 24-hr cab cancellation with 100% refund, 6-tier tour schedule, 300 km/day outstation rules, and Agra jurisdiction.".slice(0, 155),
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Terms and conditions", "Agra taxi cancellation policy", "tour refund schedule", "commercial terms"],
+    };
+  }
+
+  if (section === "cookie") {
+    return {
+      title: "Cookie Policy | Agra SK Baghel Tour & Travels",
+      description: "How Agra SK Baghel Tour & Travels uses essential, analytics and marketing cookies, and how to change your preferences.",
+      ogImage: "/assets/brand/og-banner.webp",
+      keywords: ["Cookie policy", "cookie consent", "analytics cookies", "marketing cookies"],
     };
   }
 
@@ -701,6 +712,8 @@ export function App({ pathname: propPathname }: AppProps = {}) {
               <TermsPage language={language} />
             ) : section === "privacy" ? (
               <PrivacyPage language={language} />
+            ) : section === "cookie" ? (
+              <CookiePolicyPage language={language} />
             ) : isMarketingHub || pathname.startsWith("/en/") ? (
               <MarketingPage language={language} section={section} />
             ) : (

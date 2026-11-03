@@ -236,6 +236,7 @@ const routesToRender: string[] = Array.from(new Set([
   // Canonical public legal URLs for customers and Google OAuth verification
   "/privacy-policy/",
   "/terms-and-conditions/",
+  "/cookie-policy/",
 
   // Booking Funnel & 404 Recovery
   "/book.html",
@@ -275,6 +276,7 @@ const routesToRender: string[] = Array.from(new Set([
 const redirectStubs = [
   { from: "en/privacy/", to: "/privacy-policy/" },
   { from: "en/terms/", to: "/terms-and-conditions/" },
+  { from: "en/cookie/", to: "/cookie-policy/" },
   { from: "en/agra-to-mathura-taxi-service/", to: "/en/agra-to-mathura-taxi/" },
   { from: "en/agra-to-delhi/", to: "/en/agra-to-delhi-taxi/" },
   { from: "en/agra-to-delhi-airport-cab-booking/", to: "/en/agra-to-delhi-airport-taxi/" },

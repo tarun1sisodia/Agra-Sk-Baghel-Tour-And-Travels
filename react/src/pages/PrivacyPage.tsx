@@ -6,7 +6,7 @@ export interface PrivacyPageProps {
   language?: SupportedLanguage;
 }
 
-const LAST_UPDATED = "22 October 2026";
+const LAST_UPDATED = "3 November 2026";
 
 export function PrivacyPage({ language = "en" }: PrivacyPageProps) {
   const languagePrefix = language === "hi" ? "/hi" : "/en";
@@ -146,8 +146,31 @@ export function PrivacyPage({ language = "en" }: PrivacyPageProps) {
           </p>
         </section>
 
+        <section id="gdpr" className="scroll-mt-28 space-y-3 border-t border-border-warm/60 pt-6">
+          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">9. Visitors in the EEA, UK, and Switzerland (GDPR)</h2>
+          <p className="text-on-surface-variant leading-relaxed">
+            If you are in the European Economic Area, the United Kingdom, or Switzerland, the GDPR (or UK GDPR / Swiss data-protection law) gives you specific
+            rights over your personal data. Where we rely on consent, you may withdraw it at any time without affecting the lawfulness of processing before
+            withdrawal. Where we rely on legitimate interests, you may object to that processing. Our main legal bases are: performing a booking or service you
+            requested (contract), complying with legal obligations, our legitimate interests in operating and securing the service, and your consent where we ask for it.
+          </p>
+          <ul className="list-disc pl-5 space-y-1.5 text-on-surface-variant leading-relaxed">
+            <li>right of access to the personal data we hold about you;</li>
+            <li>right to rectification of inaccurate or incomplete data;</li>
+            <li>right to erasure ("right to be forgotten"), subject to legal retention duties;</li>
+            <li>right to restriction of processing and to data portability where technically applicable;</li>
+            <li>right to object to processing based on legitimate interests or for direct marketing; and</li>
+            <li>right to lodge a complaint with your local supervisory authority.</li>
+          </ul>
+          <p className="text-on-surface-variant leading-relaxed">
+            To exercise any of these rights, contact us using the details in Section 1. We may need to verify your identity, and where a request concerns a
+            booking we may need to confirm it with the details you provided. We aim to respond within the timelines required by applicable law. Where data is
+            transferred outside your jurisdiction (for example to hosting or payment providers), we rely on applicable transfer safeguards required by law.
+          </p>
+        </section>
+
         <section id="children-and-law" className="scroll-mt-28 space-y-3 border-t border-border-warm/60 pt-6">
-          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">9. Children and applicable law</h2>
+          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">10. Children and applicable law</h2>
           <p className="text-on-surface-variant leading-relaxed">
             Our website is intended for people arranging or enquiring about travel, not for children to create independent accounts. A parent or lawful
             guardian should provide information needed to arrange travel for a child and should contact us with any related privacy concern.
@@ -161,7 +184,7 @@ export function PrivacyPage({ language = "en" }: PrivacyPageProps) {
         </section>
 
         <section id="updates" className="scroll-mt-28 space-y-3 border-t border-border-warm/60 pt-6">
-          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">10. Changes to this policy and privacy complaints</h2>
+          <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">11. Changes to this policy and privacy complaints</h2>
           <p className="text-on-surface-variant leading-relaxed">
             We may revise this policy when the service or applicable requirements change. The date at the top shows the latest revision. For a privacy request,
             complaint, or question, contact us using the email, phone, or postal details in Section 1. Please include enough context for us to locate the

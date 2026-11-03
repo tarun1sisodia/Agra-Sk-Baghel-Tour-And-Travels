@@ -14,7 +14,8 @@ export const marketingHubs = [
   "contact",
   "faq",
   "privacy",
-  "terms"
+  "terms",
+  "cookie"
 ] as const;
 
 export const marketingDetailPrefixes = ["vehicles", "packages"] as const;

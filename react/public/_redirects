@@ -3,6 +3,9 @@
 /en/privacy/ /privacy-policy/ 301
 /en/terms /terms-and-conditions/ 301
 /en/terms/ /terms-and-conditions/ 301
+/en/cookie /cookie-policy/ 301
+/en/cookie/ /cookie-policy/ 301
+/cookie-policy /cookie-policy/ 301
 
 # Canonical root homepage
 /en / 301

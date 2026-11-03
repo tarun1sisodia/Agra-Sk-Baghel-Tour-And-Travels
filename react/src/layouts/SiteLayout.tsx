@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { Header, LeadBar, RadialDock, Footer, SkipLink } from "../components/Chrome";
 import { OAuthErrorBanner } from "../components/OAuthErrorBanner";
+import { CookieConsent } from "../components/consent/CookieConsent";
 
 // The buddy chat widget is non-critical: lazy chunk + mount only after idle/interaction
 // so it never contends with FCP/LCP/TBT on the critical path.
@@ -51,6 +52,7 @@ export function SiteLayout({ children, currentPath }: SiteLayoutProps) {
         </Suspense>
       )}
       <Footer />
+      <CookieConsent />
     </div>
   );
 }
