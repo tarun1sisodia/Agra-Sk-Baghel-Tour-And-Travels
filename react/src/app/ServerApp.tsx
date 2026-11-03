@@ -275,7 +275,7 @@ function getSeoBase(
 
   if (resolvedDossierMonument) {
     const title = (resolvedDossierMonument.metaTitle || `${resolvedDossierMonument.name} Tour & Cab Booking | SK Baghel`).slice(0, 58);
-    const description = (resolvedDossierMonument.metaDescription || `Visit ${resolvedDossierMonument.name} in Agra (${resolvedDossierMonument.visitingHours}). ${resolvedDossierMonument.closedNote}. Book private AC cab with verified driver.`).slice(0, 155);
+    const description = (resolvedDossierMonument.metaDescription || `Visit ${resolvedDossierMonument.name} in Agra (${resolvedDossierMonument.visitingHours}). ${resolvedDossierMonument.closedNote}. Book private AC cab with verified chauffeur.`).slice(0, 155);
     return {
       title,
       description,
@@ -316,13 +316,19 @@ function getSeoBase(
   const route = !isEntityDetailPath && routes.find((item) => {
     const from = item.from === "agra" && item.to === "agra" ? "agra-sightseeing" : `${item.from}-to-${item.to}`;
     const hindiFrom = item.from === "agra" && item.to === "agra" ? "agra-darshan" : `${item.from}-se-${item.to}`;
-    return path.includes(`${from}-taxi`) || path.includes(`${hindiFrom}-taxi`);
+    return (
+      path.includes(`${from}-taxi`) ||
+      path.includes(`${hindiFrom}-taxi`) ||
+      path.includes(`/${item.id}/`) ||
+      path.endsWith(`/${item.id}`) ||
+      path === item.id
+    );
   });
 
   if (vehicle) {
     return {
-      title: `${vehicle.name} Rental in Agra | SK Baghel`,
-      description: `${vehicle.blurb} Compare seats (${vehicle.seats}), luggage (${vehicle.bags}), outstation rate from ₹${vehicle.perKm}/km, local & transfers.`,
+      title: `${vehicle.name} Hire in Agra | SK Baghel Travels`.slice(0, 58),
+      description: `${vehicle.blurb} Compare seats (${vehicle.seats}), luggage (${vehicle.bags}), outstation rate from ₹${vehicle.perKm}/km.`.slice(0, 155),
       ogImage: vehicle.image,
       keywords: [vehicle.name, `${vehicle.name} Agra`, `${vehicle.name} rental`, "Agra taxi fleet", "outstation cab Agra"],
     };
@@ -338,11 +344,11 @@ function getSeoBase(
   }
 
   if (route) {
-    const from = route.from[0].toUpperCase() + route.from.slice(1);
-    const to = route.to[0].toUpperCase() + route.to.slice(1);
+    const from = route.origin || (route.from ? route.from[0].toUpperCase() + route.from.slice(1) : "Agra");
+    const to = route.destination || (route.to ? route.to[0].toUpperCase() + route.to.slice(1) : "Delhi");
     return {
-      title: `${from} to ${to} Taxi Fare | Agra SK Baghel`,
-      description: `${route.duration} private taxi from ${from} to ${to}, with transparent fares across our fleet.`,
+      title: `${from} to ${to} Taxi Fare | SK Baghel Travels`.slice(0, 58),
+      description: `Book private taxi from ${from} to ${to} (${route.duration || "expressway"}). Verified chauffeurs, clean AC fleet, transparent fares.`.slice(0, 155),
       ogImage: "/assets/brand/og-banner.webp",
       keywords: [`${from} to ${to} taxi`, `${from} to ${to} cab fare`, "outstation taxi Agra", "expressway cab"],
     };
