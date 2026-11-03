@@ -219,8 +219,8 @@ describe("Task 2: Legacy API Modules & Canonical Schema Reconciliation", () => {
       parkingNote: "Parking extra at actuals",
       fleetPrices: { sedan: 1600, ertiga: 2200 },
       usePerKm: false,
-      extraRates: null,
-      nightChargeInr: 0,
+      extraRates: { sedan: { per_km: 13, per_hr: 175 }, suv: { per_km: 19, per_hr: 240 } },
+      nightChargeInr: 225,
       status: "published",
       isActive: true,
       createdAt: new Date().toISOString(),
@@ -246,6 +246,8 @@ describe("Task 2: Legacy API Modules & Canonical Schema Reconciliation", () => {
       includedKm?: number;
       covers?: string;
       fleetPrices?: Record<string, number>;
+      extraRates?: Record<string, { per_km: number; per_hr: number }>;
+      nightChargeInr?: number;
       isActive?: boolean;
     }>).find((p) => p.packageCode === "agra-half-day-4h-40k");
     expect(pkg).toBeDefined();
@@ -254,6 +256,8 @@ describe("Task 2: Legacy API Modules & Canonical Schema Reconciliation", () => {
     expect(pkg?.includedKm).toBe(40);
     expect(pkg?.covers).toBe("Taj Mahal, Agra Fort");
     expect(pkg?.fleetPrices?.sedan).toBe(1600);
+    expect(pkg?.extraRates).toEqual({ sedan: { per_km: 13, per_hr: 175 }, suv: { per_km: 19, per_hr: 240 } });
+    expect(pkg?.nightChargeInr).toBe(225);
     expect(pkg?.isActive).toBe(true);
   });
 

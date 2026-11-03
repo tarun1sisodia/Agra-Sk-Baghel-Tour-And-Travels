@@ -64,16 +64,16 @@ export function LocalPackageFormDialog({
   }
 
   function setExtraRate(tier: string, field: "per_km" | "per_hr", val: number) {
-    setForm((p) => ({
-      ...p,
-      extraRates: {
-        ...p.extraRates,
-        [tier]: {
-          ...(p.extraRates[tier] ?? { per_km: 12, per_hr: 150 }),
-          [field]: val,
-        },
-      },
-    }));
+    setForm((p) => {
+      const extraRates = { ...p.extraRates };
+      const updated = { ...(extraRates[tier] ?? { per_km: 0, per_hr: 0 }), [field]: val };
+      if (updated.per_km <= 0 && updated.per_hr <= 0) {
+        delete extraRates[tier];
+      } else {
+        extraRates[tier] = updated;
+      }
+      return { ...p, extraRates };
+    });
   }
 
   return (
@@ -169,17 +169,18 @@ export function LocalPackageFormDialog({
         {/* Extra km and extra hr rate inputs */}
         <div className="rounded-lg border border-hairline p-4 bg-surface-raised/20 space-y-3">
           <Label>Extra KM &amp; Extra Hour Rates (₹)</Label>
+          <p className="text-xs text-ink-soft">Enter both rates for each configured tier. Blank tiers are shown as on request to customers.</p>
           <div className="grid gap-3 sm:grid-cols-5">
             {FLEET_KEYS.map((k) => {
               const spec = getFleetSpec(k);
-              const extra = form.extraRates[k] ?? { per_km: 12, per_hr: 150 };
+              const extra = form.extraRates[k];
               return (
                 <div key={k} className="p-2.5 rounded border border-hairline bg-surface space-y-2">
                   <span className="font-semibold text-xs text-ink block">{spec.label}</span>
                   <div>
                     <Label className="text-[10px] text-ink-soft mb-0.5">₹/km extra</Label>
                     <NumberInput
-                      value={extra.per_km}
+                      value={extra?.per_km}
                       onChange={(v) => setExtraRate(k, "per_km", v)}
                       className="h-7 text-xs"
                     />
@@ -187,7 +188,7 @@ export function LocalPackageFormDialog({
                   <div>
                     <Label className="text-[10px] text-ink-soft mb-0.5">₹/hr extra</Label>
                     <NumberInput
-                      value={extra.per_hr}
+                      value={extra?.per_hr}
                       onChange={(v) => setExtraRate(k, "per_hr", v)}
                       className="h-7 text-xs"
                     />

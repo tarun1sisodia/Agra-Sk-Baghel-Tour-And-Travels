@@ -542,9 +542,6 @@ SELECT
   lp.*,
   lp.code as package_code,
   lp.inclusions_note as parking_note,
-  false as use_per_km,
-  null as extra_rates,
-  null as night_charge_inr,
   (lp.status = 'published') as is_active,
   coalesce(
     (
@@ -1676,8 +1673,8 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
         async create(record: LocalSightseeingPackageRecord) {
           const rows = await query<{ id: string }>(
             client,
-            `insert into local_packages (id, code, name, duration_hours, included_km, covers, inclusions_note, status, created_at, updated_at)
-             values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            `insert into local_packages (id, code, name, duration_hours, included_km, covers, inclusions_note, status, created_at, updated_at, extra_rates, night_charge_inr, use_per_km)
+             values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12, $13)
              on conflict (code) do update set
                name = excluded.name,
                duration_hours = excluded.duration_hours,
@@ -1685,7 +1682,10 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                covers = excluded.covers,
                inclusions_note = excluded.inclusions_note,
                status = excluded.status,
-               updated_at = excluded.updated_at
+               updated_at = excluded.updated_at,
+               extra_rates = excluded.extra_rates,
+               night_charge_inr = excluded.night_charge_inr,
+               use_per_km = excluded.use_per_km
              returning id`,
             [
               record.id,
@@ -1698,6 +1698,9 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
               record.status,
               record.createdAt,
               record.updatedAt,
+              record.extraRates === null ? null : JSON.stringify(record.extraRates),
+              record.nightChargeInr,
+              record.usePerKm,
             ],
           );
           const packageId = rows[0]?.id ?? record.id;
@@ -1739,7 +1742,10 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                    covers = $6,
                    inclusions_note = $7,
                    status = $8,
-                   updated_at = $9
+                   updated_at = $9,
+                   extra_rates = $10::jsonb,
+                   night_charge_inr = $11,
+                   use_per_km = $12
                  where id = $1::uuid
                  returning id`,
               [
@@ -1752,6 +1758,9 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                 record.parkingNote,
                 record.status,
                 record.updatedAt,
+                record.extraRates === null ? null : JSON.stringify(record.extraRates),
+                record.nightChargeInr,
+                record.usePerKm,
               ],
             )
             : await query<{ id: string }>(
@@ -1763,7 +1772,10 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                    covers = $5,
                    inclusions_note = $6,
                    status = $7,
-                   updated_at = $8
+                   updated_at = $8,
+                   extra_rates = $9::jsonb,
+                   night_charge_inr = $10,
+                   use_per_km = $11
                  where code = $1
                  returning id`,
               [
@@ -1775,6 +1787,9 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                 record.parkingNote,
                 record.status,
                 record.updatedAt,
+                record.extraRates === null ? null : JSON.stringify(record.extraRates),
+                record.nightChargeInr,
+                record.usePerKm,
               ],
             );
           const packageId = rows[0]?.id ?? record.id;

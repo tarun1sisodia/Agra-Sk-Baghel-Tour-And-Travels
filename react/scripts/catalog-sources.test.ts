@@ -38,6 +38,18 @@ describe("catalog source resolution (P0-T03 / P0-T04)", () => {
     assert.equal(sources["transfer-routes"], "https://skb-baghel-api-staging.onrender.com/api/v1/transfer-routes/manifest");
   });
 
+  it("fetches the local-package manifest from the configured API, honoring an explicit override", () => {
+    const base = "https://api.agraskbagheltourandtravels.com";
+    const fromBase = listCatalogSources({ VITE_API_BASE_URL: base }).find((source) => source.name === "local-packages");
+    assert.equal(fromBase?.url, `${base}/api/v1/local-packages/manifest`);
+
+    const overridden = listCatalogSources({
+      VITE_API_BASE_URL: base,
+      LOCAL_PACKAGES_MANIFEST_URL: "https://catalog.example.test/local-packages.json",
+    }).find((source) => source.name === "local-packages");
+    assert.equal(overridden?.url, "https://catalog.example.test/local-packages.json");
+  });
+
   it("prefers the exact ROUTE_CATALOG_MANIFEST_URL spelling over a constructed fallback", () => {
     const env = {
       VITE_API_BASE_URL: "https://api.example.test",
