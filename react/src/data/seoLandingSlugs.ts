@@ -371,7 +371,7 @@ export const LANDING_REDIRECTS: Readonly<Record<string, string>> = {
   "ertiga-taxi-booking-agra": "/en/vehicles/ertiga/",
   "innova-crysta-rental-in-agra": "/en/vehicles/innova-crysta/",
   "taj-mahal-taxi-service": "/en/monuments/taj-mahal/",
-  "taj-mahal-sunrise-tour-package-by-car": "/en/packages/taj-mahal-sunrise-tour/",
+  "taj-mahal-sunrise-tour-package-by-car": "/en/packages/exclusive-tour-of-agra-for-1-day/",
   "agra-fatehpur-sikri-one-day-tour": "/en/monuments/fatehpur-sikri/",
   "same-day-agra-tour-from-delhi": "/en/packages/agra-sightseeing/",
   "agra-local-sightseeing-taxi": "/en/packages/agra-sightseeing/",
