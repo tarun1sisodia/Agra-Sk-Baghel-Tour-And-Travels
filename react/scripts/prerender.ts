@@ -15,7 +15,7 @@ import { renderToString } from "react-dom/server";
 import { createElement } from "react";
 import { generateSitemapAndRobots, isSitemapSafeSlug, HINDI_INDEXING_ENABLED, CANONICAL_DOMAIN } from "./generate-sitemap.ts";
 import { assertBuildSafeSeo, inspectSeoHtml } from "./seo-content-guardrails.ts";
-import { SEO_LANDING_SLUGS } from "../src/data/seoLandingSlugs.ts";
+import { SEO_LANDING_SLUGS, LANDING_REDIRECTS } from "../src/data/seoLandingSlugs.ts";
 import { FLEETS } from "../src/data/fleets.ts";
 import { HOME_HERO_SLIDES } from "../src/data/homeHeroSlides.ts";
 import assert from "node:assert";
@@ -71,14 +71,9 @@ const vehicleRoutes = [
   "urbania",
 ];
 
-const packageRoutes = [
-  "taj-mahal-sunrise-tour",
-  "agra-sightseeing",
-  "agra-unhurried",
-  "mathura-vrindavan",
-  "gatimaan-express-agra-tour",
-  "golden-triangle",
-];
+// Package detail pages are rendered from the DB-published snapshot only
+// (getPublishedTourPackageRoutes below) — no hardcoded slugs.
+const packageRoutes: string[] = [];
 
 function getPublishedPackageRoutes(): string[] {
   const snapshotPath = join(reactRoot, "src", "data", "generated-published-catalog.json");
@@ -273,7 +268,7 @@ const routesToRender: string[] = Array.from(new Set([
 
   // English Routes (8)
   ...routePairs.map((r) => `/en/${r}/`),
-  ...SEO_LANDING_SLUGS.map((slug) => `/en/${slug}/`),
+  ...SEO_LANDING_SLUGS.filter((slug) => !LANDING_REDIRECTS[slug]).map((slug) => `/en/${slug}/`),
 ]));
 
 // Compatibility HTML redirect stubs for backward compatibility

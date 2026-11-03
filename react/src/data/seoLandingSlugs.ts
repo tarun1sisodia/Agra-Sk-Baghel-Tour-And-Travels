@@ -356,3 +356,39 @@ export const SEO_LANDING_SLUGS = [
 ] as const;
 
 export type SeoLandingSlug = (typeof SEO_LANDING_SLUGS)[number];
+
+/**
+ * Landing slugs that duplicate a dedicated page (vehicle/monument/package/route)
+ * are 301-redirected to that canonical target and excluded from sitemap/prerender.
+ */
+export const LANDING_REDIRECTS: Readonly<Record<string, string>> = {
+  "tempo-traveller-on-rent-agra": "/en/vehicles/tempo-traveller/",
+  "12-seater-tempo-traveller-agra": "/en/vehicles/tempo-traveller/",
+  "16-seater-tempo-traveller-agra": "/en/vehicles/tempo-traveller/",
+  "18-seater-tempo-traveller-agra": "/en/vehicles/tempo-traveller/",
+  "20-seater-tempo-traveller-agra": "/en/vehicles/tempo-traveller/",
+  "24-seater-tempo-traveller-agra": "/en/vehicles/tempo-traveller/",
+  "ertiga-taxi-booking-agra": "/en/vehicles/ertiga/",
+  "innova-crysta-rental-in-agra": "/en/vehicles/innova-crysta/",
+  "taj-mahal-taxi-service": "/en/monuments/taj-mahal/",
+  "taj-mahal-sunrise-tour-package-by-car": "/en/packages/exclusive-tour-of-agra-for-1-day/",
+  "agra-fatehpur-sikri-one-day-tour": "/en/monuments/fatehpur-sikri/",
+  "same-day-agra-tour-from-delhi": "/en/packages/agra-sightseeing/",
+  "agra-local-sightseeing-taxi": "/en/packages/agra-sightseeing/",
+  "agra-to-khatushyamji-taxi": "/en/routes/",
+  "agra-local-full-day-tour": "/en/routes/",
+  "agra-cantt-station-transfer": "/en/routes/",
+  "fatehpur-sikri-excursion": "/en/monuments/fatehpur-sikri/",
+  "agra-to-sikandra-transfer": "/en/monuments/sikandra-akbar-tomb/",
+  "mughal-bazaar-shopping-circuit": "/en/routes/",
+  "agra-to-delhi-airport-taxi": "/en/routes/",
+  "agra-to-delhi-ncr-drop": "/en/routes/",
+  "agra-to-jaipur-cab": "/en/agra-to-jaipur-taxi/",
+  "agra-to-mathura-vrindavan-taxi": "/en/agra-to-mathura-taxi/",
+  "agra-to-lucknow-expressway-taxi": "/en/agra-to-lucknow-taxi/",
+  "agra-to-gwalior-cab": "/en/agra-to-gwalior-taxi/",
+  "agra-to-kanpur-taxi": "/en/routes/",
+  "agra-to-haridwar-rishikesh-taxi": "/en/agra-to-haridwar-taxi/",
+  "agra-to-ayodhya-dham-taxi": "/en/agra-to-ayodhya-taxi/",
+  "agra-to-bharatpur-gateway-taxi": "/en/routes/",
+};

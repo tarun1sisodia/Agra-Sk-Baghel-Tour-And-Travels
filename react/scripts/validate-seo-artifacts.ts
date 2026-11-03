@@ -290,7 +290,7 @@ async function main(): Promise<void> {
   assert.match(notFoundHtml, /https:\/\/wa\.me\/919762817598\?text=/i, "The 404 page must include a prefilled WhatsApp action.");
   for (const pathname of [
     "/",
-    "/en/packages/taj-mahal-sunrise-tour/",
+    "/en/packages/exclusive-tour-of-agra-for-1-day/",
     "/en/agra-to-delhi-taxi/",
     "/en/agra-to-jaipur-taxi/",
     "/en/fleet/",

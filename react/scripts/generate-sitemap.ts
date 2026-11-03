@@ -15,7 +15,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SEO_LANDING_SLUGS } from "../src/data/seoLandingSlugs.ts";
+import { SEO_LANDING_SLUGS, LANDING_REDIRECTS } from "../src/data/seoLandingSlugs.ts";
 import {
   isHindiIndexingEnabled,
   resolveSiteOrigin,
@@ -284,15 +284,9 @@ const vehicleSlugs = [
   "urbania",
 ];
 
-// 6 Tour Packages
-const packageSlugs = [
-  "taj-mahal-sunrise-tour",
-  "agra-sightseeing",
-  "agra-unhurried",
-  "mathura-vrindavan",
-  "gatimaan-express-agra-tour",
-  "golden-triangle",
-];
+// Tour Packages: DB-published snapshot only (no hardcoded slugs — frontend
+// renders only what is available in the database at build time)
+const packageSlugs: string[] = [];
 
 // 8 Route Pairs (English and Hindi transliterated pairs)
 const routePairs: Array<{ en: string; hi: string }> = [
@@ -357,7 +351,7 @@ export function getSitemapEntries(): SitemapEntry[] {
     });
   }
 
-  // 4. Packages (English)
+  // 4. Packages (English) — DB-published snapshot only (added below with the other published entries)
   for (const pkg of packageSlugs) {
     entries.push({
       path: `/en/packages/${pkg}/`,
@@ -385,6 +379,7 @@ export function getSitemapEntries(): SitemapEntry[] {
   }
 
   for (const slug of SEO_LANDING_SLUGS) {
+    if (LANDING_REDIRECTS[slug]) continue; // redirected to a dedicated page
     const p = `/en/${slug}/`;
     if (!existingPaths.has(p)) {
       existingPaths.add(p);
@@ -467,7 +462,7 @@ ${xmlUrls}
 }
 
 export function generateRobotsTxt(): string {
-  return `# Robots.txt — Agra SK Baghel Tour & Travels Agra
+  return `# Robots.txt — Agra SK Baghel Tour and Travels Agra
 User-agent: *
 Allow: /
 Disallow: /book.html
