@@ -1,3 +1,4 @@
+import { webpSrcSet, PACKAGE_CARD_SIZES } from "@/utils/packageImage";
 import React, { useMemo } from "react";
 import generatedPublishedTourPackages from "../../data/generated-published-tour-packages.json";
 import { resolveCatalogMediaUrl } from "../../services/catalog";
@@ -102,6 +103,8 @@ export function LatestPackagesSection({
                 <div className="relative h-44 w-full overflow-hidden bg-surface-container">
                   <img
                     src={imageUrl}
+                    srcSet={webpSrcSet(imageUrl)}
+                    sizes={PACKAGE_CARD_SIZES}
                     alt={p.name}
                     loading="lazy"
                     decoding="async"

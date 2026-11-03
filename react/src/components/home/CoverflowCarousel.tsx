@@ -15,6 +15,7 @@
  * and pagination indicator dots.
  */
 
+import { webpSrcSet, PACKAGE_CARD_SIZES } from "@/utils/packageImage";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { packages, type Package } from "../../data/catalogue";
 import { contact } from "../../data/contact";
@@ -195,6 +196,8 @@ export function CoverflowCarousel() {
                       <img
                         className="coverflow-card-img"
                         src={pkg.image}
+                        srcSet={webpSrcSet(pkg.image)}
+                        sizes={PACKAGE_CARD_SIZES}
                         alt={`${pkg.name} — ${pkg.places.slice(0, 3).join(" · ")}`}
                         loading={index === 0 ? "eager" : "lazy"}
                         draggable={false}

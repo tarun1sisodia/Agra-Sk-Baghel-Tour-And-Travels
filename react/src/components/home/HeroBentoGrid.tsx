@@ -1,3 +1,4 @@
+import { webpSrcSet, PACKAGE_CARD_SIZES } from "@/utils/packageImage";
 import { useEffect, useRef, useState } from "react";
 
 export interface DestinationSlide {
@@ -202,6 +203,8 @@ export function HeroBentoGrid({ onMainLandmarkChange }: HeroBentoGridProps) {
               <img
                 className="hero-media"
                 src={item.image}
+                srcSet={webpSrcSet(item.image)}
+                sizes={PACKAGE_CARD_SIZES}
                 alt={item.alt}
                 width="800"
                 height="600"
@@ -228,6 +231,8 @@ export function HeroBentoGrid({ onMainLandmarkChange }: HeroBentoGridProps) {
               <img
                 className="hero-media"
                 src={item.image}
+                srcSet={webpSrcSet(item.image)}
+                sizes={PACKAGE_CARD_SIZES}
                 alt={item.alt}
                 width="800"
                 height="600"
