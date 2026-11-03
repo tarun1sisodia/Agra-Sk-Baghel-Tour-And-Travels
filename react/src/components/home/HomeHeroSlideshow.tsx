@@ -159,7 +159,7 @@ export function HomeHeroSlideshow() {
           src={slide.webp.large}
           alt={slide.alt || "Chauffeur taxi service and tour in Agra"}
           fetchPriority={activeIndex === 0 ? "high" : "auto"}
-          decoding={activeIndex === 0 ? "sync" : "async"}
+          decoding="async"
           loading={activeIndex === 0 ? "eager" : "lazy"}
           width={1600}
           height={900}

@@ -75,8 +75,13 @@ export default defineConfig(({ mode }) => {
             if (id.includes("node_modules/@supabase/")) {
               return "vendor-supabase";
             }
-            if (id.includes("/src/utils/distance.ts") || id.includes("/src/data.ts")) {
+            if (id.includes("/src/data.ts")) {
               return "data-catalogue";
+            }
+            // Geo/distance helpers are only needed by booking flows — keep them
+            // out of the eagerly-loaded data-catalogue chunk.
+            if (id.includes("/src/utils/distance.ts") || id.includes("/src/utils/customDistance.ts")) {
+              return "booking-geo";
             }
           },
         },
