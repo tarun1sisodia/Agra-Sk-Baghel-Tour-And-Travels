@@ -23,6 +23,7 @@ import {
   fetchPublishedLocalTransfers,
   type CompressedRoute,
 } from "../services/catalogManifest";
+import { webpSrcSet, PACKAGE_CARD_SIZES } from "@/utils/packageImage";
 import { packages as staticPackages, type TourPackage } from "../data";
 import { onUserInteractionOrIdle } from "../utils/deferredRevalidation";
 
@@ -719,7 +720,8 @@ export function HomePage({ language = "en" }: HomePageProps) {
                         <img
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           src={image}
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"
+                          srcSet={webpSrcSet(image)}
+                          sizes={PACKAGE_CARD_SIZES}
                           width={384}
                           height={160}
                           loading="lazy"
