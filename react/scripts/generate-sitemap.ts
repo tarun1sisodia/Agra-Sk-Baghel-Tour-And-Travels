@@ -284,15 +284,9 @@ const vehicleSlugs = [
   "urbania",
 ];
 
-// 6 Tour Packages
-const packageSlugs = [
-  "taj-mahal-sunrise-tour",
-  "agra-sightseeing",
-  "agra-unhurried",
-  "mathura-vrindavan",
-  "gatimaan-express-agra-tour",
-  "golden-triangle",
-];
+// Tour Packages: DB-published snapshot only (no hardcoded slugs — frontend
+// renders only what is available in the database at build time)
+const packageSlugs: string[] = [];
 
 // 8 Route Pairs (English and Hindi transliterated pairs)
 const routePairs: Array<{ en: string; hi: string }> = [
@@ -357,7 +351,7 @@ export function getSitemapEntries(): SitemapEntry[] {
     });
   }
 
-  // 4. Packages (English)
+  // 4. Packages (English) — DB-published snapshot only (added below with the other published entries)
   for (const pkg of packageSlugs) {
     entries.push({
       path: `/en/packages/${pkg}/`,

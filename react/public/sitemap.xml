@@ -121,48 +121,6 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/vehicles/urbania/" />
   </url>
   <url>
-    <loc>https://agraskbagheltourandtravels.com/en/packages/taj-mahal-sunrise-tour/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en-IN" href="https://agraskbagheltourandtravels.com/en/packages/taj-mahal-sunrise-tour/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/packages/taj-mahal-sunrise-tour/" />
-  </url>
-  <url>
-    <loc>https://agraskbagheltourandtravels.com/en/packages/agra-sightseeing/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en-IN" href="https://agraskbagheltourandtravels.com/en/packages/agra-sightseeing/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/packages/agra-sightseeing/" />
-  </url>
-  <url>
-    <loc>https://agraskbagheltourandtravels.com/en/packages/agra-unhurried/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en-IN" href="https://agraskbagheltourandtravels.com/en/packages/agra-unhurried/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/packages/agra-unhurried/" />
-  </url>
-  <url>
-    <loc>https://agraskbagheltourandtravels.com/en/packages/mathura-vrindavan/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en-IN" href="https://agraskbagheltourandtravels.com/en/packages/mathura-vrindavan/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/packages/mathura-vrindavan/" />
-  </url>
-  <url>
-    <loc>https://agraskbagheltourandtravels.com/en/packages/gatimaan-express-agra-tour/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en-IN" href="https://agraskbagheltourandtravels.com/en/packages/gatimaan-express-agra-tour/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/packages/gatimaan-express-agra-tour/" />
-  </url>
-  <url>
-    <loc>https://agraskbagheltourandtravels.com/en/packages/golden-triangle/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en-IN" href="https://agraskbagheltourandtravels.com/en/packages/golden-triangle/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/packages/golden-triangle/" />
-  </url>
-  <url>
     <loc>https://agraskbagheltourandtravels.com/en/agra-to-delhi-taxi/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>

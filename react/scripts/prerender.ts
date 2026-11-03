@@ -71,22 +71,9 @@ const vehicleRoutes = [
   "urbania",
 ];
 
-const packageRoutes = [
-  "taj-mahal-sunrise-tour",
-  "agra-sightseeing",
-  "agra-unhurried",
-  "mathura-vrindavan",
-  "gatimaan-express-agra-tour",
-  "golden-triangle",
-  // Static catalog package slugs (previously missing → static 404 in crawl)
-  "same-day-tour-of-fatehpur-sikri",
-  "same-day-tour-of-jaipur",
-  "same-day-visit-of-bharatpur",
-  "10-iconic-attractions-and-places-to-visit-in-delhi",
-  "visit-the-best-markets-in-agra-to-shop-book-agra-taxi-for-shop",
-  "everything-you-should-know-about-agra-tourism-get-the-best-car-rent-service-in-agra",
-  "golden-triangle-tour-3-nights-4-days",
-];
+// Package detail pages are rendered from the DB-published snapshot only
+// (getPublishedTourPackageRoutes below) — no hardcoded slugs.
+const packageRoutes: string[] = [];
 
 function getPublishedPackageRoutes(): string[] {
   const snapshotPath = join(reactRoot, "src", "data", "generated-published-catalog.json");
