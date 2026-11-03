@@ -330,6 +330,8 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   alt={`${packageName} monument vantage`}
                   src={secImg1}
+                  loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src = "/assets/places/gallery/taj-mahal-01.jpg";
                   }}
@@ -345,6 +347,8 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   alt={`${packageName} heritage hospitality`}
                   src={secImg2}
+                  loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src = "/assets/places/gallery/agra-fort-01.jpg";
                   }}
@@ -374,6 +378,8 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
                   >
                     <img
                       src={url}
+                      loading="lazy"
+                      decoding="async"
                       alt={g.alt || `${packageName} photo ${idx + 1}`}
                       className="w-full h-full object-cover"
                       onError={(e) => {

@@ -133,6 +133,7 @@ export function NotFoundPage({ language = "en" }: NotFoundPageProps) {
                       alt="Toyota Innova Crysta tour vehicle"
                       width={1200}
                       height={1050}
+                      loading="lazy"
                       decoding="async"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight/80 via-transparent to-transparent" />
