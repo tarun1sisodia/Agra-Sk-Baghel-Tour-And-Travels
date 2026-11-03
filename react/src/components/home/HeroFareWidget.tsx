@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { cities, vehicles } from "../../data/catalogue";
 import {
   findRoute,
@@ -39,7 +39,12 @@ export function HeroFareWidget() {
   const [to, setTo] = useState("delhi");
   const [localKey, setLocalKey] = useState<LocalPackageKey>("8hr-80km");
   const [vehicleId, setVehicleId] = useState<VehicleId>("sedan");
-  const [date, setDate] = useState(localTomorrow());
+  // Hydration-safe: the default date depends on the browser timezone, so it must
+  // not be computed during the initial (prerendered) render — set it in an effect.
+  const [date, setDate] = useState("");
+  useEffect(() => {
+    setDate(localTomorrow());
+  }, []);
   const [passengers, setPassengers] = useState(2);
 
   // Derived live fare quote (pure, no side effects)
@@ -144,6 +149,7 @@ export function HeroFareWidget() {
                 type="date"
                 value={date}
                 min={localTomorrow()}
+                suppressHydrationWarning
                 onChange={(e) => setDate(e.target.value)}
                 aria-label="Travel date"
               />
@@ -175,6 +181,7 @@ export function HeroFareWidget() {
                 type="date"
                 value={date}
                 min={localTomorrow()}
+                suppressHydrationWarning
                 onChange={(e) => setDate(e.target.value)}
                 aria-label="Tour date"
               />
