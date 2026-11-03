@@ -3,7 +3,7 @@
  * Implements cache-first strategy for static assets with runtime caching for API
  */
 
-const CACHE_NAME = 'skbaghel-v20261101';
+const CACHE_NAME = 'skbaghel-v20261103';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -67,6 +67,13 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // HTML navigations - network-first so the "no-cache" header on HTML keeps
+    // serving fresh deploys; fall back to the cached shell only when offline.
+    if (event.request.mode === 'navigate') {
+        event.respondWith(networkFirstNavigate(event.request));
+        return;
+    }
+
     // Static assets - cache-first with network fallback
     event.respondWith(cacheFirst(event.request));
 });
@@ -91,6 +98,23 @@ async function cacheFirst(request) {
         if (request.headers.get('accept')?.includes('text/html')) {
             return cache.match('/index.html');
         }
+        throw error;
+    }
+}
+
+// Network-first for HTML navigations, with the cached app shell as offline fallback
+async function networkFirstNavigate(request) {
+    try {
+        const response = await fetch(request);
+        if (response.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, response.clone());
+        }
+        return response;
+    } catch (error) {
+        const cache = await caches.open(CACHE_NAME);
+        const cached = (await cache.match(request)) || (await cache.match('/index.html'));
+        if (cached) return cached;
         throw error;
     }
 }

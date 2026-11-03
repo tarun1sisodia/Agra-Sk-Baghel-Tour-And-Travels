@@ -39,6 +39,10 @@
 /*.html
   Cache-Control: no-cache, must-revalidate
 
+# The service worker script itself must always revalidate so updates propagate.
+/sw.js
+  Cache-Control: no-cache, must-revalidate
+
 # Sitemap and robots.txt — short TTL so search engines get fresh copies.
 /sitemap.xml
   Cache-Control: public, max-age=3600
