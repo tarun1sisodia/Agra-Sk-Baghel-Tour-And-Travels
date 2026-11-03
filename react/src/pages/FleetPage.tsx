@@ -335,7 +335,15 @@ const TIER_TO_ID: Record<string, string> = {
   urbania: "urbania",
 };
 
+/** Maps a fleet vehicle id to its public detail-page slug under /vehicles/. */
+function vehicleDetailSlug(id: string): string {
+  if (id === "innova") return "innova-crysta";
+  if (id === "tempo") return "tempo-traveller";
+  return id;
+}
+
 export function FleetPage({ language = "en" }: FleetPageProps) {
+  const langPrefix = language === "hi" ? "/hi" : "/en";
   const [activeCategory, setActiveCategory] = useState<"all" | "sedan" | "suv" | "luxury" | "tempo_traveller">("all");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   // Live fleet from the admin "Fleet & Fare Rules" editor — names, seats,
@@ -652,7 +660,12 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                 <div>
                   <div className="flex flex-wrap items-baseline justify-between gap-2 mb-1.5">
                     <h2 className="font-headline-md text-base sm:text-lg text-ink-charcoal font-semibold">
-                      {veh.name}
+                      <a
+                        href={`${langPrefix}/vehicles/${vehicleDetailSlug(veh.id)}/`}
+                        className="hover:text-primary transition-colors"
+                      >
+                        {veh.name}
+                      </a>
                     </h2>
                     <span className="font-label-caps text-label-lg px-2 py-0.5 rounded bg-sandstone-wash text-ink-charcoal font-bold border border-border-warm">
                       {veh.classTag}
@@ -768,6 +781,13 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-space-xs border-t border-border-warm/60">
                   <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                    <a
+                      className="w-full sm:w-auto px-3.5 py-2 rounded-lg bg-surface-container hover:bg-surface-container-high border border-border-warm/60 text-ink-charcoal font-label-lg text-xs inline-flex items-center justify-center gap-1.5 transition-colors shrink-0 font-semibold"
+                      href={`${langPrefix}/vehicles/${vehicleDetailSlug(veh.id)}/`}
+                    >
+                      <span className="material-symbols-outlined text-icon-14">info</span>
+                      <span>View Details</span>
+                    </a>
                     <a
                       className="w-full sm:w-auto px-3.5 py-2 rounded-lg bg-black hover:bg-neutral-900 border border-white/10 text-white font-label-lg text-xs inline-flex items-center justify-center gap-1.5 transition-colors shrink-0 font-semibold active:scale-[0.98]"
                       style={{ color: "#ffffff" }}
@@ -904,7 +924,12 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                 {fleet.map((v) => (
                   <tr key={v.id} className="hover:bg-white/40 transition-colors">
                     <td className="py-3 px-4 align-middle">
-                      <span className="block font-title-md text-title-md text-ink-charcoal font-semibold">{v.name}</span>
+                      <a
+                        href={`${langPrefix}/vehicles/${vehicleDetailSlug(v.id)}/`}
+                        className="block font-title-md text-title-md text-ink-charcoal font-semibold hover:text-primary transition-colors"
+                      >
+                        {v.name}
+                      </a>
                       <span className="font-body-sm text-body-sm text-secondary font-normal">{v.classTag}</span>
                     </td>
                     <td className="py-3 px-4 align-middle text-on-surface-variant font-medium whitespace-nowrap">{v.specs.seats}</td>
