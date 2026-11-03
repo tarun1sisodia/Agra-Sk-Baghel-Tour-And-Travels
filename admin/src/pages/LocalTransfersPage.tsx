@@ -103,6 +103,11 @@ export function LocalTransfersPage({ user }: { user: AdminUser }) {
     if (!localForm.name.trim()) return alert("Name is required.");
     const code = localForm.packageCode.trim();
     if (!code) return alert("Code is required.");
+    if (Object.values(localForm.extraRates).some((rate) =>
+      !Number.isFinite(rate.per_km) || rate.per_km <= 0 || !Number.isFinite(rate.per_hr) || rate.per_hr <= 0
+    )) {
+      return alert("Enter both a positive extra KM and extra hour rate for each configured tier, or clear both fields.");
+    }
 
     setBusy(true);
     try {

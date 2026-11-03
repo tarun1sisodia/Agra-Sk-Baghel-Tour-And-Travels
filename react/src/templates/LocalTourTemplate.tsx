@@ -5,6 +5,7 @@ import { JsonLd, buildBreadcrumbSchema, buildFaqSchema, buildTaxiServiceSchema, 
 import { CANONICAL_DOMAIN } from "../components/seo/SeoHead";
 import { WhatsAppIcon } from "../components/icons";
 import { GroupedVehicleSection } from "../components/fleet/GroupedVehicleSection";
+import { getLocalExtraRateFaq, getLocalExtraRateRows } from "./localTourRates";
 
 export interface DossierLocalPackageItem {
   id: string;
@@ -17,8 +18,8 @@ export interface DossierLocalPackageItem {
   parkingNote?: string | null;
   fleetPrices: Record<string, number>;
   usePerKm?: boolean;
-  extraRates?: Record<string, { per_km?: number; per_hr?: number }>;
-  nightChargeInr?: number;
+  extraRates?: Record<string, { per_km?: number; per_hr?: number }> | null;
+  nightChargeInr?: number | null;
   status?: string;
   isActive?: boolean;
   createdAt?: string;
@@ -31,13 +32,6 @@ export interface LocalTourTemplateProps {
   language?: SupportedLanguage;
   item: DossierLocalPackageItem;
 }
-
-const VEHICLE_GROUPS_EXTRA_RATES = [
-  { group: "Sedan (Dzire, City)", seats: "4 Passengers", perKm: 10, perHr: 150 },
-  { group: "SUV (Ertiga, Innova Crysta)", seats: "6-7 Passengers", perKm: 14, perHr: 200 },
-  { group: "Tempo Traveller (12/17 Seater)", seats: "12–16 Passengers", perKm: 25, perHr: 400 },
-  { group: "Luxury Executive (Camry, Vellfire)", seats: "4–6 Passengers", perKm: 34, perHr: 600 },
-];
 
 function formatFareDate(dateStr?: string | null): string {
   if (!dateStr) return "October 2026";
@@ -57,6 +51,7 @@ export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
   const startingFare = Number(item.fleetPrices?.sedan || (validRates.length > 0 ? Math.min(...validRates) : 0));
   const tokenAdvance = Math.round(startingFare * 0.28);
   const fareDateFormatted = formatFareDate(item.updatedAt);
+  const extraRateRows = getLocalExtraRateRows(item.extraRates);
 
   const bookingUrl = `/book.html?category=local_package&product=${encodeURIComponent(item.slug)}&from=Agra&to=${encodeURIComponent(item.name)}`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
@@ -76,7 +71,7 @@ export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
     },
     {
       q: `How are extra hours and extra kilometers billed?`,
-      a: `If your tour exceeds ${item.durationHours} hours or ${item.includedKm} km, extra rates apply strictly at published transparent tariffs (₹10/km & ₹150/hr for Sedan; ₹14/km & ₹200/hr for Ertiga; ₹18/km & ₹250/hr for Innova Crysta). There are zero hidden fees.`,
+      a: getLocalExtraRateFaq(extraRateRows, item.durationHours, item.includedKm),
     },
     {
       q: `Are monument entry fees and parking included?`,
@@ -288,7 +283,7 @@ export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
               Extra Kilometer &amp; Extra Hour Rates
             </h2>
             <p className="font-body-md text-body-md text-on-surface-variant">
-              Exceeded your tour package time or distance? Here are our standard, publicly published overtime and extra kilometer rates across each vehicle tier.
+              Exceeded your tour package time or distance? See the configured extra kilometer and overtime rates for this tour. Unlisted rates are available on request.
             </p>
           </div>
 
@@ -304,14 +299,14 @@ export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-warm/30 text-body-md text-on-surface-variant">
-                {VEHICLE_GROUPS_EXTRA_RATES.map((g) => (
-                  <tr key={g.group} className="hover:bg-sandstone-wash/20 transition-colors">
+                {extraRateRows.map((g) => (
+                  <tr key={g.key} className="hover:bg-sandstone-wash/20 transition-colors">
                     <td className="py-3.5 px-4 font-semibold text-ink-charcoal">{g.group}</td>
                     <td className="py-3.5 px-4 text-secondary">{g.seats}</td>
-                    <td className="py-3.5 px-4 text-ink-charcoal font-medium">₹{g.perKm} / km</td>
-                    <td className="py-3.5 px-4 text-ink-charcoal font-medium">₹{g.perHr} / hr</td>
+                    <td className="py-3.5 px-4 text-ink-charcoal font-medium">{g.perKm !== null ? `₹${g.perKm.toLocaleString("en-IN")} / km` : "On request"}</td>
+                    <td className="py-3.5 px-4 text-ink-charcoal font-medium">{g.perHr !== null ? `₹${g.perHr.toLocaleString("en-IN")} / hr` : "On request"}</td>
                     <td className="py-3.5 px-4 text-success-jade font-semibold">
-                      {item.nightChargeInr && item.nightChargeInr > 0 ? `₹${item.nightChargeInr}` : "₹0 (Day Tours)"}
+                      {item.nightChargeInr == null ? "On request" : item.nightChargeInr > 0 ? `₹${item.nightChargeInr.toLocaleString("en-IN")}` : "₹0 (Day Tours)"}
                     </td>
                   </tr>
                 ))}
