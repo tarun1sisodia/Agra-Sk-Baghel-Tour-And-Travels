@@ -109,9 +109,28 @@ function DetailPage({ detail, language }: { detail: Vehicle | Package | Route; l
           <a className="button button-outline" href={`/book.html?${isVehicle ? `vehicle=${detail.id}` : isPackage ? `package=${detail.slug}` : `route=${detail.id}`}`}>Book now ↗</a>
         </div>
       </section>
-      {vehicle && <section className="detail-media-section"><img src={vehicle.image} alt={`${vehicle.name} hire in Agra`} width="480" height="300" /><div><p className="eyebrow">{vehicle.klass}</p><h2>Comfort for {vehicle.suitable.toLowerCase()}.</h2><p className="spec-row">{vehicle.tags.join(" · ")}</p><p className="fare">{vehicle.rateRange}</p><ul className="check-list">{vehicle.models.map((model) => <li key={model}>{model}</li>)}</ul></div></section>}
+      {vehicle && <section className="detail-media-section"><img src={vehicle.image} alt={`${vehicle.name} hire in Agra`} width="480" height="300" /><div><p className="eyebrow">{vehicle.klass}</p><h2>{vehicle.name}: comfort for {vehicle.suitable.toLowerCase()}.</h2><p className="spec-row">{vehicle.tags.join(" · ")}</p><p className="fare">{vehicle.rateRange}</p><ul className="check-list">{vehicle.models.map((model) => <li key={model}>{model}</li>)}</ul></div></section>}
       {tour && <><section className="detail-media-section"><img src={tour.image} alt={`${tour.name} from Agra`} width="480" height="300" /><div><p className="eyebrow">{tour.kicker} · {tour.duration}</p><h2>See the highlights without rushing.</h2><p>{tour.places.join(" → ")}</p><p className="fare">From ₹{tour.from.toLocaleString("en-IN")}</p></div></section><section className="detail-content"><h2>What this journey includes.</h2><div className="detail-columns"><div><h3>Included</h3><ul className="check-list">{tour.includes.map((item) => <li key={item}>{item}</li>)}</ul></div><div><h3>Not included</h3><ul className="cross-list">{tour.excludes.map((item) => <li key={item}>{item}</li>)}</ul></div></div></section></>}
-      {route && <section className="detail-content"><p className="eyebrow">Sample fare</p><h2>Compare vehicles for {cities.find((city) => city.id === route.from)?.name} to {cities.find((city) => city.id === route.to)?.name}.</h2><p>{route.duration} · {route.km} km · private chauffeur-driven vehicle.</p><div className="fare-table-wrap"><table className="fare-table"><thead><tr><th>Vehicle</th><th>Seats</th><th>One way</th><th>Book</th></tr></thead><tbody>{vehicles.map((candidate) => <tr key={candidate.id}><td><a href={`${languagePrefix}/vehicles/${candidate.id === "innova" ? "innova-crysta" : candidate.id === "tempo" ? "tempo-traveller" : candidate.id}/`}>{candidate.name}</a></td><td>{candidate.seats}</td><td><strong>{route.fares[candidate.id] ? `₹${route.fares[candidate.id]!.toLocaleString("en-IN")}` : "On request"}</strong></td><td><a className="text-link" href={`/book.html?route=${route.id}&vehicle=${candidate.id}`}>Book ↗</a></td></tr>)}</tbody></table></div></section>}
+      {route && (() => {
+        const guidance = routeGuidance[route.id.replace(/-to-/, "-").replace(/-taxi$/, "")];
+        const fromName = cities.find((city) => city.id === route.from)?.name || route.from;
+        const toName = cities.find((city) => city.id === route.to)?.name || route.to;
+        return (
+        <>
+        <section className="detail-content"><p className="eyebrow">Sample fare</p><h2>Compare vehicles for {fromName} to {toName}.</h2><p>{route.duration} · {route.km} km · private chauffeur-driven vehicle.</p><div className="fare-table-wrap"><table className="fare-table"><thead><tr><th>Vehicle</th><th>Seats</th><th>One way</th><th>Book</th></tr></thead><tbody>{vehicles.map((candidate) => <tr key={candidate.id}><td><a href={`${languagePrefix}/vehicles/${candidate.id === "innova" ? "innova-crysta" : candidate.id === "tempo" ? "tempo-traveller" : candidate.id}/`}>{candidate.name}</a></td><td>{candidate.seats}</td><td><strong>{route.fares[candidate.id] ? `₹${route.fares[candidate.id]!.toLocaleString("en-IN")}` : "On request"}</strong></td><td><a className="text-link" href={`/book.html?route=${route.id}&vehicle=${candidate.id}`}>Book ↗</a></td></tr>)}</tbody></table></div></section>
+        <section className="detail-content">
+          <p className="eyebrow">Route guide</p>
+          <h2>{fromName} to {toName} by road: what to expect.</h2>
+          <p>{fromName} to {toName} is a {route.km} km, roughly {route.duration} drive via {guidance?.highway || "the fastest verified highway corridor"}{guidance ? ` (${guidance.transitTime})` : ""}. Every booking is a private chauffeur-driven vehicle from Agra SK Baghel Tour &amp; Travels with transparent fares across our fleet — Sedan, Ertiga, Innova Crysta, and Tempo Traveller — with no surge pricing at any hour.</p>
+          <div className="detail-columns">
+            <div><h3>Best departure time</h3><p>{guidance?.departureTip[language] || `Plan an early departure from ${fromName} to reach ${toName} comfortably within ${route.duration}, avoiding city traffic and toll-plaza rush.`}</p></div>
+            <div><h3>Rest stops, tolls &amp; inclusions</h3><p>{guidance ? `${guidance.restStops[language]} ${guidance.tollTaxPolicy[language]}` : `Comfortable rest stops are available en route between ${fromName} and ${toName}. Highway tolls and parking are either included in your confirmed one-way fare or billed transparently at actuals — never estimated. Fuel, driver allowance, and 24x7 GPS-tracked dispatch support are always included.`}</p></div>
+          </div>
+          <p>Use the fare table above to compare every vehicle class for the {fromName}–{toName} corridor; the 28% advance token locks your vehicle, and the balance is paid to the driver at trip end. For round trips, the standard 300 km/day minimum applies with per-km billing beyond it.</p>
+        </section>
+        </>
+        );
+      })()}
     </main>
   );
 }
