@@ -190,7 +190,7 @@ function getSeoBase(
   }
   if (isBooking) {
     return {
-      title: "Book a ride | Agra SK Baghel Tour and Travels",
+      title: "Book a Ride in Agra | SK Baghel Travels",
       description: "Compare vehicles and prepare a transparent mock booking from Agra.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Agra taxi booking", "Agra cab reservation", "online taxi booking Agra"],
@@ -404,7 +404,7 @@ function getSeoBase(
 
   if (section === "about") {
     return {
-      title: "About Us | Agra SK Baghel Tour & Travels Agra",
+      title: "About Us — Agra Taxi Desk | SK Baghel Travels",
       description: "Founded in Taj Ganj, Agra. Over 15 years of trusted chauffeur-driven outstation cabs, verified drivers, and transparent zero-commission heritage tours.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["About Agra SK Baghel Tour and Travels", "Agra travel desk", "Taj Ganj taxi service", "verified drivers Agra", "heritage tours"],
@@ -413,7 +413,7 @@ function getSeoBase(
 
   if (section === "contact") {
     return {
-      title: "Contact Us: 24×7 Travel Desk | Agra SK Baghel",
+      title: "Contact Us — Agra Cabs 24x7 | SK Baghel Travels",
       description: "Get in touch with our 24×7 Taj Ganj dispatch desk for outstation cabs, sunrise Taj Mahal tours, and luxury group travel in Agra. Call +91 97628 17598.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Contact Agra SK Baghel Tour and Travels", "Agra taxi phone number", "Taj Ganj dispatch desk", "24x7 cab booking"],
@@ -422,7 +422,7 @@ function getSeoBase(
 
   if (section === "faq") {
     return {
-      title: "Agra Taxi FAQs & Fare Rules | Agra SK Baghel Travels",
+      title: "Agra Taxi FAQs & Fare Rules | SK Baghel Travels",
       description: "Find clear answers about outstation taxi rules, 300 km/day minimums, Yamuna Expressway toll inclusions, night allowances, and our 24-hr refund policy.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Agra taxi FAQ", "cab booking questions", "outstation 300km rule", "night allowance taxi", "cancellation refund policy"],
@@ -440,7 +440,7 @@ function getSeoBase(
 
   if (section === "privacy") {
     return {
-      title: "Privacy Policy | Agra SK Baghel Tour & Travels Agra",
+      title: "Privacy Policy | Agra SK Baghel Tour and Travels",
       description: "Learn how we handle Google Sign-In, travel and booking information, service providers, retention, and privacy requests.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Privacy policy", "DPDP Act 2023", "passenger data protection", "confidentiality"],
@@ -449,7 +449,7 @@ function getSeoBase(
 
   if (section === "rent" || pathname.includes("/taxis/rent") || pathname.includes("/rent")) {
     return {
-      title: "Rent a Taxi in Agra: Fleet & Cabs | SK Baghel Travels",
+      title: "Rent a Taxi in Agra Fleet | SK Baghel Travels",
       description: "Rent verified taxis in Agra with dedicated chauffeurs. Browse Sedans, SUVs, Luxury and Tempo Travellers. Transparent call-first quotes and doorstep pickup.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Agra taxi rental", "rent a cab Agra", "Agra car rental with driver", "Tempo Traveller rental Agra"],
@@ -458,7 +458,7 @@ function getSeoBase(
 
   if (section === "404") {
     return {
-      title: "404 Page Not Found — Agra SK Baghel Tour and Travels Agra",
+      title: "404 Page Not Found | SK Baghel Tour and Travels",
       description: "Uncharted route — let us guide you back. Search verified Agra cabs, outstation routes and private tour packages.",
       ogImage: "/assets/brand/og-banner.webp",
     };
