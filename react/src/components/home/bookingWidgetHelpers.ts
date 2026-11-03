@@ -194,7 +194,7 @@ export function buildWhatsAppCustomEnquiryHref({
 }: CustomEnquiryParams): string {
   const tripText = mode === "round" ? "Round Trip" : "One Way";
   const num = whatsappNumber || "919762817598";
-  const msg = `Hello Agra SK Baghel Tour and Travels, I am looking for a custom route from ${origin.trim()} to ${destination.trim()} (${tripText}, Travel Date: ${pickupDate}${mode === "round" && returnDate ? `, Return: ${returnDate}` : ""}, Vehicle Class: ${selectedVehicle || "Sedan"}). Please provide availability and fare quotation.`;
+  const msg = `Hello Agra SK Baghel Tour & Travels, I am looking for a custom route from ${origin.trim()} to ${destination.trim()} (${tripText}, Travel Date: ${pickupDate}${mode === "round" && returnDate ? `, Return: ${returnDate}` : ""}, Vehicle Class: ${selectedVehicle || "Sedan"}). Please provide availability and fare quotation.`;
   return `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
 }
 

@@ -67,7 +67,7 @@ export function VehicleDetailPage({ vehicle }: VehicleDetailPageProps) {
   );
 
   const bookingUrl = `/book/?vehicle=${vehicleSlug}&step=2`;
-  const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(`Hello Agra SK Baghel Tour and Travels Desk, I would like to reserve the ${vehicle.name} for an upcoming journey.`)}`;
+  const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(`Hello Agra SK Baghel Tour & Travels Desk, I would like to reserve the ${vehicle.name} for an upcoming journey.`)}`;
 
   return (
     <div className="flex flex-col w-full bg-surface">

@@ -320,7 +320,7 @@ const FLEET_FAQS = [
   },
   {
     q: "Are the vehicles yellow-plate commercial tourist cabs?",
-    a: "Every vehicle operated by Agra SK Baghel Tour and Travels carries a registered commercial yellow plate, All-India Tourist Permit (AITP), up-to-date fitness certificates, and comprehensive passenger insurance.",
+    a: "Every vehicle operated by Agra SK Baghel Tour & Travels carries a registered commercial yellow plate, All-India Tourist Permit (AITP), up-to-date fitness certificates, and comprehensive passenger insurance.",
   },
 ];
 
@@ -524,7 +524,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                 Hire Innova Crysta, Ertiga, or Tempo Traveller in Agra for Family Tours
               </h2>
               <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                Traveling with a large family group or corporate team requires unmatched comfort and ample luggage space. At <strong className="text-on-surface font-semibold">Agra SK Baghel Tour and Travels</strong>, we manage a diverse, well-maintained commercial fleet tailored specifically to your group size.
+                Traveling with a large family group or corporate team requires unmatched comfort and ample luggage space. At <strong className="text-on-surface font-semibold">Agra SK Baghel Tour & Travels</strong>, we manage a diverse, well-maintained commercial fleet tailored specifically to your group size.
               </p>
             </div>
             <div className="glass-card-frosted p-6 sm:p-8 rounded-3xl border border-white/60 shadow-xs flex flex-col gap-2.5">

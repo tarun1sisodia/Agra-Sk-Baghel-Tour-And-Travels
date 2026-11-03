@@ -467,7 +467,7 @@ ${xmlUrls}
 }
 
 export function generateRobotsTxt(): string {
-  return `# Robots.txt — Agra SK Baghel Tour and Travels Agra
+  return `# Robots.txt — Agra SK Baghel Tour & Travels Agra
 User-agent: *
 Allow: /
 Disallow: /book.html

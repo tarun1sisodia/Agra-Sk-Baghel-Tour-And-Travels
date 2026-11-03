@@ -452,7 +452,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-space-lg max-w-5xl mx-auto text-on-surface-variant font-body-md text-body-md leading-relaxed">
               <div className="p-space-xl rounded-3xl glass-card-frosted shadow-md flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                 <p>
-                  Welcome to <strong className="text-on-surface font-semibold">Agra SK Baghel Tour and Travels</strong>, your premier companion for local sightseeing and outstation cab booking in Agra. Whether you need a hassle-free drop from <strong className="text-on-surface font-semibold">Agra Cantt railway station taxi service</strong>, an early morning <strong className="text-on-surface font-semibold">taj mahal sunrise tour package by car</strong>, or a comfortable family outstation trip, our well-maintained fleet and expert local chauffeurs ensure a smooth ride. We specialize in custom travel itineraries originating from Agra to anywhere across India, delivering unmatched safety, pocket-friendly transparent billing, and 24/7 client support.
+                  Welcome to <strong className="text-on-surface font-semibold">Agra SK Baghel Tour & Travels</strong>, your premier companion for local sightseeing and outstation cab booking in Agra. Whether you need a hassle-free drop from <strong className="text-on-surface font-semibold">Agra Cantt railway station taxi service</strong>, an early morning <strong className="text-on-surface font-semibold">taj mahal sunrise tour package by car</strong>, or a comfortable family outstation trip, our well-maintained fleet and expert local chauffeurs ensure a smooth ride. We specialize in custom travel itineraries originating from Agra to anywhere across India, delivering unmatched safety, pocket-friendly transparent billing, and 24/7 client support.
                 </p>
                 <div className="mt-4 pt-4 border-t border-border-warm/40 flex items-center justify-between text-primary font-semibold">
                   <a href="/en/packages/" className="inline-flex items-center gap-1 hover:underline">
@@ -1011,7 +1011,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                       </p>
                       <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
                         <a
-                          href={`https://wa.me/919762817598?text=${encodeURIComponent(`Hello Agra SK Baghel Tour and Travels, following up on my booking inquiry for ${origin} to ${destination} on ${inquiryDate}.`)}`}
+                          href={`https://wa.me/919762817598?text=${encodeURIComponent(`Hello Agra SK Baghel Tour & Travels, following up on my booking inquiry for ${origin} to ${destination} on ${inquiryDate}.`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{ color: "#ffffff" }}

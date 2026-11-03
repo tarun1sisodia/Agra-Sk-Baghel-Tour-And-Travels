@@ -355,7 +355,7 @@ export async function prerender(): Promise<void> {
     .replace(/<title>.*?<\/title>/, "<title>Customer Reviews | Agra SK Baghel Travels</title>")
     .replace(
       /<meta name="description" content="[^"]*" \/>/,
-      '<meta name="description" content="Read authentic traveler reviews for Agra SK Baghel Tour and Travels. Verified ratings on private Taj Mahal tours, outstation cabs & Tempo Travellers." />',
+      '<meta name="description" content="Read authentic traveler reviews for Agra SK Baghel Tour & Travels. Verified ratings on private Taj Mahal tours, outstation cabs & Tempo Travellers." />',
     )
     .replace(
     "</head>",
@@ -468,7 +468,7 @@ export async function prerender(): Promise<void> {
         `<meta property="og:image:alt" content="${escapeHtml(seo.title)}" />`,
         `<meta property="og:locale" content="${ogLocale}" />`,
         ogLocaleAlt ? `<meta property="og:locale:alternate" content="${ogLocaleAlt}" />` : "",
-        `<meta property="og:site_name" content="Agra SK Baghel Tour and Travels" />`,
+        `<meta property="og:site_name" content="Agra SK Baghel Tour & Travels" />`,
         `<meta property="og:type" content="website" />`,
         `<meta name="twitter:card" content="summary_large_image" />`,
         `<meta name="twitter:title" content="${escapeHtml(seo.title)}" />`,

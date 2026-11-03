@@ -293,7 +293,7 @@ export function InstantRouteCalculator({
             </a>
             <a
               href={`https://wa.me/${contact.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                `Hello Agra SK Baghel Tour and Travels, I would like to book a ${selectedTier.toUpperCase()} for ${matchedEntry.o} to ${matchedEntry.d} (${matchedEntry.km} km).`
+                `Hello Agra SK Baghel Tour & Travels, I would like to book a ${selectedTier.toUpperCase()} for ${matchedEntry.o} to ${matchedEntry.d} (${matchedEntry.km} km).`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -325,7 +325,7 @@ export function InstantRouteCalculator({
           </p>
           <a
             href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-              `Hello Agra SK Baghel Tour and Travels, I am looking for a custom route from ${originInput} to ${destInput}. Please provide availability and fare quotation.`
+              `Hello Agra SK Baghel Tour & Travels, I am looking for a custom route from ${originInput} to ${destInput}. Please provide availability and fare quotation.`
             )}`}
             target="_blank"
             rel="noopener noreferrer"
