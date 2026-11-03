@@ -648,6 +648,8 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                   className="w-full h-full object-cover min-h-[190px] sm:min-h-[220px] lg:min-h-[260px]"
                   src={veh.image}
                   alt={veh.name}
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div className="absolute top-3 left-3 right-3 flex justify-between items-start pointer-events-none">
                   <span className="inline-block px-2.5 py-0.5 rounded bg-sandstone-wash/95 backdrop-blur-sm text-terracotta-sandstone font-label-caps text-label-caps uppercase tracking-wider shadow-xs font-bold">

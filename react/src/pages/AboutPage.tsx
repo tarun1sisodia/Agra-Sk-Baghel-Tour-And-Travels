@@ -93,6 +93,8 @@ export function AboutPage({ language = "en" }: AboutPageProps) {
                   className="w-full h-[340px] sm:h-[380px] object-cover rounded-2xl"
                   alt="A pristine Toyota Innova Crysta luxury touring vehicle parked on a scenic road with historic sandstone monuments in the background"
                   src="/assets/fleet/innova.webp"
+                  loading="lazy"
+                  decoding="async"
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src = "/assets/fleet/innova.webp";
                   }}
