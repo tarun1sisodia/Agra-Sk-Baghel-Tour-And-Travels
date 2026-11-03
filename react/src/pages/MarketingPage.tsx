@@ -1,5 +1,5 @@
 import { contact } from "../data/contact";
-import { cities, packages, routes, vehicles, type Package, type Route, type Vehicle } from "../data/catalogue";
+import { cities, packages, routeGuidance, routes, vehicles, type Package, type Route, type Vehicle } from "../data/catalogue";
 import { WhatsAppIcon } from "../components/icons";
 
 type MarketingPageProps = {
