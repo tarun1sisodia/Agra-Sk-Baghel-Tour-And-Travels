@@ -16,6 +16,16 @@
     <!-- Critical Text Fonts: Self-Hosted Plus Jakarta Sans & EB Garamond -->
     <link rel="preload" href="/fonts/plus-jakarta-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/eb-garamond-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- LCP hero image (first slide): preload so mobile LCP is not delayed by JS discovery -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/avif"
+      href="/assets/home-hero/taj-mahal-agra-1600.avif"
+      imagesrcset="/assets/home-hero/taj-mahal-agra-480.avif 480w, /assets/home-hero/taj-mahal-agra-960.avif 960w, /assets/home-hero/taj-mahal-agra-1280.avif 1280w, /assets/home-hero/taj-mahal-agra-1600.avif 1600w"
+      imagesizes="100vw"
+      fetchpriority="high"
+    />
     <!-- Material Symbols: Non-critical icon font loaded asynchronously via idle/interaction without blocking FCP/LCP -->
     <script>
       (function () {
