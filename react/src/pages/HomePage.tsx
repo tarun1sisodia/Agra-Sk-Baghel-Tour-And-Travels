@@ -1,12 +1,12 @@
-import { useEffect, useState, useMemo } from "react";
+import { lazy, Suspense, useEffect, useState, useMemo } from "react";
 import type { SupportedLanguage } from "../config";
 import { contact } from "../data/contact";
-import { ReviewsMarquee } from "../components/home/ReviewsMarquee";
-import { FamousPlacesSection } from "../components/home/FamousPlacesSection";
+const ReviewsMarquee = lazy(() => import("../components/home/ReviewsMarquee").then((m) => ({ default: m.ReviewsMarquee })));
+const FamousPlacesSection = lazy(() => import("../components/home/FamousPlacesSection").then((m) => ({ default: m.FamousPlacesSection })));
 import { HomeHeroSlideshow } from "../components/home/HomeHeroSlideshow";
 import { WhatsAppIcon } from "../components/icons";
 import { HomeBookingWidget } from "../components/home/HomeBookingWidget";
-import { FleetSection } from "../components/home/FleetSection";
+const FleetSection = lazy(() => import("../components/home/FleetSection").then((m) => ({ default: m.FleetSection })));
 import { useCustomerAuth } from "../auth/customerAuth";
 import {
   fetchFeaturedPromo,
@@ -674,7 +674,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
         </section>
 
         {/* ── FLEET ── Canonical Fleet Showcase (Sedan, SUV, Luxury, Tempo Traveller) ── */}
-        <FleetSection language={language} />
+        <Suspense fallback={null}><FleetSection language={language} /></Suspense>
 
         {/* ── TOUR PACKAGES ── 3-col card grid (different from routes & services above) */}
         <section
@@ -772,10 +772,10 @@ export function HomePage({ language = "en" }: HomePageProps) {
         </section>
 
         {/* ── FAMOUS PLACES & HERITAGE LANDMARKS ── Multi-image high-res Unsplash gallery */}
-        <FamousPlacesSection />
+        <Suspense fallback={null}><FamousPlacesSection /></Suspense>
 
         {/* ── REVIEWS MARQUEE ── LOCKED, no changes */}
-        <ReviewsMarquee />
+        <Suspense fallback={null}><ReviewsMarquee /></Suspense>
 
         {/* ── BENEFITS + COUPON ── 21st.dev Modern Motion Bento Layout ── */}
         <section
