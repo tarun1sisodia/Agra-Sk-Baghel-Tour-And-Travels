@@ -25,3 +25,6 @@ freellmapi/
 .roo/
 test.py
 *.mp4
+# Render pipeline local artifacts
+render-pipeline/
+.render-pipeline/
