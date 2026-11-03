@@ -138,7 +138,7 @@ export function ContactCard() {
             href={`https://wa.me/${contact.whatsapp}`}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Chat with Agra SK Baghel Tour and Travels on WhatsApp"
+            aria-label="Chat with Agra SK Baghel Tour & Travels on WhatsApp"
           >
             <WhatsAppIcon className="w-4 h-4 shrink-0 text-white" />
             <span className="text-white" style={{ color: "#ffffff" }}>WhatsApp Desk ↗</span>
@@ -250,7 +250,7 @@ export function ContactCard() {
                   href={`https://wa.me/${contact.whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Message Agra SK Baghel Tour and Travels on WhatsApp"
+                  aria-label="Message Agra SK Baghel Tour & Travels on WhatsApp"
                   role="listitem"
                 >
                   <div className="contact-tile-icon" aria-hidden="true">

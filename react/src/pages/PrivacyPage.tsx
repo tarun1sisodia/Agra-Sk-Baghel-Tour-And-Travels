@@ -22,7 +22,7 @@ export function PrivacyPage({ language = "en" }: PrivacyPageProps) {
           <p className="font-label-caps text-xs uppercase tracking-widest text-primary font-bold mb-2">Privacy and Data Use</p>
           <h1 className="font-headline-hero text-ink-charcoal text-headline-hero tracking-tight leading-tight">Privacy Policy</h1>
           <p className="max-w-3xl mt-4 text-on-surface-variant leading-relaxed">
-            This policy explains how Agra SK Baghel Tour and Travels handles information when you visit our website, contact our travel desk,
+            This policy explains how Agra SK Baghel Tour & Travels handles information when you visit our website, contact our travel desk,
             ask about a journey, make a booking, or sign in with Google.
           </p>
           <p className="mt-4 text-sm text-on-surface-variant">Last updated: {LAST_UPDATED}</p>
@@ -33,13 +33,13 @@ export function PrivacyPage({ language = "en" }: PrivacyPageProps) {
         <section id="operator" className="scroll-mt-28 space-y-3">
           <h2 className="font-headline-md text-base sm:text-lg font-bold text-ink-charcoal">1. Who we are and how to contact us</h2>
           <p className="text-on-surface-variant leading-relaxed">
-            Agra SK Baghel Tour and Travels provides taxi, chauffeur-driven transport, sightseeing, and tour enquiry and booking services in and around
-            Agra and other destinations in North India. For this policy, "we" means Agra SK Baghel Tour and Travels and "you" means a visitor, customer,
+            Agra SK Baghel Tour &amp; Travels provides taxi, chauffeur-driven transport, sightseeing, and tour enquiry and booking services in and around
+            Agra and other destinations in North India. For this policy, "we" means Agra SK Baghel Tour & Travels and "you" means a visitor, customer,
             or person contacting us.
           </p>
           <address className="not-italic rounded-xl border border-border-warm bg-surface-container-lowest p-4 space-y-1 text-on-surface-variant">
             <p><strong className="text-ink-charcoal">Privacy and customer support contact</strong></p>
-            <p>Agra SK Baghel Tour and Travels</p>
+            <p>Agra SK Baghel Tour &amp; Travels</p>
             <p>{contact.address}</p>
             <p>Email: <a className="text-primary underline" href={`mailto:${contact.email}`}>{contact.email}</a></p>
             <p>Telephone: <a className="text-primary underline" href={`tel:${contact.phone}`}>{contact.phoneDisplay}</a></p>

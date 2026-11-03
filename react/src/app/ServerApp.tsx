@@ -293,7 +293,7 @@ function getSeoBase(
         resolvedDynamicItem.shortDescription ||
         "Private tour with transparent fares, verified drivers and easy phone or WhatsApp booking.",
       ogImage: resolvedDynamicItem.coverImage?.url || "/assets/brand/og-banner.webp",
-      keywords: [resolvedDynamicItem.title, "Agra tour package", "private taxi Agra", "Agra SK Baghel Tour and Travels"],
+      keywords: [resolvedDynamicItem.title, "Agra tour package", "private taxi Agra", "Agra SK Baghel Tour & Travels"],
     };
   }
   if (resolvedDynamicRoute) {
@@ -353,7 +353,7 @@ function getSeoBase(
       title: "Taxi Service in Agra | SK Baghel Tour & Travels",
       description: "Book reliable taxi service in Agra for local sightseeing and outstation tours. Chauffeur-driven Sedans, Innova and Tempo Travellers. Call +91 97628 17598.",
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: ["taxi service in agra", "cab booking in agra", "car rental in agra", "agra tour and travels", "local sightseeing taxi in agra", "agra cantt railway station taxi service", "best taxi in agra tour", "agra car rental with driver", "Agra SK Baghel Tour and Travels"],
+      keywords: ["taxi service in agra", "cab booking in agra", "car rental in agra", "agra tour and travels", "local sightseeing taxi in agra", "agra cantt railway station taxi service", "best taxi in agra tour", "agra car rental with driver", "Agra SK Baghel Tour & Travels"],
     };
   }
 
@@ -407,7 +407,7 @@ function getSeoBase(
       title: "About Us — Agra Taxi Desk | SK Baghel Travels",
       description: "Founded in Taj Ganj, Agra. Over 15 years of trusted chauffeur-driven outstation cabs, verified drivers, and transparent zero-commission heritage tours.",
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: ["About Agra SK Baghel Tour and Travels", "Agra travel desk", "Taj Ganj taxi service", "verified drivers Agra", "heritage tours"],
+      keywords: ["About Agra SK Baghel Tour & Travels", "Agra travel desk", "Taj Ganj taxi service", "verified drivers Agra", "heritage tours"],
     };
   }
 
@@ -416,7 +416,7 @@ function getSeoBase(
       title: "Contact Us — Agra Cabs 24x7 | SK Baghel Travels",
       description: "Get in touch with our 24×7 Taj Ganj dispatch desk for outstation cabs, sunrise Taj Mahal tours, and luxury group travel in Agra. Call +91 97628 17598.",
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: ["Contact Agra SK Baghel Tour and Travels", "Agra taxi phone number", "Taj Ganj dispatch desk", "24x7 cab booking"],
+      keywords: ["Contact Agra SK Baghel Tour & Travels", "Agra taxi phone number", "Taj Ganj dispatch desk", "24x7 cab booking"],
     };
   }
 
@@ -431,7 +431,7 @@ function getSeoBase(
 
   if (section === "terms") {
     return {
-      title: "Terms & Conditions | SK Baghel Tour and Travels",
+      title: "Terms & Conditions | SK Baghel Tour & Travels",
       description: "Review our transparent commercial terms: 24-hr cab cancellation with 100% refund, 6-tier tour schedule, 300 km/day outstation rules, and Agra jurisdiction.".slice(0, 155),
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Terms and conditions", "Agra taxi cancellation policy", "tour refund schedule", "commercial terms"],
@@ -440,7 +440,7 @@ function getSeoBase(
 
   if (section === "privacy") {
     return {
-      title: "Privacy Policy | Agra SK Baghel Tour and Travels",
+      title: "Privacy Policy | Agra SK Baghel Tour & Travels",
       description: "Learn how we handle Google Sign-In, travel and booking information, service providers, retention, and privacy requests.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Privacy policy", "DPDP Act 2023", "passenger data protection", "confidentiality"],
@@ -458,7 +458,7 @@ function getSeoBase(
 
   if (section === "404") {
     return {
-      title: "404 Page Not Found | SK Baghel Tour and Travels",
+      title: "404 Page Not Found | SK Baghel Tour & Travels",
       description: "Uncharted route — let us guide you back. Search verified Agra cabs, outstation routes and private tour packages.",
       ogImage: "/assets/brand/og-banner.webp",
     };

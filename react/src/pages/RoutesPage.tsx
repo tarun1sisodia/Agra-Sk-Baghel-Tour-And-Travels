@@ -339,7 +339,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                 Affordable Outstation Cab Booking from Agra to Major Cities
               </h2>
               <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-                Planning a trip outside the city limits? <strong className="text-on-surface font-semibold">Agra SK Baghel Tour and Travels</strong> offers premium <strong className="text-on-surface font-semibold">outstation taxi service from agra</strong> to popular destinations across neighboring states. Avoid the crowds of public transport and commute comfortably with our dedicated intercity transit options starting from any location in Agra.
+                Planning a trip outside the city limits? <strong className="text-on-surface font-semibold">Agra SK Baghel Tour & Travels</strong> offers premium <strong className="text-on-surface font-semibold">outstation taxi service from agra</strong> to popular destinations across neighboring states. Avoid the crowds of public transport and commute comfortably with our dedicated intercity transit options starting from any location in Agra.
               </p>
             </div>
             <div className="glass-card-frosted p-6 sm:p-8 rounded-3xl border border-white/60 shadow-xs flex flex-col gap-2.5">
@@ -734,7 +734,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
               The 4 Rules of Outstation Pricing
             </h2>
             <p className="font-body-md text-xs text-on-surface-variant mt-1.5">
-              Every fare calculated by Agra SK Baghel Tour and Travels adheres to these strict principles.
+              Every fare calculated by Agra SK Baghel Tour &amp; Travels adheres to these strict principles.
             </p>
           </div>
 

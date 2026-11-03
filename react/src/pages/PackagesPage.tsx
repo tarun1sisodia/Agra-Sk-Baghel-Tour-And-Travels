@@ -542,11 +542,11 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
       {
         "@type": "TaxiService",
         "@id": `${siteConfig.domain}/#service`,
-        name: "Agra SK Baghel Tour and Travels Private Sightseeing Packages",
+        name: "Agra SK Baghel Tour & Travels Private Sightseeing Packages",
         serviceType: "Private Heritage & Outstation Tour Packages",
         provider: {
           "@type": "LocalBusiness",
-          name: "Agra SK Baghel Tour and Travels",
+          name: "Agra SK Baghel Tour & Travels",
           telephone: contact.phone,
           address: {
             "@type": "PostalAddress",
@@ -846,7 +846,7 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
             const toParam = encodeURIComponent(pkg.destination || pkg.name);
             const bookStep1Url = `/book.html?category=tour_package&product=${encodeURIComponent(pkg.slug)}&from=${fromParam}&to=${toParam}`;
             const whatsappPackageUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-              `Hello Agra SK Baghel Tour and Travels, I am interested in the ${pkg.name}.`
+              `Hello Agra SK Baghel Tour & Travels, I am interested in the ${pkg.name}.`
             )}`;
 
             const images: Array<{ url: string; caption: string; alt: string }> =
@@ -1409,7 +1409,7 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
                     className="flex items-center justify-between p-space-md rounded-lg bg-black hover:bg-neutral-900 text-white transition-colors border border-white/10 group shadow-sm active:scale-[0.98]"
                     style={{ color: "#ffffff" }}
                     href={`https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(
-                      "Hello Agra SK Baghel Tour and Travels, I would like a custom tour quote."
+                      "Hello Agra SK Baghel Tour & Travels, I would like a custom tour quote."
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"

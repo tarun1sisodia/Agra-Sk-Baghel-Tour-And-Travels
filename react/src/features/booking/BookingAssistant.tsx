@@ -12,7 +12,7 @@ interface BookingAssistantProps {
 
 export function BookingAssistant({ vehicleName, tripName, totalFare, advanceAmount, tourDate }: BookingAssistantProps) {
   const inr = (value: number | null | undefined) => `₹${(value ?? 0).toLocaleString("en-IN")}`;
-  const message = `Hello Agra SK Baghel Tour and Travels, I would like help completing my booking: ${tripName} in the ${vehicleName}${tourDate ? ` on ${tourDate}` : ""}${totalFare ? ` (server quote ${inr(totalFare)})` : ""}.`;
+  const message = `Hello Agra SK Baghel Tour & Travels, I would like help completing my booking: ${tripName} in the ${vehicleName}${tourDate ? ` on ${tourDate}` : ""}${totalFare ? ` (server quote ${inr(totalFare)})` : ""}.`;
 
   return (
     <aside aria-label="SK Concierge booking assistant" className="bg-surface-container-lowest rounded-xl border border-border-warm shadow-sm overflow-hidden flex flex-col">
