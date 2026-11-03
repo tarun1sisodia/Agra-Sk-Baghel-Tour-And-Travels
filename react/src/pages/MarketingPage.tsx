@@ -68,7 +68,6 @@ function findDetail(pathSection: string, pathname: string): Vehicle | Package | 
   if (pathname.includes("agra-to-gwalior-taxi")) return routes.find((route) => route.id === "agra-gwalior");
   if (pathname.includes("agra-to-lucknow-taxi")) return routes.find((route) => route.id === "agra-lucknow");
   if (pathname.includes("delhi-to-agra-taxi")) return routes.find((route) => route.id === "delhi-agra");
-  if (pathname.includes("delhi-to-jaipur-taxi")) return routes.find((route) => route.id === "delhi-jaipur");
   if (pathname.includes("agra-se-delhi-taxi")) return routes.find((route) => route.id === "agra-delhi");
   if (pathname.includes("agra-se-jaipur-taxi")) return routes.find((route) => route.id === "agra-jaipur");
   if (pathname.includes("agra-se-mathura-taxi")) return routes.find((route) => route.id === "agra-mathura");

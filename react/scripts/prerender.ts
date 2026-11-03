@@ -218,22 +218,18 @@ const routePairs = [
   "agra-to-delhi-taxi",
   "delhi-to-agra-taxi",
   "agra-to-jaipur-taxi",
-  "delhi-to-jaipur-taxi",
   "agra-to-gwalior-taxi",
   "agra-to-lucknow-taxi",
   "agra-to-mathura-taxi",
-  "agra-sightseeing-taxi",
 ];
 
 const hindiRoutePairs = [
   "agra-se-delhi-taxi",
   "delhi-se-agra-taxi",
   "agra-se-jaipur-taxi",
-  "delhi-se-jaipur-taxi",
   "agra-se-gwalior-taxi",
   "agra-se-lucknow-taxi",
   "agra-se-mathura-taxi",
-  "agra-darshan-taxi",
 ];
 
 // Full manifest of static paths to render (English only)

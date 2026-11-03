@@ -431,8 +431,8 @@ function getSeoBase(
 
   if (section === "terms") {
     return {
-      title: "Terms & Cancellation Policy | Agra SK Baghel Travels",
-      description: "Review our transparent commercial terms: 24-hr cab cancellation with 100% refund, 6-tier tour schedule, 300 km/day outstation rules, and Agra jurisdiction.",
+      title: "Terms & Conditions | SK Baghel Tour and Travels",
+      description: "Review our transparent commercial terms: 24-hr cab cancellation with 100% refund, 6-tier tour schedule, 300 km/day outstation rules, and Agra jurisdiction.".slice(0, 155),
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Terms and conditions", "Agra taxi cancellation policy", "tour refund schedule", "commercial terms"],
     };
