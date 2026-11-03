@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import Reveal from "../components/reveal";
 import { MonumentCard, type MonumentCardContract } from "../components/cards";
 import { SectionHeading } from "../components/badges";
+import { Pagination } from "../components/ui/Pagination";
 import type { SupportedLanguage } from "../config";
 import generatedPublishedContent from "../data/generated-published-content.json";
 
@@ -78,6 +79,33 @@ export interface MonumentsPageProps {
 }
 
 export function MonumentsPage({ language = "en" }: MonumentsPageProps) {
+  const itemsPerPage = 8;
+  const [currentPage, setCurrentPage] = useState(() => {
+    if (typeof window !== "undefined") {
+      const page = Number(new URLSearchParams(window.location.search).get("page"));
+      return page > 0 ? page : 1;
+    }
+    return 1;
+  });
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("page", String(newPage));
+      window.history.pushState({}, "", url.toString());
+      const section = document.getElementById("monuments-directory");
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
+
+  const paginatedMonuments = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return publishedMonuments.slice(start, start + itemsPerPage);
+  }, [currentPage, itemsPerPage]);
+
   return (
     <main className="min-h-screen bg-ivory text-ink">
       {/* 1. Header Hero Showcase */}
@@ -101,15 +129,26 @@ export function MonumentsPage({ language = "en" }: MonumentsPageProps) {
         </Reveal>
 
         {/* 2. Monuments Grid */}
-        <div className="mt-8">
+        <div className="mt-8" id="monuments-directory">
           <h2 className="sr-only">Published Monument Guides</h2>
           <div className="grid grid-cols-2 gap-6 sm:gap-8 md:grid-cols-3 lg:grid-cols-4">
-            {publishedMonuments.map((monument, index) => (
+            {paginatedMonuments.map((monument, index) => (
               <Reveal key={monument.slug} delay={index * 60}>
                 <MonumentCard monument={monument} />
               </Reveal>
             ))}
           </div>
+          {publishedMonuments.length > itemsPerPage && (
+            <Pagination
+              totalItems={publishedMonuments.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              className="mt-8"
+              showFirstLastButtons={true}
+              pageButtonLimit={5}
+            />
+          )}
         </div>
       </section>
 

@@ -47,6 +47,7 @@ export function Footer({ className = "" }: FooterProps) {
   ];
   const tourLinks = [
     { name: "Explore sightseeing tours", href: "/en/packages/" },
+    { name: "Monuments of Agra guides", href: "/en/monuments/" },
     { name: "Heritage experiences", href: "/en/packages/" },
     { name: "Travel services & safety", href: "/services" },
   ];

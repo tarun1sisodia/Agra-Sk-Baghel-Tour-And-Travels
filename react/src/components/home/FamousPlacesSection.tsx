@@ -8,6 +8,23 @@ import {
   type PublicCatalogItem,
 } from "../../services/catalog";
 import { onUserInteractionOrIdle } from "../../utils/deferredRevalidation";
+import generatedPublishedContent from "../../data/generated-published-content.json";
+
+/** Monument detail-page slugs that exist under /en/monuments/ (kept in sync with the published catalog). */
+const MONUMENT_PAGE_SLUGS = new Set(
+  ((generatedPublishedContent as { monuments?: Array<{ slug?: string }> }).monuments ?? [])
+    .map((m) => m.slug)
+    .filter((s): s is string => Boolean(s))
+);
+/** Homepage place ids that differ from their monument page slug. */
+const PLACE_TO_MONUMENT_SLUG: Record<string, string> = {
+  "agra-fort": "agra-red-fort",
+};
+
+function monumentPageSlugFor(placeId: string): string | null {
+  const slug = PLACE_TO_MONUMENT_SLUG[placeId] ?? placeId;
+  return MONUMENT_PAGE_SLUGS.has(slug) ? slug : null;
+}
 
 export interface FamousPlace {
   id: string;
@@ -590,6 +607,18 @@ export function FamousPlacesSection() {
                     <span className="text-white">Book Cab</span>
                     <Icon name="arrow_forward" className="text-icon-14 text-white" />
                   </a>
+
+                  {/* Monument guide detail page, when one is published for this place */}
+                  {monumentPageSlugFor(place.id) && (
+                    <a
+                      className="min-h-[44px] px-3 py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high border border-border-warm/60 text-ink-charcoal font-label-lg text-xs font-semibold transition-all active:scale-[0.98] inline-flex items-center gap-1 shrink-0"
+                      href={`/en/monuments/${monumentPageSlugFor(place.id)}/`}
+                      aria-label={`Read the ${place.name} monument guide`}
+                    >
+                      <Icon name="tour" className="text-icon-14" />
+                      <span>Guide</span>
+                    </a>
+                  )}
 
                   {/* WhatsApp CTA in Pure Black with Real WhatsApp Icon */}
                   <a
