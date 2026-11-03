@@ -299,11 +299,9 @@ const routePairs: Array<{ en: string; hi: string }> = [
   { en: "agra-to-delhi-taxi", hi: "agra-se-delhi-taxi" },
   { en: "delhi-to-agra-taxi", hi: "delhi-se-agra-taxi" },
   { en: "agra-to-jaipur-taxi", hi: "agra-se-jaipur-taxi" },
-  { en: "delhi-to-jaipur-taxi", hi: "delhi-se-jaipur-taxi" },
   { en: "agra-to-gwalior-taxi", hi: "agra-se-gwalior-taxi" },
   { en: "agra-to-lucknow-taxi", hi: "agra-se-lucknow-taxi" },
   { en: "agra-to-mathura-taxi", hi: "agra-se-mathura-taxi" },
-  { en: "agra-sightseeing-taxi", hi: "agra-darshan-taxi" },
 ];
 
 export function getSitemapEntries(): SitemapEntry[] {

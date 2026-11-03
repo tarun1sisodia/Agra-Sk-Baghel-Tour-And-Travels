@@ -12,6 +12,16 @@
 /en/agra-to-mathura-taxi-service /en/agra-to-mathura-taxi/ 301
 /en/agra-to-mathura-taxi-service/ /en/agra-to-mathura-taxi/ 301
 
+# Legacy route slugs with no published route (rendered 404) — redirect to live equivalents
+/en/delhi-to-jaipur-taxi /en/agra-to-jaipur-taxi/ 301
+/en/delhi-to-jaipur-taxi/ /en/agra-to-jaipur-taxi/ 301
+/hi/delhi-se-jaipur-taxi /en/agra-to-jaipur-taxi/ 301
+/hi/delhi-se-jaipur-taxi/ /en/agra-to-jaipur-taxi/ 301
+/en/agra-sightseeing-taxi /en/packages/agra-sightseeing/ 301
+/en/agra-sightseeing-taxi/ /en/packages/agra-sightseeing/ 301
+/hi/agra-darshan-taxi /en/packages/agra-sightseeing/ 301
+/hi/agra-darshan-taxi/ /en/packages/agra-sightseeing/ 301
+
 # Legacy duplicate route aliases consolidated to canonical rich routes
 /en/agra-to-delhi /en/agra-to-delhi-taxi/ 301
 /en/agra-to-delhi/ /en/agra-to-delhi-taxi/ 301

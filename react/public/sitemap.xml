@@ -184,13 +184,6 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/agra-to-jaipur-taxi/" />
   </url>
   <url>
-    <loc>https://agraskbagheltourandtravels.com/en/delhi-to-jaipur-taxi/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en-IN" href="https://agraskbagheltourandtravels.com/en/delhi-to-jaipur-taxi/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/delhi-to-jaipur-taxi/" />
-  </url>
-  <url>
     <loc>https://agraskbagheltourandtravels.com/en/agra-to-gwalior-taxi/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
@@ -210,13 +203,6 @@
     <priority>0.85</priority>
     <xhtml:link rel="alternate" hreflang="en-IN" href="https://agraskbagheltourandtravels.com/en/agra-to-mathura-taxi/" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/agra-to-mathura-taxi/" />
-  </url>
-  <url>
-    <loc>https://agraskbagheltourandtravels.com/en/agra-sightseeing-taxi/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-    <xhtml:link rel="alternate" hreflang="en-IN" href="https://agraskbagheltourandtravels.com/en/agra-sightseeing-taxi/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://agraskbagheltourandtravels.com/en/agra-sightseeing-taxi/" />
   </url>
   <url>
     <loc>https://agraskbagheltourandtravels.com/en/tempo-traveller-on-rent-agra/</loc>
