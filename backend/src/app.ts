@@ -1,4 +1,5 @@
 import cors from "@fastify/cors";
+import compress from "@fastify/compress";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import Fastify, { type FastifyInstance } from "fastify";
@@ -138,6 +139,9 @@ export async function buildApp(options: AppOptions): Promise<BuiltApp> {
   registerRequestId(app);
   registerErrorHandler(app);
   registerNetworkHeaders(app);
+
+  // Compress API responses (gzip/br) — catalog JSON is the hot payload for the customer site
+  await app.register(compress, { global: true, threshold: 1024 });
 
   // Security headers - enable all protections, CSP only for API is minimal
   await app.register(helmet, {
