@@ -98,6 +98,15 @@ const CANONICAL_VEHICLE_CATALOG: Omit<VehicleModelItem, "fare" | "advance">[] = 
     bags: 10,
     features: ["Luxury Recline", "Climate Control"],
   },
+  {
+    id: "urbania-17",
+    name: "Force Urbania 17-Seater",
+    groupCode: "tempo_traveller",
+    groupName: "Tempo Traveller",
+    seats: 17,
+    bags: 10,
+    features: ["Luxury Recline", "Climate Control", "Dedicated Luggage Bay"],
+  },
   // Luxury Group
   {
     id: "camry",
@@ -133,11 +142,12 @@ function resolveModelPrice(
   // Common aliases
   const aliases: Record<string, string[]> = {
     dzire: ["maruti-dzire", "dzire", "sedan"],
-    city: ["honda-city", "city", "sedan"],
+    city: ["honda-city", "city"],
     ertiga: ["maruti-ertiga", "ertiga", "suv"],
     crysta: ["innova-crysta", "innova", "toyota-innova-crysta", "crysta"],
     "traveller-12": ["tempo-traveller", "traveller-12", "traveller", "tempo"],
     "urbania-13": ["urbania-13", "urbania", "force-urbania"],
+    "urbania-17": ["urbania-17", "urbania17", "force-urbania-17"],
     camry: ["camry", "toyota-camry"],
     vellfire: ["vellfire", "toyota-vellfire"],
   };

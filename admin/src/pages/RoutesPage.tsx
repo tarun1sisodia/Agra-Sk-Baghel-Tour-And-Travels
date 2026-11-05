@@ -714,9 +714,16 @@ export function RoutesPage({ user }: { user: AdminUser }) {
                 >
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-12 sm:items-center">
                     <div className="sm:col-span-4">
-                      <p className="font-semibold text-xs text-ink">{v.display_name}</p>
-                      <Badge tone="gold">{v.group_code}</Badge>
-                      <span className="ml-2 font-mono text-[11px] text-ink-faint">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="font-semibold text-xs text-ink">{v.display_name}</p>
+                        <Badge tone="gold">{v.group_code}</Badge>
+                        {vehicleModels.find((m) => m.id === v.vehicle_model_id)?.is_active === false && (
+                          <Badge tone="neutral" className="text-[10px]">
+                            Fleet Inactive
+                          </Badge>
+                        )}
+                      </div>
+                      <span className="font-mono text-[11px] text-ink-faint">
                         {v.passenger_capacity} seats
                       </span>
                     </div>

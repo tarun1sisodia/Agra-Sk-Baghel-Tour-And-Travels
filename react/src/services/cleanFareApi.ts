@@ -190,15 +190,12 @@ export function getFallbackPublishedCatalog(): PublishedCatalogResponse {
     ],
     vehicles: [
       { id: "10000000-0000-0000-0002-000000000001", group_code: "sedan", make: "Maruti", model_name: "Dzire", display_name: "Maruti Dzire", passenger_capacity: 4, luggage_capacity: 2, image_url: "/assets/fleet/sedan.webp" },
-      { id: "10000000-0000-0000-0002-000000000002", group_code: "sedan", make: "Honda", model_name: "City", display_name: "Honda City", passenger_capacity: 4, luggage_capacity: 3, image_url: "/assets/fleet/honda-city-white-sedan-921x519.webp" },
       { id: "10000000-0000-0000-0002-000000000003", group_code: "suv", make: "Maruti", model_name: "Ertiga", display_name: "Maruti Ertiga", passenger_capacity: 6, luggage_capacity: 3, image_url: "/assets/fleet/ertiga.webp" },
       { id: "10000000-0000-0000-0002-000000000004", group_code: "suv", make: "Toyota", model_name: "Innova Crysta", display_name: "Innova Crysta", passenger_capacity: 7, luggage_capacity: 4, image_url: "/assets/fleet/innova.webp" },
-      { id: "10000000-0000-0000-0002-000000000005", group_code: "suv", make: "Toyota", model_name: "Fortuner", display_name: "Toyota Fortuner", passenger_capacity: 7, luggage_capacity: 4, image_url: "/assets/fleet/toyota-fortuner-black-suv-360x536.jpg" },
-      { id: "10000000-0000-0000-0002-000000000006", group_code: "luxury", make: "Toyota", model_name: "Camry", display_name: "Toyota Camry", passenger_capacity: 4, luggage_capacity: 3, image_url: "/assets/fleet/toyota-camry-hybrid-executive-luxury-360x536.jpg" },
-      { id: "10000000-0000-0000-0002-000000000007", group_code: "luxury", make: "Toyota", model_name: "Vellfire", display_name: "Toyota Vellfire", passenger_capacity: 6, luggage_capacity: 4, image_url: "/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg" },
       { id: "10000000-0000-0000-0002-000000000008", group_code: "tempo_traveller", make: "Force", model_name: "Traveller 12", display_name: "Force Traveller 12-seater", passenger_capacity: 12, luggage_capacity: 10, image_url: "/assets/fleet/tempo.webp" },
       { id: "10000000-0000-0000-0002-000000000009", group_code: "tempo_traveller", make: "Force", model_name: "Traveller 17", display_name: "Force Traveller 17-seater", passenger_capacity: 17, luggage_capacity: 12, image_url: "/assets/fleet/tempo.webp" },
       { id: "10000000-0000-0000-0002-000000000010", group_code: "tempo_traveller", make: "Force", model_name: "Urbania 13", display_name: "Force Urbania 13-seater", passenger_capacity: 13, luggage_capacity: 10, image_url: "/assets/fleet/urbania.webp" },
+      { id: "1a2fcbd8-adf3-4f9f-91f4-2772050e8295", group_code: "tempo_traveller", make: "Force", model_name: "Urbania 17", display_name: "Force Urbania 17-Seater", passenger_capacity: 17, luggage_capacity: 10, image_url: "/assets/fleet/urbania.webp" },
     ],
   };
 }

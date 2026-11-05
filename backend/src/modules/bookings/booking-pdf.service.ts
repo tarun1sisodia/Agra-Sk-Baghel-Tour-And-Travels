@@ -116,10 +116,10 @@ export function buildBookingPdfInput(
     tripTypeRaw === "round-trip"
       ? "Round Trip"
       : tripTypeRaw === "one-way"
-      ? "One-Way"
-      : tripTypeRaw
-      ? tripTypeRaw.charAt(0).toUpperCase() + tripTypeRaw.slice(1)
-      : "Standard Itinerary";
+        ? "One-Way"
+        : tripTypeRaw
+          ? tripTypeRaw.charAt(0).toUpperCase() + tripTypeRaw.slice(1)
+          : "Standard Itinerary";
   const passengerInfo = `${passengerCount} Passenger${passengerCount > 1 ? "s" : ""}  |  ${tripTypeFormatted}`;
 
   const productName =
@@ -127,10 +127,10 @@ export function buildBookingPdfInput(
     (booking.category === "tour_package"
       ? "Tour Package"
       : booking.category === "local_package"
-      ? "Local Sightseeing"
-      : booking.category === "transfer"
-      ? "Airport / Station Transfer"
-      : "Outstation Taxi");
+        ? "Local Sightseeing"
+        : booking.category === "transfer"
+          ? "Airport / Station Transfer"
+          : "Outstation Taxi");
 
   const vehicleName =
     booking.vehicle_model?.display_name ||
@@ -144,13 +144,13 @@ export function buildBookingPdfInput(
   const paymentIdText = paymentId
     ? `Payment Ref: ${paymentId}`
     : isConfirmed
-    ? "Payment: Advance Secured"
-    : "Payment: Pending";
+      ? "Payment: Advance Secured"
+      : "Payment: Pending";
 
   const quoteLines = Array.isArray(booking.fare_breakdown?.lines)
     ? booking.fare_breakdown.lines
-        .filter((line) => typeof line?.label === "string" && line.label.trim())
-        .map((line) => `${line.label!.trim()}: ${formatInr(line.amount)}`)
+      .filter((line) => typeof line?.label === "string" && line.label.trim())
+      .map((line) => `${line.label!.trim()}: ${formatInr(line.amount)}`)
     : [];
   const quoteDetails = booking.fare_breakdown?.details;
   const tripMetrics: string[] = [];

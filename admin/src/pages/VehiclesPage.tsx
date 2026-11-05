@@ -63,6 +63,16 @@ export const FLEET_PRESETS: FleetPreset[] = [
   {
     vehicle_group_code: "sedan",
     make: "Honda",
+    model_name: "City",
+    display_name: "Honda City",
+    passenger_capacity: 4,
+    luggage_capacity: 3,
+    image_url: "/assets/fleet/sedan.webp",
+    description: "Executive sedan with premium rear passenger legroom, refined expressway stability, and chilled AC.",
+  },
+  {
+    vehicle_group_code: "sedan",
+    make: "Honda",
     model_name: "Amaze",
     display_name: "Honda Amaze Sedan",
     passenger_capacity: 4,
@@ -309,6 +319,26 @@ export const FLEET_PRESETS: FleetPreset[] = [
   {
     vehicle_group_code: "tempo_traveller",
     make: "Force",
+    model_name: "Urbania 13",
+    display_name: "Force Urbania 13-seater",
+    passenger_capacity: 13,
+    luggage_capacity: 10,
+    image_url: "/assets/fleet/urbania.webp",
+    description: "European monocoque luxury VIP van with 13 pushback seats, individual AC louvers, and panoramic UV-cut windows.",
+  },
+  {
+    vehicle_group_code: "tempo_traveller",
+    make: "Force",
+    model_name: "Urbania 17",
+    display_name: "Force Urbania 17-Seater",
+    passenger_capacity: 17,
+    luggage_capacity: 10,
+    image_url: "/assets/fleet/urbania.webp",
+    description: "European monocoque luxury VIP van with 17 plush executive seats, high-roof clearance, and cavernous luggage hold.",
+  },
+  {
+    vehicle_group_code: "tempo_traveller",
+    make: "Force",
     model_name: "Urbania",
     display_name: "Force Urbania Luxury VIP",
     passenger_capacity: 10,
@@ -320,6 +350,7 @@ export const FLEET_PRESETS: FleetPreset[] = [
 
 export const FLEET_IMAGE_OPTIONS = [
   { label: "Maruti Dzire / Sedan Standard (sedan.webp)", value: "/assets/fleet/sedan.webp" },
+  { label: "Honda City / Executive Sedan (sedan.webp)", value: "/assets/fleet/sedan.webp" },
   { label: "Honda Amaze Sedan - Red (921x519)", value: "/assets/fleet/honda-amaze-red-sedan-921x519.webp" },
   { label: "Honda Amaze Sedan - Silver (1280x720)", value: "/assets/fleet/honda-amaze-silver-sedan-1280x720.webp" },
   { label: "Maruti Ertiga Hybrid (ertiga.webp)", value: "/assets/fleet/ertiga.webp" },
@@ -327,6 +358,7 @@ export const FLEET_IMAGE_OPTIONS = [
   { label: "Toyota Fortuner 4x4 - Black SUV (360x536)", value: "/assets/fleet/toyota-fortuner-black-suv-360x536.jpg" },
   { label: "Toyota Camry Hybrid - Executive (360x536)", value: "/assets/fleet/toyota-camry-hybrid-executive-luxury-360x536.jpg" },
   { label: "Toyota Vellfire VIP Lounge - Luxury (360x536)", value: "/assets/fleet/toyota-vellfire-ultra-luxury-mpv-360x536.jpg" },
+  { label: "Force Urbania 17-Seater (urbania.webp)", value: "/assets/fleet/urbania.webp" },
   { label: "Hyundai Creta - White SUV (921x519)", value: "/assets/fleet/hyundai-creta-white-suv-921x519.jpg" },
   { label: "Hyundai Creta - Facelift Action (921x519)", value: "/assets/fleet/hyundai-creta-facelift-action-921x519.jpg" },
   { label: "Hyundai Creta - Highway Tour (360x536)", value: "/assets/fleet/hyundai-creta-highway-tour-360x536.jpg" },
@@ -363,18 +395,67 @@ function findPresetModel(preset: FleetPreset, existingModels: CleanVehicleModel[
   const pMake = preset.make.toLowerCase().trim();
   const pModel = preset.model_name.toLowerCase().trim();
   const pDisplay = preset.display_name.toLowerCase().trim();
+
+  // 1. Exact match on make and model_name
+  const exact = existingModels.find(
+    (m) => m.make.toLowerCase().trim() === pMake && m.model_name.toLowerCase().trim() === pModel
+  );
+  if (exact) return exact;
+
+  // 2. Exact match on display_name
+  const displayMatch = existingModels.find(
+    (m) => m.display_name.toLowerCase().trim() === pDisplay
+  );
+  if (displayMatch) return displayMatch;
+
+  // 3. Normalized alphanumeric match
+  const normP = pModel.replace(/[^a-z0-9]/g, "");
   return existingModels.find((m) => {
-    const mMake = m.make.toLowerCase().trim();
-    const mModel = m.model_name.toLowerCase().trim();
-    const mDisplay = m.display_name.toLowerCase().trim();
-    return (
-      (mMake === pMake && mModel === pModel) ||
-      mDisplay === pDisplay ||
-      mModel.includes(pModel) ||
-      pModel.includes(mModel)
-    );
+    if (m.make.toLowerCase().trim() !== pMake) return false;
+    const normM = m.model_name.toLowerCase().replace(/[^a-z0-9]/g, "");
+    return normM === normP;
   });
 }
+
+function findPresetForModel(model: CleanVehicleModel, presets: FleetPreset[]): FleetPreset | undefined {
+  const mMake = model.make.toLowerCase().trim();
+  const mModel = model.model_name.toLowerCase().trim();
+  const mDisplay = model.display_name.toLowerCase().trim();
+
+  const exact = presets.find(
+    (p) => p.make.toLowerCase().trim() === mMake && p.model_name.toLowerCase().trim() === mModel
+  );
+  if (exact) return exact;
+
+  const displayMatch = presets.find(
+    (p) => p.display_name.toLowerCase().trim() === mDisplay
+  );
+  if (displayMatch) return displayMatch;
+
+  const normM = mModel.replace(/[^a-z0-9]/g, "");
+  return presets.find((p) => {
+    if (p.make.toLowerCase().trim() !== mMake) return false;
+    const normP = p.model_name.toLowerCase().replace(/[^a-z0-9]/g, "");
+    return normP === normM;
+  });
+}
+
+function modelToCardPreset(model: CleanVehicleModel, presets: FleetPreset[]): FleetPreset {
+  const matchedPreset = findPresetForModel(model, presets);
+  return {
+    vehicle_group_code: model.group_code,
+    make: model.make,
+    model_name: model.model_name,
+    display_name: model.display_name,
+    passenger_capacity: model.passenger_capacity,
+    luggage_capacity: model.luggage_capacity ?? matchedPreset?.luggage_capacity ?? 2,
+    image_url: model.image_url || matchedPreset?.image_url || "/assets/fleet/sedan.webp",
+    description:
+      matchedPreset?.description ||
+      `Chauffeured ${model.group_name || model.group_code} fleet vehicle configured for commercial intercity & sightseeing booking.`,
+  };
+}
+
 function isPresetInFleet(preset: FleetPreset, existingModels: CleanVehicleModel[]): boolean {
   return Boolean(findPresetModel(preset, existingModels));
 }
@@ -392,7 +473,8 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
   // Search & Catalog Filters
   const [tableSearch, setTableSearch] = useState("");
   const [catalogSearch, setCatalogSearch] = useState("");
-  const [catalogTab, setCatalogTab] = useState<"missing" | "all" | "active">("missing");
+  const [catalogTab, setCatalogTab] = useState<"active" | "inactive" | "missing" | "all">("active");
+  const [toggleLoading, setToggleLoading] = useState<string | null>(null);
 
   // Edit Group Modal
   const [selectedGroup, setSelectedGroup] = useState<CleanVehicleGroup | null>(null);
@@ -589,6 +671,22 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
     }
   };
 
+  // Quick active/inactive status toggle
+  const handleToggleActive = async (model: CleanVehicleModel) => {
+    if (!canEdit) return;
+    setToggleLoading(model.id);
+    try {
+      await patchVehicleModel(model.id, {
+        is_active: !model.is_active,
+      });
+      setReloadKey((k) => k + 1);
+    } catch (err: any) {
+      setLoadError(err.message || "Failed to toggle vehicle status.");
+    } finally {
+      setToggleLoading(null);
+    }
+  };
+
   // Filtered models for table
   const filteredModels = useMemo(() => {
     if (!tableSearch.trim()) return models;
@@ -603,29 +701,56 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
     );
   }, [models, tableSearch]);
 
-  // Catalog Presets computation
+  // Catalog Presets & Live Fleet computation
   const catalogStats = useMemo(() => {
-    const missing = FLEET_PRESETS.filter((p) => !isPresetInFleet(p, models));
-    const active = FLEET_PRESETS.filter((p) => findPresetModel(p, models)?.is_active === true);
-    return { missing, active, all: FLEET_PRESETS };
+    const activeModels = models.filter((m) => m.is_active);
+    const inactiveModels = models.filter((m) => !m.is_active);
+    const missingPresets = FLEET_PRESETS.filter((p) => !isPresetInFleet(p, models));
+    return {
+      activeModels,
+      inactiveModels,
+      missingPresets,
+      allPresets: FLEET_PRESETS,
+    };
   }, [models]);
 
   const displayedCatalog = useMemo(() => {
-    let list = catalogStats.all;
-    if (catalogTab === "missing") list = catalogStats.missing;
-    if (catalogTab === "active") list = catalogStats.active;
+    let list: Array<{ preset: FleetPreset; model?: CleanVehicleModel }> = [];
+
+    if (catalogTab === "active") {
+      list = catalogStats.activeModels.map((m) => ({
+        preset: modelToCardPreset(m, FLEET_PRESETS),
+        model: m,
+      }));
+    } else if (catalogTab === "inactive") {
+      list = catalogStats.inactiveModels.map((m) => ({
+        preset: modelToCardPreset(m, FLEET_PRESETS),
+        model: m,
+      }));
+    } else if (catalogTab === "missing") {
+      list = catalogStats.missingPresets.map((p) => ({
+        preset: p,
+        model: undefined,
+      }));
+    } else {
+      list = catalogStats.allPresets.map((p) => ({
+        preset: p,
+        model: findPresetModel(p, models),
+      }));
+    }
 
     if (!catalogSearch.trim()) return list;
     const q = catalogSearch.toLowerCase().trim();
     return list.filter(
-      (p) =>
-        p.display_name.toLowerCase().includes(q) ||
-        p.make.toLowerCase().includes(q) ||
-        p.model_name.toLowerCase().includes(q) ||
-        p.vehicle_group_code.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q)
+      ({ preset, model }) =>
+        preset.display_name.toLowerCase().includes(q) ||
+        preset.make.toLowerCase().includes(q) ||
+        preset.model_name.toLowerCase().includes(q) ||
+        preset.vehicle_group_code.toLowerCase().includes(q) ||
+        preset.description.toLowerCase().includes(q) ||
+        (model && model.display_name.toLowerCase().includes(q))
     );
-  }, [catalogStats, catalogTab, catalogSearch]);
+  }, [catalogStats, catalogTab, catalogSearch, models]);
 
   return (
     <div className="space-y-6">
@@ -766,6 +891,30 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
                     <div className="flex rounded-md border border-hairline bg-surface-alt p-0.5 text-xs">
                       <button
                         type="button"
+                        onClick={() => setCatalogTab("active")}
+                        className={cn(
+                          "rounded px-2.5 py-1 font-medium transition-colors",
+                          catalogTab === "active"
+                            ? "bg-gold text-white shadow-xs"
+                            : "text-ink-soft hover:text-ink"
+                        )}
+                      >
+                        Active ({catalogStats.activeModels.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCatalogTab("inactive")}
+                        className={cn(
+                          "rounded px-2.5 py-1 font-medium transition-colors",
+                          catalogTab === "inactive"
+                            ? "bg-gold text-white shadow-xs"
+                            : "text-ink-soft hover:text-ink"
+                        )}
+                      >
+                        Inactive ({catalogStats.inactiveModels.length})
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => setCatalogTab("missing")}
                         className={cn(
                           "rounded px-2.5 py-1 font-medium transition-colors",
@@ -774,7 +923,7 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
                             : "text-ink-soft hover:text-ink"
                         )}
                       >
-                        Missing in Fleet ({catalogStats.missing.length})
+                        Missing in Fleet ({catalogStats.missingPresets.length})
                       </button>
                       <button
                         type="button"
@@ -786,19 +935,7 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
                             : "text-ink-soft hover:text-ink"
                         )}
                       >
-                        All Catalog ({catalogStats.all.length})
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setCatalogTab("active")}
-                        className={cn(
-                          "rounded px-2.5 py-1 font-medium transition-colors",
-                          catalogTab === "active"
-                            ? "bg-gold text-white shadow-xs"
-                            : "text-ink-soft hover:text-ink"
-                        )}
-                      >
-                        Active ({catalogStats.active.length})
+                        All Catalog ({catalogStats.allPresets.length})
                       </button>
                     </div>
 
@@ -823,26 +960,31 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
                     <p className="text-sm font-semibold text-ink">
                       {catalogTab === "missing"
                         ? "All catalog vehicles are already onboarded!"
+                        : catalogTab === "inactive"
+                        ? "No inactive vehicles in your fleet."
                         : "No vehicles match your search filter."}
                     </p>
                     <p className="mt-1 text-xs text-ink-soft">
                       {catalogTab === "missing"
                         ? "Every vehicle in our catalog is active in your database."
+                        : catalogTab === "inactive"
+                        ? "All fleet models are currently active."
                         : "Try a different search keyword or switch tabs."}
                     </p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {displayedCatalog.map((preset) => {
-                      const matchedModel = findPresetModel(preset, models);
+                    {displayedCatalog.map(({ preset, model }) => {
+                      const matchedModel = model ?? findPresetModel(preset, models);
                       const inFleet = Boolean(matchedModel);
                       const isActiveInFleet = matchedModel?.is_active === true;
                       return (
                         <div
-                          key={preset.display_name}
+                          key={`${preset.display_name}-${matchedModel?.id || 'preset'}`}
                           className={cn(
                             "group flex flex-col justify-between overflow-hidden rounded-md border border-hairline bg-surface transition-all hover:border-gold/50 hover:shadow-sm",
-                            isActiveInFleet && "bg-surface-alt/40 opacity-80 hover:opacity-100"
+                            isActiveInFleet && "bg-surface-alt/40 opacity-90 hover:opacity-100",
+                            inFleet && !isActiveInFleet && "opacity-60 hover:opacity-100"
                           )}
                         >
                           <div>
@@ -863,8 +1005,11 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
                               </div>
                               {matchedModel && (
                                 <div className="absolute right-2 top-2">
-                                  <Badge tone={isActiveInFleet ? "success" : "neutral"} className={isActiveInFleet ? "bg-success text-white" : "bg-surface text-ink-soft"}>
-                                    {isActiveInFleet ? <><Check className="mr-1 h-3 w-3" /> In Fleet</> : "Inactive in Fleet"}
+                                  <Badge
+                                    tone={isActiveInFleet ? "success" : "neutral"}
+                                    className={isActiveInFleet ? "bg-success text-white" : "bg-surface text-ink-soft"}
+                                  >
+                                    {isActiveInFleet ? <><Check className="mr-1 h-3 w-3" /> Active</> : "Inactive"}
                                   </Badge>
                                 </div>
                               )}
@@ -898,26 +1043,42 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
 
                           {/* Action */}
                           <div className="border-t border-hairline p-2.5">
-                            {inFleet ? (
+                            {inFleet && matchedModel ? (
                               <div className="flex items-center justify-between text-xs text-ink-soft">
-                                <span className="flex items-center gap-1 text-[11px] text-success">
-                                  <CheckCircle2 className="h-3.5 w-3.5" /> Active in Fleet
+                                <span className={cn(
+                                  "flex items-center gap-1 text-[11px]",
+                                  isActiveInFleet ? "text-success" : "text-ink-faint"
+                                )}>
+                                  {isActiveInFleet ? (
+                                    <>
+                                      <CheckCircle2 className="h-3.5 w-3.5 text-success" /> Active in Fleet
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Moon className="h-3.5 w-3.5 text-ink-faint" /> Inactive in Fleet
+                                    </>
+                                  )}
                                 </span>
                                 {canEdit && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-7 text-xs"
-                                    onClick={() => {
-                                      const existing = models.find((m) =>
-                                        m.model_name.toLowerCase().includes(preset.model_name.toLowerCase()) ||
-                                        preset.model_name.toLowerCase().includes(m.model_name.toLowerCase())
-                                      );
-                                      if (existing) handleEditModel(existing);
-                                    }}
-                                  >
-                                    <Edit3 className="mr-1 h-3 w-3" /> Edit
-                                  </Button>
+                                  <div className="flex items-center gap-1">
+                                    <Button
+                                      variant={isActiveInFleet ? "outline" : "gold"}
+                                      size="sm"
+                                      className="h-7 px-2 text-[11px]"
+                                      disabled={toggleLoading === matchedModel.id}
+                                      onClick={() => handleToggleActive(matchedModel)}
+                                    >
+                                      {isActiveInFleet ? "Deactivate" : "Activate"}
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-7 px-2 text-[11px]"
+                                      onClick={() => handleEditModel(matchedModel)}
+                                    >
+                                      <Edit3 className="mr-1 h-3 w-3" /> Edit
+                                    </Button>
+                                  </div>
                                 )}
                               </div>
                             ) : (
@@ -947,7 +1108,7 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
             <Card className="overflow-hidden">
               <CardHeader className="flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Active Vehicle Models ({models.length})</CardTitle>
+                  <CardTitle>Fleet Vehicle Models Registry ({models.length})</CardTitle>
                   <CardDescription>
                     Models attached to groups. Deactivating a model hides it from new customer quotes without touching existing bookings.
                   </CardDescription>
@@ -1029,14 +1190,25 @@ export function VehiclesPage({ user }: { user: AdminUser }) {
                         </TD>
                         {canEdit && (
                           <TD className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEditModel(m)}
-                              className="text-xs"
-                            >
-                              <Edit3 className="mr-1 h-3 w-3" /> Edit
-                            </Button>
+                            <div className="flex items-center justify-end gap-1.5">
+                              <Button
+                                variant={m.is_active ? "outline" : "gold"}
+                                size="sm"
+                                onClick={() => handleToggleActive(m)}
+                                className="h-7 text-xs"
+                                disabled={toggleLoading === m.id}
+                              >
+                                {m.is_active ? "Deactivate" : "Activate"}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEditModel(m)}
+                                className="h-7 text-xs"
+                              >
+                                <Edit3 className="mr-1 h-3 w-3" /> Edit
+                              </Button>
+                            </div>
                           </TD>
                         )}
                       </motion.tr>
