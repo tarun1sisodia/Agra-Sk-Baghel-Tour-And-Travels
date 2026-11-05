@@ -49,7 +49,7 @@ const CANONICAL_CATEGORIES: Omit<ServiceCategory, "vehicleTypes" | "tariffSummar
     ],
     idealFor: "Executive business passengers, interstate family travel, and Golden Triangle circuits.",
     bookingUrl: "/book?category=outstation",
-    secondaryUrl: "/routes",
+    secondaryUrl: "/en/routes/",
     secondaryLabel: "Explore Outstation Routes",
     inquiryText: "Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about Outstation Chauffeur Services.",
   },
@@ -70,7 +70,7 @@ const CANONICAL_CATEGORIES: Omit<ServiceCategory, "vehicleTypes" | "tariffSummar
     ],
     idealFor: "Heritage lovers, families, photographers, and independent voyagers.",
     bookingUrl: "/book?category=local",
-    secondaryUrl: "/packages",
+    secondaryUrl: "/en/packages/",
     secondaryLabel: "View Tour Packages",
     inquiryText: "Hello Agra SK Baghel Tour & Travels Desk, I would like to inquire about Agra Local Sightseeing Cabs.",
   },
@@ -196,7 +196,7 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
             <div className="lg:col-span-8 flex flex-col">
               <span className={EDITORIAL_TYPOGRAPHY.eyebrow}>Concierge Transit Portfolio</span>
               <h1 className={`${EDITORIAL_TYPOGRAPHY.heroH1} hero-line max-w-3xl mt-1.5`}>
-                Every journey in North India,{" "}
+                Tourist Taxi Services in Agra —{" "}
                 <span className={EDITORIAL_TYPOGRAPHY.heroAccent}>thoughtfully chauffeured.</span>
               </h1>
             </div>
@@ -267,7 +267,7 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
               <div className="relative w-full min-h-[460px] sm:min-h-[500px] lg:min-h-[560px] flex flex-col justify-between overflow-hidden">
                 <img
                   src={cat.image}
-                  alt={cat.name}
+                  alt={`${cat.name} — Tourist Taxi Services in Agra by SK Baghel`}
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 group-focus-within:scale-105"
                 />
@@ -443,6 +443,36 @@ export function ServicesPage({ language = "en" }: ServicesPageProps) {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3B. COMPREHENSIVE REGIONAL LINKING DIRECTORY ── */}
+      <section className="w-full bg-surface-container-low py-8 border-t border-border-warm/60">
+        <div className="max-w-[1280px] mx-auto px-margin-mobile lg:px-margin">
+          <div className="mb-4">
+            <span className={EDITORIAL_TYPOGRAPHY.eyebrow}>Agra Travel Network</span>
+            <h3 className="font-headline-sm text-base sm:text-headline-lg-mobile text-on-surface font-bold mt-1">
+              Explore Related Taxi Hire, Car Rental &amp; Tour Packages
+            </h3>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <a href="/en/taxis/rent/" className="p-3 rounded-xl bg-surface-container-lowest border border-border-warm/50 hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs">
+              <span className="font-bold text-ink-charcoal">Car Rental in Agra</span>
+              <span className="text-on-surface-variant mt-1">Taxi Hire &amp; Taxi on Rent</span>
+            </a>
+            <a href="/en/routes/" className="p-3 rounded-xl bg-surface-container-lowest border border-border-warm/50 hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs">
+              <span className="font-bold text-ink-charcoal">Outstation Taxi Services</span>
+              <span className="text-on-surface-variant mt-1">One-Way Drops to Delhi &amp; Jaipur</span>
+            </a>
+            <a href="/en/packages/" className="p-3 rounded-xl bg-surface-container-lowest border border-border-warm/50 hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs">
+              <span className="font-bold text-ink-charcoal">Agra Tour Packages</span>
+              <span className="text-on-surface-variant mt-1">Taj Mahal Sightseeing Taxi</span>
+            </a>
+            <a href="/en/fleet/" className="p-3 rounded-xl bg-surface-container-lowest border border-border-warm/50 hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs">
+              <span className="font-bold text-ink-charcoal">Fleet &amp; Tempo Travellers</span>
+              <span className="text-on-surface-variant mt-1">Innova Crysta, Dzire &amp; Vans</span>
+            </a>
           </div>
         </div>
       </section>

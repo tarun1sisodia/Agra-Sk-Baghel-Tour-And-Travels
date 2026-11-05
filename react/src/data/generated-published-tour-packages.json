@@ -59,72 +59,6 @@
     "image": "/assets/places/gallery/mathura-vrindavan-01.jpg"
   },
   {
-    "id": "6b042408-f4f0-46a2-b17a-c8e4f90e960e",
-    "packageCode": "himachal-tour-2-day",
-    "name": "Himachal Tour 2 Day",
-    "durationText": "2 Day",
-    "days": 2,
-    "nights": 1,
-    "baseTierCode": null,
-    "startingPriceInr": 20000,
-    "fleetPrices": {
-      "ertiga": 20000,
-      "traveller-12": 40000
-    },
-    "nightChargeInr": null,
-    "inclusionsHighlight": "Private AC Cab, Chauffeur Allowance, Fuel & State Taxes",
-    "inclusionsNote": null,
-    "source": "Agra",
-    "destination": "",
-    "inclusions": [
-      "Private AC Cab dedicated exclusively to your group",
-      "Police-verified professional chauffeur & fuel charges",
-      "All highway toll taxes & state border permits",
-      "Doorstep hotel / railway station pickup & drop",
-      "Chilled packaged drinking water bottles"
-    ],
-    "exclusions": [
-      "Monument entry tickets & camera/drone permits",
-      "Meals, buffet lunches & personal snacks/dining",
-      "Chauffeur / guide discretionary tips & gratuities"
-    ],
-    "itinerary": [],
-    "imageUrl": "/api/v1/tour-packages/media/dea3dc6c-b29e-4d6b-b68d-7b3fedb50fff.webp",
-    "gallery": [
-      {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/959515a3-d370-4dd0-84a9-9a5d88724323.webp",
-        "alt": "pexels balvir singh 1121494947 20848215",
-        "caption": "pexels balvir singh 1121494947 20848215",
-        "sortOrder": 0
-      },
-      {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/dea3dc6c-b29e-4d6b-b68d-7b3fedb50fff.webp",
-        "alt": "Travel Cash Voucher Template With Watermark",
-        "caption": "Travel Cash Voucher Template With Watermark",
-        "sortOrder": 1
-      },
-      {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/3fa119e0-9bf7-471e-b7d0-d90178e58f84.webp",
-        "alt": "pexels ibrahim poonawala 53441506 8046592",
-        "caption": "pexels ibrahim poonawala 53441506 8046592",
-        "sortOrder": 2
-      },
-      {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/d224ba80-c878-4c3a-a56f-9b1e30ba5784.webp",
-        "alt": "pexels chalta phirta 307182428 15404469",
-        "caption": "pexels chalta phirta 307182428 15404469",
-        "sortOrder": 3
-      }
-    ],
-    "status": "published",
-    "isActive": true,
-    "createdAt": "2026-10-24T14:48:26.922Z",
-    "updatedAt": "2026-10-24T14:50:54.456Z",
-    "upgrades": [],
-    "slug": "himachal-tour-2-day",
-    "image": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/dea3dc6c-b29e-4d6b-b68d-7b3fedb50fff.webp"
-  },
-  {
     "id": "60423a16-4df0-4424-b77a-c7b7b8d13360",
     "packageCode": "exclusive-tour-of-agra-for-1-day",
     "name": "Exclusive Tour of Agra for 1 Day",
@@ -132,10 +66,11 @@
     "days": 1,
     "nights": 0,
     "baseTierCode": null,
-    "startingPriceInr": 5000,
+    "startingPriceInr": 3500,
     "fleetPrices": {
-      "dzire": 5000,
-      "ertiga": 6500
+      "dzire": 3500,
+      "ertiga": 4500,
+      "innova-crysta": 6000
     },
     "nightChargeInr": null,
     "inclusionsHighlight": "Ram bagh, Sikandra, Taj Mahal, Agra Fort, Sahid Park",
@@ -155,39 +90,423 @@
       "Chauffeur / guide discretionary tips & gratuities"
     ],
     "itinerary": [],
-    "imageUrl": "/api/v1/tour-packages/media/b191edb7-ffcd-4d8d-bc5d-876fd9fc3031.jpg",
+    "imageUrl": "/api/v1/tour-packages/media/baba62e7-3e42-4122-922d-172842198fd9.webp",
     "gallery": [
       {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/b191edb7-ffcd-4d8d-bc5d-876fd9fc3031.jpg",
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/50c4be58-45fe-43d5-8056-7438e1aefad4.jpg",
         "alt": "pexels akshatrai 5367202",
         "caption": "pexels akshatrai 5367202",
         "sortOrder": 0
       },
       {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/86e949ef-5ab8-4af8-95dc-91d6ea98c503.webp",
-        "alt": "pexels balvir singh 1121494947 20848215",
-        "caption": "pexels balvir singh 1121494947 20848215",
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/e9fbf686-41a1-4773-b6e6-b8cb7bca7b4e.webp",
+        "alt": "pexels ibrahim poonawala 53441506 8046592",
+        "caption": "pexels ibrahim poonawala 53441506 8046592",
         "sortOrder": 1
       },
       {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/45829528-dcb6-432f-b6b0-3955e914b378.webp",
-        "alt": "pexels chalta phirta 307182428 15404469",
-        "caption": "pexels chalta phirta 307182428 15404469",
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/baba62e7-3e42-4122-922d-172842198fd9.webp",
+        "alt": "pexels utkarsh verma 2719461 38549327",
+        "caption": "pexels utkarsh verma 2719461 38549327",
         "sortOrder": 2
-      },
-      {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/0117f81d-504c-44d6-9f47-156afe1afad0.webp",
-        "alt": "pexels ibrahim poonawala 53441506 8046592",
-        "caption": "pexels ibrahim poonawala 53441506 8046592",
-        "sortOrder": 3
       }
     ],
     "status": "published",
     "isActive": true,
     "createdAt": "2026-10-25T14:21:28.695Z",
-    "updatedAt": "2026-10-25T14:21:36.118Z",
+    "updatedAt": "2026-11-01T10:04:20.989Z",
     "upgrades": [],
     "slug": "exclusive-tour-of-agra-for-1-day",
-    "image": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/b191edb7-ffcd-4d8d-bc5d-876fd9fc3031.jpg"
+    "image": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/baba62e7-3e42-4122-922d-172842198fd9.webp"
+  },
+  {
+    "id": "300d4bfb-c224-42cf-b5f0-da103e3b3184",
+    "packageCode": "agra-same-day-sightseeing-tour",
+    "name": "Agra Same Day Tour",
+    "durationText": "1 Day",
+    "days": 1,
+    "nights": 0,
+    "baseTierCode": null,
+    "startingPriceInr": 3300,
+    "fleetPrices": {
+      "dzire": 3300,
+      "ertiga": 4200,
+      "urbania-13": 11100,
+      "urbania-17": 9600,
+      "traveller-12": 8100,
+      "traveller-17": 8400,
+      "innova-crysta": 5400
+    },
+    "nightChargeInr": null,
+    "inclusionsHighlight": "Private AC Cab, Chauffeur Allowance, Fuel",
+    "inclusionsNote": null,
+    "source": "Agra",
+    "destination": "",
+    "inclusions": [
+      "Private AC Cab dedicated exclusively to your group",
+      "Police-verified professional chauffeur & fuel charges",
+      "Doorstep hotel / railway station pickup & drop",
+      "Chilled packaged drinking water bottles"
+    ],
+    "exclusions": [
+      "Monument entry tickets & camera/drone permits",
+      "Meals, buffet lunches & personal snacks/dining",
+      "Chauffeur / guide discretionary tips & gratuities",
+      "Parking Charges",
+      "State & Toll taxes"
+    ],
+    "itinerary": [],
+    "imageUrl": "/api/v1/tour-packages/media/aa4c6eda-b0b4-4617-b954-1154b70cc6d5.webp",
+    "gallery": [
+      {
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/aa4c6eda-b0b4-4617-b954-1154b70cc6d5.webp",
+        "alt": "agra fort",
+        "caption": "agra fort",
+        "sortOrder": 0
+      },
+      {
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/1ebea9a6-f540-4563-9669-35fdbe8cbcf6.webp",
+        "alt": "fatehpur",
+        "caption": "fatehpur",
+        "sortOrder": 1
+      },
+      {
+        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/3900870d-4815-4120-81bb-5af02e2fb57c.jpg",
+        "alt": "taj amaj",
+        "caption": "taj amaj",
+        "sortOrder": 2
+      }
+    ],
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-11-05T06:44:31.350Z",
+    "updatedAt": "2026-11-05T07:14:58.127Z",
+    "upgrades": [],
+    "slug": "agra-same-day-sightseeing-tour",
+    "image": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/aa4c6eda-b0b4-4617-b954-1154b70cc6d5.webp"
+  },
+  {
+    "id": "ef0df5f7-502f-4f3b-8a76-bec3ff5fdbfd",
+    "packageCode": "agra-to-delhi-tour",
+    "name": "Agra to Delhi Tour",
+    "durationText": "3 Days / 2 Nights",
+    "days": 3,
+    "nights": 2,
+    "baseTierCode": null,
+    "startingPriceInr": 9900,
+    "fleetPrices": {
+      "amaze": 9900,
+      "dzire": 9900,
+      "ertiga": 12600,
+      "glanza": 9900,
+      "urbania-13": 33300,
+      "urbania-17": 28800,
+      "traveller-12": 24300,
+      "traveller-17": 25200,
+      "innova-crysta": 16200
+    },
+    "nightChargeInr": null,
+    "inclusionsHighlight": null,
+    "inclusionsNote": null,
+    "source": "Agra",
+    "destination": "Delhi",
+    "inclusions": [
+      "Dedicated AC vehicle with experienced tourist chauffeur for all 3 days",
+      "Full sightseeing en route: Fatehpur Sikri Imperial Complex & Mathura Vrindavan",
+      "Chauffeur night halt allowances, fuel charges & interstate transit allowance",
+      "Doorstep drop off at Delhi Airport (IGI) or any central Delhi hotel"
+    ],
+    "exclusions": [
+      "Monument entrance tickets and professional ASI guide charges",
+      "State road taxes, highway tolls and parking billed at actuals",
+      "Guest accommodation and personal meal expenses"
+    ],
+    "itinerary": [
+      {
+        "desc": "Morning Taj Mahal & Agra Fort visit, afternoon drive to Fatehpur Sikri to explore Buland Darwaza and Salim Chishti Dargah.",
+        "title": "Day 1: Agra & Fatehpur Sikri Imperial Excursion"
+      },
+      {
+        "desc": "Drive to sacred Mathura and Vrindavan. Darshan at Shri Krishna Janmasthan, Banke Bihari Ji, Prem Mandir and evening Yamuna Aarti.",
+        "title": "Day 2: Mathura & Vrindavan Krishna Janmabhoomi Circuit"
+      },
+      {
+        "desc": "Morning peaceful temple visit in Vrindavan, scenic Yamuna Expressway drive to Delhi, dropping off at hotel or IGI airport.",
+        "title": "Day 3: Expressway Cruise to Delhi Drop"
+      }
+    ],
+    "imageUrl": null,
+    "gallery": [],
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-11-05T10:54:18.984Z",
+    "updatedAt": "2026-11-05T10:54:18.984Z",
+    "upgrades": [],
+    "slug": "agra-to-delhi-tour",
+    "image": "/assets/packages/taj-dawn.webp"
+  },
+  {
+    "id": "12a4ccc5-3fd4-4181-aa9c-46fa1a74d499",
+    "packageCode": "agra-to-mussoorie-tour",
+    "name": "Agra to Mussoorie Tour",
+    "durationText": "5 Days / 4 Nights",
+    "days": 5,
+    "nights": 4,
+    "baseTierCode": null,
+    "startingPriceInr": 16500,
+    "fleetPrices": {
+      "amaze": 16500,
+      "dzire": 16500,
+      "ertiga": 21000,
+      "glanza": 16500,
+      "urbania-13": 55500,
+      "urbania-17": 48000,
+      "traveller-12": 40500,
+      "traveller-17": 42000,
+      "innova-crysta": 27000
+    },
+    "nightChargeInr": null,
+    "inclusionsHighlight": null,
+    "inclusionsNote": null,
+    "source": "Agra",
+    "destination": "Mussoorie",
+    "inclusions": [
+      "Private AC tourist vehicle dedicated for 5 full days with hill-certified chauffeur",
+      "Chauffeur overnight allowance, hill driving allowance and vehicle fuel",
+      "Comprehensive sightseeing across Haridwar, Rishikesh, Dehradun and Mussoorie",
+      "Flexible stopovers for Ganga Aarti and scenic Himalayan viewing points"
+    ],
+    "exclusions": [
+      "Guest hotel accommodation and meals",
+      "Ropeway tickets, river rafting and adventure activity charges",
+      "Interstate road taxes, hill tolls and green cess"
+    ],
+    "itinerary": [
+      {
+        "desc": "Departure from Agra, highway journey to Haridwar. Evening spiritual Ganga Aarti darshan at Har Ki Pauri.",
+        "title": "Day 1: Agra to Haridwar Foothill Drive"
+      },
+      {
+        "desc": "Short drive to Rishikesh. Visit Ram Jhula, Laxman Jhula, Triveni Ghat, Beatles Ashram and evening Neer Gaddu water stream.",
+        "title": "Day 2: Rishikesh Yoga Capital Exploration"
+      },
+      {
+        "desc": "Drive through Dehradun visiting Robber's Cave and Sahastradhara, ascending the scenic Garhwal hills into Mussoorie.",
+        "title": "Day 3: Dehradun & Ascent to Queen of Hills Mussoorie"
+      },
+      {
+        "desc": "Full day sightseeing including Kempty Falls, Gun Hill viewpoint, Lal Tibba, Company Garden and vibrant Mall Road.",
+        "title": "Day 4: Mussoorie Scenic & Cultural Day"
+      },
+      {
+        "desc": "Leisurely mountain morning, descending via Doon valley and expressways back to Agra.",
+        "title": "Day 5: Himalayan Descent & Return to Agra"
+      }
+    ],
+    "imageUrl": null,
+    "gallery": [],
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-11-05T10:54:30.780Z",
+    "updatedAt": "2026-11-05T10:54:30.780Z",
+    "upgrades": [],
+    "slug": "agra-to-mussoorie-tour",
+    "image": "/assets/packages/taj-dawn.webp"
+  },
+  {
+    "id": "c8a3cd0a-de03-446d-9af3-48ad0b4fa6a4",
+    "packageCode": "agra-to-manali-tour",
+    "name": "Agra to Manali Tour",
+    "durationText": "5 Days / 4 Nights",
+    "days": 5,
+    "nights": 4,
+    "baseTierCode": null,
+    "startingPriceInr": 16500,
+    "fleetPrices": {
+      "amaze": 16500,
+      "dzire": 16500,
+      "ertiga": 21000,
+      "glanza": 16500,
+      "urbania-13": 55500,
+      "urbania-17": 48000,
+      "traveller-12": 40500,
+      "traveller-17": 42000,
+      "innova-crysta": 27000
+    },
+    "nightChargeInr": null,
+    "inclusionsHighlight": null,
+    "inclusionsNote": null,
+    "source": "Agra",
+    "destination": "Manali",
+    "inclusions": [
+      "Dedicated AC vehicle with specialist high-altitude chauffeur for 5 days",
+      "All driver lodging, hill terrain permits, fuel and highway allowances",
+      "Guided transit across Kullu Valley, Pandoh Dam, and Manali attractions",
+      "Pickup and return drop at your residence or hotel in Agra"
+    ],
+    "exclusions": [
+      "Rohtang Pass NGT special permit and local taxi union charges (if visiting snow point)",
+      "Paragliding, river rafting and personal adventure expenses",
+      "State entry permits and green taxes"
+    ],
+    "itinerary": [
+      {
+        "desc": "Morning departure from Agra via Western Peripheral Expressway, overnight stay in Himalayan gateway.",
+        "title": "Day 1: Agra to Chandigarh / Foothills Transit"
+      },
+      {
+        "desc": "Breathtaking drive alongside Beas river, crossing Aut Tunnel, Hanogi Mata, Kullu shawl valley to Manali.",
+        "title": "Day 2: Scenic Drive Through Kullu Valley to Manali"
+      },
+      {
+        "desc": "Visit Hadimba Devi Temple, Vashisht Hot Sulphur Springs, Manu Temple and evening stroll along Old Manali cafe lane.",
+        "title": "Day 3: Manali Local Heritage & Mountain Culture"
+      },
+      {
+        "desc": "Excursion to Solang Valley for snow activities and the engineering wonder of Atal Tunnel into Lahaul valley.",
+        "title": "Day 4: Solang Valley & Atal Tunnel Marvel"
+      },
+      {
+        "desc": "Morning checkout, scenic drive back via Kiratpur expressway corridor returning to Agra.",
+        "title": "Day 5: Kullu Rafting Point & Highway Return to Agra"
+      }
+    ],
+    "imageUrl": null,
+    "gallery": [],
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-11-05T10:54:42.393Z",
+    "updatedAt": "2026-11-05T10:54:42.393Z",
+    "upgrades": [],
+    "slug": "agra-to-manali-tour",
+    "image": "/assets/packages/taj-dawn.webp"
+  },
+  {
+    "id": "9dfa6ac2-42d5-40b4-bb66-daeaf10f0f4a",
+    "packageCode": "agra-to-jaisalmer-tour",
+    "name": "Agra to Jaisalmer Tour",
+    "durationText": "5 Days / 4 Nights",
+    "days": 5,
+    "nights": 4,
+    "baseTierCode": null,
+    "startingPriceInr": 16500,
+    "fleetPrices": {
+      "amaze": 16500,
+      "dzire": 16500,
+      "ertiga": 21000,
+      "glanza": 16500,
+      "urbania-13": 55500,
+      "urbania-17": 48000,
+      "traveller-12": 40500,
+      "traveller-17": 42000,
+      "innova-crysta": 27000
+    },
+    "nightChargeInr": null,
+    "inclusionsHighlight": null,
+    "inclusionsNote": null,
+    "source": "Agra",
+    "destination": "Jaisalmer",
+    "inclusions": [
+      "Dedicated commercial AC vehicle with experienced Rajasthan chauffeur for 5 days",
+      "Full intercity circuit: Jaipur Pink City, Ajmer Sharif, Udaipur Lakes & Jaisalmer Thar Desert",
+      "Chauffeur night lodging, highway halts and all fuel charges included",
+      "Complete flexibility for monument photo-stops and sunset desert views"
+    ],
+    "exclusions": [
+      "Sam Sand Dunes camel ride, desert jeep safari and camp cultural passes",
+      "Fort audio guides and museum entry fees",
+      "Rajasthan border passenger permits and tolls"
+    ],
+    "itinerary": [
+      {
+        "desc": "Drive to Jaipur via Bharatpur. Visit Amber Fort, Jal Mahal and evening Hawa Mahal facade.",
+        "title": "Day 1: Agra to Jaipur Pink City"
+      },
+      {
+        "desc": "Morning visit to Holy Ajmer Sharif Dargah, continuing to the romantic Lake City Udaipur.",
+        "title": "Day 2: Ajmer Sharif Dargah & Drive to Udaipur"
+      },
+      {
+        "desc": "Morning Lake Pichola and City Palace visit, afternoon highway drive towards royal Jaisalmer.",
+        "title": "Day 3: Udaipur City Palace & Drive into Desert Sands"
+      },
+      {
+        "desc": "Explore Sonar Qila (Jaisalmer Fort), Patwon Ki Haveli, sunset camel safari at Sam Sand Dunes.",
+        "title": "Day 4: Jaisalmer Golden Living Fort & Sam Sand Dunes"
+      },
+      {
+        "desc": "Morning desert views, smooth return drive along the Rajasthan mega-corridor back to Agra.",
+        "title": "Day 5: Desert Sunrise & Highway Return to Agra"
+      }
+    ],
+    "imageUrl": null,
+    "gallery": [],
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-11-05T10:54:53.403Z",
+    "updatedAt": "2026-11-05T10:54:53.403Z",
+    "upgrades": [],
+    "slug": "agra-to-jaisalmer-tour",
+    "image": "/assets/packages/taj-dawn.webp"
+  },
+  {
+    "id": "9de5ae7d-d330-4cb7-88be-67914d4b575e",
+    "packageCode": "delhi-to-agra-tour",
+    "name": "Delhi to Agra Tour",
+    "durationText": "3 Days / 2 Nights",
+    "days": 3,
+    "nights": 2,
+    "baseTierCode": null,
+    "startingPriceInr": 9900,
+    "fleetPrices": {
+      "amaze": 9900,
+      "dzire": 9900,
+      "ertiga": 12600,
+      "glanza": 9900,
+      "urbania-13": 33300,
+      "urbania-17": 28800,
+      "traveller-12": 24300,
+      "traveller-17": 25200,
+      "innova-crysta": 16200
+    },
+    "nightChargeInr": null,
+    "inclusionsHighlight": null,
+    "inclusionsNote": null,
+    "source": "Delhi",
+    "destination": "Agra",
+    "inclusions": [
+      "Pickup from any location in Delhi NCR (Airport / Station / Residence)",
+      "Dedicated AC vehicle and chauffeur for 3 complete days",
+      "Full heritage tour of Mathura, Vrindavan, Agra monuments and Fatehpur Sikri",
+      "Chauffeur night halt allowances, expressway tolls and return drop in Delhi"
+    ],
+    "exclusions": [
+      "Monument entrance ticketing fees (Taj Mahal, Agra Fort, Fatehpur Sikri)",
+      "Authorized tour guide fees (available on request)",
+      "Hotel bookings and guest dining"
+    ],
+    "itinerary": [
+      {
+        "desc": "Morning pickup from Delhi NCR, smooth drive via Yamuna Expressway to Mathura and Vrindavan. Check-in at Agra hotel.",
+        "title": "Day 1: Delhi Pickup & Holy Braj Bhumi Darshan"
+      },
+      {
+        "desc": "Sunrise viewing at the Taj Mahal, guided exploration of Agra Red Fort and sunset reflection view from Mehtab Bagh.",
+        "title": "Day 2: Wonder of the World Taj Mahal & Mughal Citadel"
+      },
+      {
+        "desc": "Morning excursion to Akbar's ghost capital Fatehpur Sikri. Afternoon expressway return to Delhi drop.",
+        "title": "Day 3: Imperial Fatehpur Sikri & Return to Delhi"
+      }
+    ],
+    "imageUrl": null,
+    "gallery": [],
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-11-05T10:55:04.303Z",
+    "updatedAt": "2026-11-05T10:55:04.303Z",
+    "upgrades": [],
+    "slug": "delhi-to-agra-tour",
+    "image": "/assets/packages/taj-dawn.webp"
   }
 ]

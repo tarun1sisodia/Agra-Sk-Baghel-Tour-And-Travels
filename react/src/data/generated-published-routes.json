@@ -741,13 +741,11 @@
     "distanceKm": 370,
     "durationText": "390 mins",
     "availableFleets": [
-      "city",
       "dzire",
       "ertiga",
       "innova-crysta"
     ],
     "faresInr": {
-      "city": 7500,
       "dzire": 7500,
       "ertiga": 8500,
       "innova-crysta": 11000
@@ -778,13 +776,11 @@
     "distanceKm": 370,
     "durationText": "390 mins",
     "availableFleets": [
-      "city",
       "dzire",
       "ertiga",
       "innova-crysta"
     ],
     "faresInr": {
-      "city": 7500,
       "dzire": 7500,
       "ertiga": 8500,
       "innova-crysta": 11000
@@ -1185,13 +1181,11 @@
     "distanceKm": 230,
     "durationText": "240 mins",
     "availableFleets": [
-      "city",
       "dzire",
       "ertiga",
       "innova-crysta"
     ],
     "faresInr": {
-      "city": 5000,
       "dzire": 5000,
       "ertiga": 6500,
       "innova-crysta": 8500
@@ -1222,13 +1216,11 @@
     "distanceKm": 230,
     "durationText": "240 mins",
     "availableFleets": [
-      "city",
       "dzire",
       "ertiga",
       "innova-crysta"
     ],
     "faresInr": {
-      "city": 5000,
       "dzire": 5000,
       "ertiga": 6500,
       "innova-crysta": 8500

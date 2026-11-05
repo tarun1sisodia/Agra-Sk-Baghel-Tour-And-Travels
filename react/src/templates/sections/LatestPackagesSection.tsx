@@ -42,7 +42,7 @@ export function LatestPackagesSection({
   maxItems = 3,
 }: LatestPackagesSectionProps) {
   const packagesToDisplay = useMemo(() => {
-    const source = propPackages || (generatedPublishedTourPackages as LatestTourPackageItem[]);
+    const source = propPackages || (generatedPublishedTourPackages as any);
     if (!Array.isArray(source) || source.length === 0) return [];
 
     return source

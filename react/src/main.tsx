@@ -8,6 +8,11 @@ import "@/styles/tokens.css";
 import "@/styles/theme.css";
 import "@/styles/global.css";
 import "@/styles/heritage-animations.css";
+import { initDeferredIcons, initDeferredGTM } from "@/app/headScripts";
+
+// Deferred icon font & analytics initializers (extracted from index.html for strict CSP)
+initDeferredIcons();
+initDeferredGTM();
 
 // Service Worker registration for offline support and caching
 if ('serviceWorker' in navigator && import.meta.env.PROD) {

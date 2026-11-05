@@ -28,6 +28,8 @@
     "customer:catalog-sources": "npm --prefix react run check-catalog-sources",
     "customer:test:catalog-sources": "npm --prefix react run test:catalog-sources",
     "customer:seo:audit": "npm --prefix react run seo:audit",
+    "customer:indexnow": "npm --prefix react run indexnow",
+    "indexnow:submit": "npm --prefix react run indexnow",
     "admin:dev": "npm --prefix admin run dev",
     "admin:build": "npm --prefix admin run build",
     "admin:preview": "npm --prefix admin run preview",

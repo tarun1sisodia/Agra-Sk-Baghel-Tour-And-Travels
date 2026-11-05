@@ -647,7 +647,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                 <img
                   className="w-full h-full object-cover min-h-[190px] sm:min-h-[220px] lg:min-h-[260px]"
                   src={veh.image}
-                  alt={veh.name}
+                  alt={`${veh.name} - Chauffeur-Driven Taxi Hire & Rental Fleet in Agra`}
                   loading="lazy"
                   decoding="async"
                 />
@@ -853,7 +853,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                   <div className="relative h-44 bg-surface-container-low overflow-hidden">
                     <img
                       src={item.image}
-                      alt={item.name}
+                      alt={`${item.name} - Agra Taxi Rental Model`}
                       className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                       loading="lazy"
                     />

@@ -1,1 +1,79 @@
-[]
+[
+  {
+    "id": "4c9fd683-7d82-45d1-b8fc-f4e33c1ca628",
+    "packageCode": "agra-to-mathura-local-sightseeing",
+    "name": "Agra to Mathura Local Sightseeing",
+    "durationHours": 8,
+    "includedKm": 120,
+    "covers": "Agra → Mathura → Vrindavan: Shri Krishna Janmabhoomi, Banke Bihari Temple, Prem Mandir, ISKCON Temple & Yamuna Ghats",
+    "parkingNote": "Parking charges, toll charges, and driver night charges are excluded and billed at actuals.",
+    "fleetPrices": {
+      "amaze": 3300,
+      "dzire": 3300,
+      "ertiga": 4200,
+      "glanza": 3300,
+      "urbania-13": 11400,
+      "urbania-17": 9600,
+      "traveller-12": 8100,
+      "traveller-17": 8400,
+      "innova-crysta": 5400
+    },
+    "imageUrl": null,
+    "gallery": [],
+    "usePerKm": false,
+    "extraRates": null,
+    "nightChargeInr": 0,
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-11-05T10:55:15.818Z",
+    "updatedAt": "2026-11-05T10:55:15.818Z",
+    "slug": "agra-to-mathura-local-sightseeing",
+    "image": "/assets/packages/mathura.webp"
+  },
+  {
+    "id": "a1aa0027-ab0f-440d-bc8c-46ce1a7315a7",
+    "packageCode": "agra-tour-for-international-tourists-full-day",
+    "name": "Agra Tour for International Tourists Full Day",
+    "durationHours": 12,
+    "includedKm": 80,
+    "covers": "Taj Mahal, Agra Fort, Mehtab Bagh, Sikandra, Etamd Dul Ulha",
+    "parkingNote": "Monument entry fees & parking billed at actuals",
+    "fleetPrices": {
+      "city": 10500,
+      "amaze": 10500,
+      "dzire": 10000,
+      "ertiga": 12000,
+      "glanza": 10500,
+      "traveller-12": 20000,
+      "innova-crysta": 12500
+    },
+    "imageUrl": null,
+    "gallery": [],
+    "usePerKm": null,
+    "extraRates": {
+      "suv": {
+        "per_hr": 170,
+        "per_km": 12
+      },
+      "sedan": {
+        "per_hr": 150,
+        "per_km": 10
+      },
+      "luxury": {
+        "per_hr": 200,
+        "per_km": 14
+      },
+      "tempo_traveller": {
+        "per_hr": 250,
+        "per_km": 15
+      }
+    },
+    "nightChargeInr": 500,
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-11-03T01:49:03.645Z",
+    "updatedAt": "2026-11-03T03:29:44.104Z",
+    "slug": "agra-tour-for-international-tourists-full-day",
+    "image": "/assets/booking/taj-mahal.webp"
+  }
+]

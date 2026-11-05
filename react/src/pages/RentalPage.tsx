@@ -114,7 +114,7 @@ function RentalVehicleCard({
         {currentImg && !imgFailed ? (
           <img
             src={currentImg}
-            alt={`${vehicle.display_name} rental taxi in Agra`}
+            alt={`${vehicle.display_name} - Car Rental & Taxi Hire in Agra with Driver`}
             loading="lazy"
             onError={handleImgError}
           />
@@ -372,9 +372,9 @@ export function RentalPage(_props: { language?: string }) {
             <Sparkles className="w-3.5 h-3.5" />
             {"Agra SK Baghel Tour & Travels · Verified Fleet & Chauffeurs"}
           </p>
-          <h1>{"Find the Right Vehicle for Your Journey"}</h1>
+          <h1>{"Car Rental in Agra — Taxi Hire & Taxi on Rent with Driver"}</h1>
           <p className="rental-hero-lead">
-            {"Explore our canonical fleet of well-maintained sedans, SUVs, luxury cars, and Tempo Travellers in Agra. Call-first transparent rental quotes with dedicated commercial chauffeurs."}
+            {"Explore affordable car rental in Agra and premium taxi hire services. Rent verified sedans, SUVs, Innova Crysta, and Tempo Travellers with dedicated commercial chauffeurs. Seamless taxi on rent in Agra for local sightseeing, outstation trips, and airport transfers with transparent phone quotes."}
           </p>
           <div className="rental-hero-badges">
             <span className="rental-pill">
@@ -803,7 +803,7 @@ export function RentalPage(_props: { language?: string }) {
           <div className="section-header text-center" style={{ textAlign: "center" }}>
             <h2 id="how-it-works-heading">{"How It Works"}</h2>
             <p>
-              {"A simple 3-step process to rent a taxi in Agra"}
+              {"A simple 3-step process for taxi hire & car rental in Agra"}
             </p>
           </div>
 
