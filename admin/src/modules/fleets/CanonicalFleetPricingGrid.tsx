@@ -66,40 +66,69 @@ export function CanonicalFleetPricingGrid({
     return Array.from(map.values()).filter((item) => item.models.length > 0);
   }, [groups, models]);
 
-  // Helper to find price for model (checks model ID, model_name, display_name, group code)
+  // Helper to find price for model strictly per-model.
+  // Never falls back to a group code (e.g. "sedan" / "suv" / "tempo_traveller") across different models.
   const getModelPrice = (model: CleanVehicleModel): number | undefined => {
-    // 1. Direct ID match
+    // 1. Direct ID match (UUID)
     if (prices[model.id] !== undefined && prices[model.id]! > 0) return prices[model.id];
 
-    // 2. Slugified display name or model name match
+    // 2. Exact slugified model name match (e.g. "dzire", "ertiga", "innova-crysta", "urbania-13", "urbania-17", "traveller-12", "traveller-17", "amaze", "glanza")
     const slugName = model.model_name.toLowerCase().replace(/[\s_]+/g, "-");
     if (prices[slugName] !== undefined && prices[slugName]! > 0) return prices[slugName];
 
-    // 3. Group code match (for backward-compatible tier keys: sedan, ertiga, innova-crysta, etc.)
-    const grpCode = model.group_code.toLowerCase().replace(/[\s_]+/g, "-");
-    if (prices[grpCode] !== undefined && prices[grpCode]! > 0) return prices[grpCode];
+    // 3. Exact slugified display name match
+    const displaySlug = model.display_name.toLowerCase().replace(/[\s_]+/g, "-");
+    if (prices[displaySlug] !== undefined && prices[displaySlug]! > 0) return prices[displaySlug];
 
-    // 4. Common aliases
-    if (model.display_name.toLowerCase().includes("dzire") && prices["sedan"] !== undefined) return prices["sedan"];
-    if (model.display_name.toLowerCase().includes("ertiga") && prices["ertiga"] !== undefined) return prices["ertiga"];
-    if (model.display_name.toLowerCase().includes("innova") && (prices["innova-crysta"] !== undefined || prices["innova"] !== undefined)) {
-      return prices["innova-crysta"] ?? prices["innova"];
+    // 4. Strict legacy aliases — ONLY for the single baseline model of that legacy key:
+    const mLow = model.model_name.toLowerCase();
+    if (mLow === "dzire" && prices["sedan"] !== undefined && prices["sedan"]! > 0) {
+      return prices["sedan"];
     }
-    if (model.display_name.toLowerCase().includes("traveller") && (prices["tempo-traveller"] !== undefined || prices["tempo"] !== undefined)) {
-      return prices["tempo-traveller"] ?? prices["tempo"];
+    if (mLow === "ertiga" && prices["suv"] !== undefined && prices["suv"]! > 0) {
+      return prices["suv"];
     }
-    if (model.display_name.toLowerCase().includes("urbania") && prices["urbania"] !== undefined) return prices["urbania"];
+    if (mLow === "innova crysta" || mLow === "crysta") {
+      if (prices["innova-crysta"] !== undefined && prices["innova-crysta"]! > 0) return prices["innova-crysta"];
+      if (prices["innova"] !== undefined && prices["innova"]! > 0) return prices["innova"];
+    }
+    if (mLow === "traveller 12") {
+      if (prices["traveller-12"] !== undefined && prices["traveller-12"]! > 0) return prices["traveller-12"];
+      if (prices["tempo-traveller"] !== undefined && prices["tempo-traveller"]! > 0) return prices["tempo-traveller"];
+      if (prices["tempo"] !== undefined && prices["tempo"]! > 0) return prices["tempo"];
+    }
+    if (mLow === "urbania 13") {
+      if (prices["urbania-13"] !== undefined && prices["urbania-13"]! > 0) return prices["urbania-13"];
+      if (prices["urbania"] !== undefined && prices["urbania"]! > 0) return prices["urbania"];
+    }
 
     return undefined;
   };
 
   const handlePriceChange = (model: CleanVehicleModel, val: number | undefined) => {
     // Save per-model only: canonical model ID plus the slugified model-name key.
-    // Do NOT mirror the value onto group/tier keys (e.g. "sedan") — that made
-    // every model in a group inherit the same price on the customer side.
+    // Do NOT mirror the value onto group/tier keys — every model is configured independently.
     const slugName = model.model_name.toLowerCase().replace(/[\s_]+/g, "-");
     onChange(model.id, val);
     onChange(slugName, val);
+
+    // Purge legacy group keys from state so they never bleed into other models
+    const grpCode = model.group_code.toLowerCase().replace(/[\s_]+/g, "-");
+    const legacyKeysToPurge = [
+      grpCode,
+      model.group_code,
+      "sedan",
+      "suv",
+      "tempo_traveller",
+      "tempo-traveller",
+      "tempo",
+      "urbania",
+    ];
+    for (const lk of legacyKeysToPurge) {
+      if (prices[lk] !== undefined) {
+        onChange(lk, undefined);
+      }
+    }
   };
 
   if (loading) {

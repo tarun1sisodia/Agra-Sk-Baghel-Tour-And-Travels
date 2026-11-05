@@ -18,6 +18,10 @@ import {
 import { fetchLiveFleet, type PublicFleetVehicle } from "../services/catalog";
 import {
   loadRoutesManifest,
+  getInitialRoutesManifest,
+  getInitialFleet,
+  getInitialLocalPackages,
+  getInitialTransferRoutes,
   loadPublishedPackages,
   fetchPublishedTransferRoutes,
   fetchPublishedLocalTransfers,
@@ -75,14 +79,14 @@ export function HomePage({ language = "en" }: HomePageProps) {
   const [inquirySubmitted, setInquirySubmitted] = useState(false);
   const [inquiryError, setInquiryError] = useState<string | null>(null);
 
-  const [liveFleet, setLiveFleet] = useState<PublicFleetVehicle[]>([]);
-  const [fleetLoading, setFleetLoading] = useState(true);
-  const [manifestRoutes, setManifestRoutes] = useState<Record<string, CompressedRoute>>({});
-  const [routesLoading, setRoutesLoading] = useState(true);
+  const [liveFleet, setLiveFleet] = useState<PublicFleetVehicle[]>(() => getInitialFleet());
+  const [fleetLoading, setFleetLoading] = useState(false);
+  const [manifestRoutes, setManifestRoutes] = useState<Record<string, CompressedRoute>>(() => getInitialRoutesManifest());
+  const [routesLoading, setRoutesLoading] = useState(false);
   const [publishedPackages, setPublishedPackages] = useState<TourPackage[]>(() => [...staticPackages]);
   const [packagesLoading, setPackagesLoading] = useState(false);
-  const [transferRoutes, setTransferRoutes] = useState<any[]>([]);
-  const [localPackages, setLocalPackages] = useState<any[]>([]);
+  const [transferRoutes, setTransferRoutes] = useState<any[]>(() => getInitialTransferRoutes());
+  const [localPackages, setLocalPackages] = useState<any[]>(() => getInitialLocalPackages());
   const [popularTripMode, setPopularTripMode] = useState<"oneway" | "round">("oneway");
 
   useEffect(() => {

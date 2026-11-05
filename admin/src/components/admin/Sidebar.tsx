@@ -86,8 +86,11 @@ function SidebarContent({
         <BrandMark size={38} />
         {!collapsed && (
           <div className="min-w-0 flex-1">
-            <p className="font-display text-[17px] font-semibold leading-tight tracking-tight text-ink">
+            <p className="font-display text-[15px] font-semibold leading-tight tracking-tight text-ink">
               Agra SK Baghel
+            </p>
+            <p className="font-mono text-[11px] font-medium tracking-tight text-ink-soft">
+              Tour &amp; Travels
             </p>
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-faint">
               Admin Desk

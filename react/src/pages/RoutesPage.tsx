@@ -4,7 +4,7 @@ import { contact } from "../data/contact";
 import { WhatsAppIcon } from "../components/icons";
 import { InstantRouteCalculator } from "../components/routes/InstantRouteCalculator";
 import { Pagination } from "../components/ui/Pagination";
-import { loadRoutesManifest, fetchPublishedTransferRoutes, fetchPublishedLocalTransfers } from "../services/catalogManifest";
+import { loadRoutesManifest, fetchPublishedTransferRoutes, fetchPublishedLocalTransfers, getInitialRoutesManifest } from "../services/catalogManifest";
 import generatedPublishedTransferRoutes from "../data/generated-published-transfer-routes.json";
 import generatedPublishedLocalPackages from "../data/generated-published-local-packages.json";
 import { LatestRoutesSection } from "../templates/sections/LatestRoutesSection";

@@ -1327,14 +1327,16 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           );
           const pkgId = rows[0]?.id ?? record.id;
           if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(pkgId)) {
+            const activeModelIds: string[] = [];
             for (const [key, amount] of Object.entries(record.fleetPrices)) {
               if (typeof amount === "number" && amount > 0) {
                 const modelId = await resolveVehicleModelId(client, key);
-                if (modelId) {
+                if (modelId && !activeModelIds.includes(modelId)) {
+                  activeModelIds.push(modelId);
                   const updated = await query(
                     client,
                     `update fare_rules set amount = $1, is_active = true
-                     where category = 'tour_package' and tour_package_id = $2 and vehicle_model_id = $3 and is_active = true
+                     where category = 'tour_package' and tour_package_id = $2 and vehicle_model_id = $3
                      returning id`,
                     [Math.round(amount), pkgId, modelId],
                   );
@@ -1348,6 +1350,21 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                   }
                 }
               }
+            }
+            if (activeModelIds.length > 0) {
+              await query(
+                client,
+                `update fare_rules set is_active = false
+                 where category = 'tour_package' and tour_package_id = $1 and not (vehicle_model_id = any($2::uuid[]))`,
+                [pkgId, activeModelIds],
+              );
+            } else {
+              await query(
+                client,
+                `update fare_rules set is_active = false
+                 where category = 'tour_package' and tour_package_id = $1`,
+                [pkgId],
+              );
             }
           }
           return record;
@@ -1436,14 +1453,16 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
             );
           const pkgId = rows[0]?.id ?? record.id;
           if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(pkgId)) {
+            const activeModelIds: string[] = [];
             for (const [key, amount] of Object.entries(record.fleetPrices)) {
               if (typeof amount === "number" && amount > 0) {
                 const modelId = await resolveVehicleModelId(client, key);
-                if (modelId) {
+                if (modelId && !activeModelIds.includes(modelId)) {
+                  activeModelIds.push(modelId);
                   const updated = await query(
                     client,
                     `update fare_rules set amount = $1, is_active = true
-                     where category = 'tour_package' and tour_package_id = $2 and vehicle_model_id = $3 and is_active = true
+                     where category = 'tour_package' and tour_package_id = $2 and vehicle_model_id = $3
                      returning id`,
                     [Math.round(amount), pkgId, modelId],
                   );
@@ -1457,6 +1476,21 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                   }
                 }
               }
+            }
+            if (activeModelIds.length > 0) {
+              await query(
+                client,
+                `update fare_rules set is_active = false
+                 where category = 'tour_package' and tour_package_id = $1 and not (vehicle_model_id = any($2::uuid[]))`,
+                [pkgId, activeModelIds],
+              );
+            } else {
+              await query(
+                client,
+                `update fare_rules set is_active = false
+                 where category = 'tour_package' and tour_package_id = $1`,
+                [pkgId],
+              );
             }
           }
           return record;
@@ -1535,14 +1569,16 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           );
           const transferId = rows[0]?.id ?? record.id;
           if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(transferId)) {
+            const activeModelIds: string[] = [];
             for (const [key, amount] of Object.entries(record.fleetPrices)) {
               if (typeof amount === "number" && amount > 0) {
                 const modelId = await resolveVehicleModelId(client, key);
-                if (modelId) {
+                if (modelId && !activeModelIds.includes(modelId)) {
+                  activeModelIds.push(modelId);
                   const updated = await query(
                     client,
                     `update fare_rules set amount = $1, is_active = true
-                     where category = 'transfer' and transfer_id = $2 and vehicle_model_id = $3 and is_active = true
+                     where category = 'transfer' and transfer_id = $2 and vehicle_model_id = $3
                      returning id`,
                     [Math.round(amount), transferId, modelId],
                   );
@@ -1556,6 +1592,21 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                   }
                 }
               }
+            }
+            if (activeModelIds.length > 0) {
+              await query(
+                client,
+                `update fare_rules set is_active = false
+                 where category = 'transfer' and transfer_id = $1 and not (vehicle_model_id = any($2::uuid[]))`,
+                [transferId, activeModelIds],
+              );
+            } else {
+              await query(
+                client,
+                `update fare_rules set is_active = false
+                 where category = 'transfer' and transfer_id = $1`,
+                [transferId],
+              );
             }
           }
           return record;
@@ -1608,14 +1659,16 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
             );
           const transferId = rows[0]?.id ?? record.id;
           if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(transferId)) {
+            const activeModelIds: string[] = [];
             for (const [key, amount] of Object.entries(record.fleetPrices)) {
               if (typeof amount === "number" && amount > 0) {
                 const modelId = await resolveVehicleModelId(client, key);
-                if (modelId) {
+                if (modelId && !activeModelIds.includes(modelId)) {
+                  activeModelIds.push(modelId);
                   const updated = await query(
                     client,
                     `update fare_rules set amount = $1, is_active = true
-                     where category = 'transfer' and transfer_id = $2 and vehicle_model_id = $3 and is_active = true
+                     where category = 'transfer' and transfer_id = $2 and vehicle_model_id = $3
                      returning id`,
                     [Math.round(amount), transferId, modelId],
                   );
@@ -1629,6 +1682,21 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                   }
                 }
               }
+            }
+            if (activeModelIds.length > 0) {
+              await query(
+                client,
+                `update fare_rules set is_active = false
+                 where category = 'transfer' and transfer_id = $1 and not (vehicle_model_id = any($2::uuid[]))`,
+                [transferId, activeModelIds],
+              );
+            } else {
+              await query(
+                client,
+                `update fare_rules set is_active = false
+                 where category = 'transfer' and transfer_id = $1`,
+                [transferId],
+              );
             }
           }
           return record;
@@ -1705,14 +1773,16 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
           );
           const packageId = rows[0]?.id ?? record.id;
           if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(packageId)) {
+            const activeModelIds: string[] = [];
             for (const [key, amount] of Object.entries(record.fleetPrices)) {
               if (typeof amount === "number" && amount > 0) {
                 const modelId = await resolveVehicleModelId(client, key);
-                if (modelId) {
+                if (modelId && !activeModelIds.includes(modelId)) {
+                  activeModelIds.push(modelId);
                   const updated = await query(
                     client,
                     `update fare_rules set amount = $1, is_active = true
-                     where category = 'local_package' and local_package_id = $2 and vehicle_model_id = $3 and is_active = true
+                     where category = 'local_package' and local_package_id = $2 and vehicle_model_id = $3
                      returning id`,
                     [Math.round(amount), packageId, modelId],
                   );
@@ -1726,6 +1796,21 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                   }
                 }
               }
+            }
+            if (activeModelIds.length > 0) {
+              await query(
+                client,
+                `update fare_rules set is_active = false
+                 where category = 'local_package' and local_package_id = $1 and not (vehicle_model_id = any($2::uuid[]))`,
+                [packageId, activeModelIds],
+              );
+            } else {
+              await query(
+                client,
+                `update fare_rules set is_active = false
+                 where category = 'local_package' and local_package_id = $1`,
+                [packageId],
+              );
             }
           }
           return record;
@@ -1794,14 +1879,16 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
             );
           const packageId = rows[0]?.id ?? record.id;
           if (record.fleetPrices && typeof record.fleetPrices === "object" && isUuid(packageId)) {
+            const activeModelIds: string[] = [];
             for (const [key, amount] of Object.entries(record.fleetPrices)) {
               if (typeof amount === "number" && amount > 0) {
                 const modelId = await resolveVehicleModelId(client, key);
-                if (modelId) {
+                if (modelId && !activeModelIds.includes(modelId)) {
+                  activeModelIds.push(modelId);
                   const updated = await query(
                     client,
                     `update fare_rules set amount = $1, is_active = true
-                     where category = 'local_package' and local_package_id = $2 and vehicle_model_id = $3 and is_active = true
+                     where category = 'local_package' and local_package_id = $2 and vehicle_model_id = $3
                      returning id`,
                     [Math.round(amount), packageId, modelId],
                   );
@@ -1815,6 +1902,21 @@ export async function createPostgresRepositories(databaseUrl: string): Promise<R
                   }
                 }
               }
+            }
+            if (activeModelIds.length > 0) {
+              await query(
+                client,
+                `update fare_rules set is_active = false
+                 where category = 'local_package' and local_package_id = $1 and not (vehicle_model_id = any($2::uuid[]))`,
+                [packageId, activeModelIds],
+              );
+            } else {
+              await query(
+                client,
+                `update fare_rules set is_active = false
+                 where category = 'local_package' and local_package_id = $1`,
+                [packageId],
+              );
             }
           }
           return record;

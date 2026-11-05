@@ -90,6 +90,15 @@ const CANONICAL_VEHICLE_CATALOG: Omit<VehicleModelItem, "fare" | "advance">[] = 
     features: ["Toll Tax Included", "Chauffeur Allowance"],
   },
   {
+    id: "traveller-17",
+    name: "Force Traveller 17-Seater",
+    groupCode: "tempo_traveller",
+    groupName: "Tempo Traveller",
+    seats: 17,
+    bags: 12,
+    features: ["Toll Tax Included", "Chauffeur Allowance"],
+  },
+  {
     id: "urbania-13",
     name: "Force Urbania VIP",
     groupCode: "tempo_traveller",
@@ -139,14 +148,15 @@ function resolveModelPrice(
     return fares[modelId] as number;
   }
 
-  // Common aliases
+  // Common aliases — strict model-specific keys (no cross-model shadowing)
   const aliases: Record<string, string[]> = {
     dzire: ["maruti-dzire", "dzire", "sedan"],
     city: ["honda-city", "city"],
     ertiga: ["maruti-ertiga", "ertiga", "suv"],
     crysta: ["innova-crysta", "innova", "toyota-innova-crysta", "crysta"],
-    "traveller-12": ["tempo-traveller", "traveller-12", "traveller", "tempo"],
-    "urbania-13": ["urbania-13", "urbania", "force-urbania"],
+    "traveller-12": ["traveller-12", "force-traveller-12", "tempo-traveller", "tempo"],
+    "traveller-17": ["traveller-17", "force-traveller-17"],
+    "urbania-13": ["urbania-13", "force-urbania-13", "urbania"],
     "urbania-17": ["urbania-17", "urbania17", "force-urbania-17"],
     camry: ["camry", "toyota-camry"],
     vellfire: ["vellfire", "toyota-vellfire"],

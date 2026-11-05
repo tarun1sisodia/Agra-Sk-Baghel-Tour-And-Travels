@@ -1,9 +1,9 @@
 /**
  * Service Worker for SK Baghel Tour & Travels
- * Implements cache-first strategy for static assets with runtime caching for API
+ * Implements cache-first strategy for static assets & fonts with runtime caching for API
  */
 
-const CACHE_NAME = 'skbaghel-v20261103';
+const CACHE_NAME = 'skbaghel-v20261105';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -12,8 +12,14 @@ const STATIC_ASSETS = [
     '/icon-192.png',
     '/robots.txt',
     '/sitemap.xml',
+    '/fonts/plus-jakarta-sans-latin.woff2',
+    '/fonts/eb-garamond-latin.woff2',
+    '/fonts/plus-jakarta-sans-latin-ext.woff2',
+    '/fonts/eb-garamond-latin-ext.woff2',
     '/assets/brand/og-banner.webp',
     '/assets/brand/favicon.svg',
+    '/assets/brand/agra-sk-baghel-logo.svg',
+    '/assets/brand/agra-sk-baghel-mark.svg',
     '/assets/brand/logos/01-roadline-lockup-light.svg',
     '/assets/brand/logos/02-signet-lockup-light.svg',
     '/assets/brand/logos/03-arch-lockup-light.svg',
@@ -25,12 +31,12 @@ const STATIC_ASSETS = [
     '/assets/trust/driver.webp',
 ];
 
-// Install event - cache static assets
+// Install event - cache static assets & critical fonts immediately
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                console.log('[SW] Caching static assets');
+                console.log('[SW] Pre-caching static assets and critical fonts');
                 // Cache individually so one missing asset (e.g. a removed file)
                 // cannot fail the whole install.
                 return Promise.allSettled(
@@ -79,11 +85,11 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Static assets - cache-first with network fallback
+    // Static assets & fonts - cache-first with network fallback
     event.respondWith(cacheFirst(event.request));
 });
 
-// Cache-first strategy for static assets
+// Cache-first strategy for static assets and web fonts
 async function cacheFirst(request) {
     const cache = await caches.open(CACHE_NAME);
     const cached = await cache.match(request);
@@ -94,7 +100,8 @@ async function cacheFirst(request) {
 
     try {
         const response = await fetch(request);
-        if (response.ok) {
+        // Cache successful responses and opaque responses (Google Fonts stylesheets and woff2 font files)
+        if (response.ok || (response.type === 'opaque' && (request.destination === 'font' || request.destination === 'style' || request.url.includes('fonts.')))) {
             cache.put(request, response.clone());
         }
         return response;
@@ -141,16 +148,4 @@ async function networkFirst(request) {
         }
         throw error;
     }
-}
-
-// Background sync for failed requests (future enhancement)
-self.addEventListener('sync', (event) => {
-    if (event.tag === 'sync-bookings') {
-        event.waitUntil(syncBookings());
-    }
-});
-
-async function syncBookings() {
-    // Future implementation for offline booking sync
-    console.log('[SW] Syncing bookings...');
 }

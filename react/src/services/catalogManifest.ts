@@ -158,21 +158,18 @@ export async function fetchCatalogManifest(): Promise<CatalogManifestData | null
   return fetchPromise;
 }
 
-export async function loadRoutesManifest(): Promise<Record<string, CompressedRoute>> {
-  const manifest = await fetchCatalogManifest();
-  if (manifest?.routes && Object.keys(manifest.routes).length > 0) {
-    return manifest.routes;
-  }
+export function getInitialRoutesManifest(): Record<string, CompressedRoute> {
   const rawList = (generatedCatalog as any)?.routes;
   if (Array.isArray(rawList)) {
     const fallback: Record<string, CompressedRoute> = {};
     for (const item of rawList) {
       if (!item?.id) continue;
+      const durationMins = Number(item.durationMins || parseInt(String(item.duration), 10)) || 0;
       fallback[item.id] = {
         o: item.origin || item.from || "",
         d: item.destination || item.to || "",
         km: Number(item.km) || 0,
-        m: Number(item.durationMins) || 0,
+        m: durationMins,
         fs: item.fares?.sedan ?? null,
         fe: item.fares?.ertiga ?? null,
         fi: item.fares?.innova ?? null,
@@ -186,6 +183,46 @@ export async function loadRoutesManifest(): Promise<Record<string, CompressedRou
     return fallback;
   }
   return {};
+}
+
+export function getInitialFleet(): Array<{
+  id: string;
+  tier: string;
+  name: string;
+  seats: number;
+  bags: number;
+  perKm: number;
+  active: boolean;
+}> {
+  const rawList = (generatedCatalog as any)?.vehicles;
+  if (Array.isArray(rawList)) {
+    return rawList.map((v: any) => ({
+      id: String(v.id || ""),
+      tier: String(v.id || ""),
+      name: String(v.name || ""),
+      seats: Number(v.seats) || 0,
+      bags: Number(v.bags) || 0,
+      perKm: Number(v.perKm) || 0,
+      active: true,
+    }));
+  }
+  return [];
+}
+
+export function getInitialLocalPackages(): any[] {
+  return Array.isArray(generatedPublishedLocalPackages) ? (generatedPublishedLocalPackages as any[]) : [];
+}
+
+export function getInitialTransferRoutes(): any[] {
+  return Array.isArray(generatedPublishedTransferRoutes) ? (generatedPublishedTransferRoutes as any[]) : [];
+}
+
+export async function loadRoutesManifest(): Promise<Record<string, CompressedRoute>> {
+  const manifest = await fetchCatalogManifest();
+  if (manifest?.routes && Object.keys(manifest.routes).length > 0) {
+    return manifest.routes;
+  }
+  return getInitialRoutesManifest();
 }
 
 export async function loadPublishedPackages(): Promise<TourPackage[]> {
