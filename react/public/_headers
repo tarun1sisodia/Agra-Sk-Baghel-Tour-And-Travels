@@ -49,5 +49,10 @@
 /robots.txt
   Cache-Control: public, max-age=3600
 
+# IndexNow verification key
+/a778e32d79ca4971a3bb647d9c0c71a2.txt
+  Cache-Control: public, max-age=86400
+  Content-Type: text/plain; charset=utf-8
+
 # Do not preload a fixed image here. The current homepage chooses its first
 # image at runtime, so a fixed Early Hints preload would waste bandwidth.

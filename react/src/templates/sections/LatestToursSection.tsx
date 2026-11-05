@@ -31,7 +31,7 @@ export function LatestToursSection({
   maxItems = 3,
 }: LatestToursSectionProps) {
   const toursToDisplay = useMemo(() => {
-    const source = propTours || (generatedPublishedLocalPackages as LatestLocalPackageItem[]);
+    const source = propTours || (generatedPublishedLocalPackages as any);
     if (!Array.isArray(source) || source.length === 0) return [];
 
     return source
@@ -74,7 +74,7 @@ export function LatestToursSection({
             const hours = t.durationHours || t.duration_hours || 8;
             const km = t.includedKm || t.included_km || 80;
             const fleetPrices = t.fleetPrices || t.fleet_prices || {};
-            const validRates = Object.values(fleetPrices).filter((v) => typeof v === "number" && v > 0);
+            const validRates: number[] = Object.values(fleetPrices).filter((v): v is number => typeof v === "number" && v > 0);
             const startingFare = Number(fleetPrices.sedan || (validRates.length > 0 ? Math.min(...validRates) : 0));
             const token = startingFare > 0 ? Math.round(startingFare * 0.28) : 0;
             const tourUrl = `/en/local-packages/${t.slug}/`;

@@ -565,7 +565,7 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: `${siteConfig.domain}/en/`,
+            item: `${siteConfig.domain}/`,
           },
           {
             "@type": "ListItem",
@@ -647,11 +647,11 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
                 </span>
               </div>
               <h1 className="font-headline-hero text-headline-hero text-ink-charcoal leading-[1.12]">
-                Agra Local Sightseeing Taxi <br className="hidden sm:inline" />
-                <span className="italic font-normal text-terracotta-sandstone">&amp; Tour Packages</span>
+                Agra Tour Packages &amp; Sightseeing Taxi <br className="hidden sm:inline" />
+                <span className="italic font-normal text-terracotta-sandstone">&amp; Holiday Packages</span>
               </h1>
               <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
-                Hire a local sightseeing taxi in Agra. Low-cost customized day packages covering Taj Mahal, Agra Fort, Baby Taj, and Mehtab Bagh with professional local driver-guides.
+                Book curated Agra tour packages, sightseeing taxi services, and Agra holiday packages. Explore Taj Mahal, Agra Fort, Fatehpur Sikri, and Mehtab Bagh with verified local driver-guides and transparent per-km or fixed-day billing.
               </p>
             </div>
 
@@ -854,13 +854,13 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
                 ? pkg.gallery.map((g, i) => ({
                   url: resolveCatalogMediaUrl(g.url),
                   caption: g.caption || `${pkg.name} — Photo ${i + 1}`,
-                  alt: g.alt || `${pkg.name} view ${i + 1}`,
+                  alt: g.alt || `${pkg.name} — Agra Sightseeing Tour Package View ${i + 1}`,
                 }))
                 : [
                   {
                     url: resolveCatalogMediaUrl(pkg.image),
                     caption: `${pkg.name} signature route`,
-                    alt: pkg.name,
+                    alt: `${pkg.name} — Agra Tour Package by SK Baghel Travels`,
                   },
                 ];
             const currentImgIdx = activeImageIndices[pkg.id] ?? 0;

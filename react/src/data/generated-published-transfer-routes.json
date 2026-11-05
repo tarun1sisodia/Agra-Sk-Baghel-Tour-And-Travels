@@ -1,1 +1,64 @@
-[]
+[
+  {
+    "id": "b19e8e28-0aec-4339-9fd9-d4bd6866d9aa",
+    "routeCode": "noida-international-airport-to-taj-mahal",
+    "name": "Noida international Airport to Taj Mahal",
+    "distanceText": null,
+    "directionNote": "Kishorpur, Uttar Pradesh to Noida international Airport",
+    "fleetPrices": {
+      "city": 5500,
+      "dzire": 5500,
+      "ertiga": 6500,
+      "traveller-12": 10000
+    },
+    "usePerKm": false,
+    "nightChargeInr": null,
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-11-01T15:56:51.531Z",
+    "updatedAt": "2026-11-05T08:38:59.942Z",
+    "slug": "noida-international-airport-to-taj-mahal"
+  },
+  {
+    "id": "b50abe65-fda0-442b-9a90-616cabedb014",
+    "routeCode": "agra-to-delhi-airport",
+    "name": "Agra to Delhi Airport Transfer",
+    "distanceText": null,
+    "directionNote": "Doorstep pickup in Agra with seamless Yamuna Expressway transit to Delhi IGI Airport (DEL) T1/T2/T3.",
+    "fleetPrices": {
+      "amaze": 5000,
+      "dzire": 5000,
+      "ertiga": 6500,
+      "glanza": 5000,
+      "innova-crysta": 8500
+    },
+    "usePerKm": false,
+    "nightChargeInr": null,
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-11-05T10:55:30.074Z",
+    "updatedAt": "2026-11-05T10:55:30.074Z",
+    "slug": "agra-to-delhi-airport"
+  },
+  {
+    "id": "88b041fa-6dfe-4100-a1f2-ac19fde1cefb",
+    "routeCode": "agra-to-noida-international-airport",
+    "name": "Agra to Noida International Airport Transfer",
+    "distanceText": null,
+    "directionNote": "Direct rapid transfer between Agra and Noida International Airport (Jewar DXN) via Yamuna Expressway. to Agra to Noida International Airport Transfer",
+    "fleetPrices": {
+      "amaze": 4000,
+      "dzire": 4000,
+      "ertiga": 5500,
+      "glanza": 4000,
+      "innova-crysta": 7500
+    },
+    "usePerKm": false,
+    "nightChargeInr": null,
+    "status": "published",
+    "isActive": true,
+    "createdAt": "2026-11-05T10:55:37.402Z",
+    "updatedAt": "2026-11-05T10:55:37.402Z",
+    "slug": "agra-to-noida-international-airport"
+  }
+]

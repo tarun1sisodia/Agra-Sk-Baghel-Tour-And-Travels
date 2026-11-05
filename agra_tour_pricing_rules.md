@@ -69,31 +69,7 @@ Vehicle price = 300 × that vehicle's per-KM rate
 
 - Do not assume the one-day fixed price is the same as the 3-day package price.
 
----
-
-## 3. Outstation
-
-### Delhi to Agra — Same-Day / 1-Day Outstation
-
-**Minimum running: 500 km.**
-
-Use the following fixed vehicle-category prices:
-
-| Vehicle category | Price |
-|---|---:|
-| Sedan — all active/live sedan vehicles | ₹7,500 |
-| Ertiga | ₹8,500 |
-| Crysta | ₹11,000 |
-
-Rules:
-- Apply the Sedan price to all currently active/live vehicles belonging to the Sedan category.
-- Apply the relevant category price to eligible active vehicles.
-- Do not calculate these fixed prices using the tour-package formula.
-- Store/display the 500 km minimum-running condition with this outstation service.
-
----
-
-## 4. Local Sightseeing
+## 3. Local Sightseeing
 
 Local sightseeing prices are configurable. The admin may set or change prices when required.
 

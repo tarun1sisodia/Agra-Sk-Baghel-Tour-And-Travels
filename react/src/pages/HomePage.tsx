@@ -323,7 +323,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
             </div>
 
             {/* 100% Clean Semantic H1 for Search Crawlers & Screen Readers */}
-            <h1 className="sr-only">Premium Taxi Service & Tour Packages in Agra</h1>
+            <h1 className="sr-only">Taxi Service in Agra — Reliable Agra Taxi Service & Cab Booking</h1>
 
             {/* Visual Headline with Handwriting Flourish */}
             <div className="font-headline-hero text-headline-hero font-normal leading-[1.12] w-full max-w-4xl" aria-hidden="true">
@@ -457,7 +457,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-space-lg max-w-5xl mx-auto text-on-surface-variant font-body-md text-body-md leading-relaxed">
               <div className="p-space-xl rounded-3xl glass-card-frosted shadow-md flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                 <p>
-                  Welcome to <strong className="text-on-surface font-semibold">Agra SK Baghel Tour & Travels</strong>, your premier companion for local sightseeing and outstation cab booking in Agra. Whether you need a hassle-free drop from <strong className="text-on-surface font-semibold">Agra Cantt railway station taxi service</strong>, an early morning <strong className="text-on-surface font-semibold">taj mahal sunrise tour package by car</strong>, or a comfortable family outstation trip, our well-maintained fleet and expert local chauffeurs ensure a smooth ride. We specialize in custom travel itineraries originating from Agra to anywhere across India, delivering unmatched safety, pocket-friendly transparent billing, and 24/7 client support.
+                  Welcome to <strong className="text-on-surface font-semibold">Agra SK Baghel Tour &amp; Travels</strong>, your premier provider of <strong className="text-on-surface font-semibold">taxi service in Agra</strong>, outstation cabs, and heritage sightseeing tours. Whether you need a hassle-free drop from <strong className="text-on-surface font-semibold">Agra Cantt railway station taxi service</strong>, an early morning <strong className="text-on-surface font-semibold">taj mahal sunrise tour package by car</strong>, or a comfortable family outstation trip, our well-maintained fleet and expert local chauffeurs ensure a smooth ride. We specialize in custom travel itineraries originating from Agra to anywhere across India, delivering unmatched safety, pocket-friendly transparent billing, and 24/7 client support.
                 </p>
                 <div className="mt-4 pt-4 border-t border-border-warm/40 flex items-center justify-between text-primary font-semibold">
                   <a href="/en/packages/" className="inline-flex items-center gap-1 hover:underline">
@@ -467,7 +467,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
               </div>
               <div className="p-space-xl rounded-3xl glass-card-frosted shadow-md flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                 <p>
-                  Finding a reliable <strong className="text-on-surface font-semibold">car rental in agra with a driver</strong> shouldn't be complicated. We offer clean, air-conditioned options ranging from economical family cars to luxury executive vehicles. As a leading name in <strong className="text-on-surface font-semibold">agra tour and travels</strong>, we prioritize punctuality, clean vehicle cabins, and professional local driver-guides who know the routes perfectly. Book your <strong className="text-on-surface font-semibold">local sightseeing taxi in agra</strong> today and experience the city of love without transit stress.
+                  Finding reliable <strong className="text-on-surface font-semibold">car rental in Agra with a driver</strong> and professional <strong className="text-on-surface font-semibold">taxi hire in Agra</strong> shouldn't be complicated. We offer clean, air-conditioned options ranging from economical family cars to luxury executive vehicles. As a leading name in <strong className="text-on-surface font-semibold">agra tour and travels</strong>, we prioritize punctuality, clean vehicle cabins, and professional local driver-guides who know the routes perfectly. Book your <strong className="text-on-surface font-semibold">local sightseeing taxi in agra</strong> today and experience the city of love without transit stress.
                 </p>
                 <div className="mt-4 pt-4 border-t border-border-warm/40 flex items-center justify-between text-primary font-semibold">
                   <a href="/en/routes/" className="inline-flex items-center gap-1 hover:underline">
@@ -730,7 +730,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                           height={160}
                           loading="lazy"
                           decoding="async"
-                          alt={pkg.name}
+                          alt={`${pkg.name} — Agra Tour Package by SK Baghel Travels`}
                           onError={(e) => {
                             (e.currentTarget as HTMLImageElement).src = "/assets/packages/taj-dawn.webp";
                           }}
@@ -943,6 +943,108 @@ export function HomePage({ language = "en" }: HomePageProps) {
                 <span className="font-bold text-ink-charcoal truncate">Taj Mahal Guide</span>
                 <span className="text-primary font-semibold mt-1">{directTransferPrices.tajGuide}</span>
               </a>
+            </div>
+          </div>
+        </section>
+
+
+        {/* ── AGRA TAXI SERVICE FAQS (GENUINE SEARCH INTENT) ── */}
+        <section className="w-full py-space-3xl bg-surface-container-low border-t border-border-warm/50" aria-labelledby="home-faqs-heading">
+          <div className="max-w-[1280px] mx-auto px-margin-mobile lg:px-margin">
+            <div className="max-w-3xl mx-auto text-center mb-space-xl">
+              <span className="font-label-caps text-label-caps uppercase tracking-wider text-primary font-bold">Frequently Asked Questions</span>
+              <h2 id="home-faqs-heading" className="font-headline-lg text-headline-lg text-on-surface mt-2">
+                Agra Taxi Service &amp; Cab Booking FAQs
+              </h2>
+              <p className="font-body-md text-body-md text-on-surface-variant mt-2">
+                Common questions about fares, vehicle options, outstation billing, and local monument tours.
+              </p>
+            </div>
+            <div className="max-w-4xl mx-auto space-y-3">
+              {[
+                {
+                  q: "How do I book a taxi service in Agra with SK Baghel Tour & Travels?",
+                  a: "You can book easily online using our booking engine, call our 24×7 Taj Ganj dispatch desk at +91 97628 17598, or send an instant message on WhatsApp. We provide upfront all-inclusive pricing with immediate booking confirmation."
+                },
+                {
+                  q: "What types of cabs and car rental options are available in Agra?",
+                  a: "Our fleet includes air-conditioned sedans (Maruti Swift Dzire), family SUVs (Maruti Ertiga), premium MPVs (Toyota Innova Crysta), and 9 to 26 seater luxury Tempo Travellers for larger group excursions."
+                },
+                {
+                  q: "Are expressway tolls and state taxes included in outstation taxi fares?",
+                  a: "Yes. All our published one-way outstation taxi fares include Yamuna Expressway and National Highway tolls, FASTag charges, driver allowances, and state entry permits with zero hidden roadside surcharges."
+                },
+                {
+                  q: "Can I hire an Agra taxi for same-day Taj Mahal sightseeing and railway station transfers?",
+                  a: "Yes. We offer dedicated local sightseeing taxi packages (8 hours / 80 km or 12 hours / 120 km) covering Taj Mahal, Agra Fort, Baby Taj, and Mehtab Bagh, as well as punctual transfers to and from Agra Cantt (AGC) Railway Station."
+                },
+                {
+                  q: "What is your cancellation and booking deposit policy?",
+                  a: "We require a 28% advance token to guarantee your chauffeur and vehicle assignment, with the remaining 72% paid directly to your chauffeur upon trip completion. Full refunds are provided for cancellations made at least 24 hours in advance."
+                }
+              ].map((faq, idx) => (
+                <details key={idx} className="group rounded-2xl bg-surface-container-lowest border border-border-warm/60 overflow-hidden shadow-xs">
+                  <summary className="p-4 sm:p-5 flex items-center justify-between font-title-md text-sm sm:text-base text-ink-charcoal font-semibold cursor-pointer select-none hover:bg-sandstone-wash/30 transition-colors">
+                    <span>{faq.q}</span>
+                    <span className="material-symbols-outlined text-primary text-icon-20 group-open:rotate-180 transition-transform">expand_more</span>
+                  </summary>
+                  <div className="p-4 sm:p-5 pt-0 text-on-surface-variant font-body-sm sm:text-body-md leading-relaxed border-t border-border-warm/40 mt-1">
+                    {faq.a}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── INTERNAL LINKING HUB: SERVICES, FLEET & REGIONAL CORRIDORS ── */}
+        <section className="w-full py-8 bg-surface-container-lowest border-t border-border-warm/50" aria-label="Explore our services">
+          <div className="max-w-[1280px] mx-auto px-margin-mobile lg:px-margin">
+            <div className="mb-4">
+              <span className="font-label-caps text-label-caps uppercase tracking-wider text-primary font-bold">Comprehensive Directory</span>
+              <h3 className="font-headline-sm text-base sm:text-headline-lg-mobile text-on-surface font-bold mt-1">
+                Explore Agra Taxi Services, Car Rentals &amp; Regional Corridors
+              </h3>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
+              <a href="/en/taxis/rent/" className="p-3 rounded-xl bg-surface-container-low border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs">
+                <span className="font-bold text-ink-charcoal">Car Rental in Agra</span>
+                <span className="text-on-surface-variant mt-1">Taxi Hire &amp; Rental</span>
+              </a>
+              <a href="/en/services/" className="p-3 rounded-xl bg-surface-container-low border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs">
+                <span className="font-bold text-ink-charcoal">Tourist Taxi Services</span>
+                <span className="text-on-surface-variant mt-1">Agra Sightseeing Cabs</span>
+              </a>
+              <a href="/en/routes/" className="p-3 rounded-xl bg-surface-container-low border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs">
+                <span className="font-bold text-ink-charcoal">Outstation Taxi Agra</span>
+                <span className="text-on-surface-variant mt-1">One-Way &amp; Round-Trip</span>
+              </a>
+              <a href="/en/packages/" className="p-3 rounded-xl bg-surface-container-low border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs">
+                <span className="font-bold text-ink-charcoal">Agra Tour Packages</span>
+                <span className="text-on-surface-variant mt-1">Holiday &amp; Day Tours</span>
+              </a>
+              <a href="/en/fleet/" className="p-3 rounded-xl bg-surface-container-low border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs">
+                <span className="font-bold text-ink-charcoal">Fleet &amp; Tempo Travellers</span>
+                <span className="text-on-surface-variant mt-1">Innova, Dzire &amp; Van</span>
+              </a>
+              <a href="/en/agra-to-delhi-taxi/" className="p-3 rounded-xl bg-surface-container-low border border-border-warm/60 hover:border-primary/50 transition-all flex flex-col justify-between shadow-2xs">
+                <span className="font-bold text-ink-charcoal">Agra to Delhi Taxi</span>
+                <span className="text-on-surface-variant mt-1">Yamuna Expressway Drop</span>
+              </a>
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-2 mt-4 text-xs text-on-surface-variant pt-3 border-t border-border-warm/40">
+              <span className="font-semibold text-ink-charcoal">Popular Routes:</span>
+              <a href="/en/delhi-to-agra-taxi/" className="hover:text-primary transition-colors">Delhi to Agra Taxi</a>
+              <span>•</span>
+              <a href="/en/agra-to-jaipur-taxi/" className="hover:text-primary transition-colors">Agra to Jaipur Taxi</a>
+              <span>•</span>
+              <a href="/en/agra-to-mathura-taxi/" className="hover:text-primary transition-colors">Agra to Mathura Vrindavan</a>
+              <span>•</span>
+              <a href="/en/agra-to-lucknow-taxi/" className="hover:text-primary transition-colors">Agra to Lucknow Expressway</a>
+              <span>•</span>
+              <a href="/en/agra-to-gwalior-taxi/" className="hover:text-primary transition-colors">Agra to Gwalior Taxi</a>
+              <span>•</span>
+              <a href="/en/monuments/taj-mahal/" className="hover:text-primary transition-colors">Taj Mahal Guide &amp; Cabs</a>
             </div>
           </div>
         </section>

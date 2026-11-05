@@ -101,6 +101,58 @@
         });
       })();
     </script>
+    <!-- Speculation Rules API: Instant (0ms) page navigations via Chromium native prefetch & prerender -->
+    <script type="speculationrules">
+      {
+        "prefetch": [
+          {
+            "source": "document",
+            "where": {
+              "and": [
+                { "href_matches": "/*" },
+                { "not": { "href_matches": "/book*" } },
+                { "not": { "href_matches": "/booking*" } },
+                { "not": { "href_matches": "/auth*" } },
+                { "not": { "href_matches": "/login*" } },
+                { "not": { "href_matches": "/my-bookings*" } },
+                { "not": { "href_matches": "/payment*" } },
+                { "not": { "href_matches": "/review*" } },
+                { "not": { "href_matches": "*/admin*" } },
+                { "not": { "href_matches": "tel:*" } },
+                { "not": { "href_matches": "mailto:*" } },
+                { "not": { "href_matches": "https://wa.me/*" } },
+                { "not": { "selector_matches": ".no-speculate" } },
+                { "not": { "selector_matches": "[rel~=nofollow]" } }
+              ]
+            },
+            "eagerness": "moderate"
+          }
+        ],
+        "prerender": [
+          {
+            "source": "document",
+            "where": {
+              "and": [
+                {
+                  "or": [
+                    { "href_matches": "/en/packages/*" },
+                    { "href_matches": "/en/routes/*" },
+                    { "href_matches": "/en/vehicles/*" },
+                    { "href_matches": "/en/monuments/*" },
+                    { "href_matches": "/en/transfers/*" },
+                    { "href_matches": "/en/local-packages/*" }
+                  ]
+                },
+                { "not": { "href_matches": "/book*" } },
+                { "not": { "selector_matches": ".no-prerender" } },
+                { "not": { "selector_matches": ".no-speculate" } }
+              ]
+            },
+            "eagerness": "conservative"
+          }
+        ]
+      }
+    </script>
     <!-- End Google Tag Manager -->
   </head>
   <body>

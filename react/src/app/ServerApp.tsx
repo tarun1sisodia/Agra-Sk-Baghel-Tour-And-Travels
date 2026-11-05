@@ -29,6 +29,7 @@ import { LoginPage } from "../pages/LoginPage";
 import { ReviewPage } from "../pages/ReviewPage";
 import { MarketingPage } from "../pages/MarketingPage";
 import { SeoLandingPage } from "../pages/SeoLandingPage";
+import { getRouteDestinationImage } from "../utils/routeMedia";
 import { SEO_LANDING_SLUGS, SEO_ROUTE_METADATA, type SeoLandingSlug } from "../data/seoLandingSlugs";
 import { titleCaseSlug } from "../utils/format";
 import { marketingHubs } from "./routes";
@@ -169,12 +170,14 @@ function getSeoBase(
   dossierMonument?: DossierMonumentItem,
 ): SeoMetadata {
   if (SEO_LANDING_SLUGS.includes(section as SeoLandingSlug)) {
+    const landingMedia = getRouteDestinationImage(section, "Agra", section.replace(/-/g, " "));
+    const ogImg = landingMedia.src || "/assets/brand/og-banner.webp";
     const customMeta = SEO_ROUTE_METADATA[section];
     if (customMeta) {
       return {
         title: customMeta.title,
         description: customMeta.description,
-        ogImage: "/assets/brand/og-banner.webp",
+        ogImage: ogImg,
         keywords: [customMeta.title, `${section.replace(/-/g, " ")}`, "Agra taxi", "Agra cab booking"],
       };
     }
@@ -188,7 +191,7 @@ function getSeoBase(
     };
     const rawTitle = labels[section] || `${titleCaseSlug(section)} | SK Baghel Travels`;
     const title = rawTitle.length <= 55 ? rawTitle : `${titleCaseSlug(section)} | SK Baghel`;
-    return { title, description: `${title}. Verified drivers, transparent fare confirmation and easy phone or WhatsApp booking.`, ogImage: "/assets/brand/og-banner.webp", keywords: [title, "Agra taxi", "Agra cab booking"] };
+    return { title, description: `${title}. Verified drivers, transparent fare confirmation and easy phone or WhatsApp booking.`, ogImage: ogImg, keywords: [title, "Agra taxi", "Agra cab booking"] };
   }
   if (isBooking) {
     return {
@@ -281,7 +284,7 @@ function getSeoBase(
     return {
       title,
       description,
-      ogImage: "/assets/brand/og-banner.webp",
+      ogImage: (resolvedDossierMonument as any).image || (resolvedDossierMonument as any).src || "/assets/places/agra-taj-mahal.webp",
       keywords: [resolvedDossierMonument.name, `${resolvedDossierMonument.name} timings`, "Agra monument taxi", "Agra SK Baghel Tour & Travels"],
     };
   }
@@ -301,10 +304,11 @@ function getSeoBase(
   if (resolvedDynamicRoute) {
     const from = resolvedDynamicRoute.origin ?? resolvedDynamicRoute.from;
     const to = resolvedDynamicRoute.destination ?? resolvedDynamicRoute.to;
+    const routeMedia = getRouteDestinationImage(resolvedDynamicRoute.id, from, to);
     return {
       title: `${from} to ${to} Taxi Fare | Agra SK Baghel`,
       description: `${resolvedDynamicRoute.duration} private taxi from ${from} to ${to}, with transparent fares and verified drivers.`,
-      ogImage: "/assets/brand/og-banner.webp",
+      ogImage: routeMedia.src,
       keywords: [`${from} to ${to} taxi`, `${from} to ${to} fare`, "Agra outstation cab"],
     };
   }
@@ -348,18 +352,19 @@ function getSeoBase(
   if (route) {
     const from = route.origin || (route.from ? route.from[0].toUpperCase() + route.from.slice(1) : "Agra");
     const to = route.destination || (route.to ? route.to[0].toUpperCase() + route.to.slice(1) : "Delhi");
+    const routeMedia = getRouteDestinationImage(route.id, from, to);
     return {
       title: `${from} to ${to} Taxi Fare | SK Baghel Travels`.slice(0, 58),
       description: `Book private taxi from ${from} to ${to} (${route.duration || "expressway"}). Verified chauffeurs, clean AC fleet, transparent fares.`.slice(0, 155),
-      ogImage: "/assets/brand/og-banner.webp",
+      ogImage: routeMedia.src,
       keywords: [`${from} to ${to} taxi`, `${from} to ${to} cab fare`, "outstation taxi Agra", "expressway cab"],
     };
   }
 
   if (section === "home") {
     return {
-      title: "Taxi Service in Agra | SK Baghel Tour & Travels",
-      description: "Book reliable taxi service in Agra for local sightseeing and outstation tours. Chauffeur-driven Sedans, Innova and Tempo Travellers. Call +91 97628 17598.",
+      title: "Taxi Service in Agra | Agra Cab & Taxi Service | SK Baghel",
+      description: "Book reliable taxi service in Agra for local sightseeing, outstation cabs & Taj Mahal tours. Chauffeur-driven Sedans, SUVs & Tempo Travellers. Call 24x7.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["taxi service in agra", "cab booking in agra", "car rental in agra", "agra tour and travels", "local sightseeing taxi in agra", "agra cantt railway station taxi service", "best taxi in agra tour", "agra car rental with driver", "Agra SK Baghel Tour & Travels"],
     };
@@ -367,28 +372,28 @@ function getSeoBase(
 
   if (section === "services") {
     return {
-      title: "Taxi Services in Agra | SK Baghel Tour & Travels",
-      description: "Agra taxi services: One-way outstation cabs to Delhi and Jaipur from ₹3,499, local sightseeing packages from ₹1,900, Tempo Travellers, and 24x7 transfers.",
+      title: "Tourist Taxi Services in Agra | Cabs | SK Baghel Travels",
+      description: "Professional tourist taxi services in Agra. Local sightseeing cabs, one-way outstation taxi drops, airport transfers & verified chauffeurs. Call 24x7.",
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: ["Agra taxi services", "outstation cabs Agra", "local sightseeing Agra", "airport transfers Agra", "tempo traveller rental"],
+      keywords: ["tourist taxi services in agra", "taxi services in agra", "cab service in agra", "outstation cabs agra", "local sightseeing agra", "airport transfers agra", "tempo traveller rental"],
     };
   }
 
   if (section === "routes") {
     return {
-      title: "Outstation Taxi Service Agra | SK Baghel Travels",
-      description: "Book outstation taxi service from Agra. One-way and round-trip transfers to Delhi, Jaipur, Mathura, Vrindavan, and Lucknow at lowest guaranteed rates.",
-      ogImage: "/assets/brand/og-banner.webp",
-      keywords: ["outstation taxi service from agra", "agra to delhi taxi one way", "agra to jaipur cab fare", "agra to mathura vrindavan tour taxi", "agra to delhi airport cab booking", "outstation cab booking agra"],
+      title: "Outstation Taxi Services in Agra | One Way Taxi | SK Baghel",
+      description: "Book outstation taxi services in Agra & one way taxi drops to Delhi, Jaipur, Mathura, Vrindavan & Lucknow. AC cabs, transparent tolls & verified drivers.",
+      ogImage: "/assets/hero/hero-highway.webp",
+      keywords: ["outstation taxi services in agra", "one way taxi agra", "agra to delhi taxi one way", "agra to jaipur cab fare", "outstation cab booking agra", "agra to mathura vrindavan tour taxi"],
     };
   }
 
   if (section === "packages") {
     return {
-      title: "Local Sightseeing Taxi Agra | SK Baghel Travels",
-      description: "Hire a local sightseeing taxi in Agra. Low-cost customized day packages covering Taj Mahal, Agra Fort and Mehtab Bagh with expert local driver-guides.",
+      title: "Agra Tour Packages | Sightseeing Taxi & Holiday Packages",
+      description: "Curated Agra tour packages & sightseeing taxi services. Explore Taj Mahal, Agra Fort & Fatehpur Sikri with private AC cabs & holiday tour packages.",
       ogImage: "/assets/packages/taj-dawn.webp",
-      keywords: ["agra local sightseeing taxi", "same day taj mahal tour package", "taj mahal sunrise tour package by car", "agra one day tour taxi fare", "agra tour and travels local package"],
+      keywords: ["agra tour packages", "agra holiday packages", "agra sightseeing taxi", "local sightseeing taxi agra", "same day taj mahal tour package", "taj mahal sunrise tour package by car"],
     };
   }
 
@@ -403,8 +408,8 @@ function getSeoBase(
 
   if (section === "fleet") {
     return {
-      title: "Tempo Traveller & Cab Booking Agra | SK Baghel",
-      description: "Rent Tempo Travellers (9-26 seats) or hire Innova Crysta in Agra for outstation and sightseeing. Chauffeur-driven luxury cabs at budget-friendly rates.",
+      title: "Taxi Hire & Fleet Booking in Agra | SK Baghel Travels",
+      description: "Hire verified taxis in Agra: Dzire, Ertiga, Innova Crysta & Tempo Travellers (9-26 seats). Transparent rates with commercial chauffeurs. Book 24x7.",
       ogImage: "/assets/fleet/innova.webp",
       keywords: ["innova crysta rental in agra", "tempo traveller booking agra", "9 12 16 seater tempo traveller agra", "ertiga taxi booking agra", "suv cab service agra"],
     };
@@ -466,10 +471,10 @@ function getSeoBase(
 
   if (section === "rent" || pathname.includes("/taxis/rent") || pathname.includes("/rent")) {
     return {
-      title: "Rent a Taxi in Agra Fleet | SK Baghel Travels",
-      description: "Rent verified taxis in Agra with dedicated chauffeurs. Browse Sedans, SUVs, Luxury and Tempo Travellers. Transparent call-first quotes and doorstep pickup.",
+      title: "Car Rental in Agra | Taxi Hire & Taxi on Rent | SK Baghel",
+      description: "Car rental in Agra with driver & taxi hire services. Rent verified sedans, Innova Crysta & Tempo Travellers for outstation trips & local tours. Call 24x7.",
       ogImage: "/assets/brand/og-banner.webp",
-      keywords: ["Agra taxi rental", "rent a cab Agra", "Agra car rental with driver", "Tempo Traveller rental Agra"],
+      keywords: ["car rental in agra", "taxi hire agra", "taxi on rent in agra", "agra car rental with driver", "rent a taxi in agra", "tempo traveller rental agra", "innova crysta rental agra"],
     };
   }
 
@@ -488,7 +493,7 @@ function getSeoBase(
   };
 }
 
-function clampSeoTitle(value: string, max = 55): string {
+function clampSeoTitle(value: string, max = 60): string {
   if (!value) return "";
   const clean = value.replace(/&amp;/g, "&").trim();
   if (clean.length <= max) return clean;
@@ -501,7 +506,7 @@ function clampSeoTitle(value: string, max = 55): string {
   return `${clean.slice(0, max - 1).trimEnd()}…`;
 }
 
-function clampSeoDescription(value: string, max = 155): string {
+function clampSeoDescription(value: string, max = 160): string {
   if (!value) return "";
   const clean = value.replace(/&amp;/g, "&").trim();
   if (clean.length <= max) return clean;
@@ -546,8 +551,8 @@ export function getSeo(
   );
   return {
     ...metadata,
-    title: clampSeoTitle(metadata.title, 55),
-    description: clampSeoDescription(metadata.description, 155),
+    title: clampSeoTitle(metadata.title, 60),
+    description: clampSeoDescription(metadata.description, 160),
   };
 }
 

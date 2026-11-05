@@ -133,7 +133,6 @@ export function RadialDock({ currentPath, className = "" }: RadialDockProps) {
       <a
         className="bg_links social booking"
         href={bookHref}
-        onMouseEnter={() => prefetchDocument(bookHref)}
         aria-label="Instant Taxi Booking"
         title="Instant Taxi Booking"
         tabIndex={isOpen ? 0 : -1}

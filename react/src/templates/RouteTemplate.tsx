@@ -5,6 +5,7 @@ import { WhatsAppIcon } from "../components/icons";
 import { GroupedVehicleSection } from "../components/fleet/GroupedVehicleSection";
 import { JsonLd, buildBreadcrumbSchema, buildFaqSchema, buildTaxiServiceSchema, buildGraphSchema } from "../components/seo/JsonLd";
 import { CANONICAL_DOMAIN } from "../components/seo/SeoHead";
+import { getRouteDestinationImage } from "../utils/routeMedia";
 
 export interface RouteTemplateProps {
   language?: "en" | "hi";
@@ -21,6 +22,7 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
   const fromEn = route.origin || (route.from ? route.from.charAt(0).toUpperCase() + route.from.slice(1) : "Agra");
   const toEn = route.destination || (route.to ? route.to.charAt(0).toUpperCase() + route.to.slice(1) : "Delhi");
   const isLocal = route.kind === "local";
+  const media = getRouteDestinationImage(route.id, fromEn, toEn);
 
   const routeGuidanceData = routeGuidance[route.id] || {
     highway: route.corridor || "National Highway / Expressway Corridor",
@@ -155,98 +157,118 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
       </div>
 
       {/* Hero Corridor Showcase (STRICT LOCK-N04: ZERO IMAGE GALLERY) */}
-      <section className="relative w-full bg-surface pt-space-xl pb-space-2xl overflow-hidden">
+      <section className="relative w-full bg-surface pt-space-xl pb-space-2xl overflow-hidden border-b border-border-warm/30">
         <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
             {/* Left Column: Corridor Specs & Booking Callout */}
             <div className="lg:col-span-7 flex flex-col gap-space-md">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed text-primary text-label-caps font-label-caps uppercase tracking-widest w-fit">
-                <span className="material-symbols-outlined text-icon-14">directions_car</span>
-                Doorstep Intercity Transit • Zero Return Penalties
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed text-primary text-label-caps font-label-caps uppercase tracking-widest">
+                  <span className="material-symbols-outlined text-icon-14">directions_car</span>
+                  Commercial Yellow Plate • Zero Return Fee
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-low text-secondary text-label-caps font-label-caps border border-border-warm/40">
+                  <span className="material-symbols-outlined text-icon-14 text-terracotta-sandstone">speed</span>
+                  {media.corridorBadge}
+                </span>
+              </div>
 
               <h1 className="font-headline-hero text-headline-hero text-ink-charcoal tracking-tight font-serif">
                 {isLocal ? "Agra Local Sightseeing Taxi" : `${fromEn} to ${toEn} Chauffeur Taxi`}
               </h1>
 
               <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
-                Experience seamless, air-conditioned road journeys between {fromEn} and {toEn}. Fully permitted commercial
-                yellow-plate fleet, sanitized cabins, and veteran chauffeurs with zero commission shopping detours.
+                Direct, air-conditioned intercity highway travel between {fromEn} and {toEn}. Fully permitted commercial yellow-plate fleet, sanitized cabins, veteran highway chauffeurs, and zero commission shopping detours.
               </p>
 
               {/* Trip Type Selector Toggle */}
               {!isLocal && (
-                <div className="flex items-center gap-2 p-1 bg-surface-container-low rounded-lg border border-border-warm/60 w-fit">
-                  <button
-                    type="button"
-                    onClick={() => setTripType("one-way")}
-                    className={`px-4 py-2 rounded-md text-label-md font-semibold transition-all ${
-                      tripType === "one-way"
-                        ? "bg-primary text-white shadow-sm"
-                        : "text-on-surface-variant hover:text-ink-charcoal"
-                    }`}
-                  >
-                    One-Way Drop
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTripType("round-trip")}
-                    className={`px-4 py-2 rounded-md text-label-md font-semibold transition-all ${
-                      tripType === "round-trip"
-                        ? "bg-primary text-white shadow-sm"
-                        : "text-on-surface-variant hover:text-ink-charcoal"
-                    }`}
-                  >
-                    Round-Trip Outstation
-                  </button>
+                <div className="flex flex-col gap-2 p-3 bg-surface-container-low rounded-xl border border-border-warm/60">
+                  <span className="text-label-sm uppercase tracking-wider text-secondary font-semibold">Select Journey Mode:</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setTripType("one-way")}
+                      className={`px-4 py-3 rounded-lg text-label-md font-semibold transition-all flex flex-col items-center sm:items-start text-left ${
+                        tripType === "one-way"
+                          ? "bg-primary text-white shadow-sm ring-2 ring-primary/20"
+                          : "bg-surface text-ink-charcoal hover:bg-sandstone-wash/40 border border-border-warm/40"
+                      }`}
+                    >
+                      <span className="font-bold flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-icon-16">arrow_forward</span>
+                        One-Way Drop
+                      </span>
+                      <span className={`text-[12px] mt-0.5 ${tripType === "one-way" ? "text-white/80" : "text-secondary"}`}>
+                        Tolls included • Pay drop only
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTripType("round-trip")}
+                      className={`px-4 py-3 rounded-lg text-label-md font-semibold transition-all flex flex-col items-center sm:items-start text-left ${
+                        tripType === "round-trip"
+                          ? "bg-primary text-white shadow-sm ring-2 ring-primary/20"
+                          : "bg-surface text-ink-charcoal hover:bg-sandstone-wash/40 border border-border-warm/40"
+                      }`}
+                    >
+                      <span className="font-bold flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-icon-16">sync_alt</span>
+                        Round-Trip Tour
+                      </span>
+                      <span className={`text-[12px] mt-0.5 ${tripType === "round-trip" ? "text-white/80" : "text-secondary"}`}>
+                        300 km/day standard billing
+                      </span>
+                    </button>
+                  </div>
                 </div>
               )}
 
               {/* Highway Corridor Intelligence Strip */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-space-sm pt-space-xs">
-                <div className="flex items-center gap-2 p-space-sm rounded bg-surface-container-low border border-border-warm/40">
-                  <span className="material-symbols-outlined text-terracotta-sandstone text-icon-20">straighten</span>
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-surface-container-lowest border border-border-warm/60 shadow-xs">
+                  <span className="material-symbols-outlined text-terracotta-sandstone text-icon-24">straighten</span>
                   <div className="flex flex-col">
-                    <span className="font-title-md text-headline-sm text-ink-charcoal font-semibold">{route.km} km</span>
-                    <span className="text-label-md text-secondary">Verified Distance</span>
+                    <span className="font-title-md text-headline-sm text-ink-charcoal font-semibold leading-none">{route.km} km</span>
+                    <span className="text-[12px] text-secondary mt-1">Verified Distance</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 p-space-sm rounded bg-surface-container-low border border-border-warm/40">
-                  <span className="material-symbols-outlined text-terracotta-sandstone text-icon-20">schedule</span>
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-surface-container-lowest border border-border-warm/60 shadow-xs">
+                  <span className="material-symbols-outlined text-terracotta-sandstone text-icon-24">schedule</span>
                   <div className="flex flex-col">
-                    <span className="font-title-md text-headline-sm text-ink-charcoal font-semibold">{route.duration}</span>
-                    <span className="text-label-md text-secondary">Est. Transit Time</span>
+                    <span className="font-title-md text-headline-sm text-ink-charcoal font-semibold leading-none">{route.duration}</span>
+                    <span className="text-[12px] text-secondary mt-1">Transit Time</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 p-space-sm rounded bg-surface-container-low border border-border-warm/40">
-                  <span className="material-symbols-outlined text-terracotta-sandstone text-icon-20">alt_route</span>
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-surface-container-lowest border border-border-warm/60 shadow-xs">
+                  <span className="material-symbols-outlined text-terracotta-sandstone text-icon-24">toll</span>
                   <div className="flex flex-col">
-                    <span className="font-title-md text-headline-sm text-ink-charcoal font-semibold">Tolls Inc.</span>
-                    <span className="text-label-md text-secondary">One-Way Drops</span>
+                    <span className="font-title-md text-headline-sm text-ink-charcoal font-semibold leading-none">Tolls Inc.</span>
+                    <span className="text-[12px] text-secondary mt-1">One-Way Drops</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 p-space-sm rounded bg-surface-container-low border border-border-warm/40">
-                  <span className="material-symbols-outlined text-terracotta-sandstone text-icon-20">verified</span>
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-surface-container-lowest border border-border-warm/60 shadow-xs">
+                  <span className="material-symbols-outlined text-terracotta-sandstone text-icon-24">verified_user</span>
                   <div className="flex flex-col">
-                    <span className="font-title-md text-headline-sm text-ink-charcoal font-semibold">28% Token</span>
-                    <span className="text-label-md text-secondary">Reserve to Lock</span>
+                    <span className="font-title-md text-headline-sm text-ink-charcoal font-semibold leading-none">28% Token</span>
+                    <span className="text-[12px] text-secondary mt-1">Advance Lock</span>
                   </div>
                 </div>
               </div>
 
               {/* Rate Card & Direct Booking Bar */}
-              <div className="bg-sandstone-wash/80 p-space-lg rounded-xl border border-border-warm shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-space-md mt-space-xs">
+              <div className="bg-sandstone-wash/80 p-space-lg rounded-2xl border border-border-warm shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-space-md mt-space-xs">
                 <div className="flex flex-col">
-                  <span className="font-label-caps text-label-caps text-terracotta-sandstone uppercase">
+                  <span className="text-label-caps text-label-caps text-terracotta-sandstone uppercase font-bold tracking-wider">
                     Starting Corridor Fare (Sedan {tripType === "round-trip" ? "• Round-Trip" : "• One-Way"})
                   </span>
-                  <div className="flex items-baseline gap-1 mt-0.5">
+                  <div className="flex items-baseline gap-2 mt-1">
                     {primaryFare > 0 ? (
                       <>
-                        <span className="font-headline-hero text-headline-hero text-ink-charcoal font-serif font-semibold">
+                        <span className="font-headline-hero text-headline-hero text-ink-charcoal font-serif font-bold">
                           ₹{primaryFare.toLocaleString("en-IN")}
                         </span>
-                        <span className="text-body-md text-on-surface-variant font-medium">All-Inclusive</span>
+                        <span className="text-body-sm text-on-surface-variant font-medium bg-surface px-2 py-0.5 rounded border border-border-warm/40">All-Inclusive</span>
                       </>
                     ) : (
                       <span className="font-headline-md text-headline-sm text-ink-charcoal font-serif font-semibold">
@@ -255,11 +277,11 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
                     )}
                   </div>
                   {primaryFare > 0 && advanceToken > 0 ? (
-                    <span className="text-body-sm text-secondary">
-                      Lock with only ₹{advanceToken.toLocaleString("en-IN")} (advance deposit)
+                    <span className="text-body-sm text-secondary mt-1">
+                      Lock with only <strong>₹{advanceToken.toLocaleString("en-IN")}</strong> deposit • Balance on arrival
                     </span>
                   ) : (
-                    <span className="text-body-sm text-secondary">
+                    <span className="text-body-sm text-secondary mt-1">
                       Exact fare computed dynamically on booking
                     </span>
                   )}
@@ -267,14 +289,14 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-sm">
                   <a
-                    className="inline-flex items-center justify-center gap-space-xs bg-terracotta-deep text-white px-6 py-3.5 rounded text-label-lg font-label-lg shadow-md hover:bg-terracotta-sunlit transition-all duration-200"
+                    className="inline-flex items-center justify-center gap-space-xs bg-terracotta-deep text-white px-6 py-3.5 rounded-lg text-label-lg font-label-lg shadow-md hover:bg-terracotta-sunlit transition-all duration-200 font-semibold"
                     href={bookingUrl}
                   >
                     <span className="material-symbols-outlined text-icon-20">calendar_month</span>
                     <span>Book This Route</span>
                   </a>
                   <a
-                    className="inline-flex items-center justify-center gap-space-xs bg-black text-white hover:bg-neutral-900 border border-white/10 px-5 py-3.5 rounded text-label-lg font-label-lg shadow-sm transition-all duration-200 active:scale-[0.98]"
+                    className="inline-flex items-center justify-center gap-space-xs bg-black text-white hover:bg-neutral-900 border border-white/10 px-5 py-3.5 rounded-lg text-label-lg font-label-lg shadow-sm transition-all duration-200 active:scale-[0.98] font-semibold"
                     style={{ color: "#ffffff" }}
                     href={whatsappUrl}
                     rel="noopener noreferrer"
@@ -287,36 +309,45 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
               </div>
             </div>
 
-            {/* Right Column: Visual Corridor Card (No multi-image gallery - strict LOCK-N04) */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative rounded-xl overflow-hidden shadow-xl bg-surface-container border border-border-warm/60">
+            {/* Right Column: Visual Corridor Card (Pexels Authentic Photography) */}
+            <div className="lg:col-span-5 flex flex-col gap-space-sm w-full">
+              <div className="relative rounded-2xl overflow-hidden shadow-lg bg-surface-container border border-border-warm/60 group">
                 <img
-                  className="w-full h-[440px] object-cover"
-                  src="/assets/hero/hero-highway.webp"
-                  alt={`${fromEn} to ${toEn} highway corridor`}
+                  className="w-full h-[420px] object-cover transition-transform duration-500 group-hover:scale-105"
+                  src={media.src}
+                  alt={media.alt}
                   loading="eager"
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = "/assets/fleet/innova.webp";
+                    (e.currentTarget as HTMLImageElement).src = "/assets/hero/hero-highway.webp";
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight/80 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-space-lg flex items-center justify-between text-ivory-surface">
-                  <div className="flex flex-col">
-                    <span className="font-title-md text-title-md font-serif">{routeGuidanceData.highway}</span>
-                    <span className="text-body-sm text-sandstone-wash/80">{route.km} km • {route.duration}</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-ink-midnight/90 via-ink-midnight/30 to-transparent" />
+                <div className="absolute top-3 left-3">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md text-white text-label-xs font-medium border border-white/20">
+                    <span className="material-symbols-outlined text-icon-14 text-amber-400">photo_camera</span>
+                    Verified Corridor Photography
+                  </span>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-space-lg flex flex-col gap-1 text-ivory-surface">
+                  <span className="font-title-md text-title-md font-serif text-white">{media.caption}</span>
+                  <div className="flex items-center gap-2 text-body-sm text-sandstone-wash/90">
+                    <span className="material-symbols-outlined text-icon-14">route</span>
+                    <span>{routeGuidanceData.highway}</span>
+                    <span>•</span>
+                    <span>{route.km} km ({route.duration})</span>
                   </div>
                 </div>
               </div>
 
               {/* Trust signals strip */}
-              <div className="grid grid-cols-2 gap-space-sm pt-space-md">
-                <div className="flex items-center gap-2 p-space-sm rounded bg-surface-container-low border border-border-warm/40">
+              <div className="grid grid-cols-2 gap-space-xs pt-1">
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/40 shadow-xs">
                   <span className="material-symbols-outlined text-success-jade text-icon-20">verified</span>
-                  <span className="text-body-sm text-on-surface font-medium">100% Commercial Fleet</span>
+                  <span className="text-[13px] text-on-surface font-medium">100% Commercial Fleet</span>
                 </div>
-                <div className="flex items-center gap-2 p-space-sm rounded bg-surface-container-low border border-border-warm/40">
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-surface-container-lowest border border-border-warm/40 shadow-xs">
                   <span className="material-symbols-outlined text-success-jade text-icon-20">car_repair</span>
-                  <span className="text-body-sm text-on-surface font-medium">45-Min Highway Replacement</span>
+                  <span className="text-[13px] text-on-surface font-medium">45-Min Highway Replacement</span>
                 </div>
               </div>
             </div>
