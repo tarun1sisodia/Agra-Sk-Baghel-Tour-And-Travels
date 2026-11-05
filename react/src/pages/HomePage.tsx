@@ -325,34 +325,40 @@ export function HomePage({ language = "en" }: HomePageProps) {
             {/* 100% Clean Semantic H1 for Search Crawlers & Screen Readers */}
             <h1 className="sr-only">Taxi Service in Agra — Reliable Agra Taxi Service & Cab Booking</h1>
 
-            {/* Visual Headline with Handwriting Flourish */}
-            <div className="font-headline-hero text-headline-hero font-normal leading-[1.12] w-full max-w-4xl" aria-hidden="true">
-              <span className="select-none flex flex-col items-center gap-1.5 w-full">
+            {/* Visual Headline — Professional clean sans-serif, left→right word-by-word reveal */}
+            <div className="font-body-lg text-body-lg font-semibold tracking-tight leading-[1.15] w-full max-w-4xl" aria-hidden="true">
+              <span className="select-none flex flex-col items-center gap-2 w-full">
                 {/* Line 1: Agra to Anywhere */}
                 <span
-                  className="block text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)] drop-shadow-[0_6px_28px_rgba(0,0,0,0.7)] overflow-visible pb-0.5"
+                  className="block text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] drop-shadow-[0_6px_24px_rgba(0,0,0,0.6)] overflow-visible pb-0.5"
                   aria-label={text}
                 >
-                  {text.split("").map((letter, index) => (
+                  {text.split(" ").map((word, wordIndex) => (
                     <span
-                      key={`${letter}-${index}`}
-                      className="inline-block font-serif italic text-4xl sm:text-6xl md:text-7xl text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/85"
+                      key={`${word}-${wordIndex}`}
+                      className="hero-reveal-word inline-block"
+                      style={{ animationDelay: `${wordIndex * 110}ms` }}
                     >
-                      {letter === " " ? "\u00A0" : letter}
+                      <span className="text-3xl sm:text-4xl">{word}</span>
                     </span>
                   ))}
                 </span>
 
-                {/* Line 2: in first-class comfort. in luminous light white/champagne */}
+                {/* Line 2: in first-class comfort. */}
                 <span className="relative w-full max-w-xl mt-1 flex flex-col items-center">
                   <span
-                    className="block font-serif italic tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-white/95 to-white/80 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] text-3xl sm:text-5xl md:text-6xl"
-                    style={{
-                      lineHeight: 1.15,
-                      fontFamily: "'Playfair Display', 'EB Garamond', Georgia, serif",
-                    }}
+                    className="block tracking-tight text-white/90 drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)] text-2xl sm:text-3xl md:text-4xl"
+                    style={{ lineHeight: 1.15 }}
                   >
-                    in first-class comfort.
+                    {["in", "first-class", "comfort."].map((word, wordIndex) => (
+                      <span
+                        key={word}
+                        className="hero-reveal-word inline-block"
+                        style={{ animationDelay: `${wordIndex * 110}ms` }}
+                      >
+                        {word}
+                      </span>
+                    ))}
                   </span>
 
                   {/* Cursive flourish underline stroke in luminous white silk */}

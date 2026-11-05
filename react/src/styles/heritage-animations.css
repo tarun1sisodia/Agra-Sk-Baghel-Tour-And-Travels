@@ -455,6 +455,32 @@
 }
 
 /* ==========================================================================
+   9. HERO HEADLINE: LEFT → RIGHT WORD-BY-WORD REVEAL
+   Clean professional replacement for the previous handwriting-style hero
+   entrance. Each word slides in from the left using only transform +
+   opacity (GPU-friendly, zero layout thrash). Fully readable raw HTML
+   exists in the DOM before the animation runs — SEO and crawler safe.
+   ========================================================================== */
+
+@keyframes hero-word-reveal {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.hero-reveal-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateX(-16px);
+  animation: hero-word-reveal 0.7s var(--ease-out) forwards;
+}
+
+/* ==========================================================================
    8. STRICT REDUCED MOTION (WCAG AA & ANIMATION_RULES.md COMPLIANCE)
    ========================================================================== */
 
@@ -473,6 +499,7 @@
   .reveal,
   .reveal-img,
   .reveal-pop,
+  .hero-reveal-word,
   .js-ready .reveal,
   .js-ready .reveal-img,
   .js-ready .reveal-pop,
