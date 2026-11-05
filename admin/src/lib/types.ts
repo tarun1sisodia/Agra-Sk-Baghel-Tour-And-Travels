@@ -37,7 +37,12 @@ export type VehicleTier =
   | "ertiga"
   | "innova-crysta"
   | "tempo-traveller"
-  | "urbania";
+  | "urbania"
+  // Explicit catch-all buckets (issue #129): "other" = known vehicle data that
+  // is not one of the five displayed fleets (luxury, bare SUV group, unknown
+  // model); "unknown" = no vehicle evidence at all. Never silently "sedan".
+  | "other"
+  | "unknown";
 
 export interface FareSnapshot {
   baseFare: number;
@@ -288,6 +293,8 @@ export const VEHICLE_LABELS: Record<VehicleTier, string> = {
   "innova-crysta": "Innova Crysta",
   "tempo-traveller": "Tempo Traveller",
   urbania: "Force Urbania",
+  other: "Other",
+  unknown: "Unknown",
 };
 
 export const ROLE_LABELS: Record<AdminRole, string> = {

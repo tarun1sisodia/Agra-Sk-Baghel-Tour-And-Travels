@@ -43,6 +43,9 @@ export function createAdminService(deps: { db: Repositories; clock?: Clock }) {
         status: booking.status,
         tripType: booking.tripType,
         vehicleTier: booking.vehicleTier,
+        // Additive model identity so the admin desk can distinguish e.g. Ertiga
+        // vs Innova within the same SUV group. Null when the snapshot has none.
+        vehicleModel: booking.vehicleModel ?? null,
         originName: selectionProjection.originName,
         destinationName: selectionProjection.destinationName,
         bookingSelection: selectionProjection.bookingSelection,

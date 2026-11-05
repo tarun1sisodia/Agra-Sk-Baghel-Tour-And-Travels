@@ -8,6 +8,7 @@
  */
 import { env } from "./env";
 import { expireSession, getAuthHeaders } from "./auth";
+import { mapAdminBooking } from "./bookingMapper.ts";
 import type {
   AuditEntry,
   Booking,
@@ -29,7 +30,6 @@ import type {
   PaymentProvider,
   PaymentStatus,
   Review,
-  TripType,
   VehicleTier,
   RouteCatalogItem, RouteFleet, RouteTripType,
   TourPackageItem, TourPackageUpgrade,
@@ -116,36 +116,7 @@ export async function fetchAdminBookings(filter?: {
 
   if (!Array.isArray(items)) return [];
 
-  return items.map((b: any) => ({
-    id: b.id,
-    ticketId: b.ticketId || b.id,
-    customerName: b.customerName || "Customer",
-    customerPhone: b.customerPhone || "",
-    customerEmail: b.customerEmail || "",
-    origin: b.originName || b.origin || "",
-    destination: b.destinationName || b.destination || "",
-    bookingSelection: b.bookingSelection ?? null,
-    selectedCatalogItemId: b.selectedCatalogItemId ?? null,
-    pickupDateTime: b.pickupDatetime || b.pickupDateTime || new Date().toISOString(),
-    returnDateTime: b.returnDatetime || b.returnDateTime || null,
-    distanceKm: Number(b.distanceKm) || 0,
-    tripType: (b.tripType as TripType) || "one-way",
-    vehicleTier: (b.vehicleTier as VehicleTier) || "sedan",
-    status: (b.status as BookingStatus) || "pending_payment",
-    version: Number(b.version) || 1,
-    notes: b.specialNotes || b.notes || "",
-    createdAt: b.createdAt || new Date().toISOString(),
-    fare: {
-      baseFare: Number(b.baseFare ?? b.totalFare) || 0,
-      nightAllowance: Number(b.nightAllowance) || 0,
-      driverAllowance: Number(b.driverAllowance) || 0,
-      tollsTaxes: 0,
-      promoDiscount: Number(b.discountAmount) || 0,
-      totalFare: Number(b.totalFare) || 0,
-      advancePaid: Number(b.advanceAmount) || 0,
-      balancePayable: Math.max(0, (Number(b.totalFare) || 0) - (Number(b.advanceAmount) || 0)),
-    },
-  }));
+  return items.map(mapAdminBooking);
 }
 
 export async function transitionAdminBooking(

@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, Car, CheckCircle2, IndianRupee, Map, MessageSquare, Package, Plane } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { AreaChart, DonutChart, RankedBars, VerticalBars } from "@/components/charts/Charts";
+import { AreaChart, DonutChart, RankedBars } from "@/components/charts/Charts";
 import { StatCard } from "@/components/admin/StatCard";
+import { FleetTierBreakdown } from "@/components/admin/FleetTierBreakdown";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { fetchAdminAuditLogs, fetchAdminBookings, fetchAdminInquiries, fetchAdminPayments } from "@/lib/api";
+import { countFleetTrips } from "@/lib/vehicleTierCounts";
 import { timeAgo } from "@/lib/utils";
 import type { AuditEntry, Booking, Inquiry, Payment } from "@/lib/types";
 
@@ -30,14 +32,6 @@ const STATUS_LABELS: Record<string, string> = {
   draft: "Draft",
   cancelled: "Cancelled",
   refunded: "Refunded",
-};
-
-const TIER_LABELS: Record<string, string> = {
-  sedan: "Sedan",
-  ertiga: "Ertiga",
-  "innova-crysta": "Innova",
-  "tempo-traveller": "Tempo",
-  urbania: "Urbania",
 };
 
 function monthKey(iso: string): string {
@@ -129,14 +123,7 @@ export function DashboardPage() {
     [bookings],
   );
 
-  const tierCounts = useMemo(
-    () =>
-      bookings.reduce<Record<string, number>>((acc, b) => {
-        acc[b.vehicleTier] = (acc[b.vehicleTier] ?? 0) + 1;
-        return acc;
-      }, {}),
-    [bookings],
-  );
+  const tierCounts = useMemo(() => countFleetTrips(bookings), [bookings]);
 
   /** Trailing 12 months of captured revenue, computed from real payments. */
   const revenueSeries = useMemo(() => {
@@ -362,12 +349,7 @@ export function DashboardPage() {
           </CardHeader>
           <CardContent>
             {bookings.length > 0 ? (
-              <VerticalBars
-                items={Object.entries(TIER_LABELS).map(([key, label]) => ({
-                  label,
-                  value: tierCounts[key] ?? 0,
-                }))}
-              />
+              <FleetTierBreakdown counts={tierCounts} />
             ) : (
               <div className="flex h-44 items-center justify-center text-center">
                 <p className="max-w-xs text-sm leading-relaxed text-ink-soft">
