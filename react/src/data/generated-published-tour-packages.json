@@ -39,15 +39,21 @@
     "gallery": [
       {
         "url": "/assets/places/gallery/mathura-vrindavan-01.jpg",
-        "alt": "Prem Mandir illuminated at night",
+        "alt": "Prem Mandir illuminated at night, Vrindavan",
         "caption": "Prem Mandir & Banke Bihari illumination",
         "sortOrder": 0
       },
       {
-        "url": "/assets/places/gallery/taj-mahal-01.jpg",
-        "alt": "Taj Mahal dawn reflection Agra",
-        "caption": "Taj Mahal reflection pool at dawn",
+        "url": "/assets/destinations/vrindavan-prem-mandir.webp",
+        "alt": "Shri Banke Bihari and Prem Mandir Complex",
+        "caption": "Sacred Vrindavan temple circuit",
         "sortOrder": 1
+      },
+      {
+        "url": "/assets/places/gallery/taj-mahal-01.jpg",
+        "alt": "Taj Mahal departure point, Agra",
+        "caption": "Agra morning pickup",
+        "sortOrder": 2
       }
     ],
     "status": "published",
@@ -90,24 +96,24 @@
       "Chauffeur / guide discretionary tips & gratuities"
     ],
     "itinerary": [],
-    "imageUrl": "/api/v1/tour-packages/media/baba62e7-3e42-4122-922d-172842198fd9.webp",
+    "imageUrl": "/assets/places/gallery/taj-mahal-01.jpg",
     "gallery": [
       {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/50c4be58-45fe-43d5-8056-7438e1aefad4.jpg",
-        "alt": "pexels akshatrai 5367202",
-        "caption": "pexels akshatrai 5367202",
+        "url": "/assets/places/gallery/taj-mahal-01.jpg",
+        "alt": "Taj Mahal white marble reflection pool, Agra",
+        "caption": "Taj Mahal dawn reflection pool",
         "sortOrder": 0
       },
       {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/e9fbf686-41a1-4773-b6e6-b8cb7bca7b4e.webp",
-        "alt": "pexels ibrahim poonawala 53441506 8046592",
-        "caption": "pexels ibrahim poonawala 53441506 8046592",
+        "url": "/assets/places/gallery/agra-fort-01.jpg",
+        "alt": "Agra Red Fort Jahangiri Mahal and ramparts",
+        "caption": "Agra Red Fort Mughal citadel",
         "sortOrder": 1
       },
       {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/baba62e7-3e42-4122-922d-172842198fd9.webp",
-        "alt": "pexels utkarsh verma 2719461 38549327",
-        "caption": "pexels utkarsh verma 2719461 38549327",
+        "url": "/assets/places/gallery/sikandra-01.jpg",
+        "alt": "Sikandra Akbar Tomb grand gateway",
+        "caption": "Emperor Akbar Tomb at Sikandra",
         "sortOrder": 2
       }
     ],
@@ -117,7 +123,7 @@
     "updatedAt": "2026-11-01T10:04:20.989Z",
     "upgrades": [],
     "slug": "exclusive-tour-of-agra-for-1-day",
-    "image": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/baba62e7-3e42-4122-922d-172842198fd9.webp"
+    "image": "/assets/places/gallery/taj-mahal-01.jpg"
   },
   {
     "id": "300d4bfb-c224-42cf-b5f0-da103e3b3184",
@@ -156,24 +162,24 @@
       "State & Toll taxes"
     ],
     "itinerary": [],
-    "imageUrl": "/api/v1/tour-packages/media/aa4c6eda-b0b4-4617-b954-1154b70cc6d5.webp",
+    "imageUrl": "/assets/places/gallery/taj-mahal-02.jpg",
     "gallery": [
       {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/aa4c6eda-b0b4-4617-b954-1154b70cc6d5.webp",
-        "alt": "agra fort",
-        "caption": "agra fort",
+        "url": "/assets/places/gallery/taj-mahal-02.jpg",
+        "alt": "Taj Mahal view from across Yamuna river",
+        "caption": "Taj Mahal marble silhouette",
         "sortOrder": 0
       },
       {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/1ebea9a6-f540-4563-9669-35fdbe8cbcf6.webp",
-        "alt": "fatehpur",
-        "caption": "fatehpur",
+        "url": "/assets/places/gallery/agra-fort-02.jpg",
+        "alt": "Agra Fort Diwan-i-Khas and pavilions",
+        "caption": "Agra Fort Diwan-i-Khas pavilion",
         "sortOrder": 1
       },
       {
-        "url": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/3900870d-4815-4120-81bb-5af02e2fb57c.jpg",
-        "alt": "taj amaj",
-        "caption": "taj amaj",
+        "url": "/assets/places/gallery/mehtab-bagh-01.jpg",
+        "alt": "Mehtab Bagh sunset garden view of Taj Mahal",
+        "caption": "Sunset reflection from Mehtab Bagh",
         "sortOrder": 2
       }
     ],
@@ -183,7 +189,7 @@
     "updatedAt": "2026-11-05T07:14:58.127Z",
     "upgrades": [],
     "slug": "agra-same-day-sightseeing-tour",
-    "image": "https://api.agraskbagheltourandtravels.com/api/v1/tour-packages/media/aa4c6eda-b0b4-4617-b954-1154b70cc6d5.webp"
+    "image": "/assets/places/gallery/taj-mahal-02.jpg"
   },
   {
     "id": "ef0df5f7-502f-4f3b-8a76-bec3ff5fdbfd",
@@ -235,15 +241,34 @@
         "title": "Day 3: Expressway Cruise to Delhi Drop"
       }
     ],
-    "imageUrl": null,
-    "gallery": [],
+    "imageUrl": "/assets/destinations/delhi-india-gate.webp",
+    "gallery": [
+      {
+        "url": "/assets/destinations/delhi-india-gate.webp",
+        "alt": "India Gate war memorial and boulevard, New Delhi",
+        "caption": "India Gate & Kartavya Path, New Delhi",
+        "sortOrder": 0
+      },
+      {
+        "url": "/assets/destinations/delhi-red-fort.webp",
+        "alt": "Red Fort Lal Qila sandstone bastion, Old Delhi",
+        "caption": "Red Fort Lal Qila ramparts, Old Delhi",
+        "sortOrder": 1
+      },
+      {
+        "url": "/assets/destinations/fatehpur-sikri.webp",
+        "alt": "Buland Darwaza imperial gateway, Fatehpur Sikri",
+        "caption": "Buland Darwaza imperial gate, Fatehpur Sikri",
+        "sortOrder": 2
+      }
+    ],
     "status": "published",
     "isActive": true,
     "createdAt": "2026-11-05T10:54:18.984Z",
     "updatedAt": "2026-11-05T10:54:18.984Z",
     "upgrades": [],
     "slug": "agra-to-delhi-tour",
-    "image": "/assets/packages/taj-dawn.webp"
+    "image": "/assets/destinations/delhi-india-gate.webp"
   },
   {
     "id": "12a4ccc5-3fd4-4181-aa9c-46fa1a74d499",
@@ -303,15 +328,34 @@
         "title": "Day 5: Himalayan Descent & Return to Agra"
       }
     ],
-    "imageUrl": null,
-    "gallery": [],
+    "imageUrl": "/assets/destinations/mussoorie-kempty-falls.jpg",
+    "gallery": [
+      {
+        "url": "/assets/destinations/mussoorie-kempty-falls.jpg",
+        "alt": "Kempty Falls cascading mountain waterfall, Mussoorie",
+        "caption": "Kempty Falls scenic cascade, Mussoorie",
+        "sortOrder": 0
+      },
+      {
+        "url": "/assets/destinations/rishikesh-ram-jhula.jpg",
+        "alt": "Ram Jhula suspension bridge across holy Ganga, Rishikesh",
+        "caption": "Ram Jhula over the holy Ganga, Rishikesh",
+        "sortOrder": 1
+      },
+      {
+        "url": "/assets/destinations/haridwar-har-ki-pauri.jpg",
+        "alt": "Har Ki Pauri sacred bathing ghat and evening Ganga Aarti, Haridwar",
+        "caption": "Har Ki Pauri sacred ghat & Ganga Aarti, Haridwar",
+        "sortOrder": 2
+      }
+    ],
     "status": "published",
     "isActive": true,
     "createdAt": "2026-11-05T10:54:30.780Z",
     "updatedAt": "2026-11-05T10:54:30.780Z",
     "upgrades": [],
     "slug": "agra-to-mussoorie-tour",
-    "image": "/assets/packages/taj-dawn.webp"
+    "image": "/assets/destinations/mussoorie-kempty-falls.jpg"
   },
   {
     "id": "c8a3cd0a-de03-446d-9af3-48ad0b4fa6a4",
@@ -371,15 +415,34 @@
         "title": "Day 5: Kullu Rafting Point & Highway Return to Agra"
       }
     ],
-    "imageUrl": null,
-    "gallery": [],
+    "imageUrl": "/assets/destinations/himachal-manali.webp",
+    "gallery": [
+      {
+        "url": "/assets/destinations/himachal-manali.webp",
+        "alt": "Manali Himalayan mountain valley and deodar pine forests",
+        "caption": "Manali valley & Himalayan ridges",
+        "sortOrder": 0
+      },
+      {
+        "url": "/assets/destinations/manali-solang-valley.jpg",
+        "alt": "Solang Valley snow-capped Himalayan peaks and adventure meadow",
+        "caption": "Solang Valley snow peaks & slopes",
+        "sortOrder": 1
+      },
+      {
+        "url": "/assets/destinations/manali-hadimba-temple.jpg",
+        "alt": "Ancient multi-tier wooden Hadimba Devi Temple, Old Manali",
+        "caption": "Historic Hadimba Devi Temple in deodar forest",
+        "sortOrder": 2
+      }
+    ],
     "status": "published",
     "isActive": true,
     "createdAt": "2026-11-05T10:54:42.393Z",
     "updatedAt": "2026-11-05T10:54:42.393Z",
     "upgrades": [],
     "slug": "agra-to-manali-tour",
-    "image": "/assets/packages/taj-dawn.webp"
+    "image": "/assets/destinations/himachal-manali.webp"
   },
   {
     "id": "9dfa6ac2-42d5-40b4-bb66-daeaf10f0f4a",
@@ -439,15 +502,34 @@
         "title": "Day 5: Desert Sunrise & Highway Return to Agra"
       }
     ],
-    "imageUrl": null,
-    "gallery": [],
+    "imageUrl": "/assets/destinations/jaisalmer-fort.jpg",
+    "gallery": [
+      {
+        "url": "/assets/destinations/jaisalmer-fort.jpg",
+        "alt": "Sonar Qila Golden Fort living sandstone citadel, Jaisalmer",
+        "caption": "Sonar Qila Golden Fort, Jaisalmer",
+        "sortOrder": 0
+      },
+      {
+        "url": "/assets/destinations/jaisalmer-sand-dunes.jpg",
+        "alt": "Sam Sand Dunes golden ripples and camel safari, Thar Desert",
+        "caption": "Sam Sand Dunes sunset safari, Thar Desert",
+        "sortOrder": 1
+      },
+      {
+        "url": "/assets/destinations/jaipur-hawa-mahal.webp",
+        "alt": "Hawa Mahal Palace of Winds Pink City, Jaipur",
+        "caption": "Hawa Mahal Palace of Winds, Jaipur Pink City",
+        "sortOrder": 2
+      }
+    ],
     "status": "published",
     "isActive": true,
     "createdAt": "2026-11-05T10:54:53.403Z",
     "updatedAt": "2026-11-05T10:54:53.403Z",
     "upgrades": [],
     "slug": "agra-to-jaisalmer-tour",
-    "image": "/assets/packages/taj-dawn.webp"
+    "image": "/assets/destinations/jaisalmer-fort.jpg"
   },
   {
     "id": "9de5ae7d-d330-4cb7-88be-67914d4b575e",
@@ -499,14 +581,33 @@
         "title": "Day 3: Imperial Fatehpur Sikri & Return to Delhi"
       }
     ],
-    "imageUrl": null,
-    "gallery": [],
+    "imageUrl": "/assets/destinations/delhi-india-gate.webp",
+    "gallery": [
+      {
+        "url": "/assets/destinations/delhi-india-gate.webp",
+        "alt": "India Gate ceremonial boulevard, Delhi pickup point",
+        "caption": "India Gate ceremonial boulevard, Delhi pickup point",
+        "sortOrder": 0
+      },
+      {
+        "url": "/assets/places/gallery/taj-mahal-01.jpg",
+        "alt": "Taj Mahal sunrise white marble reflection pool, Agra",
+        "caption": "Taj Mahal sunrise reflection pool, Agra",
+        "sortOrder": 1
+      },
+      {
+        "url": "/assets/destinations/fatehpur-sikri.webp",
+        "alt": "Imperial Buland Darwaza and courtyard, Fatehpur Sikri",
+        "caption": "Buland Darwaza imperial complex, Fatehpur Sikri",
+        "sortOrder": 2
+      }
+    ],
     "status": "published",
     "isActive": true,
     "createdAt": "2026-11-05T10:55:04.303Z",
     "updatedAt": "2026-11-05T10:55:04.303Z",
     "upgrades": [],
     "slug": "delhi-to-agra-tour",
-    "image": "/assets/packages/taj-dawn.webp"
+    "image": "/assets/destinations/delhi-india-gate.webp"
   }
 ]

@@ -69,3 +69,4 @@ export function registerWebMcpTools(): void {
     console.warn("[WebMCP] Registration note:", err);
   }
 }
+

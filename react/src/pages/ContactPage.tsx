@@ -221,7 +221,7 @@ export function ContactPage({ language = "en" }: ContactPageProps) {
               <p className="font-title-md text-ink-charcoal mb-0.5 font-semibold text-xs break-all">
                 bookings@agraskbagheltourandtravels.com
               </p>
-              <p className="text-on-surface-variant font-body-sm mb-2 text-label-lg break-all">dispatch@agraskbagheltourandtravels.com</p>
+              <p className="text-on-surface-variant font-body-sm mb-2 text-label-lg break-all">support@agraskbagheltourandtravels.com</p>
               <p className="text-on-surface-variant font-body-sm leading-relaxed mb-6 text-body-md">
                 Multi-day Golden Triangle itineraries, wedding group transit in Tempo Travellers/Urbania, and B2B booking receipt tax
                 invoices.

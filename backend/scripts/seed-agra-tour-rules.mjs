@@ -157,6 +157,8 @@ function calculateTourPrices(days) {
 const TOUR_PACKAGES_DATA = [
   {
     package_code: "agra-to-delhi-tour",
+    image_url: "/assets/destinations/delhi-india-gate.webp",
+    gallery: [{"url":"/assets/destinations/delhi-india-gate.webp","alt":"India Gate war memorial, New Delhi","caption":"India Gate boulevard, New Delhi","sortOrder":0},{"url":"/assets/destinations/delhi-red-fort.webp","alt":"Red Fort Lal Qila ramparts, Old Delhi","caption":"Red Fort Lal Qila, Old Delhi","sortOrder":1},{"url":"/assets/destinations/fatehpur-sikri.webp","alt":"Buland Darwaza imperial gateway, Fatehpur Sikri","caption":"Buland Darwaza imperial gate, Fatehpur Sikri","sortOrder":2}],
     name: "Agra to Delhi Tour",
     duration_text: "3 Days / 2 Nights",
     days: 3,
@@ -183,6 +185,8 @@ const TOUR_PACKAGES_DATA = [
   },
   {
     package_code: "agra-to-mussoorie-tour",
+    image_url: "/assets/destinations/mussoorie-kempty-falls.jpg",
+    gallery: [{"url":"/assets/destinations/mussoorie-kempty-falls.jpg","alt":"Kempty Falls cascading mountain waterfall, Mussoorie","caption":"Kempty Falls cascade, Mussoorie","sortOrder":0},{"url":"/assets/destinations/rishikesh-ram-jhula.jpg","alt":"Ram Jhula suspension bridge over holy Ganga, Rishikesh","caption":"Ram Jhula over the holy Ganga, Rishikesh","sortOrder":1},{"url":"/assets/destinations/haridwar-har-ki-pauri.jpg","alt":"Har Ki Pauri sacred ghat and Ganga Aarti, Haridwar","caption":"Har Ki Pauri sacred ghat & Ganga Aarti, Haridwar","sortOrder":2}],
     name: "Agra to Mussoorie Tour",
     duration_text: "5 Days / 4 Nights",
     days: 5,
@@ -211,6 +215,8 @@ const TOUR_PACKAGES_DATA = [
   },
   {
     package_code: "agra-to-manali-tour",
+    image_url: "/assets/destinations/himachal-manali.webp",
+    gallery: [{"url":"/assets/destinations/himachal-manali.webp","alt":"Manali Himalayan mountain valley and pine forests","caption":"Manali valley & Himalayan ridges","sortOrder":0},{"url":"/assets/destinations/manali-solang-valley.jpg","alt":"Solang Valley snow peaks and adventure slopes, Manali","caption":"Solang Valley snow peaks & slopes","sortOrder":1},{"url":"/assets/destinations/manali-hadimba-temple.jpg","alt":"Ancient multi-tier wooden Hadimba Devi Temple, Old Manali","caption":"Historic Hadimba Devi Temple in deodar forest","sortOrder":2}],
     name: "Agra to Manali Tour",
     duration_text: "5 Days / 4 Nights",
     days: 5,
@@ -239,6 +245,8 @@ const TOUR_PACKAGES_DATA = [
   },
   {
     package_code: "agra-to-jaisalmer-tour",
+    image_url: "/assets/destinations/jaisalmer-fort.jpg",
+    gallery: [{"url":"/assets/destinations/jaisalmer-fort.jpg","alt":"Sonar Qila Golden Fort living sandstone citadel, Jaisalmer","caption":"Sonar Qila Golden Fort, Jaisalmer","sortOrder":0},{"url":"/assets/destinations/jaisalmer-sand-dunes.jpg","alt":"Sam Sand Dunes golden ripples and camel safari, Thar Desert","caption":"Sam Sand Dunes sunset safari, Thar Desert","sortOrder":1},{"url":"/assets/destinations/jaipur-hawa-mahal.webp","alt":"Hawa Mahal Palace of Winds Pink City, Jaipur","caption":"Hawa Mahal Palace of Winds, Jaipur Pink City","sortOrder":2}],
     name: "Agra to Jaisalmer Tour",
     duration_text: "5 Days / 4 Nights",
     days: 5,
@@ -267,6 +275,8 @@ const TOUR_PACKAGES_DATA = [
   },
   {
     package_code: "delhi-to-agra-tour",
+    image_url: "/assets/destinations/delhi-india-gate.webp",
+    gallery: [{"url":"/assets/destinations/delhi-india-gate.webp","alt":"India Gate ceremonial boulevard, Delhi pickup point","caption":"India Gate ceremonial boulevard, Delhi pickup point","sortOrder":0},{"url":"/assets/places/gallery/taj-mahal-01.jpg","alt":"Taj Mahal sunrise white marble reflection pool, Agra","caption":"Taj Mahal sunrise reflection pool, Agra","sortOrder":1},{"url":"/assets/destinations/fatehpur-sikri.webp","alt":"Imperial Buland Darwaza and courtyard, Fatehpur Sikri","caption":"Buland Darwaza imperial complex, Fatehpur Sikri","sortOrder":2}],
     name: "Delhi to Agra Tour",
     duration_text: "3 Days / 2 Nights",
     days: 3,
@@ -330,6 +340,8 @@ for (const pkg of TOUR_PACKAGES_DATA) {
       itinerary: pkg.itinerary,
       status: "published",
       is_active: true,
+      image_url: pkg.image_url,
+      gallery: pkg.gallery,
     };
     const upRes = await api("PATCH", `/api/v1/ops/admin/tour-packages/${existing.id}`, updatePayload);
     if (!upRes.ok) console.error(`Error updating tour package ${pkg.package_code}:`, upRes.raw);

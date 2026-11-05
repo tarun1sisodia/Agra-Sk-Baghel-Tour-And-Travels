@@ -5,6 +5,9 @@ export const contact = {
   whatsapp: "919762817598",
   onlineBooking: "919762817598",
   email: "bookings@agraskbagheltourandtravels.com",
+  supportEmail: "support@agraskbagheltourandtravels.com",
+  contactEmail: "contact@agraskbagheltourandtravels.com",
+  infoEmail: "info@agraskbagheltourandtravels.com",
   // Standard primary location string for backwards compatibility
   address: "450m from Taj Mahal Eastern Gate, Taj Ganj, Agra, Uttar Pradesh 282001",
   hours: "Bookings open 24×7",

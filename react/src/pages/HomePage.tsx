@@ -732,7 +732,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                           decoding="async"
                           alt={`${pkg.name} — Agra Tour Package by SK Baghel Travels`}
                           onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = "/assets/packages/taj-dawn.webp";
+                            const target = e.currentTarget as HTMLImageElement; target.removeAttribute("srcset"); target.src = "/assets/packages/taj-dawn.webp";
                           }}
                         />
                         <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-ink-midnight/80 text-tertiary-fixed font-label-caps text-label-caps uppercase font-bold backdrop-blur-sm">
