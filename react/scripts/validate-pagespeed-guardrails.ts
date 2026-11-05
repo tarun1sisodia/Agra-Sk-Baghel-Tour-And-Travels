@@ -49,8 +49,9 @@ assert.ok(
 );
 
 // D. Critical Path Font Deferral Check
+const htmlWithoutNoscript = htmlContent.replace(/<noscript>[\s\S]*?<\/noscript>/gi, "");
 assert.ok(
-  !htmlContent.includes('<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined') ||
+  !htmlWithoutNoscript.includes('<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined') ||
     htmlContent.includes("loadIcons") ||
     htmlContent.includes("requestIdleCallback"),
   "Render Blocking Guardrail Failure: Material Symbols Outlined is synchronously loaded in critical path."

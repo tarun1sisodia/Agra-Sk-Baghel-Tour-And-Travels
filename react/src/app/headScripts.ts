@@ -1,43 +1,7 @@
 /**
- * Head Script Initializers
- * Extracted from index.html to allow CSP without 'unsafe-inline'.
+ * Deferred Analytics & Script Initializers
+ * Extracted from index.html to eliminate inline scripts and enforce strict CSP.
  */
-
-export function initDeferredIcons(): void {
-  let iconsLoaded = false;
-  function loadIcons(): void {
-    if (iconsLoaded) return;
-    if (
-      typeof navigator !== "undefined" &&
-      (Boolean(navigator.webdriver) || /bot|crawler|spider|lighthouse|headless/i.test(navigator.userAgent))
-    ) {
-      return;
-    }
-    iconsLoaded = true;
-    (["scroll", "touchstart", "pointerdown", "keydown", "click"] as const).forEach((evt) => {
-      window.removeEventListener(evt, loadIcons);
-    });
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap";
-    document.head.appendChild(link);
-  }
-
-  (["scroll", "touchstart", "pointerdown", "keydown", "click"] as const).forEach((evt) => {
-    window.addEventListener(evt, loadIcons, { passive: true, once: true });
-  });
-
-  if ("requestIdleCallback" in window) {
-    (window as unknown as { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => void }).requestIdleCallback(
-      () => {
-        setTimeout(loadIcons, 20000);
-      },
-      { timeout: 25000 }
-    );
-  } else {
-    setTimeout(loadIcons, 20000);
-  }
-}
 
 export function initDeferredGTM(): void {
   let gtmLoaded = false;

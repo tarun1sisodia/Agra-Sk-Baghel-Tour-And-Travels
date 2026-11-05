@@ -8,10 +8,9 @@ import "@/styles/tokens.css";
 import "@/styles/theme.css";
 import "@/styles/global.css";
 import "@/styles/heritage-animations.css";
-import { initDeferredIcons, initDeferredGTM } from "@/app/headScripts";
+import { initDeferredGTM } from "@/app/headScripts";
 
-// Deferred icon font & analytics initializers (extracted from index.html for strict CSP)
-initDeferredIcons();
+// Deferred analytics initializer (extracted from index.html for strict CSP)
 initDeferredGTM();
 
 // Service Worker registration for offline support and caching

@@ -16,6 +16,11 @@ export function registerNetworkHeaders(app: FastifyInstance): void {
     // 1. Advertise HTTP/3 over QUIC on port 443 with a 24-hour max-age
     reply.header("Alt-Svc", 'h3=":443"; ma=86400');
 
+    // 2. Enforce private, non-cached delivery for dynamic API endpoints if not already specified
+    if (!reply.hasHeader("cache-control")) {
+      reply.header("Cache-Control", "no-store, no-cache, must-revalidate, private");
+    }
+
     return payload;
   });
 }

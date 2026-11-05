@@ -6,6 +6,11 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), microphone=(), camera=()
   Alt-Svc: h3=":443"; ma=86400
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Root admin shell
+/
+  Cache-Control: no-cache, no-store, must-revalidate
 
 # Vite emits content-hashed asset filenames, so they are safe to cache hard.
 /assets/*
@@ -14,4 +19,4 @@
 
 # The shell must always be revalidated so operators pick up new releases.
 /index.html
-  Cache-Control: no-cache
+  Cache-Control: no-cache, no-store, must-revalidate
