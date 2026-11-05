@@ -3,6 +3,7 @@ import type {
   AuditLogRecord,
   BookingIntentRecord,
   BookingRecord,
+  BookingVehicleModel,
   CatalogItemRecord,
   CatalogMediaRecord,
   InquiryRecord,
@@ -263,7 +264,7 @@ function mapRentalEnquiry(row: Record<string, unknown>): RentalEnquiryRecord {
   };
 }
 
-function mapBooking(row: Record<string, unknown>): BookingRecord {
+export function mapBooking(row: Record<string, unknown>): BookingRecord {
   const breakdown = (row.fare_breakdown && typeof row.fare_breakdown === "object"
     ? row.fare_breakdown
     : (typeof row.fare_breakdown === "string" ? JSON.parse(row.fare_breakdown) : {})) as Record<string, any>;
@@ -312,7 +313,27 @@ function mapBooking(row: Record<string, unknown>): BookingRecord {
   }
   const distanceKm = num(row.distance_km ?? details.distance_km ?? 0);
   const tripType = (row.trip_type as BookingRecord["tripType"]) ?? (details.effective_trip_type as BookingRecord["tripType"]) ?? "one_way";
-  const vehicleTier = (row.vehicle_tier as BookingRecord["vehicleTier"]) ?? (vehicle.group_code as BookingRecord["vehicleTier"]) ?? "sedan";
+  // Vehicle identity evidence chain (most specific first):
+  //   1. dedicated vehicle_tier column (when present)
+  //   2. legacy fare snapshot's canonical tier key (fare_breakdown.vehicleTier)
+  //   3. clean quote snapshot's group code (fare_breakdown.vehicle.group_code)
+  // Never silently fall back to "sedan": a row with no vehicle evidence is
+  // "unknown" so downstream consumers (admin dashboard) can bucket it honestly.
+  const snapshotTier = typeof breakdown.vehicleTier === "string" && breakdown.vehicleTier.trim()
+    ? breakdown.vehicleTier.trim()
+    : null;
+  const vehicleTier = (row.vehicle_tier as BookingRecord["vehicleTier"])
+    ?? (snapshotTier as BookingRecord["vehicleTier"] | null)
+    ?? (vehicle.group_code as BookingRecord["vehicleTier"])
+    ?? "unknown";
+  const vehicleModel: BookingVehicleModel | null =
+    vehicle && (vehicle.display_name || vehicle.group_code || vehicle.vehicle_model_id)
+      ? {
+          id: vehicle.vehicle_model_id ? String(vehicle.vehicle_model_id) : null,
+          displayName: vehicle.display_name ? String(vehicle.display_name) : null,
+          groupCode: vehicle.group_code ? String(vehicle.group_code) : null,
+        }
+      : null;
   const originName = row.origin_name ? String(row.origin_name) : (details.origin ? String(details.origin) : (row.pickup_address ? String(row.pickup_address) : null));
   const destinationName = row.destination_name ? String(row.destination_name) : (details.destination ? String(details.destination) : (row.drop_address ? String(row.drop_address) : null));
   const pickupDatetime = safeIsoDate(row.pickup_datetime ?? row.pickup_at);
@@ -325,6 +346,7 @@ function mapBooking(row: Record<string, unknown>): BookingRecord {
     guestAccessToken: String(row.guest_access_token ?? ""),
     tripType,
     vehicleTier,
+    vehicleModel,
     originName,
     destinationName,
     bookingSelection: row.booking_selection && typeof row.booking_selection === "object"

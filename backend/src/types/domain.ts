@@ -135,6 +135,18 @@ export type FareBreakdown = {
   rules: string[];
 };
 
+/**
+ * Vehicle model identity captured in the stored fare snapshot (clean quote
+ * path: `fare_breakdown.vehicle`). Additive/optional so legacy booking rows and
+ * the memory repository keep working without it. Consumers must treat a missing
+ * value as "model identity unknown", never as a default vehicle.
+ */
+export type BookingVehicleModel = {
+  id: string | null;
+  displayName: string | null;
+  groupCode: string | null;
+};
+
 export type BookingRecord = {
   id: string;
   ticketId: string;
@@ -142,6 +154,8 @@ export type BookingRecord = {
   guestAccessToken: string;
   tripType: TripType;
   vehicleTier: VehicleTier;
+  /** Model identity from the fare snapshot, when available (see BookingVehicleModel). */
+  vehicleModel?: BookingVehicleModel | null;
   originName: string | null;
   destinationName: string | null;
   bookingSelection: BookingSelection | null;
