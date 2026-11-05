@@ -26,3 +26,9 @@ freellmapi/
 test.py
 *.mp4
 
+
+# Performance reports & audit dumps
+lh_*.json
+psi_*.json
+*.report.json
+*.report.html
