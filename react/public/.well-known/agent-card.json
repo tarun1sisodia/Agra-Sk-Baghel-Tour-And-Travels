@@ -1,0 +1,41 @@
+{
+  "name": "SK Baghel Tour & Travels Booking Agent",
+  "version": "1.0.0",
+  "description": "AI-ready booking agent for taxi services, outstation trips, and tour packages in Agra, India.",
+  "url": "https://agraskbagheltourandtravels.com",
+  "supportedInterfaces": [
+    {
+      "url": "https://api.agraskbagheltourandtravels.com/a2a",
+      "protocol": "http"
+    }
+  ],
+  "capabilities": [
+    "quote_fares",
+    "search_routes",
+    "book_tour",
+    "check_availability"
+  ],
+  "skills": [
+    {
+      "id": "taxi-booking",
+      "name": "Agra Taxi Booking",
+      "description": "Calculate fares and book private AC cabs in Agra and outstation"
+    },
+    {
+      "id": "tour-packages",
+      "name": "Agra Tour Packages",
+      "description": "Browse and book local and outstation tour packages"
+    }
+  ],
+  "extensions": [
+    {
+      "uri": "https://github.com/google-agentic-commerce/AP2/tree/v0.1.0",
+      "required": true,
+      "params": {
+        "roles": [
+          "merchant"
+        ]
+      }
+    }
+  ]
+}

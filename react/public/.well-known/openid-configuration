@@ -1,0 +1,29 @@
+{
+  "issuer": "https://api.agraskbagheltourandtravels.com",
+  "authorization_endpoint": "https://api.agraskbagheltourandtravels.com/api/v1/auth/authorize",
+  "token_endpoint": "https://api.agraskbagheltourandtravels.com/api/v1/auth/token",
+  "jwks_uri": "https://api.agraskbagheltourandtravels.com/.well-known/jwks.json",
+  "grant_types_supported": [
+    "authorization_code",
+    "client_credentials",
+    "refresh_token"
+  ],
+  "response_types_supported": [
+    "code",
+    "token"
+  ],
+  "subject_types_supported": [
+    "public"
+  ],
+  "id_token_signing_alg_values_supported": [
+    "RS256"
+  ],
+  "scopes_supported": [
+    "openid",
+    "profile",
+    "email",
+    "read:catalog",
+    "read:fares",
+    "write:bookings"
+  ]
+}

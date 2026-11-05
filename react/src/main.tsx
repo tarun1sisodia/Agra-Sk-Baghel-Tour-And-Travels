@@ -9,9 +9,13 @@ import "@/styles/theme.css";
 import "@/styles/global.css";
 import "@/styles/heritage-animations.css";
 import { initDeferredGTM } from "@/app/headScripts";
+import { registerWebMcpTools } from "@/utils/webMcp";
 
 // Deferred analytics initializer (extracted from index.html for strict CSP)
 initDeferredGTM();
+
+// Expose WebMCP tools to AI agents in compatible browsers
+registerWebMcpTools();
 
 // Service Worker registration for offline support and caching
 if ('serviceWorker' in navigator && import.meta.env.PROD) {

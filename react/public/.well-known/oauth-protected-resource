@@ -1,0 +1,14 @@
+{
+  "resource": "https://api.agraskbagheltourandtravels.com",
+  "authorization_servers": [
+    "https://api.agraskbagheltourandtravels.com"
+  ],
+  "scopes_supported": [
+    "read:catalog",
+    "read:fares",
+    "write:bookings"
+  ],
+  "bearer_methods_supported": [
+    "header"
+  ]
+}

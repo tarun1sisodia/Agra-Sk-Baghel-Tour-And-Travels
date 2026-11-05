@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "agra-taxi-booking",
+      "type": "skill-md",
+      "description": "AI agent skill for querying taxi fares, vehicle fleets, and tour packages for Agra SK Baghel Tour & Travels.",
+      "url": "https://agraskbagheltourandtravels.com/.well-known/agent-skills/agra-taxi-booking/SKILL.md",
+      "digest": "sha256:9df1631151b865a61a56193ab45c24352adfb086ad265d4d521013c9b2149ebe"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "keys": [
+    {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "kid": "skb-agent-2026",
+      "x": "r5AEvFsgexi_4z5Mg4BMHgE1VKZrs2QeTrbJUHbg9BA",
+      "use": "sig",
+      "alg": "EdDSA"
+    }
+  ]
+}

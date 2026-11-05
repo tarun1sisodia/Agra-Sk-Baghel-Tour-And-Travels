@@ -1,0 +1,12 @@
+{
+  "name": "Agra SK Baghel Tour & Travels API",
+  "description": "Public and agent-accessible APIs for taxi booking, fare calculations, and catalog discovery.",
+  "apis": [
+    {
+      "name": "Booking & Catalog API",
+      "version": "1.0.0",
+      "service-desc": "https://agraskbagheltourandtravels.com/openapi.json",
+      "service-doc": "https://agraskbagheltourandtravels.com/llms.txt"
+    }
+  ]
+}

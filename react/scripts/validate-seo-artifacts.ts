@@ -330,6 +330,7 @@ async function main(): Promise<void> {
   // robots.txt: production sitemap ref + AI crawler policy groups
   assert.ok(/^User-agent:\s*GPTBot\s*$/im.test(robots) && /^Disallow:\s*\/$/m.test(robots), "robots.txt must include AI training-crawler policy groups.");
   assert.ok(!/^User-agent:\s*Googlebot\s*$/im.test(robots + "\nDisallow: /"), "Googlebot must not be blocked.");
+  assert.ok(/^Content-Signal:\s*.+\b(ai-train|search|ai-input)\b/im.test(robots), "robots.txt must declare Content-Signal preferences.");
 
   console.log("SEO artifact checks passed: " + htmlFiles.length + " HTML files, " + sitemapUrls.length + " sitemap URLs, canonical origin " + CANONICAL_DOMAIN + ".");
   console.log("SEO & AI readiness artifacts validated: robots.txt, sitemap.xml, ai.txt, llms.txt, humans.txt, .well-known/security.txt (ads.txt: N/A — no ad inventory).");

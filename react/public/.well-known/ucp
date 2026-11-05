@@ -1,0 +1,18 @@
+{
+  "protocol_version": "1.0.0",
+  "services": [
+    "taxi_service",
+    "tour_packages",
+    "airport_transfers"
+  ],
+  "capabilities": [
+    "instant_booking",
+    "fixed_pricing",
+    "dynamic_itinerary"
+  ],
+  "endpoints": {
+    "catalog": "https://api.agraskbagheltourandtravels.com/api/v1/catalog/manifest",
+    "quote": "https://api.agraskbagheltourandtravels.com/api/v1/fares/calculate",
+    "booking": "https://api.agraskbagheltourandtravels.com/api/v1/bookings"
+  }
+}

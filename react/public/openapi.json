@@ -1,0 +1,86 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Agra SK Baghel Tour & Travels API",
+    "version": "1.0.0",
+    "description": "Public reservation, fare calculation, and tour catalog API for SK Baghel Tour & Travels Agra."
+  },
+  "servers": [
+    {
+      "url": "https://api.agraskbagheltourandtravels.com",
+      "description": "Production API Server"
+    }
+  ],
+  "x-service-info": {
+    "categories": [
+      "travel",
+      "transportation",
+      "car_rental",
+      "tours"
+    ]
+  },
+  "paths": {
+    "/api/v1/fares/calculate": {
+      "post": {
+        "summary": "Calculate live taxi fare",
+        "operationId": "calculateFare",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "origin": { "type": "string" },
+                  "destination": { "type": "string" },
+                  "fleetType": { "type": "string" }
+                },
+                "required": ["origin", "destination", "fleetType"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Calculated fare breakdown"
+          }
+        }
+      }
+    },
+    "/api/v1/bookings": {
+      "post": {
+        "summary": "Create taxi reservation",
+        "operationId": "createBooking",
+        "x-payment-info": {
+          "intent": "charge",
+          "method": "card",
+          "currency": "INR",
+          "amount": 1900,
+          "description": "Standard deposit for chauffeured car custody in Agra"
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "customerName": { "type": "string" },
+                  "customerPhone": { "type": "string" },
+                  "pickupAddress": { "type": "string" },
+                  "serviceType": { "type": "string" }
+                },
+                "required": ["customerName", "customerPhone", "pickupAddress", "serviceType"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Booking created with payment checkout link"
+          }
+        }
+      }
+    }
+  }
+}

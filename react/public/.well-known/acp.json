@@ -1,0 +1,17 @@
+{
+  "protocol": {
+    "name": "acp",
+    "version": "0.1.0"
+  },
+  "api_base_url": "https://api.agraskbagheltourandtravels.com",
+  "transports": [
+    "http"
+  ],
+  "capabilities": {
+    "services": [
+      "taxi_booking",
+      "tour_packages",
+      "fare_calculation"
+    ]
+  }
+}

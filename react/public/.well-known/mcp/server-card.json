@@ -1,0 +1,13 @@
+{
+  "serverInfo": {
+    "name": "sk-baghel-travels-mcp",
+    "version": "1.0.0",
+    "description": "Model Context Protocol (MCP) server for Agra SK Baghel Tour & Travels booking and catalog."
+  },
+  "endpoint": "https://api.agraskbagheltourandtravels.com/mcp",
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": true
+  }
+}
