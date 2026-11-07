@@ -386,6 +386,7 @@ export function VehicleDetailPage({ vehicle }: VehicleDetailPageProps) {
               <a
                 className="mt-space-lg w-full inline-flex items-center justify-center gap-space-xs bg-sandstone-wash text-terracotta-sandstone hover:bg-terracotta-deep hover:text-white py-3 rounded text-label-lg font-label-lg transition-colors border border-border-warm"
                 href={`/book/?vehicle=${vehicleSlug}&type=local&step=2`}
+                rel="nofollow"
               >
                 <span>Book Local Agra Cab</span>
                 <span className="material-symbols-outlined text-icon-16">arrow_forward</span>

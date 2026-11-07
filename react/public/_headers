@@ -15,6 +15,7 @@
 # Root homepage with RFC 8288 & RFC 9727 agent discovery Link headers
 /
   Cache-Control: no-cache, must-revalidate
+  Content-Type: text/html; charset=utf-8
   Link: </.well-known/api-catalog>; rel="api-catalog", </openapi.json>; rel="service-desc", </llms.txt>; rel="service-doc", </.well-known/agent-card.json>; rel="describedby"
 
 # Agent discovery endpoints & well-known manifests
@@ -65,6 +66,7 @@
 # HTML must always revalidate so visitors pick up re-deploys instantly.
 /*.html
   Cache-Control: no-cache, must-revalidate
+  Content-Type: text/html; charset=utf-8
 
 # The service worker script itself must always revalidate so updates propagate.
 /sw.js
@@ -75,11 +77,6 @@
   Cache-Control: public, max-age=3600
 /robots.txt
   Cache-Control: public, max-age=3600
-
-# IndexNow verification key
-/a778e32d79ca4971a3bb647d9c0c71a2.txt
-  Cache-Control: public, max-age=86400
-  Content-Type: text/plain; charset=utf-8
 
 # Do not preload a fixed image here. The current homepage chooses its first
 # image at runtime, so a fixed Early Hints preload would waste bandwidth.

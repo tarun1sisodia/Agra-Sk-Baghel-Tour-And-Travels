@@ -363,7 +363,7 @@ function getSeoBase(
 
   if (section === "home") {
     return {
-      title: "Taxi Service in Agra | Agra Cab & Taxi Service | SK Baghel",
+      title: "Taxi Service in Agra | Cabs & Car Rental | SK Baghel",
       description: "Book reliable taxi service in Agra for local sightseeing, outstation cabs & Taj Mahal tours. Chauffeur-driven Sedans, SUVs & Tempo Travellers. Call 24x7.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["taxi service in agra", "cab booking in agra", "car rental in agra", "agra tour and travels", "local sightseeing taxi in agra", "agra cantt railway station taxi service", "best taxi in agra tour", "agra car rental with driver", "Agra SK Baghel Tour & Travels"],
@@ -381,7 +381,7 @@ function getSeoBase(
 
   if (section === "routes") {
     return {
-      title: "Outstation Taxi Services in Agra | One Way Taxi | SK Baghel",
+      title: "Outstation Taxi Services in Agra | One-Way Cab Drops | SK Baghel",
       description: "Book outstation taxi services in Agra & one way taxi drops to Delhi, Jaipur, Mathura, Vrindavan & Lucknow. AC cabs, transparent tolls & verified drivers.",
       ogImage: "/assets/hero/hero-highway.webp",
       keywords: ["outstation taxi services in agra", "one way taxi agra", "agra to delhi taxi one way", "agra to jaipur cab fare", "outstation cab booking agra", "agra to mathura vrindavan tour taxi"],
@@ -390,7 +390,7 @@ function getSeoBase(
 
   if (section === "packages") {
     return {
-      title: "Agra Tour Packages | Sightseeing Taxi & Holiday Packages",
+      title: "Agra Tour Packages | Sightseeing Cabs & Day Trips | SK Baghel",
       description: "Curated Agra tour packages & sightseeing taxi services. Explore Taj Mahal, Agra Fort & Fatehpur Sikri with private AC cabs & holiday tour packages.",
       ogImage: "/assets/packages/taj-dawn.webp",
       keywords: ["agra tour packages", "agra holiday packages", "agra sightseeing taxi", "local sightseeing taxi agra", "same day taj mahal tour package", "taj mahal sunrise tour package by car"],

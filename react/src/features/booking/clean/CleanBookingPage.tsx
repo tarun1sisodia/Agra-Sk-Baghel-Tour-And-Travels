@@ -855,6 +855,7 @@ export function CleanBookingPage() {
                     </p>
                     <a
                       href={`/contact.html?serviceType=custom_route&from=${encodeURIComponent(normalizedParams.from || "")}&to=${encodeURIComponent(normalizedParams.to || "")}&trip=${tripType}&date=${encodeURIComponent(pickupDate)}`}
+                      rel="nofollow"
                       className="inline-block px-3 py-1 bg-primary text-white rounded text-xs font-semibold hover:bg-primary-dark transition-colors"
                     >
                       Enquire Custom Route Quote

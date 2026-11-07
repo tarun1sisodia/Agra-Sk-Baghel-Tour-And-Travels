@@ -277,6 +277,7 @@ export function GroupedVehicleSection({
         <div className="mt-4">
           <a
             href={`/book.html?category=${category}&product=${encodeURIComponent(effectiveProductCode)}`}
+            rel="nofollow"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark transition-colors"
           >
             Request Instant Quote <ArrowRight className="h-4 w-4" />

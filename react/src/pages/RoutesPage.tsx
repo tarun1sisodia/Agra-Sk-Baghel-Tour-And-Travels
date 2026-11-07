@@ -602,6 +602,7 @@ export function RoutesPage({ language = "en" }: RoutesPageProps) {
                       <a
                         className="px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary-container text-white font-label-caps text-xs transition-all shadow-xs font-bold flex items-center gap-1"
                         href={`/book?category=outstation&from=${encodeURIComponent(route.origin || route.name.split("→")[0]?.trim() || "Agra")}&to=${encodeURIComponent(route.destination || route.name.split("→")[1]?.trim() || "")}&route=${encodeURIComponent(route.id)}`}
+                        rel="nofollow"
                       >
                         <span>Book Cab</span>
                         <span className="material-symbols-outlined text-icon-13">arrow_forward</span>

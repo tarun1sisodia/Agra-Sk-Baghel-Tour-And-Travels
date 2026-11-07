@@ -193,7 +193,7 @@ export function getSeo(
 
   if (section === "home") {
     return {
-      title: "Taxi Service in Agra | Agra Cab & Taxi Service | SK Baghel",
+      title: "Taxi Service in Agra | Cabs & Car Rental | SK Baghel",
       description: "Book reliable taxi service in Agra for local sightseeing, outstation cabs & Taj Mahal tours. Chauffeur-driven Sedans, SUVs & Tempo Travellers. Call 24x7.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["taxi service in agra", "cab booking in agra", "car rental in agra", "agra tour and travels", "local sightseeing taxi in agra", "agra cantt railway station taxi service", "best taxi in agra tour", "agra car rental with driver", "Agra SK Baghel Tour & Travels"],
@@ -209,7 +209,7 @@ export function getSeo(
     pathname.includes("/rental")
   ) {
     return {
-      title: "Car Rental in Agra | Taxi Hire & Taxi on Rent | SK Baghel",
+      title: "Car Rental in Agra | Cab Hire & Private Chauffeurs | SK Baghel",
       description: "Car rental in Agra with driver & taxi hire services. Rent verified sedans, Innova Crysta & Tempo Travellers for outstation trips & local tours. Call 24x7.",
       ogImage: "/assets/fleet/innova.webp",
       keywords: ["Agra taxi rental", "rent a cab Agra", "Agra car rental with driver", "Tempo Traveller rental Agra", "taxi rental Agra"],
@@ -227,7 +227,7 @@ export function getSeo(
 
   if (section === "routes") {
     return {
-      title: "Outstation Taxi Services in Agra | One Way Taxi | SK Baghel",
+      title: "Outstation Taxi Services in Agra | One-Way Cab Drops | SK Baghel",
       description: "Book outstation taxi services in Agra & one way taxi drops to Delhi, Jaipur, Mathura, Vrindavan & Lucknow. AC cabs, transparent tolls & verified drivers.",
       ogImage: "/assets/hero/hero-highway.webp",
       keywords: ["outstation taxi service from agra", "agra to delhi taxi one way", "agra to jaipur cab fare", "agra to mathura vrindavan tour taxi", "agra to delhi airport cab booking", "outstation cab booking agra"],
@@ -236,7 +236,7 @@ export function getSeo(
 
   if (section === "packages") {
     return {
-      title: "Agra Tour Packages | Sightseeing Taxi & Holiday Packages",
+      title: "Agra Tour Packages | Sightseeing Cabs & Day Trips | SK Baghel",
       description: "Curated Agra tour packages & sightseeing taxi services. Explore Taj Mahal, Agra Fort & Fatehpur Sikri with private AC cabs & holiday tour packages.",
       ogImage: "/assets/packages/taj-dawn.webp",
       keywords: ["agra local sightseeing taxi", "same day taj mahal tour package", "taj mahal sunrise tour package by car", "agra one day tour taxi fare", "agra tour and travels local package"],

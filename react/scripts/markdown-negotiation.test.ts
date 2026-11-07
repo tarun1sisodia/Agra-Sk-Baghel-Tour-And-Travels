@@ -89,6 +89,40 @@ test("middleware handles Accept: text/markdown content negotiation & Link header
   assert.ok(md.includes("- Sedan: ₹10/km"), "Markdown must decode rupee sign and lists");
   assert.ok(!md.includes("<html>"), "Markdown must not contain HTML wrappers");
   assert.ok(!md.includes("<header>"), "Markdown must not contain header tags");
+
+  // 3. www subdomain request -> returns 301 redirect to apex preserving path and query
+  const wwwReq = new Request("https://www.agraskbagheltourandtravels.com/en/routes/?source=seo", {
+    headers: { Accept: "text/html" },
+  });
+  const wwwRes = await onRequest({
+    request: wwwReq,
+    next: async () => new Response("OK", { status: 200 }),
+    env: {},
+  });
+  assert.equal(wwwRes.status, 301, "www domain must 301 redirect to apex");
+  assert.equal(
+    wwwRes.headers.get("Location"),
+    "https://agraskbagheltourandtravels.com/en/routes/?source=seo",
+    "Location header must preserve path and query on apex domain"
+  );
+
+  // 4. HTML response missing charset in Content-Type -> middleware appends charset=utf-8
+  const noCharsetReq = new Request("https://agraskbagheltourandtravels.com/en/routes/", {
+    headers: { Accept: "text/html" },
+  });
+  const noCharsetRes = await onRequest({
+    request: noCharsetReq,
+    next: async () =>
+      new Response(sampleHtml, {
+        headers: { "Content-Type": "text/html" },
+      }),
+    env: {},
+  });
+  assert.equal(
+    noCharsetRes.headers.get("Content-Type"),
+    "text/html; charset=utf-8",
+    "Middleware must enforce charset=utf-8 on text/html responses"
+  );
 });
 
 test("auth.md exists and meets Agent Registration specification", async () => {

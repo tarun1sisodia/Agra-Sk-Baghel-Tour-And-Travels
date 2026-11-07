@@ -40,7 +40,7 @@ const FAQS_DATA: FaqItem[] = [
     id: "fares-3",
     category: "fares",
     q: "When does the driver night allowance apply?",
-    a: "A modest night allowance of ₹300 per night applies strictly when the vehicle is in operation between 10:00 PM and 6:00 AM, or during multi-day outstation trips where the chauffeur stays overnight away from Agra. There are zero daytime driver batta charges or hidden meal surcharges.",
+    a: "Sedan and SUV: ₹500 per night. All other vehicles (Tempo Traveller, Urbania, etc.): ₹700 per night. It applies only when the vehicle runs between 8 PM and 6 AM, or the driver stays overnight on a multi-day trip — there is no daytime driver charge.",
   },
   {
     id: "fares-4",

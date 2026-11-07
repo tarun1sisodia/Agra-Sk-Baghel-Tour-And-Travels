@@ -305,6 +305,7 @@ export function InstantRouteCalculator({
             </a>
             <a
               href={`/book?category=outstation&from=${encodeURIComponent(matchedEntry.o)}&to=${encodeURIComponent(matchedEntry.d)}&vehicle=${selectedTier}&route=${encodeURIComponent(matchedEntry.slug)}`}
+              rel="nofollow"
               className="inline-flex items-center gap-1 px-3.5 py-2 rounded-lg bg-primary text-white font-label-lg text-xs font-semibold hover:bg-primary-container transition-colors ml-auto shadow-xs active:scale-[0.98]"
             >
               <span>Direct Booking Form</span>

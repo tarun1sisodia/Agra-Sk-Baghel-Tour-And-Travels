@@ -76,7 +76,7 @@ export function MyBookingsPage() {
         <p className="mt-3 text-on-surface-variant">Sign in to view pending, confirmed, and paid bookings associated with your account.</p>
         <div className="mt-6 flex flex-col gap-3">
           <button type="button" disabled={!configured} onClick={() => void signInWithGoogle("/my-bookings/").catch((cause) => setError(cause.message))} className="w-full rounded-xl bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50 cursor-pointer shadow-xs">Continue with Google</button>
-          <a href="/login?returnTo=/my-bookings" className="text-xs text-on-surface-variant hover:text-primary transition-colors underline">Sign in with email & password</a>
+          <a href="/login?returnTo=/my-bookings" rel="nofollow" className="text-xs text-on-surface-variant hover:text-primary transition-colors underline">Sign in with email & password</a>
         </div>
         <div className="mt-6 border-t border-border-warm/60 pt-4">
           <p className="text-xs text-on-surface-variant">Looking for a recent guest booking?</p>

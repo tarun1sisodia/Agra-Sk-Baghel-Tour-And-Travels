@@ -117,7 +117,7 @@ function DetailPage({ detail, language }: { detail: Vehicle | Package | Route; l
         const toName = cities.find((city) => city.id === route.to)?.name || route.to;
         return (
         <>
-        <section className="detail-content"><p className="eyebrow">Sample fare</p><h2>Compare vehicles for {fromName} to {toName}.</h2><p>{route.duration} · {route.km} km · private chauffeur-driven vehicle.</p><div className="fare-table-wrap"><table className="fare-table"><thead><tr><th>Vehicle</th><th>Seats</th><th>One way</th><th>Book</th></tr></thead><tbody>{vehicles.map((candidate) => <tr key={candidate.id}><td><a href={`${languagePrefix}/vehicles/${candidate.id === "innova" ? "innova-crysta" : candidate.id === "tempo" ? "tempo-traveller" : candidate.id}/`}>{candidate.name}</a></td><td>{candidate.seats}</td><td><strong>{route.fares[candidate.id] ? `₹${route.fares[candidate.id]!.toLocaleString("en-IN")}` : "On request"}</strong></td><td><a className="text-link" href={`/book.html?route=${route.id}&vehicle=${candidate.id}`}>Book ↗</a></td></tr>)}</tbody></table></div></section>
+        <section className="detail-content"><p className="eyebrow">Sample fare</p><h2>Compare vehicles for {fromName} to {toName}.</h2><p>{route.duration} · {route.km} km · private chauffeur-driven vehicle.</p><div className="fare-table-wrap"><table className="fare-table"><thead><tr><th>Vehicle</th><th>Seats</th><th>One way</th><th>Book</th></tr></thead><tbody>{vehicles.map((candidate) => <tr key={candidate.id}><td><a href={`${languagePrefix}/vehicles/${candidate.id === "innova" ? "innova-crysta" : candidate.id === "tempo" ? "tempo-traveller" : candidate.id}/`}>{candidate.name}</a></td><td>{candidate.seats}</td><td><strong>{route.fares[candidate.id] ? `₹${route.fares[candidate.id]!.toLocaleString("en-IN")}` : "On request"}</strong></td><td><a className="text-link" rel="nofollow" href={`/book.html?route=${route.id}&vehicle=${candidate.id}`}>Book {candidate.name} ↗</a></td></tr>)}</tbody></table></div></section>
         <section className="detail-content">
           <p className="eyebrow">Route guide</p>
           <h2>{fromName} to {toName} by road: what to expect.</h2>
@@ -160,7 +160,7 @@ export function MarketingPage({ language, section }: MarketingPageProps) {
               <h2>{vehicle.name}</h2>
               <p>{vehicle.blurb}</p>
               <div className="card-meta"><span>{vehicle.seats} seats</span><span>{vehicle.rateRange}</span></div>
-              <a className="button button-outline" href={`/book.html?vehicle=${vehicle.id}`}>Choose this vehicle</a>
+              <a className="button button-outline" rel="nofollow" href={`/book.html?vehicle=${vehicle.id}`}>Choose {vehicle.name}</a>
             </article>
           ))}
         </section>
@@ -174,7 +174,7 @@ export function MarketingPage({ language, section }: MarketingPageProps) {
               <h2>{route.from.replace("-", " ")} to {route.to.replace("-", " ")}</h2>
               <p>Private AC taxi with a local driver and clear sample fares.</p>
               <div className="card-meta"><span>From Agra desk</span><strong>{route.fares.sedan ? `₹${route.fares.sedan.toLocaleString("en-IN")}` : "On request"}</strong></div>
-              <a className="button button-outline" href={`/book.html?route=${route.id}`}>Book this route</a>
+              <a className="button button-outline" rel="nofollow" href={`/book.html?route=${route.id}`}>Book {route.from.replace("-", " ")} to {route.to.replace("-", " ")}</a>
             </article>
           ))}
         </section>
@@ -189,7 +189,7 @@ export function MarketingPage({ language, section }: MarketingPageProps) {
               <h2>{tour.name}</h2>
               <p>{tour.blurb}</p>
               <div className="card-meta"><span>{tour.places.slice(0, 2).join(" · ")}</span><strong>₹{tour.from.toLocaleString("en-IN")}</strong></div>
-              <a className="button button-outline" href={`/book.html?package=${tour.slug}`}>Plan this tour</a>
+              <a className="button button-outline" rel="nofollow" href={`/book.html?package=${tour.slug}`}>Plan {tour.name}</a>
             </article>
           ))}
         </section>

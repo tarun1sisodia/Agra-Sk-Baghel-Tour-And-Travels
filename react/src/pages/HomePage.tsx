@@ -969,24 +969,24 @@ export function HomePage({ language = "en" }: HomePageProps) {
             <div className="max-w-4xl mx-auto space-y-3">
               {[
                 {
-                  q: "How do I book a taxi service in Agra with SK Baghel Tour & Travels?",
-                  a: "You can book easily online using our booking engine, call our 24×7 Taj Ganj dispatch desk at +91 97628 17598, or send an instant message on WhatsApp. We provide upfront all-inclusive pricing with immediate booking confirmation."
+                  q: "How much does a taxi in Agra cost?",
+                  a: "A private AC sedan for a full day of Agra sightseeing costs from ₹2,000 for 8 hours / 80 km. One-way outstation fares start at ₹3,499 to Delhi in a sedan."
                 },
                 {
-                  q: "What types of cabs and car rental options are available in Agra?",
-                  a: "Our fleet includes air-conditioned sedans (Maruti Swift Dzire), family SUVs (Maruti Ertiga), premium MPVs (Toyota Innova Crysta), and 9 to 26 seater luxury Tempo Travellers for larger group excursions."
+                  q: "How do I book a taxi in Agra?",
+                  a: "Share pickup point, drop, date, time and passenger count on WhatsApp or the booking form, and you get a fixed fare and driver details before you pay anything. Book at least 2 hours before pickup; book the night before for a sunrise start."
                 },
                 {
-                  q: "Are expressway tolls and state taxes included in outstation taxi fares?",
-                  a: "Yes. All our published one-way outstation taxi fares include Yamuna Expressway and National Highway tolls, FASTag charges, driver allowances, and state entry permits with zero hidden roadside surcharges."
+                  q: "Are tolls and taxes included in the fare?",
+                  a: "Yes, on fixed one-way fares — Yamuna Expressway tolls, FASTag and state taxes are included in the quoted price. On round-trip outstation bookings, tolls and parking are billed at actuals."
                 },
                 {
-                  q: "Can I hire an Agra taxi for same-day Taj Mahal sightseeing and railway station transfers?",
-                  a: "Yes. We offer dedicated local sightseeing taxi packages (8 hours / 80 km or 12 hours / 120 km) covering Taj Mahal, Agra Fort, Baby Taj, and Mehtab Bagh, as well as punctual transfers to and from Agra Cantt (AGC) Railway Station."
+                  q: "Is the taxi private, or shared with other passengers?",
+                  a: "Private. The car and driver are yours alone for the booking — no other passengers, no waiting for strangers, and you choose the stops."
                 },
                 {
-                  q: "What is your cancellation and booking deposit policy?",
-                  a: "We require a 28% advance token to guarantee your chauffeur and vehicle assignment, with the remaining 72% paid directly to your chauffeur upon trip completion. Full refunds are provided for cancellations made at least 24 hours in advance."
+                  q: "Do your drivers speak English?",
+                  a: "Yes. Chauffeurs are police-verified and work with Agra tourists daily; English-speaking drivers and licensed guides can be requested when you book."
                 }
               ].map((faq, idx) => (
                 <details key={idx} className="group rounded-2xl bg-surface-container-lowest border border-border-warm/60 overflow-hidden shadow-xs">

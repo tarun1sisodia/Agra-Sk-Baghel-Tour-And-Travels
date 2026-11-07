@@ -637,6 +637,7 @@ export function HomeBookingWidget() {
               ) : mode !== "local" && origin.trim() && destination.trim() && !matchedRoute ? (
                 <a
                   href={customEnquiryHref()}
+                  rel="nofollow"
                   className="booking-reference__search"
                   style={{ textDecoration: "none", backgroundColor: "#181d27" }}
                 >
@@ -646,6 +647,7 @@ export function HomeBookingWidget() {
               ) : mode === "local" && publishedTours.length === 0 ? (
                 <a
                   href={`/contact.html?serviceType=local-tour&date=${encodeURIComponent(pickupDate || localTomorrow())}`}
+                  rel="nofollow"
                   className="booking-reference__search"
                   style={{ textDecoration: "none", backgroundColor: "#181d27" }}
                 >

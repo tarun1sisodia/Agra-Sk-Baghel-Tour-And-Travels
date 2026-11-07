@@ -92,23 +92,48 @@ function htmlToMarkdown(html: string, pageUrl: string): string {
 
 export async function onRequest(context: PagesContext): Promise<Response> {
   const { request, next } = context;
-  const acceptHeader = request.headers.get("Accept") || "";
   const url = new URL(request.url);
+
+  // 1. Canonical Apex Redirect: Enforce 301 from www to apex
+  if (url.hostname === "www.agraskbagheltourandtravels.com") {
+    const targetUrl = new URL(request.url);
+    targetUrl.hostname = "agraskbagheltourandtravels.com";
+    targetUrl.protocol = "https:";
+    return Response.redirect(targetUrl.toString(), 301);
+  }
+
+  const acceptHeader = request.headers.get("Accept") || "";
 
   // If the requester does not prefer markdown, continue standard HTML flow
   if (!acceptHeader.includes("text/markdown")) {
     const response = await next();
-    // Ensure homepage carries agent discovery Link headers (RFC 8288 & RFC 9727)
-    if (url.pathname === "/" || url.pathname === "") {
+    const contentType = response.headers.get("Content-Type") || "";
+    const isHtml = contentType.includes("text/html");
+    const isHome = url.pathname === "/" || url.pathname === "";
+
+    if (isHtml || isHome) {
       const headers = new Headers(response.headers);
-      if (!headers.has("Link")) {
-        headers.set("Link", DISCOVERY_LINK_HEADER);
+      let modified = false;
+
+      // Ensure charset=utf-8 is explicitly declared in HTTP header
+      if (isHtml && !contentType.toLowerCase().includes("charset")) {
+        headers.set("Content-Type", "text/html; charset=utf-8");
+        modified = true;
       }
-      return new Response(response.body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers,
-      });
+
+      // Ensure homepage carries agent discovery Link headers (RFC 8288 & RFC 9727)
+      if (isHome && !headers.has("Link")) {
+        headers.set("Link", DISCOVERY_LINK_HEADER);
+        modified = true;
+      }
+
+      if (modified) {
+        return new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers,
+        });
+      }
     }
     return response;
   }

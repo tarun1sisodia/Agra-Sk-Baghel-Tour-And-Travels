@@ -611,6 +611,7 @@ export function FleetSection({ language = "en" }: FleetSectionProps) {
                         <a
                           className="min-h-[44px] px-4 py-2 rounded-xl bg-primary hover:bg-primary-container text-white font-label-md text-xs font-bold transition-all shadow-xs active:scale-[0.98] inline-flex items-center justify-center gap-1"
                           href={`/book?category=outstation&car=${encodeURIComponent(vehicle.modelName.toLowerCase().replace(/\s+/g, "-"))}`}
+                          rel="nofollow"
                           aria-label={`Book Now: ${vehicle.displayName}`}
                         >
                           <span className="text-white">Book Now</span>

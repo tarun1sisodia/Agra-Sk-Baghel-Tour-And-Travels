@@ -160,7 +160,7 @@ export function PaymentResumePage() {
         <p className="mt-3 text-on-surface-variant">Your booking is saved. Sign in to reopen secure checkout and complete your payment.</p>
         <div className="mt-6 flex flex-col gap-3">
           <button type="button" disabled={!configured} onClick={() => void signInWithGoogle("/payment/resume/").catch((cause) => setError(cause.message))} className="w-full rounded-xl bg-primary px-5 py-3 font-semibold text-white disabled:opacity-50 cursor-pointer shadow-xs">Continue with Google</button>
-          <a href="/login?returnTo=/payment/resume/" className="text-xs text-on-surface-variant hover:text-primary transition-colors underline">Sign in with email & password</a>
+          <a href="/login?returnTo=/payment/resume/" rel="nofollow" className="text-xs text-on-surface-variant hover:text-primary transition-colors underline">Sign in with email & password</a>
         </div>
         {error && <p className="mt-3 text-sm text-red-700" role="alert">{error}</p>}
       </section>

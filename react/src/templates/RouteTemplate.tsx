@@ -83,7 +83,7 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
     },
     {
       q: `What is the night driving allowance for late-night departures?`,
-      a: `Standard daytime journeys have ₹0 night charge. Commercial regulations apply a nominal night driving charge of ₹300 (Sedan/Ertiga) or ₹500 (Innova/Tempo) only if journeys are active during deep night (11:00 PM to 05:00 AM).`,
+      a: `Standard daytime journeys have ₹0 night charge. A night allowance (8:00 PM to 6:00 AM) applies only if journeys run during night hours or overnight: ₹500 for Sedan/SUV, ₹700 for Tempo Traveller and larger vehicles.`,
     },
     {
       q: `What happens if my flight or train is delayed before pickup?`,

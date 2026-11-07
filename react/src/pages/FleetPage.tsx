@@ -803,6 +803,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                     <a
                       className="w-full sm:w-auto px-4 py-2 rounded-lg bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-lg text-xs inline-flex items-center justify-center gap-1.5 shadow-xs transition-all shrink-0 font-semibold"
                       href={`/book.html?category=outstation&car=${veh.id}`}
+                      rel="nofollow"
                     >
                       <span>Book {veh.name.split(" ")[0]}</span>
                       <span className="material-symbols-outlined text-icon-15">arrow_forward</span>
