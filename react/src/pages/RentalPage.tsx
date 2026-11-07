@@ -845,30 +845,30 @@ export function RentalPage(_props: { language?: string }) {
 
           <div className="faq-grid">
             <div className="faq-item-card">
-              <h3>{"Is online payment required to submit an enquiry?"}</h3>
+              <h3>{"Do I pay online to submit a rental enquiry?"}</h3>
               <p>
-                {"No. This is a call-first enquiry workflow. Availability and quotes are confirmed directly with you by phone before any booking is finalized."}
+                {"No. It is a call-first enquiry — availability and quote are confirmed by phone before any booking is finalised."}
               </p>
             </div>
 
             <div className="faq-item-card">
-              <h3>{"Can I request a specific car model like Innova Crysta or Dzire?"}</h3>
+              <h3>{"Can I request a specific car model?"}</h3>
               <p>
-                {"Yes. You can select a specific model from the dropdown or choose flexible assignment within that group."}
+                {"Yes. Pick the model in the form, or choose flexible assignment within that group."}
               </p>
             </div>
 
             <div className="faq-item-card">
               <h3>{"Are rental vehicles chauffeur-driven?"}</h3>
               <p>
-                {"Yes. All our vehicles come with experienced, verified commercial chauffeurs for a safe and comfortable journey."}
+                {"Yes, all of them. There is no self-drive option — every rental comes with a verified commercial chauffeur."}
               </p>
             </div>
 
             <div className="faq-item-card">
               <h3>{"Where can I be picked up?"}</h3>
               <p>
-                {"We provide doorstep pickups across Agra including Agra Cantt Railway Station, Kheria Airport, local hotels, or residences."}
+                {"Doorstep pickup anywhere in Agra, including Agra Cantt station, Kheria Airport, hotels and homes."}
               </p>
             </div>
           </div>

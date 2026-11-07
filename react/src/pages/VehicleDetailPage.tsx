@@ -8,6 +8,116 @@ interface VehicleDetailPageProps {
   vehicle: Vehicle;
 }
 
+function getVehicleSpecificFaqs(slug: string, vehicle: Vehicle): { q: string; a: string }[] {
+  const s = slug.toLowerCase();
+  const perKmFaq = {
+    q: `What is included in the ₹${vehicle.perKm}/km outstation rate for ${vehicle.name}?`,
+    a: `The per-km rate covers vehicle charter, chauffeur and fuel from the pickup point. Tolls, state taxes and parking are billed at actuals on round trips, or included in fixed one-way fares.`,
+  };
+  const minKmFaq = {
+    q: `How does the 300 km per day minimum billing rule apply to this ${vehicle.name}?`,
+    a: `Round-trip outstation bookings adhere to a minimum of 300 km per calendar day. For instance, a 2-day round trip bills a minimum of 600 km.`,
+  };
+
+  if (s.includes("sedan") || s.includes("dzire") || s.includes("etios") || s.includes("city")) {
+    return [
+      {
+        q: `How many people fit in a sedan?`,
+        a: `4 passengers plus the driver. A fifth passenger requires an Ertiga or Innova Crysta.`,
+      },
+      {
+        q: `Is a sedan enough for Agra–Delhi?`,
+        a: `Yes, for 2–3 people with 2 large suitcases. It is the most economical car on the Yamuna Expressway and standard for outstation drops.`,
+      },
+      perKmFaq,
+      minKmFaq,
+      {
+        q: `How much luggage fits in the ${vehicle.name}?`,
+        a: `Sedans accommodate 2 large suitcases and 2 small cabin bags in the trunk.`,
+      },
+    ];
+  }
+
+  if (s.includes("ertiga")) {
+    return [
+      {
+        q: `When should I choose an Ertiga over a sedan?`,
+        a: `For 4–6 people, or 3 people with heavy luggage. It costs less than an Innova Crysta and fits where a Tempo Traveller cannot.`,
+      },
+      {
+        q: `Does the Ertiga have a separate luggage boot?`,
+        a: `It has limited boot space with all 6 seats up. For 4 large suitcases, choose the Innova Crysta instead.`,
+      },
+      perKmFaq,
+      minKmFaq,
+    ];
+  }
+
+  if (s.includes("innova") || s.includes("crysta")) {
+    return [
+      {
+        q: `What is the difference between Ertiga and Innova Crysta?`,
+        a: `Both seat 6, but the Innova has a heavier chassis, superior highway suspension, captain seats and a real luggage space behind the third row.`,
+      },
+      {
+        q: `Is the Innova Crysta better for hill trips?`,
+        a: `Yes. Its suspension and ground clearance handle hill roads to Mussoorie and Himachal better than a sedan or Ertiga.`,
+      },
+      perKmFaq,
+      minKmFaq,
+      {
+        q: `How much luggage fits in an Innova Crysta?`,
+        a: `Up to 4 large trolley bags with comfort for 6 passengers.`,
+      },
+    ];
+  }
+
+  if (s.includes("urbania")) {
+    return [
+      {
+        q: `When should I book an Urbania instead of a Tempo Traveller?`,
+        a: `For 8–10 people who want enhanced comfort — wider plush seats, quieter cabin and a premium finish on corporate or luxury family tours.`,
+      },
+      {
+        q: `How many bags fit in an Urbania?`,
+        a: `8–10 large suitcases depending on seating layout. Confirm luggage count when booking so the optimal layout is dispatched.`,
+      },
+      perKmFaq,
+      minKmFaq,
+    ];
+  }
+
+  if (s.includes("tempo") || s.includes("traveller")) {
+    return [
+      {
+        q: `How many people fit in a Tempo Traveller?`,
+        a: `12–17 passengers depending on the registered model. One vehicle cannot legally exceed its registered seating capacity.`,
+      },
+      {
+        q: `How much luggage fits in a Tempo Traveller?`,
+        a: `8 large suitcases in the dedicated rear luggage bay, plus cabin bags inside. A waterproof roof carrier is available upon request.`,
+      },
+      {
+        q: `Is a Tempo Traveller charged the same for one-way and round-trip?`,
+        a: `Yes, per kilometre — a one-way drop costs the same as a round trip because the commercial vehicle returns to Agra base.`,
+      },
+      {
+        q: `Does a Tempo Traveller have pushback seats and AC vents?`,
+        a: `Yes, pushback seats, individual AC vents, audio system and charging points throughout. The 300 km/day outstation minimum applies.`,
+      },
+    ];
+  }
+
+  return [
+    perKmFaq,
+    minKmFaq,
+    {
+      q: `How much luggage fits in the ${vehicle.name}?`,
+      a: `${vehicle.name} accommodates up to ${vehicle.bags} bags comfortably.`,
+    },
+  ];
+}
+
 export function VehicleDetailPage({ vehicle }: VehicleDetailPageProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
@@ -37,33 +147,8 @@ export function VehicleDetailPage({ vehicle }: VehicleDetailPageProps) {
   }, [vehicleSlug, vehicle.id]);
 
   const faqItems = useMemo(
-    () => [
-      {
-        q: `What is included in the ₹${vehicle.perKm}/km outstation rate for ${vehicle.name}?`,
-        a: `The per-kilometer rate covers vehicle charter, chauffeur driving allowance, and comprehensive vehicle maintenance. Fuel is calculated from our garage or pickup point. State entrance taxes and expressway tolls are billed at exact actuals or bundled transparently into fixed quotes.`,
-      },
-      {
-        q: `How does the 300 km per day minimum billing rule apply to this ${vehicle.name}?`,
-        a: `In accordance with commercial transport regulations across Uttar Pradesh, Rajasthan, and Delhi NCR, outstation round-trip bookings adhere to a minimum of 300 km per calendar day. For instance, a 2-day round-trip charter has a 600 km minimum base allowance.`,
-      },
-      {
-        q: `Are child seats and luggage carriers available for the ${vehicle.name}?`,
-        a: `Yes! Infant and booster child safety seats can be requested in advance at zero extra cost. For larger groups with oversized suitcases, roof-top waterproof luggage carriers are equipped upon request.`,
-      },
-      {
-        q: `What is your chauffeur night allowance policy for ${vehicle.name}?`,
-        a: `A nominal driver night charge of ₹300 applies if the vehicle is engaged between 10:00 PM and 6:00 AM, allowing chauffeurs safe rest accommodations during overnight outstation stays.`,
-      },
-      {
-        q: `What is the cancellation and advance deposit policy?`,
-        a: `Bookings are secured with a modest 28% advance deposit. Cancellations made at least 24 hours prior to scheduled departure receive an immediate 100% full refund with zero cancellation fee.`,
-      },
-      {
-        q: `What happens if the vehicle encounters a mechanical delay on the highway?`,
-        a: `We maintain a 45-Minute Emergency Vehicle Replacement Guarantee along the Yamuna Expressway, NH-19, and NH-21 corridors. Our central Taj Ganj dispatch operations desk immediately deploys a backup commercial vehicle.`,
-      },
-    ],
-    [vehicle]
+    () => getVehicleSpecificFaqs(vehicleSlug, vehicle),
+    [vehicleSlug, vehicle]
   );
 
   const bookingUrl = `/book/?vehicle=${vehicleSlug}&step=2`;

@@ -310,23 +310,23 @@ const PACKAGE_METADATA: Record<string, {
 const PACKAGES_FAQS = [
   {
     q: "Are monument entry tickets included in the package price?",
-    a: "Monument tickets are intentionally excluded to give you full financial transparency and avoid exorbitant intermediary markups. Indian citizens pay ₹50, SAARC tourists pay ₹540, and foreign tourists pay ₹1,100 at the Taj Mahal. Your chauffeur will guide you directly to the electronic ASI contactless kiosk or assist you with booking online via the official ASI portal on your phone.",
+    a: "Monument tickets are not included. Tickets cost ₹50 (Indian), ₹540 (SAARC), and ₹1,100 (foreign) plus ₹200 for the main mausoleum; our chauffeur assists you at official ticketing gates.",
   },
   {
-    q: "Can we customize monument stops or spend extra time at the Taj Mahal?",
-    a: "Yes, absolutely. Because all our tours are 100% private charters, you set the tempo. If you want to spend 3 hours immersed in the Taj Mahal's marble gardens and skip a minor monument, or make a lunch stopover at a particular culinary spot in Agra, your chauffeur will happily accommodate your preferences without extra charges within the daily duration.",
+    q: "Can we customize monument stops or adjust timing?",
+    a: "Yes, tours are 100% private. You choose the start time, swap stops (such as adding Baby Taj or Mehtab Bagh), and explore at your own pace.",
   },
   {
-    q: "Do you provide English, Spanish, German, or French-speaking tour guides?",
-    a: "Yes. We coordinate with Ministry of Tourism certified and licensed Archaeological Survey of India (ASI) guides who speak fluent English, French, Spanish, German, Italian, or Russian. The guide fee is fixed at government-mandated tariffs and can be added directly to your itinerary upon reservation.",
+    q: "Do you arrange licensed multilingual tour guides?",
+    a: "Yes. Ministry of Tourism licensed guides speaking English, Spanish, French, or German can be arranged on request at official government tariffs.",
   },
   {
-    q: "What happens if our train (e.g. Gatimaan Express) or flight is delayed?",
-    a: "We track train numbers (such as 12050 Gatimaan Express or 12002 Shatabdi) and flight arrivals in real-time. If your train or flight is delayed, your assigned chauffeur remains stationed at the arrival terminal with zero waiting penalty for up to 90 minutes.",
+    q: "What happens if our train or flight is delayed?",
+    a: "We track your train (e.g., Gatimaan Express) or flight arrival in real time. Chauffeurs adjust pickup automatically with complimentary waiting.",
   },
   {
     q: "Can elderly passengers or wheelchair users be accommodated comfortably?",
-    a: "Yes, our fleet includes comfortable high-seating vehicles like the Innova Crysta and Force Urbania that offer easy ingress and egress. We can arrange collapsible wheelchair storage in the trunk and coordinate golf-cart battery shuttle transit between monument gates and monument entries where walking distances are extensive.",
+    a: "Yes. Vehicles like the Innova Crysta offer easy ingress, trunk space for collapsible wheelchairs, and battery golf-cart coordination at monument gates.",
   },
 ];
 

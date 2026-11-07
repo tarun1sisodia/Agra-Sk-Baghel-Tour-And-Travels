@@ -13,6 +13,189 @@ export interface RouteTemplateProps {
   onSelectVehicle?: (modelId: string) => void;
 }
 
+function getRouteFaqs(route: Route, fromEn: string, toEn: string, baseSedanFare: number): { q: string; a: string }[] {
+  const id = route.id.toLowerCase();
+  const km = route.km || "230";
+  const duration = route.duration || "4 hours";
+  const fareStr = baseSedanFare > 0 ? `₹${baseSedanFare.toLocaleString("en-IN")}` : "our quoted rate";
+
+  const tollFaq = {
+    q: `Are expressway tolls and state taxes included in the fare?`,
+    a: `Yes, on fixed one-way transfers — expressway tolls, FASTag and interstate taxes are included in the quoted one-way fare. On round-trip bookings, tolls, state taxes and parking are billed at actuals.`,
+  };
+
+  const stopoverFaq = {
+    q: `Can we stop at en-route landmarks or highway food plazas?`,
+    a: `Yes. Chauffeur-driven private transfers accommodate refreshment breaks and planned highway stopovers. Inform dispatch when booking so timing is planned.`,
+  };
+
+  if (id.includes("delhi-to-agra")) {
+    return [
+      {
+        q: `Where in Delhi does the taxi pick up?`,
+        a: `Anywhere in Delhi NCR — home, hotel, office or Delhi IGI Airport. Give the exact address and landmark when booking.`,
+      },
+      {
+        q: `Can I visit the Taj Mahal and return to Delhi the same day?`,
+        a: `Yes, if you leave Delhi by 6 AM. You get 4–5 hours in Agra — Taj Mahal and Agra Fort — and are back in Delhi by 9–10 PM.`,
+      },
+      tollFaq,
+      stopoverFaq,
+    ];
+  }
+
+  if (id.includes("delhi")) {
+    return [
+      {
+        q: `How long does Agra to Delhi take by taxi?`,
+        a: `About 4 hours for 230 km via the Yamuna Expressway. Leave after 2 PM to avoid Delhi's morning traffic.`,
+      },
+      {
+        q: `Can the taxi stop at Mathura or Vrindavan on the way to Delhi?`,
+        a: `Yes. Mathura is on the route; tell us when booking and the fare is confirmed before you travel — the direct-trip fare does not include the detour.`,
+      },
+      {
+        q: `Do I pay a return fare on a one-way Agra–Delhi taxi?`,
+        a: `No. A one-way booking charges only the Agra–Delhi leg; the car does not come back with you.`,
+      },
+      tollFaq,
+      stopoverFaq,
+    ];
+  }
+
+  if (id.includes("jaipur")) {
+    return [
+      {
+        q: `Which route does Agra–Jaipur take?`,
+        a: `NH21 via Bharatpur and Mahwa, 240 km in about 4.5 hours. The Bharatpur bird sanctuary is the natural halfway stop.`,
+      },
+      {
+        q: `Can I stop at Fatehpur Sikri on the way to Jaipur?`,
+        a: `Yes, it is on the route — 40 km from Agra. A 2-hour stop fits without changing the day's plan if you leave early.`,
+      },
+      tollFaq,
+      stopoverFaq,
+    ];
+  }
+
+  if (id.includes("mathura") || id.includes("vrindavan")) {
+    return [
+      {
+        q: `How long is Agra to Mathura by taxi?`,
+        a: `75 minutes for 60 km on NH19. A same-day Mathura–Vrindavan return is the usual booking, not a one-way drop.`,
+      },
+      {
+        q: `Is Agra–Mathura a one-way or round-trip booking?`,
+        a: `Usually a round trip. A one-way drop leaves you without a car in Mathura, where local transport between temples is by e-rickshaw.`,
+      },
+      tollFaq,
+      stopoverFaq,
+    ];
+  }
+
+  if (id.includes("lucknow")) {
+    return [
+      {
+        q: `Which expressway does Agra–Lucknow use?`,
+        a: `The Agra–Lucknow Expressway, 335 km in about 5 hours. There are food and rest plazas roughly every 100 km.`,
+      },
+      {
+        q: `Can I be dropped at Lucknow airport or Charbagh station?`,
+        a: `Yes. Give the terminal or platform when booking; the driver plans the drop around your flight or train time.`,
+      },
+      tollFaq,
+      stopoverFaq,
+    ];
+  }
+
+  if (id.includes("gwalior")) {
+    return [
+      {
+        q: `How long is Agra to Gwalior?`,
+        a: `2.5 hours for 120 km on NH44, crossing the Chambal river. It is a comfortable same-day return.`,
+      },
+      {
+        q: `What is worth seeing in Gwalior on a day trip?`,
+        a: `Gwalior Fort and the Jai Vilas Palace. Leave Agra by 7 AM to get 4–5 hours in the city.`,
+      },
+      tollFaq,
+      stopoverFaq,
+    ];
+  }
+
+  if (id.includes("noida") || id.includes("gurugram")) {
+    const city = id.includes("noida") ? "Noida" : "Gurugram";
+    const dist = id.includes("noida") ? "195 km (about 3.5 hours)" : "215 km (about 3.5–4 hours)";
+    return [
+      {
+        q: `Is ${city} a different fare from Delhi?`,
+        a: `Yes. ${city} is ${dist}, so each destination has its own fixed fare on this page — they are not the central Delhi fare.`,
+      },
+      {
+        q: `Can the taxi drop me at a ${city} office or residential sector?`,
+        a: `Yes, door-to-door anywhere in ${city}. Give the sector and building name; the Yamuna Expressway route avoids central Delhi traffic.`,
+      },
+      tollFaq,
+      stopoverFaq,
+    ];
+  }
+
+  if (id.includes("haridwar") || id.includes("rishikesh") || id.includes("dehradun")) {
+    return [
+      {
+        q: `Can Haridwar or Rishikesh be done in one day from Agra?`,
+        a: `No, not comfortably — 390–415 km, 7–8 hours each way. Plan at least one night; the same driver stays with you and the 300 km/day minimum applies.`,
+      },
+      {
+        q: `Is a sedan enough for the Haridwar–Rishikesh–Dehradun route?`,
+        a: `Yes for 2–3 people. For a family with luggage, take the Ertiga or Innova Crysta — the extra space matters on a 7–8 hour drive.`,
+      },
+      tollFaq,
+      stopoverFaq,
+    ];
+  }
+
+  if (id.includes("ayodhya") || id.includes("banaras") || id.includes("varanasi") || id.includes("prayagraj")) {
+    return [
+      {
+        q: `How long is Agra to Ayodhya or Banaras by road?`,
+        a: `About 7 hours (470 km) to Ayodhya via the Agra–Lucknow Expressway and NH27, and 9.5 hours to Banaras. It is a 2–3 day trip, not a day return.`,
+      },
+      {
+        q: `Can Ayodhya, Prayagraj and Banaras be combined in one trip?`,
+        a: `Yes, as a 3–4 day circuit with the same car and driver. Each leg is billed under the 300 km/day outstation minimum.`,
+      },
+      tollFaq,
+      stopoverFaq,
+    ];
+  }
+
+  if (id.includes("ajmer") || id.includes("udaipur") || id.includes("mussoorie")) {
+    return [
+      {
+        q: `Is ${toEn} a same-day trip from ${fromEn}?`,
+        a: `It is a long drive — 370–630 km depending on destination. Most travellers stay overnight; the 300 km/day minimum applies.`,
+      },
+      {
+        q: `Is a sedan suitable for this long-distance route?`,
+        a: `Yes for 2–3 passengers, but an Ertiga or Innova Crysta is more comfortable for mountain climbs and luggage. Tell us your group size and we recommend the vehicle.`,
+      },
+      tollFaq,
+      stopoverFaq,
+    ];
+  }
+
+  // General fallback for all other corridors
+  return [
+    {
+      q: `How much does a taxi from ${fromEn} to ${toEn} cost?`,
+      a: `Sedan one-way fare starts from ${fareStr} for ${km} km (about ${duration}). Exact rates vary per vehicle model (Dzire, Ertiga, Innova Crysta).`,
+    },
+    tollFaq,
+    stopoverFaq,
+  ];
+}
+
 export function RouteTemplate({ language = "en", route, onSelectVehicle }: RouteTemplateProps) {
   const [tripType, setTripType] = useState<"one-way" | "round-trip">(
     route.kind === "local" ? "round-trip" : "one-way"
@@ -72,39 +255,14 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
         { icon: "storefront", title: "Sikandra - Akbar's Tomb", desc: "Magnificent red sandstone mausoleum nestled in quiet deer park grounds." },
       ];
 
-  const faqItems = [
-    {
-      q: `Are expressway tolls, FASTag charges, and state road taxes included?`,
-      a: `Yes! For fixed one-way transfers between ${fromEn} and ${toEn}, all Yamuna Expressway or national highway FASTag tolls and interstate taxes are 100% included in the quoted fare. There are zero surprise toll requests on the road.`,
-    },
-    {
-      q: `Can we stop at en-route landmarks like Fatehpur Sikri or highway food plazas?`,
-      a: `Absolutely! Unlike app-based aggregators with rigid routes, our private chauffeur services accommodate requested refreshment stops, coffee breaks, and sightseeing detours. Just let your driver know your preferences.`,
-    },
-    {
-      q: `What is the night driving allowance for late-night departures?`,
-      a: `Standard daytime journeys have ₹0 night charge. A night allowance (8:00 PM to 6:00 AM) applies only if journeys run during night hours or overnight: ₹500 for Sedan/SUV, ₹700 for Tempo Traveller and larger vehicles.`,
-    },
-    {
-      q: `What happens if my flight or train is delayed before pickup?`,
-      a: `We provide complimentary flight and train tracking! When booking, simply provide your arrival flight number or train PNR. Your chauffeur will automatically sync departure and include up to 60 minutes of complimentary waiting at terminal pickup bays.`,
-    },
-    {
-      q: `What is your cancellation and refund policy?`,
-      a: `Enjoy full peace of mind with our 24-Hour Free Cancellation Policy. If cancelled 24 hours or more before scheduled pickup, your 28% advance deposit is refunded 100% with zero cancellation penalty.`,
-    },
-    {
-      q: `What emergency roadside assistance do you provide along this corridor?`,
-      a: `We guarantee a 45-Minute Emergency Vehicle Replacement along major highway corridors (Yamuna Expressway, NH-19, and NH-21). Our central Taj Ganj dispatch operations desk immediately deploys a replacement commercial cab if required.`,
-    },
-  ];
-
   // Primary starting fare from sedan
   const validRates = Object.values(route.fares || {}).filter((v) => typeof v === "number" && v > 0) as number[];
   const faresRecord = (route.fares || {}) as Record<string, number | undefined>;
   const baseSedanFare = Number(faresRecord.sedan || faresRecord.dzire || faresRecord.city || (validRates.length > 0 ? Math.min(...validRates) : 0));
   const primaryFare = baseSedanFare;
   const advanceToken = primaryFare > 0 ? Math.round(primaryFare * 0.28) : 0;
+
+  const faqItems = getRouteFaqs(route, fromEn, toEn, baseSedanFare);
 
   const bookingUrl = `/book.html?category=outstation&product=${encodeURIComponent(route.id)}&trip=${tripType === "round-trip" ? "round_trip" : "one_way"}&from=${encodeURIComponent(fromEn)}&to=${encodeURIComponent(toEn)}&car=sedan`;
   const whatsappUrl = `https://wa.me/${contact.whatsapp}?text=${encodeURIComponent(

@@ -43,6 +43,131 @@ function formatFareDate(dateStr?: string | null): string {
   }
 }
 
+function getMonumentSpecificFaqs(slug: string): { q: string; a: string }[] {
+  const s = slug.toLowerCase();
+  if (s.includes("taj-mahal") && !s.includes("baby")) {
+    return [
+      {
+        q: `How long should I plan inside the Taj Mahal?`,
+        a: `2–3 hours. Tickets are valid for 3 hours from entry, and staying longer can mean paying again at the exit.`,
+      },
+      {
+        q: `Which gate should I enter the Taj Mahal from?`,
+        a: `East Gate, for the shortest queues at sunrise. West Gate is closest to most hotels; South Gate is for local visitors. Your ticket is tied to the gate you book.`,
+      },
+      {
+        q: `Can I see the Taj Mahal at night?`,
+        a: `Yes, on 5 nights a month — the full-moon night and two nights before and after it, 8:30 PM–12:30 AM in 30-minute batches. No night viewing on Fridays or during Ramzan, and tickets must be bought 1 day in advance from the ASI office.`,
+      },
+      {
+        q: `What is not allowed inside the Taj Mahal?`,
+        a: `Food, chewing gum, smoking items, matchboxes, tripods, large backpacks and sharp objects. Phones and small cameras are allowed; lockers are available at security.`,
+      },
+    ];
+  }
+  if (s.includes("fort")) {
+    return [
+      {
+        q: `How long does Agra Fort take to visit?`,
+        a: `2–3 hours. It is a walled city, not a single building — palaces, mosques, courtyards and the view of the Taj Mahal from the riverside terrace.`,
+      },
+      {
+        q: `Is Agra Fort open on Friday?`,
+        a: `Yes, all 7 days, including Friday when the Taj Mahal is closed. It is the best Friday alternative in Agra.`,
+      },
+      {
+        q: `Where does the taxi drop me at Agra Fort?`,
+        a: `At the Amar Singh Gate parking area, the main visitor entrance. The car waits there while you visit.`,
+      },
+    ];
+  }
+  if (s.includes("fatehpur")) {
+    return [
+      {
+        q: `Is Fatehpur Sikri open on Friday?`,
+        a: `Yes, all 7 days. It is the best Friday day trip from Agra, 40 km away on NH21.`,
+      },
+      {
+        q: `Do I need a guide at Fatehpur Sikri?`,
+        a: `It helps more here than at the Taj Mahal. The complex is large and mostly unlabelled, so a licensed guide is worth it for the history of Akbar's capital.`,
+      },
+    ];
+  }
+  if (s.includes("baby") || s.includes("itmad") || s.includes("itimad")) {
+    return [
+      {
+        q: `Why is it called the Baby Taj?`,
+        a: `It is a small white-marble tomb with the same pietra dura inlay as the Taj Mahal, built a generation earlier. It is often called the draft version of the Taj.`,
+      },
+      {
+        q: `How long does Baby Taj take?`,
+        a: `45 minutes to 1 hour. It pairs with Mehtab Bagh across the river, usually as the sunset stop of a full-day tour.`,
+      },
+    ];
+  }
+  if (s.includes("mehtab")) {
+    return [
+      {
+        q: `What is Mehtab Bagh best for?`,
+        a: `The sunset view of the Taj Mahal from across the Yamuna, without the crowds inside the Taj complex. It is the last stop of most full-day tours.`,
+      },
+      {
+        q: `Is Mehtab Bagh open on Friday?`,
+        a: `Yes, all 7 days. On a Friday, it is the closest you can get to a Taj Mahal view.`,
+      },
+    ];
+  }
+  if (s.includes("sikandra") || s.includes("akbar")) {
+    return [
+      {
+        q: `What is Sikandra?`,
+        a: `Akbar's tomb, in a walled garden 10 km from central Agra on the Delhi road. Plan 1–1.5 hours, including the garden and the deer park.`,
+      },
+      {
+        q: `Is Sikandra on the way to anywhere?`,
+        a: `Yes — it is on the Agra–Delhi road, so it works as a first or last stop on a Delhi transfer, or as part of the international tourists' full-day tour.`,
+      },
+    ];
+  }
+  if (s.includes("jama")) {
+    return [
+      {
+        q: `Where is Jama Masjid in Agra?`,
+        a: `Opposite Agra Fort's Delhi Gate, in the old city. It is a short stop — 30 minutes — and pairs with Agra Fort and the Kinari Bazaar walk.`,
+      },
+      {
+        q: `Is Jama Masjid open to tourists?`,
+        a: `Yes, outside prayer times. Dress modestly and remove shoes at the entrance, as at any mosque.`,
+      },
+    ];
+  }
+  if (s.includes("moti")) {
+    return [
+      {
+        q: `Where is Moti Masjid?`,
+        a: `Inside Agra Fort, near the Diwan-i-Am. It is visited as part of the fort tour, not as a separate stop.`,
+      },
+      {
+        q: `Why is it called the Pearl Mosque?`,
+        a: `Its white marble glows like a pearl against the fort's red sandstone. It takes 15 minutes inside the fort visit.`,
+      },
+    ];
+  }
+  if (s.includes("jodha") || s.includes("mariam")) {
+    return [
+      {
+        q: `What are Jodha Bai Ka Rauza and Mariam Palace?`,
+        a: `Two Mughal-era sites in Agra: Jodha Bai's tomb and Mariam-uz-Zamani's palace, Akbar's Rajput queen. Both are quiet, uncrowded stops of 30–45 minutes each.`,
+      },
+      {
+        q: `Are they included in a standard Agra day tour?`,
+        a: `No, not by default. Ask the driver to add them — they fit on the Fatehpur Sikri or Sikandra route, not the Taj Mahal circuit.`,
+      },
+    ];
+  }
+  return [];
+}
+
 export function MonumentTemplate({ item }: MonumentTemplateProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
 
@@ -86,42 +211,34 @@ export function MonumentTemplate({ item }: MonumentTemplateProps) {
     "/assets/places/gallery/mehtab-bagh-01.jpg",
   ];
 
+  const isTaj = monumentSlug.includes("taj-mahal") && !monumentSlug.includes("baby");
+  const closedAnswer = isTaj
+    ? `The Taj Mahal is strictly closed every Friday for congregational prayers. It remains open Saturday through Thursday from 30 minutes before sunrise until 30 minutes before sunset.`
+    : `${item.name} remains open all 7 days of the week from sunrise to sunset. Unlike the Taj Mahal, it does not close on Fridays.`;
+
+  const specificFaqs = getMonumentSpecificFaqs(monumentSlug);
+
   const faqs = [
     {
       q: `What are the visiting hours and entry rules for ${item.name}?`,
-      a: `${item.name} is open from ${item.visitingHours}. ${item.closedNote}. For dawn or sunrise visits, we recommend reaching the entry plaza 30–45 minutes prior to gate opening to pass through security checkpoints smoothly.`,
+      a: `${item.name} is open from ${item.visitingHours}. ${item.closedNote}. For dawn or sunrise visits, we recommend reaching the entry plaza 30–45 minutes prior to gate opening.`,
     },
     {
       q: `Is ${item.name} closed on any day of the week?`,
-      a: `Operational status: ${item.closedNote}. Note that the Taj Mahal is strictly closed every Friday for congregational prayers, whereas other Agra monuments (Agra Fort, Fatehpur Sikri, Itmad-ud-Daulah, Sikandra, and Mehtab Bagh) remain open all 7 days of the week.`,
+      a: closedAnswer,
     },
+    ...specificFaqs,
     {
       q: `How can travelers purchase monument entry tickets?`,
-      a: `Tickets can be purchased digitally through the official Archaeological Survey of India (ASI) ticketing portal (asi.payumoney.com) or by scanning on-site contactless QR codes at the entry plaza. Our chauffeur will guide you directly to the correct line and parking zone.`,
+      a: `Tickets can be purchased digitally through the official ASI ticketing portal (asi.payumoney.com) or on-site contactless QR codes. Our chauffeur assists you with parking and the correct entry gate.`,
     },
     {
       q: `Where does the taxi or cab drop visitors at ${item.name}?`,
-      a: `Under Agra Archaeological Protection regulations, commercial motorized cabs drop guests at designated parking plazas (such as Shilpgram at Taj East Gate or Agra Fort parking). Pollution-free battery-operated golf carts transfer visitors the remaining distance to the main gates.`,
+      a: `Under Agra Archaeological Protection regulations, cabs drop guests at designated authorized parking plazas (such as Shilpgram at Taj East Gate or Agra Fort parking). Battery golf carts cover the final stretch.`,
     },
     {
       q: `Are licensed government tour guides available at ${item.name}?`,
-      a: `Yes! We coordinate with Ministry of Tourism and ASI-approved licensed guides speaking English, French, Spanish, German, and Italian at standardized government rates. We advise avoiding unauthorized touts near parking lots.`,
-    },
-    {
-      q: `What items are restricted or prohibited inside ${item.name}?`,
-      a: `Food items, chewing gum, smoking devices, lighters, tripods, large backpacks, and sharp objects are strictly prohibited inside the monument. Mobile phones and small handheld digital cameras are permitted. Secure locker facilities are available at ticket gates.`,
-    },
-    {
-      q: `What footwear rules are enforced inside ${item.name}?`,
-      a: `To preserve centuries-old marble and sandstone plinths, visitors must either remove shoes or wear disposable shoe covers (provided complimentary or for a nominal fee at security booths before stepping onto the main plinth).`,
-    },
-    {
-      q: `How does private cab booking to ${item.name} work?`,
-      a: `Book online with a 28% advance deposit (₹${tokenAdvance.toLocaleString("en-IN")}) and pay the 72% balance upon completion. Your dedicated chauffeur will pick you up from your hotel or Agra Cantt Railway Station and remain on standby until your monument tour finishes.`,
-    },
-    {
-      q: `What is the cancellation policy for monument transfers?`,
-      a: `Enjoy 100% peace of mind with our 24-Hour Free Cancellation guarantee. If your schedule changes and you cancel at least 24 hours prior to departure, your entire 28% deposit is refunded promptly without penalty.`,
+      a: `Yes. We coordinate with Ministry of Tourism and ASI-approved licensed guides in English, Spanish, French, and German at standard government rates.`,
     },
   ];
 

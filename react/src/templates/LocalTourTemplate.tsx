@@ -44,6 +44,169 @@ function formatFareDate(dateStr?: string | null): string {
   }
 }
 
+function getLocalPackageSpecificFaqs(slug: string): { q: string; a: string }[] {
+  const s = slug.toLowerCase();
+  if (s.includes("sunrise")) {
+    return [
+      {
+        q: `What time is pickup for the sunrise tour?`,
+        a: `45 minutes before sunrise — about 4:45 AM in summer, 5:30 AM in winter. Gates open 30 minutes before sunrise.`,
+      },
+      {
+        q: `What happens on a foggy winter morning?`,
+        a: `The tour still runs. The guide starts with the marble interiors and courtyards, then moves to open-air photography once the mist lifts, usually by 8 AM.`,
+      },
+      {
+        q: `Is the sunrise tour possible on a Friday?`,
+        a: `No. The Taj Mahal is closed every Friday, so a Friday sunrise tour visits Agra Fort and Mehtab Bagh instead, with the Taj view from across the river.`,
+      },
+    ];
+  }
+  if (s.includes("mathura") || s.includes("vrindavan")) {
+    return [
+      {
+        q: `Can Mathura and Vrindavan be covered in one day from Agra?`,
+        a: `Yes, with a 5:30–6 AM start. Agra–Mathura is about 60 km (75 minutes); Mathura–Vrindavan is another 25–40 minutes, and you are back in Agra by evening.`,
+      },
+      {
+        q: `Do temples close in the middle of the day?`,
+        a: `Yes, most temples close around noon and reopen in the afternoon. The route plans lunch and travel in that gap, so no darshan time is lost.`,
+      },
+      {
+        q: `Can the car reach the temple gates in Vrindavan?`,
+        a: `No, not inside the town limits. The driver drops you at the designated parking nodes and you walk or take an e-rickshaw to the temple gates.`,
+      },
+    ];
+  }
+  if (s.includes("gatimaan")) {
+    return [
+      {
+        q: `How does the Gatimaan Express tour work?`,
+        a: `You arrive in Agra by train and the driver meets you at Agra Cantt with a name board. The car covers the day's sightseeing and drops you back at the station for your return train.`,
+      },
+      {
+        q: `What if my train is late?`,
+        a: `Give the train number or PNR when booking. The driver tracks the train and adjusts pickup with no waiting fee for the delay.`,
+      },
+      {
+        q: `Can I go straight to the Taj Mahal from the station?`,
+        a: `Yes. Agra Cantt is about 6 km from the Taj Mahal, so the driver can take you to the East Gate first and to your hotel afterwards.`,
+      },
+    ];
+  }
+  if (s.includes("unhurried") || s.includes("overnight")) {
+    return [
+      {
+        q: `What does an overnight Agra trip add over a day trip?`,
+        a: `A second day. Day 1 is the Taj Mahal and Agra Fort; day 2 is Fatehpur Sikri, Sikandra and Mehtab Bagh at sunset, without rushing any of them.`,
+      },
+      {
+        q: `Is the hotel included in the overnight package?`,
+        a: `No. The package is the car, driver and sightseeing; the hotel is booked separately, or tell us your budget and we suggest one near the Taj.`,
+      },
+      {
+        q: `Where does the driver stay overnight?`,
+        a: `The driver stays in Agra overnight. A night allowance applies for the overnight halt (8 PM–6 AM): ₹500 for a sedan/SUV, ₹700 for larger vehicles.`,
+      },
+    ];
+  }
+  if (s.includes("golden-triangle")) {
+    return [
+      {
+        q: `How many days does the Golden Triangle take?`,
+        a: `3 nights / 4 days: Delhi → Agra → Jaipur → Delhi. Each city gets a full sightseeing day, with the same car and driver throughout.`,
+      },
+      {
+        q: `Is the Golden Triangle one booking or three?`,
+        a: `One booking. One car, one driver and one fixed price cover the whole circuit, including the 300 km/day outstation minimum.`,
+      },
+      {
+        q: `Can the Golden Triangle start in Agra instead of Delhi?`,
+        a: `Yes. The circuit can start and end in Agra; the route and price are recalculated for the Agra start, and Delhi becomes the last stop.`,
+      },
+    ];
+  }
+  if (s.includes("fatehpur-sikri")) {
+    return [
+      {
+        q: `How far is Fatehpur Sikri from Agra?`,
+        a: `About 40 km, 1–1.5 hours each way on NH21. It fits in a half day, so it pairs with the Taj Mahal in the morning.`,
+      },
+      {
+        q: `What is there to see at Fatehpur Sikri?`,
+        a: `Akbar's red-sandstone capital: Buland Darwaza, Jama Masjid and the Salim Chishti Dargah. Plan 2–3 hours inside the complex.`,
+      },
+      {
+        q: `Is Fatehpur Sikri open on Friday when the Taj Mahal is closed?`,
+        a: `Yes, it stays open all 7 days. A Friday is the best day to do Fatehpur Sikri, since the Taj Mahal is closed.`,
+      },
+    ];
+  }
+  if (s.includes("jaipur")) {
+    return [
+      {
+        q: `Can Jaipur be done in one day from Agra?`,
+        a: `Yes, but it is a long day: Agra–Jaipur is 240 km, about 4.5 hours each way. Leave by 5 AM to get 5–6 hours in Jaipur.`,
+      },
+      {
+        q: `What does the Jaipur day cover?`,
+        a: `Hawa Mahal, Amer Fort and the old city markets, in that order. Anything more needs an overnight stay.`,
+      },
+      {
+        q: `Is the Agra–Jaipur fare one-way or return?`,
+        a: `The published sedan fare is for the Agra–Jaipur leg. A same-day return is billed as a round trip with the 300 km/day minimum.`,
+      },
+    ];
+  }
+  if (s.includes("bharatpur")) {
+    return [
+      {
+        q: `When is the best time to visit Bharatpur bird sanctuary?`,
+        a: `October to March, when migratory birds arrive. Arrive at the sanctuary gate by 7 AM, when birds are most active and the light is best for photography.`,
+      },
+      {
+        q: `How far is Bharatpur from Agra?`,
+        a: `About 55 km, 1.2 hours. It is a half-day trip and pairs with Fatehpur Sikri on the same route.`,
+      },
+      {
+        q: `Does the taxi go inside the sanctuary?`,
+        a: `No. Cars stop at the sanctuary gate; inside, you move by cycle-rickshaw or on foot, which is also how you get closest to the birds.`,
+      },
+    ];
+  }
+  if (s.includes("international")) {
+    return [
+      {
+        q: `Why is the international tourist tour 12 hours instead of 8?`,
+        a: `It covers five monuments — Taj Mahal, Agra Fort, Mehtab Bagh, Sikandra and Baby Taj — at an unhurried pace, with time for photography and lunch built in.`,
+      },
+      {
+        q: `Is the guide included in the international tour?`,
+        a: `No, the guide is extra. The car, driver, fuel and parking are included; a licensed English-speaking guide can be added when you book.`,
+      },
+      {
+        q: `Do you pick up from the airport or station for this tour?`,
+        a: `Yes, free doorstep pickup from any hotel, homestay, Agra Cantt (AGC) or Agra Fort (AF) station inside Agra city limits.`,
+      },
+    ];
+  }
+  // Default / agra-sightseeing
+  return [
+    {
+      q: `Can I see the Taj Mahal, Agra Fort and Mehtab Bagh in one day?`,
+      a: `Yes. That is the standard circuit: Taj Mahal in the morning, Agra Fort before lunch, Baby Taj and Mehtab Bagh for sunset. The car waits at each stop, so the order can change to suit you.`,
+    },
+    {
+      q: `What time should I start to avoid the Taj Mahal crowds?`,
+      a: `Start at sunrise. Pickup 45 minutes before sunrise gets you to the East Gate before the tour buses; by 10 AM the queues are at their longest.`,
+    },
+    {
+      q: `Where does the car drop me at the Taj Mahal?`,
+      a: `At the East Gate or West Gate parking plaza, about 500 m from the gate. Petrol and diesel vehicles cannot go closer; battery golf carts and shuttles cover the last stretch.`,
+    },
+  ];
+}
+
 export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
@@ -60,6 +223,8 @@ export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
       : `Hello Agra SK Baghel Tour & Travels, I want to book local sightseeing package "${item.name}".`
   )}`;
 
+  const specificFaqs = getLocalPackageSpecificFaqs(item.slug);
+
   const faqs = [
     {
       q: `What is included in the ${item.name} package?`,
@@ -69,25 +234,14 @@ export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
       q: `What destinations are covered during this tour?`,
       a: `This package covers: ${item.covers}. You have complete flexibility to visit these monuments at your preferred pace or substitute stops within the city limits.`,
     },
+    ...specificFaqs,
     {
       q: `How are extra hours and extra kilometers billed?`,
       a: getLocalExtraRateFaq(extraRateRows, item.durationHours, item.includedKm),
     },
     {
-      q: `Are monument entry fees and parking included?`,
-      a: item.parkingNote || "Monument entry tickets and parking stand fees are billed at actuals. Your chauffeur parks at authorized stands and assists you at ticketing gates.",
-    },
-    {
       q: `Can the chauffeur pick us up from our hotel or railway station?`,
       a: `Yes! We provide complimentary doorstep pickup from any hotel, homestay, or railway station (Agra Cantt AGC or Agra Fort AF) within municipal Agra city limits.`,
-    },
-    {
-      q: `How does the 28% advance deposit work?`,
-      a: `Lock in your private vehicle and driver with a 28% token deposit (₹${tokenAdvance.toLocaleString("en-IN")}). The remaining 72% balance is paid directly to the chauffeur at the conclusion of your sightseeing day.`,
-    },
-    {
-      q: `What is your cancellation and refund policy?`,
-      a: `We offer a 24-Hour Free Cancellation guarantee. If cancelled 24 hours or more before scheduled pickup, your 28% advance deposit is refunded 100% with zero cancellation fees.`,
     },
   ];
 

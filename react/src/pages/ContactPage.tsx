@@ -10,24 +10,24 @@ export interface ContactPageProps {
 
 const FAQ_ITEMS = [
   {
-    q: "How quickly will your dispatch team respond to my booking or inquiry?",
-    a: "Our 24×7 Taj Ganj dispatch team responds within 2 to 5 minutes on WhatsApp (+91 97628 17598) or direct phone call. Inquiries submitted via the form are confirmed within 15 minutes with a transparent fare breakdown.",
+    q: "How do I reach SK Baghel Tour and Travels?",
+    a: "Call or WhatsApp the number on this page, or use the booking form. The dispatch desk is at Taj Ganj, Agra, and answers 24×7.",
   },
   {
-    q: "Can I book a cab for a 5:00 AM Taj Mahal sunrise tour on short notice?",
-    a: "Yes, absolutely. Sunrise Taj Mahal tours are our everyday specialty. We maintain standby chauffeur-driven sedans and MPVs in Taj Ganj and Fatehabad Road hotel areas, ready for 5:00 AM or 5:30 AM pickups.",
+    q: "How far in advance should I book?",
+    a: "At least 2 hours before pickup on a normal day, the night before for a sunrise start, and earlier on festival weekends when cars sell out.",
   },
   {
-    q: "What exact information is required to confirm my outstation trip?",
-    a: "To confirm, we only need: (1) Pickup date and exact time, (2) Pickup address or hotel name in Agra/Delhi, (3) Drop destination, (4) Passenger count, and (5) Preferred car tier. No complicated registrations required.",
+    q: "Can I book a cab for an early morning Taj Mahal sunrise tour?",
+    a: "Yes. Sunrise pickups (5:00–5:30 AM) are scheduled every day with standby sedans and MPVs stationed near Taj Ganj hotels.",
   },
   {
     q: "Is there any waiting penalty if my train or flight is delayed?",
-    a: "No. When you provide your train number (e.g., Gatimaan Express, Shatabdi at Agra Cantt) or flight number (at Delhi IGI Airport), our dispatch team tracks real-time arrivals. Chauffeurs wait at the exit gate with zero delay penalty.",
+    a: "No. When you provide your train number or flight number, our dispatch desk tracks real-time arrivals with complimentary waiting.",
   },
   {
-    q: "Do you issue official booking receipts for corporate expense claims?",
-    a: "Yes. Every booking includes a verified booking receipt tax invoice ( ) with itemized kilometer logs, expressway tolls, and state passenger permits.",
+    q: "Do you issue official receipts for corporate reimbursement?",
+    a: "Yes. Every booking includes an itemized computerized receipt with company details, sent on email or WhatsApp upon confirmation.",
   },
 ];
 

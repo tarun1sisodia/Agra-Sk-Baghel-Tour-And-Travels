@@ -72,28 +72,82 @@ const PACKAGE_DEFAULT_TIMELINES: Record<string, ItineraryItem[]> = {
   ],
 };
 
-const TOUR_FAQS = [
-  {
-    q: "What happens if there is morning winter fog or overcast clouds?",
-    a: "While morning mist occurs predominantly during late December and January, the Taj Mahal creates an enchanting mystical silhouette in soft morning conditions. Our guides adapt the route pacing—starting with the intricate interiors and marble corridors, transitioning to open courtyard photography as the morning sun burns off the mist by 08:00 AM.",
-  },
-  {
-    q: "Are shoes allowed inside the main mausoleum chamber?",
-    a: "Shoes are not permitted on the main white marble plinth. Our tour package provides complimentary hygienic fabric shoe covers so you do not have to walk barefoot or wait in long queues at the public shoe deposit counters.",
-  },
-  {
-    q: "How do we purchase monument entry tickets?",
-    a: "The Archaeological Survey of India (ASI) requires photo identification (Passport or Aadhaar card) for ticket issuance. You may purchase tickets online via the ASI portal, or simply ask our WhatsApp to pre-book them electronically under your names to bypass all on-site ticketing counters entirely.",
-  },
-  {
-    q: "Can we alter the departure timing or customize stops?",
-    a: "Yes, this is an entirely private tour. If you wish to adjust departure by 30 minutes, or replace Mehtab Bagh with the Tomb of I'timād-ud-Daulah (Baby Taj) or local petha sweets tasting, simply inform your concierge via WhatsApp or telephone without any penalty surcharge.",
-  },
-  {
-    q: "What is the exact 28% advance payment policy?",
-    a: "In accordance with our customer-protection charter, you pay only 28% online to lock the chauffeur and guide. The remaining 72% is paid directly to your chauffeur upon completion of your tour, after you are completely satisfied with your journey.",
-  },
-];
+function getTourPackageFaqs(slug: string): { q: string; a: string }[] {
+  const s = slug.toLowerCase();
+  if (s.includes("mathura") || s.includes("vrindavan")) {
+    return [
+      {
+        q: "What is the route for the same-day Agra–Mathura tour?",
+        a: "Agra → Mathura (Krishna Janmabhoomi, Dwarkadhish) → Vrindavan (Banke Bihari, ISKCON, Prem Mandir) → Agra, back by 8:30–10 PM. Start at 5:30–6 AM.",
+      },
+      {
+        q: "Is darshan free in Mathura and Vrindavan?",
+        a: "Yes, darshan is free at all temples. Nobody sells an official VIP pass at Banke Bihari; anyone offering one is not official.",
+      },
+      {
+        q: "What should I wear for the Mathura–Vrindavan temples?",
+        a: "Modest clothing and slip-on shoes, which come off at every temple. Carry water and a scarf; leave large bags in the car, as temple entry restricts them.",
+      },
+      {
+        q: "Can we alter the departure timing or customize stops?",
+        a: "Yes, this is an entirely private tour. Pacing and temple halts can be adjusted according to your family's preferences.",
+      },
+    ];
+  }
+
+  if (s.includes("himachal")) {
+    return [
+      {
+        q: "Which places does the 2-day Himachal tour cover?",
+        a: "The car and driver stay with you for both days, covering scenic hill station destinations with the 300 km/day outstation minimum.",
+      },
+      {
+        q: "Is the hotel included in the Himachal tour?",
+        a: "No. The package covers the car, driver, fuel and tolls; hotels are extra unless the package page says otherwise.",
+      },
+      {
+        q: "Is a sedan enough for Himachal hill roads?",
+        a: "For 2–3 people with light luggage, yes. For 4 or more, or heavy luggage, take the Ertiga or Innova Crysta — hill climbs and luggage space are both easier.",
+      },
+    ];
+  }
+
+  if (s.includes("exclusive") || s.includes("agra")) {
+    return [
+      {
+        q: "What makes this tour 'exclusive' compared to the standard Agra day tour?",
+        a: "It is a private tour with no other passengers, a flexible start time and stops you choose — the same monuments, but the day is built around you instead of a fixed itinerary.",
+      },
+      {
+        q: "Can I change the stops on the day itself?",
+        a: "Yes. It is a private tour, so you can swap Mehtab Bagh for Baby Taj, add a petha tasting or a market stop, and tell the driver on the day with no extra charge for the change itself.",
+      },
+      {
+        q: "How long does the exclusive Agra tour last?",
+        a: "A full day — 8 to 12 hours, up to 80–100 km inside Agra. Extra hours and kilometres are billed at the published rates: sedan ₹10/km and ₹150/hr.",
+      },
+      {
+        q: "How do we purchase monument entry tickets?",
+        a: "Buy tickets online via the ASI portal, or ask our dispatch desk on WhatsApp to assist with e-tickets under your name to bypass ticketing queues.",
+      },
+    ];
+  }
+
+  return [
+    {
+      q: "Can we alter the departure timing or customize stops?",
+      a: "Yes, this is an entirely private tour. Pacing and stops can be adapted without any surcharge.",
+    },
+    {
+      q: "How do we purchase monument entry tickets?",
+      a: "Tickets can be booked online via the ASI portal, or our desk can assist via WhatsApp to bypass on-site ticketing counters.",
+    },
+    {
+      q: "What happens if there is morning winter fog or overcast clouds?",
+      a: "Tours adapt pacing naturally — starting with interior palace corridors and transitioning to open-air photography once morning mist clears.",
+    },
+  ];
+}
 
 
 export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplateProps) {
@@ -216,7 +270,8 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
     { name: packageName, url: canonicalUrl },
   ]);
 
-  const faqSchema = buildFaqSchema(TOUR_FAQS.map((faq) => ({ question: faq.q, answer: faq.a })));
+  const packageFaqs = getTourPackageFaqs(packageSlug);
+  const faqSchema = buildFaqSchema(packageFaqs.map((faq) => ({ question: faq.q, answer: faq.a })));
 
   const tripSchema = buildTouristTripSchema({
     name: packageName,
@@ -606,7 +661,7 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
           </div>
 
           <div className="flex flex-col gap-space-sm">
-            {TOUR_FAQS.map((faq, idx) => {
+            {packageFaqs.map((faq, idx) => {
               const isOpen = openFaq === idx;
               return (
                 <div

@@ -303,24 +303,20 @@ const EXTENDED_FLEET_SHOWCASE: ShowcaseVehicle[] = [
 
 const FLEET_FAQS = [
   {
-    q: "What is the difference between Ertiga and Innova Crysta for outstation travel?",
-    a: "While both accommodate 6 passengers, the Toyota Innova Crysta features a heavier ladder-frame chassis, superior highway suspension, wider captain-seat comfort, and dedicated luggage space behind the 3rd row. The Maruti Ertiga is lighter and more economical, ideal for budget-conscious families with light luggage.",
+    q: "Are all your vehicles yellow-plate commercial cabs?",
+    a: "Yes. Every vehicle has a commercial yellow plate, an All-India Tourist Permit, a fitness certificate and comprehensive passenger insurance.",
   },
   {
-    q: "How does the per-km billing work for outstation trips?",
-    a: "Outstation round-trips are billed based on the garage-to-garage distance with an industry-standard minimum threshold of 300 km per calendar day. For example, a 2-day round trip covers a minimum billable 600 km. Expressway toll taxes, state border permits, and parking are billed transparently at actuals.",
+    q: "Do you provide child seats?",
+    a: "Yes, infant and booster seats are available on advance request at no extra cost. Ask when booking, not on the day.",
   },
   {
-    q: "Are luggage carriers or roof racks available for extra bags?",
-    a: "Yes. Our Force Tempo Travellers come equipped with heavy-duty roof luggage carriers with weatherproof tarpaulin covers, in addition to their rear luggage bays. For Ertiga and Innova Crysta, covered roof carriers can be mounted on advance request for airport groups carrying large suitcases.",
+    q: "Can I request a specific car model?",
+    a: "Yes — Dzire, Etios, Innova Crysta or a specific Tempo Traveller. If that exact vehicle is unavailable, we confirm the replacement with you before the trip.",
   },
   {
-    q: "Do all vehicles have full air-conditioning during peak summer and hill travel?",
-    a: "100% yes. Every cab and van in our fleet is fitted with powerful factory-installed dual air conditioning systems. AC is kept continuously running during highway travel and city sightseeing without any compromise on passenger comfort.",
-  },
-  {
-    q: "Are the vehicles yellow-plate commercial tourist cabs?",
-    a: "Every vehicle operated by Agra SK Baghel Tour & Travels carries a registered commercial yellow plate, All-India Tourist Permit (AITP), up-to-date fitness certificates, and comprehensive passenger insurance.",
+    q: "What is the difference between Ertiga and Innova Crysta?",
+    a: "Both seat 6, but the Innova has a heavier chassis, better highway suspension, captain seats and a real luggage space behind the third row. The Ertiga is lighter and cheaper, for light luggage.",
   },
 ];
 

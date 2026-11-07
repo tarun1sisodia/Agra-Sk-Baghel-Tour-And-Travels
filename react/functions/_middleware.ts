@@ -121,6 +121,12 @@ export async function onRequest(context: PagesContext): Promise<Response> {
         modified = true;
       }
 
+      // Ensure Content-Signal is explicitly declared on HTML responses
+      if (isHtml && !headers.has("Content-Signal")) {
+        headers.set("Content-Signal", "ai-train=no, search=yes, ai-input=yes");
+        modified = true;
+      }
+
       // Ensure homepage carries agent discovery Link headers (RFC 8288 & RFC 9727)
       if (isHome && !headers.has("Link")) {
         headers.set("Link", DISCOVERY_LINK_HEADER);

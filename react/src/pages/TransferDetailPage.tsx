@@ -40,6 +40,64 @@ function formatFareDate(dateStr?: string | null): string {
   }
 }
 
+function getTransferSpecificFaqs(slug: string, name: string): { q: string; a: string }[] {
+  const s = slug.toLowerCase();
+  if (s.includes("delhi") || s.includes("igi")) {
+    return [
+      {
+        q: `How long is Delhi IGI Airport to Agra?`,
+        a: `240 km, about 3.5 hours via the Yamuna Expressway. The driver meets you at the arrivals curb of your terminal with a name board.`,
+      },
+      {
+        q: `What if my flight lands late?`,
+        a: `Give the flight number when booking. The driver tracks the flight and waits up to 60 minutes free at the terminal pickup bay.`,
+      },
+      {
+        q: `Can the airport taxi stop for food on the Yamuna Expressway?`,
+        a: `Yes. The driver can halt at expressway food courts — Haldiram's, Costa Coffee or Starbucks — at no extra charge for the stop itself.`,
+      },
+    ];
+  }
+  if (s.includes("cantt") || s.includes("station") || s.includes("railway")) {
+    return [
+      {
+        q: `Where exactly do I meet the driver at Agra Cantt?`,
+        a: `At the main exit taxi parking bay, with your name board. Confirm your coach position on WhatsApp before the train arrives for an immediate pickup.`,
+      },
+      {
+        q: `Which Agra stations do you serve?`,
+        a: `Agra Cantt (AGC), Agra Fort (AF) and Raja Ki Mandi. Give the train number and the driver tracks its running status.`,
+      },
+      {
+        q: `Can I go straight from the station to the Taj Mahal?`,
+        a: `Yes. Agra Cantt is about 6 km from the Taj Mahal, so a station-to-Taj transfer makes sense if your itinerary is tight.`,
+      },
+    ];
+  }
+  if (s.includes("agra-airport") || s.includes("kheria")) {
+    return [
+      {
+        q: `How far is Agra Airport from the Taj Mahal?`,
+        a: `About 12 km, 25–30 minutes. A sedan airport transfer is the usual booking; give the flight number so the driver times the pickup.`,
+      },
+      {
+        q: `Are there flights into Agra Airport every day?`,
+        a: `No, Agra Airport has limited flights. Check your flight status before booking the transfer, and give the flight number so delays are tracked.`,
+      },
+    ];
+  }
+  return [
+    {
+      q: `What is included in the fare for ${name}?`,
+      a: `The quoted transfer fare is all-inclusive: private AC vehicle, verified chauffeur, fuel, expressway FASTag tolls and terminal parking access.`,
+    },
+    {
+      q: `What if my arrival is delayed?`,
+      a: `Provide your flight number or train PNR when booking; our driver tracks the live status and adjusts pickup with complimentary waiting.`,
+    },
+  ];
+}
+
 export function TransferDetailPage({ item }: TransferDetailPageProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
@@ -54,44 +112,17 @@ export function TransferDetailPage({ item }: TransferDetailPageProps) {
       : `Hello Agra SK Baghel Tour & Travels, I want to inquire about transfer "${item.name}".`
   )}`;
 
+  const specificFaqs = getTransferSpecificFaqs(item.slug, item.name);
+
   const faqs = [
+    ...specificFaqs,
     {
-      q: `What is included in the fare for ${item.name}?`,
-      a: `The quoted fare is 100% all-inclusive. It covers private sanitized air-conditioned vehicle custody, a police-verified professional chauffeur, all Yamuna Expressway or national highway FASTag tolls, state commercial taxes, and airport/railway parking access fees. Zero roadside surprises.`,
+      q: `Can the vehicle accommodate our luggage?`,
+      a: `Sedans carry 2 large suitcases + 2 small bags. For 3–4 large suitcases, book an Ertiga or Innova Crysta; Tempo Travellers feature dedicated rear luggage bays for 8+ bags.`,
     },
     {
-      q: `What happens if my train or flight is delayed?`,
-      a: `We provide complimentary flight and train tracking! Provide your flight number or train PNR when booking. Your chauffeur tracks real-time arrival and includes up to 60 minutes of complimentary waiting at designated terminal pickup bays.`,
-    },
-    {
-      q: `Where will the chauffeur meet me at the station or airport?`,
-      a: `For railway pickups at Agra Cantt (AGC) or Agra Fort, the chauffeur meets you at the designated taxi parking bay with your name plaque. For Delhi IGI Airport or Agra Airport, driver meets at the authorized passenger arrival terminal curb.`,
-    },
-    {
-      q: `What is the night allowance policy for midnight or early-morning transfers?`,
-      a: item.nightChargeInr > 0
-        ? `A night allowance of ₹${item.nightChargeInr} applies for late-night journeys between 20:00 and 06:00. This is clearly disclosed with no arbitrary on-road demands.`
-        : `Daytime transfers incur no night fee. Scheduled late night or early morning pickups are smoothly coordinated with pre-confirmed commercial terms.`,
-    },
-    {
-      q: `How does the 28% advance deposit work?`,
-      a: `Lock your booking with just a 28% advance deposit (₹${tokenAdvance.toLocaleString("en-IN")}) via secure UPI, credit card, or net banking. The remaining 72% balance is paid directly to the driver upon reaching your destination.`,
-    },
-    {
-      q: `What is the cancellation and refund policy?`,
-      a: `We provide a 24-Hour Free Cancellation guarantee. If your travel plans change and you cancel 24 hours or more before pickup, 100% of your advance deposit is refunded with zero cancellation charges.`,
-    },
-    {
-      q: `Can the vehicle accommodate heavy luggage or suitcases?`,
-      a: `Yes! Sedans carry up to 2 large trolley bags. For 3–4 large suitcases, we recommend the Ertiga or Innova Crysta. For large group bags, our Tempo Travellers and Force Urbanias feature spacious dedicated luggage bays.`,
-    },
-    {
-      q: `Can we make an en-route stopover or food break?`,
-      a: `Yes. On intercity transfers (such as Agra to Delhi IGI Airport), your chauffeur accommodates requested halts at highway food courts (Costa Coffee, Haldiram's, Starbucks on Yamuna Expressway) at no extra cost.`,
-    },
-    {
-      q: `Do you offer emergency roadside assistance?`,
-      a: `Yes! We guarantee a 45-minute emergency vehicle replacement along major highway corridors managed by our 24×7 Taj Ganj dispatch desk.`,
+      q: `Where will the chauffeur meet me upon arrival?`,
+      a: `At Agra Cantt (AGC) or Agra Fort, the chauffeur meets you at the taxi parking bay with your name board. At Delhi IGI Airport, your driver meets you directly at your terminal arrival curb.`,
     },
   ];
 

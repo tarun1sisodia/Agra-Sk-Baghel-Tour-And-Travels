@@ -1,7 +1,9 @@
 # Robots.txt — Agra SK Baghel Tour and Travels Agra
+# Content Signals Protocol: https://contentsignals.org/
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
 # Search engines and AI search/discovery bots: full access to public pages.
 User-agent: *
-Content-Signal: ai-train=no, search=yes, ai-input=yes
 Allow: /
 Disallow: /book.html
 Disallow: /book

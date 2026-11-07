@@ -32,8 +32,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["Fatehabad Road Handicrafts Hub", "Sadar Bazaar for local street food & shopping"],
     fares: { sedan: 2000, ertiga: 2800, crysta: 3800, tempo: 5500 },
     faqs: [
-      { question: "Is the Taj Mahal entry ticket included in the fare?", answer: "No, monument entry tickets are not included. You can purchase them online or at the venue counters." },
-      { question: "Are parking charges extra during the city tour?", answer: "All local toll and monument parking fees are transparently included in your fixed upfront quote." },
+      { question: "Which monuments does the full-day tour cover?", answer: "Taj Mahal, Agra Fort, Baby Taj and Mehtab Bagh, in 8–12 hours / 80 km. Sedan ₹2,000, Ertiga ₹2,800, Innova Crysta ₹3,800, Tempo ₹5,500." },
     ],
   },
   {
@@ -61,7 +60,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["NH21 highway mid-way rest plazas", "Local authentic food hubs near the complex monument site"],
     fares: { sedan: 2499, ertiga: 3499, crysta: 4499, tempo: 6499 },
     faqs: [
-      { question: "Do cars go right up to the Buland Darwaza entrance?", answer: "Private vehicles park at the official lower lot. From there, eco-friendly local shuttle buses take you directly up the hill." },
+      { question: "How long is the Fatehpur Sikri excursion?", answer: "5–6 hours for the 90 km loop, including 2–3 hours inside the complex." },
     ],
   },
   {
@@ -75,7 +74,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["Highway artisan stores", "Traditional petha sweet counters along the Mathura-Agra road segment"],
     fares: { sedan: 1499, ertiga: 1999, crysta: 2799, tempo: 3999 },
     faqs: [
-      { question: "Can we combine this half-day tour with a hotel drop-off?", answer: "Yes, our flexible pricing configuration covers complete door-to-door pickup and drop adjustments." },
+      { question: "Can Sikandra be added to a Delhi transfer?", answer: "Yes, it is on the Agra–Delhi road, 10 km from central Agra — a 1-hour stop on the way out." },
     ],
   },
   {
@@ -89,7 +88,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["Authentic marble inlay factories", "Traditional Zardozi embroidery workshops"],
     fares: { sedan: 1799, ertiga: 2499, crysta: 3499, tempo: 4999 },
     faqs: [
-      { question: "Will the driver wait with our shopping bags while we visit other markets?", answer: "Yes, the vehicle and driver remain exclusively dedicated to your party throughout the entire booking tenure." },
+      { question: "Which markets does the shopping circuit cover?", answer: "Sadar Bazaar, Kinari Bazaar and the Fatehabad Road handicrafts hub, in a 6-hour / 50 km loop." },
     ],
   },
 
@@ -106,7 +105,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["Yamuna Expressway Milestone 95 Food Court", "Jewar International Airport Interchange Plaza"],
     fares: { sedan: 2499, ertiga: 3499, crysta: 4999, tempo: 7999 },
     faqs: [
-      { question: "Are Yamuna Expressway toll fees included in the upfront fare?", answer: "Yes, our fixed pricing configuration includes all highway tolls, state permits, and FASTag service fees." },
+      { question: "Which Delhi airport terminal does the taxi reach?", answer: "IGI Terminal 3, Terminal 1 and Aerocity — give the terminal and flight number when booking." },
     ],
   },
   {
@@ -121,7 +120,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["Mathura Expressway Toll Plaza Break Area", "Greater Noida Expressway Multi-Cuisine Food Courts"],
     fares: { sedan: 2399, ertiga: 3299, crysta: 4799, tempo: 7499 },
     faqs: [
-      { question: "Can I book a multi-point drop across Noida and New Delhi?", answer: "Yes, custom route extensions can be arranged during verification with our centralized travel desk." },
+      { question: "Can I book a multi-point drop across Noida and Delhi?", answer: "Yes. Custom route extensions are arranged when you book, and the fare is confirmed before travel." },
     ],
   },
   {
@@ -136,7 +135,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["Keoladeo National Bird Sanctuary (Bharatpur)", "Mahwa Midway Food Oasis Plaza", "Abhaneri Stepwell Diversion Point"],
     fares: { sedan: 2999, ertiga: 3999, crysta: 5499, tempo: 8999 },
     faqs: [
-      { question: "Can we halt at the Bharatpur Bird Sanctuary mid-way?", answer: "Absolutely. Our round-trip and long-haul packages allow custom mid-route sightseeing layovers." },
+      { question: "Can we halt at Bharatpur Bird Sanctuary mid-way?", answer: "Yes. It is on the NH21 route; a 1–2 hour halt fits if you leave Agra early." },
     ],
   },
   {
@@ -151,7 +150,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["Vrindavan Chhatikara Road Multi-Tier Parking Structure", "Govardhan Parikrama Entry Corridor Drops"],
     fares: { sedan: 1499, ertiga: 1999, crysta: 2999, tempo: 4499 },
     faqs: [
-      { question: "Will the cab take us directly to the temple gate entrances?", answer: "Heavy vehicle rules apply in Vrindavan town limits; our drivers drop you at designated, high-accessibility parking nodes." },
+      { question: "Will the cab take us to the temple gates?", answer: "No. Heavy-vehicle rules apply inside Vrindavan; the driver drops you at the designated parking nodes." },
     ],
   },
   {
@@ -166,7 +165,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["Kannauj Toll Plaza Rest Hub", "Khalikabad Integrated Food Oasis & Refueling Bay"],
     fares: { sedan: 3999, ertiga: 5299, crysta: 6999, tempo: 11499 },
     faqs: [
-      { question: "Are there safe family rest stops on the Agra-Lucknow Expressway?", answer: "Yes, the corridor features heavily monitored public utility plazas with clean food courts every 100 kilometers." },
+      { question: "Are there safe rest stops on the Agra–Lucknow Expressway?", answer: "Yes, monitored plazas with food courts roughly every 100 km." },
     ],
   },
   {
@@ -181,7 +180,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["Morena Highway Rest Plazas (Famous local Gajak sweet hubs)", "Dholpur Interstate Rajasthan Border Verification Point"],
     fares: { sedan: 1999, ertiga: 2699, crysta: 3799, tempo: 5999 },
     faqs: [
-      { question: "Is there any border entry permit tax for driving into Madhya Pradesh?", answer: "Yes, all applicable interstate commercial transport border tax clearances are pre-calculated into your final invoice." },
+      { question: "What is the Agra–Gwalior road like?", answer: "NH44 through the Chambal region, 120 km in about 2.5 hours — a comfortable same-day return." },
     ],
   },
   {
@@ -196,7 +195,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["Etawah Highway Bypass Crossing Zone", "Auraiya Food & Refreshment Service Centers"],
     fares: { sedan: 3299, ertiga: 4299, crysta: 5999, tempo: 9499 },
     faqs: [
-      { question: "Can we schedule early morning corporate departures?", answer: "Yes, our commercial dispatch fleet operates continuously 24 hours a day, 7 days a week." },
+      { question: "How long is Agra to Kanpur?", answer: "280 km, about 5 hours on NH19. Sedan fare starts from ₹3,299." },
     ],
   },
   {
@@ -211,7 +210,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["Muzaffarnagar Grand Highway Midway Hub", "Roorkee Engineering Corridor Rest Plazas"],
     fares: { sedan: 5499, ertiga: 6999, crysta: 9499, tempo: 14999 },
     faqs: [
-      { question: "Are driver night halt charges billed separately?", answer: "No, night allowance packages are completely bundle-priced inside our final multi-day outstation quotes." },
+      { question: "Can Haridwar and Rishikesh be done in one trip?", answer: "Yes, as a 2-day trip — Haridwar day 1, Rishikesh day 2 — with the same car and driver." },
     ],
   },
   {
@@ -226,7 +225,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["Barabanki Outer Ring Road Refueling Stops", "Lucknow Expressway Extension Rest Zones"],
     fares: { sedan: 5999, ertiga: 7999, crysta: 10999, tempo: 16999 },
     faqs: [
-      { question: "Can the vehicle stay with us for morning darshan the next day?", answer: "Yes, you can easily opt for a multi-day round trip design at a flat nominal daily extensions rate." },
+      { question: "How long is Agra to Ayodhya?", answer: "480 km, about 7 hours via the Agra–Lucknow Expressway. Plan 2 days." },
     ],
   },
   {
@@ -241,7 +240,7 @@ export const seoRoutes: RouteDetail[] = [
     stops: ["Fatehpur Sikri Outer Bypass Crossing Point", "Rajasthan Border Toll Clearance Terminals"],
     fares: { sedan: 1299, ertiga: 1799, crysta: 2499, tempo: 3999 },
     faqs: [
-      { question: "Is same-day return pricing cheaper for Bharatpur?", answer: "Yes, outstation day-rental standby packages offer maximum cost reductions for short-range round trips." },
+      { question: "Is Bharatpur a separate trip or a stop?", answer: "Both. It is 55 km, 1.2 hours from Agra as a half-day trip, and a natural stop on the Agra–Jaipur route." },
     ],
   },
 ];

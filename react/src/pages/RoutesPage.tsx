@@ -55,20 +55,20 @@ interface ManifestRouteData {
 
 const ROUTE_FAQS = [
   {
-    q: "How does one-way outstation taxi billing work?",
-    a: "One-way fares are fixed and point-to-point. You only pay for the journey from your pickup address in Agra to your destination drop address. There are zero empty return charges and zero dead-mileage billing.",
+    q: "Do you run one-way cabs outside Agra?",
+    a: "Yes, to Delhi, Jaipur, Mathura, Lucknow, Gwalior, Haridwar, Ayodhya and 40+ cities. One-way means you pay only for the leg you travel, with zero return fare.",
   },
   {
-    q: "Are expressway tolls and state entry taxes included in the fare?",
-    a: "Yes. All our published one-way fares are 100% all-inclusive. Yamuna Expressway tolls, FASTag deductions, and commercial border passenger entry permits (Delhi, Rajasthan, Haryana, MP) are covered with zero hidden surprises.",
+    q: "Are highway tolls and state taxes included in one-way fares?",
+    a: "Yes. Fixed one-way fares include all expressway tolls and state entry permits. Round trips bill tolls, state permits and parking at actuals.",
   },
   {
-    q: "What is the 300 km/day rule for outstation round-trips?",
-    a: "For multi-day or round-trip journeys, outstation cabs operate on a standard minimum billing threshold of 300 km per calendar day. For example, a 2-day round-trip has a minimum billable distance of 600 km.",
+    q: "How does the 300 km/day minimum outstation rule work?",
+    a: "Round-trip outstation billing starts at 300 km per calendar day, so a 2-day trip bills at least 600 km. Distance above that is charged at your vehicle's per-km rate.",
   },
   {
-    q: "Can the chauffeur pick us up directly from Agra Cantt railway station or our hotel?",
-    a: "Absolutely. Chauffeurs provide complimentary doorstep pickup from any hotel, residence, Agra Cantt, Agra Fort, or Raja Ki Mandi railway station.",
+    q: "Can the chauffeur pick us up from our hotel or Agra Cantt station?",
+    a: "Yes, complimentary doorstep pickup anywhere in Agra, including hotels, residences, Agra Cantt (AGC) and Agra Fort (AF) stations.",
   },
 ];
 
