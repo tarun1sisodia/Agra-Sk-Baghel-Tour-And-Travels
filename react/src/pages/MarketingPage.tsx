@@ -32,7 +32,7 @@ const copy = {
 
 const serviceCards = [
   ["Outstation cabs", "Agra to Delhi, Jaipur, Mathura, Gwalior and Lucknow with clear sample fares.", "/en/routes/"],
-  ["Local Agra sightseeing", "Taj Mahal, Agra Fort, Mehtab Bagh and the city's heritage corners.", "/en/agra-sightseeing-taxi/"],
+  ["Local Agra sightseeing", "Taj Mahal, Agra Fort, Mehtab Bagh and the city's heritage corners.", "/en/packages/agra-same-day-sightseeing-tour/"],
   ["Airport transfers", "Doorstep pickup, flight tracking and comfortable drops to Agra or Delhi airports.", "/en/services/"],
   ["Group travel", "Tempo Traveller and Urbania options for families, weddings and corporate groups.", "/en/vehicles/tempo-traveller/"],
   ["Private tour planning", "Chauffeur-driven day trips, overnight stays and Golden Triangle circuits.", "/en/packages/"]
@@ -106,7 +106,7 @@ function DetailPage({ detail, language }: { detail: Vehicle | Package | Route; l
         <div className="hero-actions">
           <a className="button button-primary" href={`tel:${contact.phone}`}>Call {contact.phoneDisplay}</a>
           <a className="button button-whatsapp inline-flex items-center gap-2" style={{ color: "#ffffff" }} href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noopener noreferrer"><WhatsAppIcon className="w-4 h-4 shrink-0 text-white" /><span className="text-white" style={{ color: "#ffffff" }}>WhatsApp</span></a>
-          <a className="button button-outline" href={`/book.html?${isVehicle ? `vehicle=${detail.id}` : isPackage ? `package=${detail.slug}` : `route=${detail.id}`}`}>Book now ↗</a>
+          <a className="button button-outline" rel="nofollow" href={`/book.html?${isVehicle ? `vehicle=${detail.id}` : isPackage ? `package=${detail.slug}` : `route=${detail.id}`}`}>Book now ↗</a>
         </div>
       </section>
       {vehicle && <section className="detail-media-section"><img src={vehicle.image} alt={`${vehicle.name} hire in Agra`} width="480" height="300" loading="lazy" decoding="async" /><div><p className="eyebrow">{vehicle.klass}</p><h2>{vehicle.name}: comfort for {vehicle.suitable.toLowerCase()}.</h2><p className="spec-row">{vehicle.tags.join(" · ")}</p><p className="fare">{vehicle.rateRange}</p><ul className="check-list">{vehicle.models.map((model) => <li key={model}>{model}</li>)}</ul></div></section>}
@@ -148,7 +148,7 @@ export function MarketingPage({ language, section }: MarketingPageProps) {
         <p className="eyebrow">{eyebrow}</p>
         <h1>{title}</h1>
         <p className="hero-copy">{intro}</p>
-        <a className="button button-primary" href="/book.html">Check availability</a>
+        <a className="button button-primary" rel="nofollow" href="/book.html">Check availability</a>
       </section>
 
       {section === "fleet" && (
@@ -206,7 +206,7 @@ export function MarketingPage({ language, section }: MarketingPageProps) {
           <h2>{section === "about" ? "Local knowledge, dependable travel." : "Your local travel desk in Agra."}</h2>
           <p>{intro}</p>
           <div className="contact-details"><a href={`tel:${contact.phone}`}>{contact.phoneDisplay}</a><a href={`mailto:${contact.email}`}>{contact.email}</a><a href={contact.mapsUrl}>{contact.address}</a></div>
-          <div className="hero-actions"><a className="button button-whatsapp inline-flex items-center gap-2" style={{ color: "#ffffff" }} href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noopener noreferrer"><WhatsAppIcon className="w-4 h-4 shrink-0 text-white" /><span className="text-white" style={{ color: "#ffffff" }}>Message on WhatsApp</span></a><a className="button button-outline" href="/book.html">Start a booking</a></div>
+          <div className="hero-actions"><a className="button button-whatsapp inline-flex items-center gap-2" style={{ color: "#ffffff" }} href={`https://wa.me/${contact.whatsapp}`} target="_blank" rel="noopener noreferrer"><WhatsAppIcon className="w-4 h-4 shrink-0 text-white" /><span className="text-white" style={{ color: "#ffffff" }}>Message on WhatsApp</span></a><a className="button button-outline" rel="nofollow" href="/book.html">Start a booking</a></div>
         </section>
       )}
     </main>

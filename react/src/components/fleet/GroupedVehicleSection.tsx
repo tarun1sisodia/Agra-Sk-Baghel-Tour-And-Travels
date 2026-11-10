@@ -398,6 +398,7 @@ export function GroupedVehicleSection({
 
                       <a
                         href={bookUrl}
+                        rel="nofollow"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleSelect(v);

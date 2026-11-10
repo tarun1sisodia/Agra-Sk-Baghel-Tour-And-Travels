@@ -22,13 +22,14 @@ import {
   getInitialFleet,
   getInitialLocalPackages,
   getInitialTransferRoutes,
+  getInitialTourPackages,
   loadPublishedPackages,
   fetchPublishedTransferRoutes,
   fetchPublishedLocalTransfers,
   type CompressedRoute,
 } from "../services/catalogManifest";
 import { webpSrcSet, PACKAGE_CARD_SIZES } from "@/utils/packageImage";
-import { packages as staticPackages, type TourPackage } from "../data";
+import type { TourPackage } from "../data";
 import { onUserInteractionOrIdle } from "../utils/deferredRevalidation";
 
 
@@ -83,7 +84,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
   const [fleetLoading, setFleetLoading] = useState(false);
   const [manifestRoutes, setManifestRoutes] = useState<Record<string, CompressedRoute>>(() => getInitialRoutesManifest());
   const [routesLoading, setRoutesLoading] = useState(false);
-  const [publishedPackages, setPublishedPackages] = useState<TourPackage[]>(() => [...staticPackages]);
+  const [publishedPackages, setPublishedPackages] = useState<TourPackage[]>(() => getInitialTourPackages());
   const [packagesLoading, setPackagesLoading] = useState(false);
   const [transferRoutes, setTransferRoutes] = useState<any[]>(() => getInitialTransferRoutes());
   const [localPackages, setLocalPackages] = useState<any[]>(() => getInitialLocalPackages());
@@ -617,7 +618,7 @@ export function HomePage({ language = "en" }: HomePageProps) {
                   title: "One-Way Outstation Drop",
                   body: "Fixed one-way fares with expressway tolls and driver allowance included. Zero return fare.",
                   tags: cabServiceTags.oneway,
-                  href: "/routes",
+                  href: "/en/routes/",
                 },
                 {
                   icon: "sync_alt",
@@ -631,28 +632,28 @@ export function HomePage({ language = "en" }: HomePageProps) {
                   title: "Local Sightseeing",
                   body: "8-hour (80 km) and 12-hour (120 km) packages for Taj Mahal, Agra Fort, and local markets.",
                   tags: cabServiceTags.local,
-                  href: "/packages",
+                  href: "/en/packages/",
                 },
                 {
                   icon: "flight_takeoff",
                   title: "Airport & Station Transfers",
                   body: "On-time pickup and drop at Delhi IGI Airport, Agra Cantt, and railway stations.",
                   tags: cabServiceTags.transfers,
-                  href: "/book",
+                  href: "/book.html",
                 },
                 {
                   icon: "airport_shuttle",
                   title: "Tempo Traveller & Urbania",
                   body: "9 to 26-seater group vehicles with pushback seats, rear AC, and separate luggage bay.",
                   tags: cabServiceTags.tempo,
-                  href: "/fleet",
+                  href: "/en/fleet/",
                 },
                 {
                   icon: "wb_twilight",
                   title: "Curated Tour Packages",
                   body: "Same-day Agra circuits and Golden Triangle routes with licensed tour guide options.",
                   tags: cabServiceTags.tours,
-                  href: "/packages",
+                  href: "/en/packages/",
                 },
               ].map((svc, idx) => (
                 <div

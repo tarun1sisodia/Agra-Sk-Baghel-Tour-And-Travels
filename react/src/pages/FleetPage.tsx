@@ -335,6 +335,7 @@ const TIER_TO_ID: Record<string, string> = {
 function vehicleDetailSlug(id: string): string {
   if (id === "innova") return "innova-crysta";
   if (id === "tempo") return "tempo-traveller";
+  if (id === "luxury") return "innova-crysta";
   return id;
 }
 
@@ -941,6 +942,7 @@ export function FleetPage({ language = "en" }: FleetPageProps) {
                       <a
                         className="inline-block px-3.5 py-1.5 rounded-xl bg-terracotta-deep hover:bg-terracotta-sunlit text-white font-label-caps text-body-sm tracking-wider transition-all shadow-sm font-bold"
                         href={`/book.html?category=outstation&car=${v.id}`}
+                        rel="nofollow"
                       >
                         Select {v.name.split(" ")[0]}
                       </a>

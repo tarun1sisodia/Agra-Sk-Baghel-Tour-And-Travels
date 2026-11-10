@@ -21,7 +21,7 @@ const scriptsDir = dirname(__filename);
 const reactRoot = join(scriptsDir, "..");
 const publicDir = join(reactRoot, "public");
 
-const DEFAULT_KEY = "befbb506a8e14ed88ba2ba293d74640a";
+const DEFAULT_KEY = "069094c8c68b41528a0893ddb7839be1";
 const DEFAULT_HOST = "agraskbagheltourandtravels.com";
 
 const ENDPOINTS = [

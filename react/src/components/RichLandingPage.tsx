@@ -239,6 +239,7 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
             </CtaButton>
             <CtaButton
               href="/book.html"
+              rel="nofollow"
               variant="outline"
               size="default"
               icon="arrow_forward"
@@ -617,6 +618,7 @@ export const RichLandingPage: React.FC<RichLandingPageProps> = ({ route }) => {
             </a>
             <a
               href="/book.html"
+              rel="nofollow"
               className="px-3.5 py-2 rounded-lg bg-terracotta-deep/10 text-terracotta-deep hover:bg-terracotta-deep hover:text-white font-bold border border-terracotta-deep/20 transition-colors"
             >
               Instant Booking Engine

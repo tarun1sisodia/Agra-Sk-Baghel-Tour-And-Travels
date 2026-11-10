@@ -230,6 +230,7 @@ export function Header({
                       </a>
                       <a
                         href="/book.html"
+                        rel="nofollow"
                         onClick={() => setUserMenuOpen(false)}
                         className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-on-surface hover:bg-sandstone-wash transition-colors"
                         role="menuitem"

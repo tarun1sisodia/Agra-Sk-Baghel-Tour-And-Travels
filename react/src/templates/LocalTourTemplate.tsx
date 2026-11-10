@@ -365,6 +365,7 @@ export function LocalTourTemplate({ item }: LocalTourTemplateProps) {
                   <a
                     className="inline-flex items-center justify-center gap-space-xs bg-terracotta-deep text-white px-6 py-3.5 rounded text-label-lg font-label-lg shadow-md hover:bg-terracotta-sunlit transition-all duration-200"
                     href={bookingUrl}
+                    rel="nofollow"
                   >
                     <span className="material-symbols-outlined text-icon-20">calendar_month</span>
                     <span>Book Sightseeing Tour</span>

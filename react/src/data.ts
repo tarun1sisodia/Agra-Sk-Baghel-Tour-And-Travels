@@ -292,274 +292,463 @@ export const airportTransfers: readonly AirportTransfer[] = [
 
 export const packages: readonly TourPackage[] = [
   {
-    id: "agra-day",
-    slug: "agra-sightseeing",
-    name: "Same Day Agra Taj Mahal Tour",
-    kicker: "Same day",
-    duration: "1 day",
-    from: 3499,
-    image: "/assets/packages/taj-dawn.webp",
-    gallery: [
-      { url: "/assets/places/gallery/taj-mahal-01.jpg", caption: "Taj Mahal reflection pool at golden dawn", alt: "Taj Mahal reflection pool dawn Agra" },
-      { url: "/assets/places/gallery/agra-fort-01.jpg", caption: "Grand Amar Singh Gate at Agra Red Fort", alt: "Agra Fort red sandstone entrance gate" },
-      { url: "/assets/places/gallery/mehtab-bagh-01.jpg", caption: "Sunset vantage point over Yamuna", alt: "Mehtab Bagh sunset over Taj Mahal" },
-      { url: "/assets/places/gallery/taj-mahal-02.jpg", caption: "Intricate marble archways & minarets", alt: "Taj Mahal dome architecture" },
+    "id": "same-day-agra-to-mathura-tour",
+    "slug": "same-day-agra-to-mathura-tour",
+    "name": "Same Day Agra To Mathura Tour",
+    "kicker": "1 Day Private Tour",
+    "duration": "1 Day",
+    "from": 6200,
+    "image": "/assets/places/gallery/mathura-vrindavan-01.jpg",
+    "gallery": [
+      {
+        "url": "/assets/places/gallery/mathura-vrindavan-01.jpg",
+        "caption": "Prem Mandir & Banke Bihari illumination",
+        "alt": "Prem Mandir illuminated at night, Vrindavan"
+      },
+      {
+        "url": "/assets/destinations/vrindavan-prem-mandir.webp",
+        "caption": "Sacred Vrindavan temple circuit",
+        "alt": "Shri Banke Bihari and Prem Mandir Complex"
+      },
+      {
+        "url": "/assets/places/gallery/taj-mahal-01.jpg",
+        "caption": "Agra morning pickup",
+        "alt": "Taj Mahal departure point, Agra"
+      }
     ],
-    places: ["Taj Mahal", "Agra Fort", "Itimad-ud-Daulah (Baby Taj)", "Mehtab Bagh"],
-    blurb: "One-day private guided tour covering all iconic Mughal monuments with doorstep hotel or station pickup.",
-    includes: ["Private AC vehicle", "Professional chauffeur", "All tolls, parking & state tax", "Guide assistance", "Bottled water"],
-    excludes: ["Monument tickets", "Meals"],
-    timeline: [
-      { time: "06:00 AM", title: { en: "Doorstep Pickup", hi: "Doorstep Pickup" }, desc: { en: "Chauffeur arrives at your hotel or residence in Delhi NCR / Agra.", hi: "Chauffeur arrives at your hotel or residence in Delhi NCR / Agra." } },
-      { time: "09:30 AM", title: { en: "Taj Mahal Guided Visit", hi: "Taj Mahal Guided Visit" }, desc: { en: "Explore the UNESCO World Heritage marble mausoleum with historical insights.", hi: "Explore the UNESCO World Heritage marble mausoleum with historical insights." } },
-      { time: "01:00 PM", title: { en: "Mughal Buffet Lunch", hi: "Mughal Buffet Lunch" }, desc: { en: "Relaxed lunch at a verified multi-cuisine restaurant.", hi: "Relaxed lunch at a verified multi-cuisine restaurant." } },
-      { time: "02:30 PM", title: { en: "Agra Fort & Baby Taj", hi: "Agra Fort & Baby Taj" }, desc: { en: "Visit the red sandstone fort and the intricate jewel-box tomb.", hi: "Visit the red sandstone fort and the intricate jewel-box tomb." } },
-      { time: "05:30 PM", title: { en: "Mehtab Bagh Sunset & Drop", hi: "Mehtab Bagh Sunset & Drop" }, desc: { en: "Catch sunset reflections across the Yamuna before return drop.", hi: "Catch sunset reflections across the Yamuna before return drop." } },
+    "source": "Agra",
+    "destination": "Mathura, Mathura, Uttar Pradesh",
+    "fleetPrices": {
+      "city": 6200,
+      "camry": 10000,
+      "dzire": 6200,
+      "ertiga": 6500,
+      "traveller-12": 15000
+    },
+    "days": 1,
+    "nights": 0,
+    "places": [
+      "Agra",
+      "Mathura, Mathura, Uttar Pradesh",
+      "Heritage Sites"
     ],
-    upgrades: [
-      { vehId: "sedan", name: { en: "Sedan (Dzire / Etios)", hi: "Sedan (Dzire / Etios)" }, seats: "4+1", price: 3499 },
-      { vehId: "ertiga", name: { en: "Ertiga MPV (6+1)", hi: "Ertiga MPV (6+1)" }, seats: "6+1", price: 4499 },
-      { vehId: "innova", name: { en: "Innova Crysta (6+1)", hi: "Innova Crysta (6+1)" }, seats: "6+1", price: 6499 },
-      { vehId: "tempo", name: { en: "Tempo Traveller (12-Seater)", hi: "Tempo Traveller (12-Seater)" }, seats: "12+1", price: 9500 },
-      { vehId: "urbania", name: { en: "Force Urbania Luxury Van", hi: "Force Urbania Luxury Van" }, seats: "10+1", price: 14000 },
+    "blurb": "Private AC Cab, Chauffeur Allowance, Fuel & State Taxes",
+    "includes": [
+      "Private AC Cab dedicated exclusively to your group",
+      "Police-verified professional chauffeur & fuel charges",
+      "All highway toll taxes & state border permits",
+      "Doorstep hotel / railway station pickup & drop",
+      "Chilled packaged drinking water bottles"
     ],
+    "excludes": [
+      "Monument entry tickets & camera/drone permits",
+      "Meals, buffet lunches & personal snacks/dining",
+      "Chauffeur / guide discretionary tips & gratuities",
+      "Special temple VIP pooja / express darshan passes",
+      "Personal shopping & handicraft purchases"
+    ]
   },
   {
-    id: "taj-sunrise",
-    slug: "taj-mahal-sunrise-tour",
-    name: "Taj Mahal Sunrise Tour",
-    kicker: "Dawn special",
-    duration: "1 day",
-    from: 12999,
-    image: "/assets/packages/taj-dawn.webp",
-    gallery: [
-      { url: "/assets/places/gallery/taj-mahal-02.jpg", caption: "Dawn glow across ivory marble", alt: "Taj Mahal at sunrise" },
-      { url: "/assets/places/gallery/mehtab-bagh-02.jpg", caption: "Reflections from Charbagh gardens", alt: "Mehtab Bagh sunrise view" },
-      { url: "/assets/places/gallery/taj-mahal-03.jpg", caption: "Intricate pietra dura floral inlays", alt: "Pietra dura marble inlay details" },
+    "id": "exclusive-tour-of-agra-for-1-day",
+    "slug": "exclusive-tour-of-agra-for-1-day",
+    "name": "Exclusive Tour of Agra for 1 Day",
+    "kicker": "1 Day Private Tour",
+    "duration": "1 Day",
+    "from": 3500,
+    "image": "/assets/places/gallery/taj-mahal-01.jpg",
+    "gallery": [
+      {
+        "url": "/assets/places/gallery/taj-mahal-01.jpg",
+        "caption": "Taj Mahal dawn reflection pool",
+        "alt": "Taj Mahal white marble reflection pool, Agra"
+      },
+      {
+        "url": "/assets/places/gallery/agra-fort-01.jpg",
+        "caption": "Agra Red Fort Mughal citadel",
+        "alt": "Agra Red Fort Jahangiri Mahal and ramparts"
+      },
+      {
+        "url": "/assets/places/gallery/sikandra-01.jpg",
+        "caption": "Emperor Akbar Tomb at Sikandra",
+        "alt": "Sikandra Akbar Tomb grand gateway"
+      }
     ],
-    places: ["Taj Mahal at Dawn", "Agra Fort", "Mehtab Bagh"],
-    blurb: "Early 2:30 AM departure from Delhi to witness the breathtaking sunrise over the Taj Mahal before the crowds arrive.",
-    includes: ["Dedicated luxury AC car", "Yamuna Expressway toll & taxes", "Sunrise guided entry", "Breakfast stop", "Agra Fort tour"],
-    excludes: ["Monument tickets", "Personal expenses"],
+    "source": "Agra",
+    "destination": "Agra, Agra, Uttar Pradesh",
+    "fleetPrices": {
+      "dzire": 3500,
+      "ertiga": 4500,
+      "innova-crysta": 6000
+    },
+    "days": 1,
+    "nights": 0,
+    "places": [
+      "Agra",
+      "Agra, Agra, Uttar Pradesh",
+      "Heritage Sites"
+    ],
+    "blurb": "Ram bagh, Sikandra, Taj Mahal, Agra Fort, Sahid Park",
+    "includes": [
+      "Private AC Cab dedicated exclusively to your group",
+      "Police-verified professional chauffeur & fuel charges",
+      "All highway toll taxes & state border permits",
+      "Doorstep hotel / railway station pickup & drop",
+      "Chilled packaged drinking water bottles"
+    ],
+    "excludes": [
+      "Monument entry tickets & camera/drone permits",
+      "Meals, buffet lunches & personal snacks/dining",
+      "Chauffeur / guide discretionary tips & gratuities"
+    ]
   },
   {
-    id: "mathura-vrindavan",
-    slug: "mathura-vrindavan",
-    name: "Mathura & Vrindavan Darshan",
-    kicker: "Day trip",
-    duration: "1 day",
-    from: 4200,
-    image: "/assets/packages/mathura.webp",
-    gallery: [
-      { url: "/assets/places/gallery/mathura-vrindavan-01.jpg", caption: "Prem Mandir & Banke Bihari illumination", alt: "Prem Mandir illuminated at night" },
-      { url: "/assets/places/gallery/mathura-vrindavan-02.jpg", caption: "Sacred Yamuna Ghats at sunset", alt: "Yamuna river ghats Mathura" },
-      { url: "/assets/places/gallery/mathura-vrindavan-03.jpg", caption: "Evening aarti ceremony at Vrindavan", alt: "Evening temple ceremony Vrindavan" },
+    "id": "agra-same-day-sightseeing-tour",
+    "slug": "agra-same-day-sightseeing-tour",
+    "name": "Agra Same Day Tour",
+    "kicker": "1 Day Private Tour",
+    "duration": "1 Day",
+    "from": 3300,
+    "image": "/assets/places/gallery/taj-mahal-02.jpg",
+    "gallery": [
+      {
+        "url": "/assets/places/gallery/taj-mahal-02.jpg",
+        "caption": "Taj Mahal marble silhouette",
+        "alt": "Taj Mahal view from across Yamuna river"
+      },
+      {
+        "url": "/assets/places/gallery/agra-fort-02.jpg",
+        "caption": "Agra Fort Diwan-i-Khas pavilion",
+        "alt": "Agra Fort Diwan-i-Khas and pavilions"
+      },
+      {
+        "url": "/assets/places/gallery/mehtab-bagh-01.jpg",
+        "caption": "Sunset reflection from Mehtab Bagh",
+        "alt": "Mehtab Bagh sunset garden view of Taj Mahal"
+      }
     ],
-    places: ["Krishna Janmabhoomi", "Dwarkadhish Temple", "Prem Mandir", "Banke Bihari"],
-    blurb: "A spiritual day trip timed around sacred temple aarti schedules, with a local driver who knows the temple lanes.",
-    includes: ["AC vehicle with fuel", "Temple parking & waiting", "Driver allowance", "Pickup & drop"],
-    excludes: ["Temple donations", "Meals", "Special VIP line passes"],
+    "source": "Agra",
+    "destination": "Agra",
+    "fleetPrices": {
+      "dzire": 3300,
+      "ertiga": 4200,
+      "urbania-13": 11100,
+      "urbania-17": 9600,
+      "traveller-12": 8100,
+      "traveller-17": 8400,
+      "innova-crysta": 5400
+    },
+    "days": 1,
+    "nights": 0,
+    "places": [
+      "Agra",
+      "Destination",
+      "Heritage Sites"
+    ],
+    "blurb": "Private AC Cab, Chauffeur Allowance, Fuel",
+    "includes": [
+      "Private AC Cab dedicated exclusively to your group",
+      "Police-verified professional chauffeur & fuel charges",
+      "Doorstep hotel / railway station pickup & drop",
+      "Chilled packaged drinking water bottles"
+    ],
+    "excludes": [
+      "Monument entry tickets & camera/drone permits",
+      "Meals, buffet lunches & personal snacks/dining",
+      "Chauffeur / guide discretionary tips & gratuities",
+      "Parking Charges",
+      "State & Toll taxes"
+    ]
   },
   {
-    id: "gatimaan-express",
-    slug: "gatimaan-express-agra-tour",
-    name: "Same Day Agra by Gatimaan Train",
-    kicker: "Fast train",
-    duration: "1 day",
-    from: 14999,
-    image: "/assets/packages/agra-fort.webp",
-    gallery: [
-      { url: "/assets/places/gallery/agra-fort-02.jpg", caption: "Diwan-i-Khas marble royal pavilion", alt: "Diwan-i-Khas inside Agra Fort" },
-      { url: "/assets/places/gallery/taj-mahal-01.jpg", caption: "Taj Mahal express afternoon visit", alt: "Taj Mahal express" },
+    "id": "agra-to-delhi-tour",
+    "slug": "agra-to-delhi-tour",
+    "name": "Agra to Delhi Tour",
+    "kicker": "3 Days Private Tour",
+    "duration": "3 Days / 2 Nights",
+    "from": 9900,
+    "image": "/assets/destinations/delhi-india-gate.webp",
+    "gallery": [
+      {
+        "url": "/assets/destinations/delhi-india-gate.webp",
+        "caption": "India Gate & Kartavya Path, New Delhi",
+        "alt": "India Gate war memorial and boulevard, New Delhi"
+      },
+      {
+        "url": "/assets/destinations/delhi-red-fort.webp",
+        "caption": "Red Fort Lal Qila ramparts, Old Delhi",
+        "alt": "Red Fort Lal Qila sandstone bastion, Old Delhi"
+      },
+      {
+        "url": "/assets/destinations/fatehpur-sikri.webp",
+        "caption": "Buland Darwaza imperial gate, Fatehpur Sikri",
+        "alt": "Buland Darwaza imperial gateway, Fatehpur Sikri"
+      }
     ],
-    places: ["Gatimaan Express (100 mins)", "Taj Mahal", "Agra Fort", "Buffet Lunch"],
-    blurb: "Travel on India's premier high-speed train from Delhi to Agra in 100 minutes. Includes train tickets, private AC car in Agra, and lunch.",
-    includes: ["Roundtrip Gatimaan train tickets", "Delhi station transfers", "Private AC car in Agra", "Approved guide", "Buffet lunch"],
-    excludes: ["Personal shopping", "Alcoholic beverages"],
+    "source": "Agra",
+    "destination": "Delhi",
+    "fleetPrices": {
+      "amaze": 9900,
+      "dzire": 9900,
+      "ertiga": 12600,
+      "glanza": 9900,
+      "urbania-13": 33300,
+      "urbania-17": 28800,
+      "traveller-12": 24300,
+      "traveller-17": 25200,
+      "innova-crysta": 16200
+    },
+    "days": 3,
+    "nights": 2,
+    "places": [
+      "Agra",
+      "Delhi",
+      "Heritage Sites"
+    ],
+    "blurb": "Private sanitized AC cab, dedicated verified chauffeur & monument sightseeing.",
+    "includes": [
+      "Dedicated AC vehicle with experienced tourist chauffeur for all 3 days",
+      "Full sightseeing en route: Fatehpur Sikri Imperial Complex & Mathura Vrindavan",
+      "Chauffeur night halt allowances, fuel charges & interstate transit allowance",
+      "Doorstep drop off at Delhi Airport (IGI) or any central Delhi hotel"
+    ],
+    "excludes": [
+      "Monument entrance tickets and professional ASI guide charges",
+      "State road taxes, highway tolls and parking billed at actuals",
+      "Guest accommodation and personal meal expenses"
+    ]
   },
   {
-    id: "agra-fort-day",
-    slug: "agra-unhurried",
-    name: "Agra Overnight Experience",
-    kicker: "2 days",
-    duration: "2 days / 1 night",
-    from: 7800,
-    image: "/assets/packages/agra-fort.webp",
-    gallery: [
-      { url: "/assets/places/gallery/agra-fort-03.jpg", caption: "Mughal courtyards & archways", alt: "Agra Fort royal courtyard" },
-      { url: "/assets/places/gallery/fatehpur-sikri-01.jpg", caption: "Buland Darwaza imperial gate", alt: "Buland Darwaza at Fatehpur Sikri" },
-      { url: "/assets/places/gallery/fatehpur-sikri-02.jpg", caption: "Panch Mahal royal pavilion", alt: "Panch Mahal palace" },
+    "id": "agra-to-mussoorie-tour",
+    "slug": "agra-to-mussoorie-tour",
+    "name": "Agra to Mussoorie Tour",
+    "kicker": "5 Days Private Tour",
+    "duration": "5 Days / 4 Nights",
+    "from": 16500,
+    "image": "/assets/destinations/mussoorie-kempty-falls.jpg",
+    "gallery": [
+      {
+        "url": "/assets/destinations/mussoorie-kempty-falls.jpg",
+        "caption": "Kempty Falls scenic cascade, Mussoorie",
+        "alt": "Kempty Falls cascading mountain waterfall, Mussoorie"
+      },
+      {
+        "url": "/assets/destinations/rishikesh-ram-jhula.jpg",
+        "caption": "Ram Jhula over the holy Ganga, Rishikesh",
+        "alt": "Ram Jhula suspension bridge across holy Ganga, Rishikesh"
+      },
+      {
+        "url": "/assets/destinations/haridwar-har-ki-pauri.jpg",
+        "caption": "Har Ki Pauri sacred ghat & Ganga Aarti, Haridwar",
+        "alt": "Har Ki Pauri sacred bathing ghat and evening Ganga Aarti, Haridwar"
+      }
     ],
-    places: ["Taj Mahal Dawn", "Agra Fort", "Fatehpur Sikri", "Mehtab Bagh Sunset"],
-    blurb: "Stay overnight in Agra to capture sunset at Mehtab Bagh and sunrise at the Taj, with an excursion to royal Fatehpur Sikri.",
-    includes: ["AC vehicle for 2 full days", "Driver overnight allowance", "Tolls & parking", "Fatehpur Sikri trip"],
-    excludes: ["Hotel stay", "Monument entry tickets", "Meals"],
+    "source": "Agra",
+    "destination": "Mussoorie",
+    "fleetPrices": {
+      "amaze": 16500,
+      "dzire": 16500,
+      "ertiga": 21000,
+      "glanza": 16500,
+      "urbania-13": 55500,
+      "urbania-17": 48000,
+      "traveller-12": 40500,
+      "traveller-17": 42000,
+      "innova-crysta": 27000
+    },
+    "days": 5,
+    "nights": 4,
+    "places": [
+      "Agra",
+      "Mussoorie",
+      "Heritage Sites"
+    ],
+    "blurb": "Private sanitized AC cab, dedicated verified chauffeur & monument sightseeing.",
+    "includes": [
+      "Private AC tourist vehicle dedicated for 5 full days with hill-certified chauffeur",
+      "Chauffeur overnight allowance, hill driving allowance and vehicle fuel",
+      "Comprehensive sightseeing across Haridwar, Rishikesh, Dehradun and Mussoorie",
+      "Flexible stopovers for Ganga Aarti and scenic Himalayan viewing points"
+    ],
+    "excludes": [
+      "Guest hotel accommodation and meals",
+      "Ropeway tickets, river rafting and adventure activity charges",
+      "Interstate road taxes, hill tolls and green cess"
+    ]
   },
   {
-    id: "golden-triangle",
-    slug: "golden-triangle",
-    name: "Golden Triangle Tour",
-    kicker: "3 days",
-    duration: "3 days / 2 nights",
-    from: 18500,
-    image: "/assets/packages/golden-triangle.webp",
-    gallery: [
-      { url: "/assets/places/gallery/jaipur-pink-city-01.jpg", caption: "Hawa Mahal (Palace of Winds)", alt: "Hawa Mahal facade Jaipur" },
-      { url: "/assets/places/gallery/taj-mahal-01.jpg", caption: "Agra Taj Mahal sunrise visit", alt: "Taj Mahal Agra" },
-      { url: "/assets/places/gallery/jaipur-pink-city-02.jpg", caption: "Amber Fort hilltop ramparts", alt: "Amber Fort Jaipur" },
+    "id": "agra-to-manali-tour",
+    "slug": "agra-to-manali-tour",
+    "name": "Agra to Manali Tour",
+    "kicker": "5 Days Private Tour",
+    "duration": "5 Days / 4 Nights",
+    "from": 16500,
+    "image": "/assets/destinations/himachal-manali.webp",
+    "gallery": [
+      {
+        "url": "/assets/destinations/himachal-manali.webp",
+        "caption": "Manali valley & Himalayan ridges",
+        "alt": "Manali Himalayan mountain valley and deodar pine forests"
+      },
+      {
+        "url": "/assets/destinations/manali-solang-valley.jpg",
+        "caption": "Solang Valley snow peaks & slopes",
+        "alt": "Solang Valley snow-capped Himalayan peaks and adventure meadow"
+      },
+      {
+        "url": "/assets/destinations/manali-hadimba-temple.jpg",
+        "caption": "Historic Hadimba Devi Temple in deodar forest",
+        "alt": "Ancient multi-tier wooden Hadimba Devi Temple, Old Manali"
+      }
     ],
-    places: ["Delhi", "Agra", "Fatehpur Sikri", "Jaipur"],
-    blurb: "The iconic North India circuit — chauffeured, perfectly paced, and timed so monuments have breathing room.",
-    includes: ["Dedicated AC car for 3 days", "Driver stay & fuel", "All interstate taxes & tolls", "Hotel pickups"],
-    excludes: ["Hotels", "Monument tickets", "Meals"],
-    upgrades: [
-      { vehId: "sedan", name: { en: "Sedan (Dzire / Etios)", hi: "Sedan (Dzire / Etios)" }, seats: "4+1", price: 18500 },
-      { vehId: "ertiga", name: { en: "Ertiga MPV (6+1)", hi: "Ertiga MPV (6+1)" }, seats: "6+1", price: 22500 },
-      { vehId: "innova", name: { en: "Innova Crysta (6+1)", hi: "Innova Crysta (6+1)" }, seats: "6+1", price: 27500 },
-      { vehId: "tempo", name: { en: "Tempo Traveller (12-Seater)", hi: "Tempo Traveller (12-Seater)" }, seats: "12+1", price: 36500 },
-      { vehId: "urbania", name: { en: "Force Urbania Luxury Van", hi: "Force Urbania Luxury Van" }, seats: "10+1", price: 45000 },
+    "source": "Agra",
+    "destination": "Manali",
+    "fleetPrices": {
+      "amaze": 16500,
+      "dzire": 16500,
+      "ertiga": 21000,
+      "glanza": 16500,
+      "urbania-13": 55500,
+      "urbania-17": 48000,
+      "traveller-12": 40500,
+      "traveller-17": 42000,
+      "innova-crysta": 27000
+    },
+    "days": 5,
+    "nights": 4,
+    "places": [
+      "Agra",
+      "Manali",
+      "Heritage Sites"
     ],
+    "blurb": "Private sanitized AC cab, dedicated verified chauffeur & monument sightseeing.",
+    "includes": [
+      "Dedicated AC vehicle with specialist high-altitude chauffeur for 5 days",
+      "All driver lodging, hill terrain permits, fuel and highway allowances",
+      "Guided transit across Kullu Valley, Pandoh Dam, and Manali attractions",
+      "Pickup and return drop at your residence or hotel in Agra"
+    ],
+    "excludes": [
+      "Rohtang Pass NGT special permit and local taxi union charges (if visiting snow point)",
+      "Paragliding, river rafting and personal adventure expenses",
+      "State entry permits and green taxes"
+    ]
   },
   {
-    id: "fatehpur-sikri",
-    slug: "same-day-tour-of-fatehpur-sikri",
-    name: "Same Day Fatehpur Sikri Royal Heritage Tour",
-    kicker: "Royal citadel",
-    duration: "1 day (40 km)",
-    from: 2000,
-    image: "/assets/packages/agra-fort.webp",
-    places: ["Buland Darwaza", "Sheikh Salim Chishti Dargah", "Panch Mahal", "Jodha Bai Palace", "Diwan-i-Khas"],
-    blurb: "Excursion to Emperor Akbar's red sandstone capital with guided exploration of Buland Darwaza and Salim Chishti tomb.",
-    includes: ["Private AC vehicle", "Highway toll & parking", "Agra hotel pickup & drop", "Driver allowance"],
-    excludes: ["Monument entry tickets", "Meals"],
-    upgrades: [
-      { vehId: "sedan", name: { en: "Sedan (Dzire / Etios)", hi: "Sedan (Dzire / Etios)" }, seats: "4+1", price: 2000 },
-      { vehId: "ertiga", name: { en: "Ertiga MPV (6+1)", hi: "Ertiga MPV (6+1)" }, seats: "6+1", price: 2700 },
-      { vehId: "innova", name: { en: "Innova Crysta (6+1)", hi: "Innova Crysta (6+1)" }, seats: "6+1", price: 3645 },
-      { vehId: "tempo", name: { en: "Tempo Traveller (12-Seater)", hi: "Tempo Traveller (12-Seater)" }, seats: "12+1", price: 5800 },
-      { vehId: "urbania", name: { en: "Force Urbania Luxury Van", hi: "Force Urbania Luxury Van" }, seats: "10+1", price: 7500 },
+    "id": "agra-to-jaisalmer-tour",
+    "slug": "agra-to-jaisalmer-tour",
+    "name": "Agra to Jaisalmer Tour",
+    "kicker": "5 Days Private Tour",
+    "duration": "5 Days / 4 Nights",
+    "from": 16500,
+    "image": "/assets/destinations/jaisalmer-fort.jpg",
+    "gallery": [
+      {
+        "url": "/assets/destinations/jaisalmer-fort.jpg",
+        "caption": "Sonar Qila Golden Fort, Jaisalmer",
+        "alt": "Sonar Qila Golden Fort living sandstone citadel, Jaisalmer"
+      },
+      {
+        "url": "/assets/destinations/jaisalmer-sand-dunes.jpg",
+        "caption": "Sam Sand Dunes sunset safari, Thar Desert",
+        "alt": "Sam Sand Dunes golden ripples and camel safari, Thar Desert"
+      },
+      {
+        "url": "/assets/destinations/jaipur-hawa-mahal.webp",
+        "caption": "Hawa Mahal Palace of Winds, Jaipur Pink City",
+        "alt": "Hawa Mahal Palace of Winds Pink City, Jaipur"
+      }
     ],
+    "source": "Agra",
+    "destination": "Jaisalmer",
+    "fleetPrices": {
+      "amaze": 16500,
+      "dzire": 16500,
+      "ertiga": 21000,
+      "glanza": 16500,
+      "urbania-13": 55500,
+      "urbania-17": 48000,
+      "traveller-12": 40500,
+      "traveller-17": 42000,
+      "innova-crysta": 27000
+    },
+    "days": 5,
+    "nights": 4,
+    "places": [
+      "Agra",
+      "Jaisalmer",
+      "Heritage Sites"
+    ],
+    "blurb": "Private sanitized AC cab, dedicated verified chauffeur & monument sightseeing.",
+    "includes": [
+      "Dedicated commercial AC vehicle with experienced Rajasthan chauffeur for 5 days",
+      "Full intercity circuit: Jaipur Pink City, Ajmer Sharif, Udaipur Lakes & Jaisalmer Thar Desert",
+      "Chauffeur night lodging, highway halts and all fuel charges included",
+      "Complete flexibility for monument photo-stops and sunset desert views"
+    ],
+    "excludes": [
+      "Sam Sand Dunes camel ride, desert jeep safari and camp cultural passes",
+      "Fort audio guides and museum entry fees",
+      "Rajasthan border passenger permits and tolls"
+    ]
   },
   {
-    id: "jaipur-excursion",
-    slug: "same-day-tour-of-jaipur",
-    name: "Same Day Jaipur Pink City Excursion",
-    kicker: "Pink City day tour",
-    duration: "1 day (240 km)",
-    from: 3499,
-    image: "/assets/packages/golden-triangle.webp",
-    places: ["Amber Fort & Maota Lake", "Hawa Mahal", "Jal Mahal", "City Palace Jaipur", "Jantar Mantar"],
-    blurb: "Full-day private chauffeured excursion from Agra to Jaipur via NH-21, covering royal palaces, forts, and bazaars.",
-    includes: ["Intercity AC taxi", "NH-21 tolls included", "Rajasthan state tax included", "Doorstep pickup & drop"],
-    excludes: ["Monument tickets", "Meals"],
-    upgrades: [
-      { vehId: "sedan", name: { en: "Sedan (Dzire / Etios)", hi: "Sedan (Dzire / Etios)" }, seats: "4+1", price: 3499 },
-      { vehId: "ertiga", name: { en: "Ertiga MPV (6+1)", hi: "Ertiga MPV (6+1)" }, seats: "6+1", price: 4800 },
-      { vehId: "innova", name: { en: "Innova Crysta (6+1)", hi: "Innova Crysta (6+1)" }, seats: "6+1", price: 6499 },
-      { vehId: "tempo", name: { en: "Tempo Traveller (12-Seater)", hi: "Tempo Traveller (12-Seater)" }, seats: "12+1", price: 9800 },
-      { vehId: "urbania", name: { en: "Force Urbania Luxury Van", hi: "Force Urbania Luxury Van" }, seats: "10+1", price: 11800 },
+    "id": "delhi-to-agra-tour",
+    "slug": "delhi-to-agra-tour",
+    "name": "Delhi to Agra Tour",
+    "kicker": "3 Days Private Tour",
+    "duration": "3 Days / 2 Nights",
+    "from": 9900,
+    "image": "/assets/destinations/delhi-india-gate.webp",
+    "gallery": [
+      {
+        "url": "/assets/destinations/delhi-india-gate.webp",
+        "caption": "India Gate ceremonial boulevard, Delhi pickup point",
+        "alt": "India Gate ceremonial boulevard, Delhi pickup point"
+      },
+      {
+        "url": "/assets/places/gallery/taj-mahal-01.jpg",
+        "caption": "Taj Mahal sunrise reflection pool, Agra",
+        "alt": "Taj Mahal sunrise white marble reflection pool, Agra"
+      },
+      {
+        "url": "/assets/destinations/fatehpur-sikri.webp",
+        "caption": "Buland Darwaza imperial complex, Fatehpur Sikri",
+        "alt": "Imperial Buland Darwaza and courtyard, Fatehpur Sikri"
+      }
     ],
-  },
-  {
-    id: "bharatpur-sanctuary",
-    slug: "same-day-visit-of-bharatpur",
-    name: "Bharatpur Keoladeo Bird Sanctuary Safari",
-    kicker: "Wildlife corridor",
-    duration: "1 day (55 km)",
-    from: 2200,
-    image: "/assets/packages/mathura.webp",
-    places: ["Keoladeo National Park (UNESCO)", "Sarus Crane Wetland", "Lohagarh Fort", "Deeg Palace Water Gardens"],
-    blurb: "Day journey to the world-renowned UNESCO Keoladeo Ghana Bird Sanctuary with seamless Agra round-trip cab transfer.",
-    includes: ["Private AC vehicle with fuel", "Sanctuary parking & toll fees", "Rajasthan interstate permit", "Driver waiting"],
-    excludes: ["Park admission & cycle-rickshaw tariff", "Meals"],
-    upgrades: [
-      { vehId: "sedan", name: { en: "Sedan (Dzire / Etios)", hi: "Sedan (Dzire / Etios)" }, seats: "4+1", price: 2200 },
-      { vehId: "ertiga", name: { en: "Ertiga MPV (6+1)", hi: "Ertiga MPV (6+1)" }, seats: "6+1", price: 2900 },
-      { vehId: "innova", name: { en: "Innova Crysta (6+1)", hi: "Innova Crysta (6+1)" }, seats: "6+1", price: 3800 },
-      { vehId: "tempo", name: { en: "Tempo Traveller (12-Seater)", hi: "Tempo Traveller (12-Seater)" }, seats: "12+1", price: 5800 },
-      { vehId: "urbania", name: { en: "Force Urbania Luxury Van", hi: "Force Urbania Luxury Van" }, seats: "10+1", price: 7200 },
+    "source": "Delhi",
+    "destination": "Agra",
+    "fleetPrices": {
+      "amaze": 9900,
+      "dzire": 9900,
+      "ertiga": 12600,
+      "glanza": 9900,
+      "urbania-13": 33300,
+      "urbania-17": 28800,
+      "traveller-12": 24300,
+      "traveller-17": 25200,
+      "innova-crysta": 16200
+    },
+    "days": 3,
+    "nights": 2,
+    "places": [
+      "Delhi",
+      "Agra",
+      "Heritage Sites"
     ],
-  },
-  {
-    id: "delhi-landmarks",
-    slug: "10-iconic-attractions-and-places-to-visit-in-delhi",
-    name: "Delhi 10 Iconic Landmarks Heritage Circuit",
-    kicker: "Capital highlights",
-    duration: "1 day (230 km)",
-    from: 3499,
-    image: "/assets/packages/golden-triangle.webp",
-    places: ["Qutub Minar", "Humayun's Tomb", "India Gate", "Red Fort", "Lotus Temple", "Akshardham", "Rashtrapati Bhavan"],
-    blurb: "Explore the historic heart of the national capital with Yamuna Expressway high-speed transit directly from Agra.",
-    includes: ["Expressway tolls included", "Delhi commercial passenger permit", "Full Delhi city mobility", "Doorstep pickup"],
-    excludes: ["Monument tickets", "Meals"],
-    upgrades: [
-      { vehId: "sedan", name: { en: "Sedan (Dzire / Etios)", hi: "Sedan (Dzire / Etios)" }, seats: "4+1", price: 3499 },
-      { vehId: "ertiga", name: { en: "Ertiga MPV (6+1)", hi: "Ertiga MPV (6+1)" }, seats: "6+1", price: 4800 },
-      { vehId: "innova", name: { en: "Innova Crysta (6+1)", hi: "Innova Crysta (6+1)" }, seats: "6+1", price: 6499 },
-      { vehId: "tempo", name: { en: "Tempo Traveller (12-Seater)", hi: "Tempo Traveller (12-Seater)" }, seats: "12+1", price: 9500 },
-      { vehId: "urbania", name: { en: "Force Urbania Luxury Van", hi: "Force Urbania Luxury Van" }, seats: "10+1", price: 11500 },
+    "blurb": "Private sanitized AC cab, dedicated verified chauffeur & monument sightseeing.",
+    "includes": [
+      "Pickup from any location in Delhi NCR (Airport / Station / Residence)",
+      "Dedicated AC vehicle and chauffeur for 3 complete days",
+      "Full heritage tour of Mathura, Vrindavan, Agra monuments and Fatehpur Sikri",
+      "Chauffeur night halt allowances, expressway tolls and return drop in Delhi"
     ],
-  },
-  {
-    id: "agra-markets",
-    slug: "visit-the-best-markets-in-agra-to-shop-book-agra-taxi-for-shop",
-    name: "Agra Heritage Markets & Artisan Craft Tour",
-    kicker: "Artisan shopping",
-    duration: "1 day (8h / 80km)",
-    from: 1900,
-    image: "/assets/packages/taj-dawn.webp",
-    places: ["Sadar Bazaar (Leather & Handicrafts)", "Kinari Bazaar (Zardozi)", "Marble Inlay Workshops", "Panchi Petha Emporium"],
-    blurb: "Chauffeured shopping tour with zero parking hassles, luggage custody in vehicle, and verified authentic artisan stops.",
-    includes: ["Dedicated city car (8 Hours / 80 KM)", "Driver waiting at every market", "Zero parking stress", "Luggage safety"],
-    excludes: ["Personal shopping expenses", "Meals"],
-    upgrades: [
-      { vehId: "sedan", name: { en: "Sedan (Dzire / Etios)", hi: "Sedan (Dzire / Etios)" }, seats: "4+1", price: 1900 },
-      { vehId: "ertiga", name: { en: "Ertiga MPV (6+1)", hi: "Ertiga MPV (6+1)" }, seats: "6+1", price: 2600 },
-      { vehId: "innova", name: { en: "Innova Crysta (6+1)", hi: "Innova Crysta (6+1)" }, seats: "6+1", price: 2850 },
-      { vehId: "tempo", name: { en: "Tempo Traveller (12-Seater)", hi: "Tempo Traveller (12-Seater)" }, seats: "12+1", price: 5500 },
-      { vehId: "urbania", name: { en: "Force Urbania Luxury Van", hi: "Force Urbania Luxury Van" }, seats: "10+1", price: 7500 },
-    ],
-  },
-  {
-    id: "agra-complete",
-    slug: "everything-you-should-know-about-agra-tourism-get-the-best-car-rent-service-in-agra",
-    name: "Agra Complete Tourism & Monument Odyssey",
-    kicker: "Comprehensive Agra",
-    duration: "1 day (12h / 120km)",
-    from: 2200,
-    image: "/assets/packages/taj-dawn.webp",
-    places: ["Taj Mahal", "Agra Fort", "Itimad-ud-Daulah (Baby Taj)", "Mehtab Bagh", "Akbar's Tomb Sikandra", "Chini Ka Rauza"],
-    blurb: "The ultimate Agra heritage day covering all six major Mughal monuments with a dedicated chauffeur for 12 hours.",
-    includes: ["12-hour continuous vehicle custody", "120 km city allowance", "Chilled bottled water", "All city tolls & parking"],
-    excludes: ["Monument tickets", "Meals"],
-    upgrades: [
-      { vehId: "sedan", name: { en: "Sedan (Dzire / Etios)", hi: "Sedan (Dzire / Etios)" }, seats: "4+1", price: 2200 },
-      { vehId: "ertiga", name: { en: "Ertiga MPV (6+1)", hi: "Ertiga MPV (6+1)" }, seats: "6+1", price: 2900 },
-      { vehId: "innova", name: { en: "Innova Crysta (6+1)", hi: "Innova Crysta (6+1)" }, seats: "6+1", price: 3400 },
-      { vehId: "tempo", name: { en: "Tempo Traveller (12-Seater)", hi: "Tempo Traveller (12-Seater)" }, seats: "12+1", price: 6200 },
-      { vehId: "urbania", name: { en: "Force Urbania Luxury Van", hi: "Force Urbania Luxury Van" }, seats: "10+1", price: 8500 },
-    ],
-  },
-  {
-    id: "golden-triangle-4d",
-    slug: "golden-triangle-tour-3-nights-4-days",
-    name: "Golden Triangle Grand Tour (4 Days / 3 Nights)",
-    kicker: "4 days / 3 nights",
-    duration: "4 days / 3 nights",
-    from: 24000,
-    image: "/assets/packages/golden-triangle.webp",
-    places: ["Delhi Historic Monuments", "Agra Taj Mahal Dawn", "Fatehpur Sikri", "Chand Baori Stepwell", "Jaipur Royal Palaces"],
-    blurb: "Unhurried, comprehensive 4-day private chauffeured expedition through Delhi, Agra, Fatehpur Sikri, and Jaipur.",
-    includes: ["Dedicated car for 4 continuous days", "Driver night stays & allowances", "All interstate permits (UP, DL, RJ)", "Highway tolls"],
-    excludes: ["Hotel stays", "Monument entry tickets", "Meals"],
-    upgrades: [
-      { vehId: "sedan", name: { en: "Sedan (Dzire / Etios)", hi: "Sedan (Dzire / Etios)" }, seats: "4+1", price: 24000 },
-      { vehId: "ertiga", name: { en: "Ertiga MPV (6+1)", hi: "Ertiga MPV (6+1)" }, seats: "6+1", price: 29000 },
-      { vehId: "innova", name: { en: "Innova Crysta (6+1)", hi: "Innova Crysta (6+1)" }, seats: "6+1", price: 35000 },
-      { vehId: "tempo", name: { en: "Tempo Traveller (12-Seater)", hi: "Tempo Traveller (12-Seater)" }, seats: "12+1", price: 47000 },
-      { vehId: "urbania", name: { en: "Force Urbania Luxury Van", hi: "Force Urbania Luxury Van" }, seats: "10+1", price: 58000 },
-    ],
-  },
+    "excludes": [
+      "Monument entrance ticketing fees (Taj Mahal, Agra Fort, Fatehpur Sikri)",
+      "Authorized tour guide fees (available on request)",
+      "Hotel bookings and guest dining"
+    ]
+  }
 ];
 
 export const services: readonly Service[] = [

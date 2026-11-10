@@ -67,6 +67,7 @@ export function LoginPage() {
             </a>
             <a
               href="/book.html"
+              rel="nofollow"
               className="w-full rounded-xl border border-border-warm bg-white px-4 py-3 font-semibold text-ink-midnight hover:bg-sandstone-wash transition-colors"
             >
               Book a Ride

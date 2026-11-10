@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { siteConfig, type SupportedLanguage } from "../config";
 import { contact } from "../data/contact";
-import { packages as staticPackages, type TourPackage } from "../data";
+import type { TourPackage } from "../data";
 import generatedPublishedTourPackages from "../data/generated-published-tour-packages.json";
 import { WhatsAppIcon } from "../components/icons";
 import { Pagination } from "../components/ui/Pagination";
@@ -41,6 +41,126 @@ const PACKAGE_METADATA: Record<string, {
   suitedFor: string;
   recommendedFleet: string;
 }> = {
+  "same-day-agra-to-mathura-tour": {
+    categories: ["pilgrimage", "sightseeing"],
+    badgeTag: "PILGRIMAGE SPECIAL",
+    badgeClass: "bg-terracotta-deep text-white",
+    durationBadge: "Same Day / 1 Day",
+    durationIcon: "temple_hindu",
+    stops: ["Krishna Janmabhoomi", "Dwarkadhish Mathura", "Banke Bihari Temple", "Prem Mandir Vrindavan"],
+    inclusions: [
+      "Doorstep Agra hotel / station pickup & return drop",
+      "All highway toll taxes & state border permits included",
+      "Private AC vehicle with dedicated verified chauffeur",
+    ],
+    suitedFor: "Families & Pilgrims",
+    recommendedFleet: "Sedan / Ertiga / Innova Crysta",
+  },
+  "exclusive-tour-of-agra-for-1-day": {
+    categories: ["sightseeing", "dawn"],
+    badgeTag: "MOST POPULAR",
+    badgeClass: "bg-primary text-on-primary",
+    durationBadge: "1 Day / 8–10 Hours",
+    durationIcon: "schedule",
+    stops: ["Taj Mahal at Sunrise", "Agra Red Fort", "Itimad-ud-Daulah (Baby Taj)", "Mehtab Bagh Sunset"],
+    inclusions: [
+      "VIP sunrise hotel or station pickup & evening return drop",
+      "All fuel, commercial parking and toll taxes included",
+      "Professional sanitized AC cab & experienced chauffeur",
+    ],
+    suitedFor: "Couples, Families & Photographers",
+    recommendedFleet: "Sedan Dzire / Ertiga / Crysta",
+  },
+  "agra-same-day-sightseeing-tour": {
+    categories: ["sightseeing"],
+    badgeTag: "HERITAGE CIRCUIT",
+    badgeClass: "bg-primary text-on-primary",
+    durationBadge: "Same Day / 8 Hours",
+    durationIcon: "location_city",
+    stops: ["Taj Mahal", "Agra Fort", "Baby Taj", "Sadar Bazaar"],
+    inclusions: [
+      "Doorstep pickup and drop in Agra",
+      "All fuel, parking, and toll allowances settled",
+      "Clean AC vehicle & verified local driver-guide",
+    ],
+    suitedFor: "First-Time Visitors",
+    recommendedFleet: "Sedan / Ertiga / Tempo",
+  },
+  "agra-to-delhi-tour": {
+    categories: ["multiday", "sightseeing"],
+    badgeTag: "3-DAY CORRIDOR",
+    badgeClass: "bg-ink-charcoal text-white font-bold",
+    durationBadge: "3 Days / 2 Nights",
+    durationIcon: "directions_car",
+    stops: ["Agra Heritage Monuments", "Fatehpur Sikri Imperial Complex", "Mathura & Vrindavan", "Delhi NCR Drop"],
+    inclusions: [
+      "Interstate permit & Yamuna Expressway fast-track tolls",
+      "Dedicated long-range highway AC vehicle for 3 full days",
+      "Chauffeur night allowances & luggage custody",
+    ],
+    suitedFor: "Vacationers & Golden Triangle Voyagers",
+    recommendedFleet: "Sedan / Ertiga / Innova Crysta",
+  },
+  "agra-to-mussoorie-tour": {
+    categories: ["multiday", "excursion"],
+    badgeTag: "HIMALAYAN ESCAPE",
+    badgeClass: "bg-success-jade text-white font-bold",
+    durationBadge: "5 Days / 4 Nights",
+    durationIcon: "landscape",
+    stops: ["Agra", "Haridwar Ganga Aarti", "Rishikesh Ram Jhula", "Dehradun", "Mussoorie Mall Road & Kempty"],
+    inclusions: [
+      "Mountain-certified highway chauffeur & commercial hill permits",
+      "All interstate toll taxes, green cess & night allowances",
+      "Dedicated 5-day vehicle custody with doorstep pickup & drop",
+    ],
+    suitedFor: "Nature Lovers & Hill Station Explorers",
+    recommendedFleet: "Ertiga / Innova Crysta / Tempo",
+  },
+  "agra-to-manali-tour": {
+    categories: ["multiday", "excursion"],
+    badgeTag: "HIMACHAL CIRCUIT",
+    badgeClass: "bg-success-jade text-white font-bold",
+    durationBadge: "5 Days / 4 Nights",
+    durationIcon: "ac_unit",
+    stops: ["Agra Departure", "Chandigarh / Kullu Valley", "Manali Mall Road", "Solang Valley Snow Point"],
+    inclusions: [
+      "All interstate highway tolls, state permits & green taxes",
+      "Dedicated hill-trained chauffeur for 5 consecutive days",
+      "24x7 route monitoring & luggage protection",
+    ],
+    suitedFor: "Honeymooners, Friends & Adventure Voyagers",
+    recommendedFleet: "Innova Crysta / Tempo Traveller",
+  },
+  "agra-to-jaisalmer-tour": {
+    categories: ["multiday", "excursion"],
+    badgeTag: "DESERT SAFARI",
+    badgeClass: "bg-gold-accent text-ink-charcoal font-bold",
+    durationBadge: "5 Days / 4 Nights",
+    durationIcon: "wb_sunny",
+    stops: ["Agra", "Jaipur Pink City", "Ajmer Dargah & Pushkar", "Jodhpur Mehrangarh", "Jaisalmer Sam Dunes"],
+    inclusions: [
+      "Rajasthan commercial entry permits & fast-tag tolls",
+      "Long-range AC cruiser with desert driving certified driver",
+      "All driver night allowances & fuel included",
+    ],
+    suitedFor: "Royal Culture Voyagers & Safari Lovers",
+    recommendedFleet: "Innova Crysta / Urbania / Tempo",
+  },
+  "delhi-to-agra-tour": {
+    categories: ["multiday", "sightseeing"],
+    badgeTag: "DELHI TO AGRA SPECIAL",
+    badgeClass: "bg-primary text-on-primary",
+    durationBadge: "3 Days / 2 Nights",
+    durationIcon: "explore",
+    stops: ["Delhi Hotel / Airport Pickup", "Mathura Janmabhoomi", "Agra Taj Mahal & Red Fort", "Fatehpur Sikri"],
+    inclusions: [
+      "Delhi to Agra Yamuna Expressway tolls & UP permit",
+      "3-day dedicated chauffeur and vehicle custody",
+      "Complete monument sightseeing and verified local guidance",
+    ],
+    suitedFor: "Delhi NCR Tourists & International Guests",
+    recommendedFleet: "Sedan / Ertiga / Innova Crysta",
+  },
   "agra-day": {
     categories: ["sightseeing"],
     badgeTag: "MOST POPULAR",
@@ -411,14 +531,7 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
   const [modalImage, setModalImage] = useState<{ url: string; title: string; caption?: string } | null>(null);
 
   const initialPackageList = useMemo(() => {
-    const map = new Map<string, TourPackage>();
-    for (const p of staticPackages) {
-      map.set(p.slug, p);
-    }
-    for (const dp of dossierTourPackages) {
-      map.set(dp.slug, dp);
-    }
-    return Array.from(map.values());
+    return dossierTourPackages;
   }, []);
 
   const [packageList, setPackageList] = useState<TourPackage[]>(initialPackageList);
@@ -1035,6 +1148,7 @@ export function PackagesPage({ language = "en" }: PackagesPageProps) {
                       <a
                         className="inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-terracotta-deep text-white text-xs font-semibold hover:bg-terracotta-sunlit transition-colors shadow-xs"
                         href={bookStep1Url}
+                        rel="nofollow"
                       >
                         <span>Book Now</span>
                         <span className="material-symbols-outlined text-icon-14">arrow_forward</span>

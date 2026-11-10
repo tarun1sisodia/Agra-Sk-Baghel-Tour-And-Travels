@@ -273,6 +273,7 @@ export function LivePackageDetailPage({ slug, initialItem }: LivePackageDetailPa
               ) : (
                 <a
                   href={`/book.html?package=${encodeURIComponent(item.slug)}&step=1`}
+                  rel="nofollow"
                   className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-terracotta-deep text-white font-label-lg text-sm font-semibold hover:bg-terracotta-sunlit transition-colors"
                 >
                   <span>Book Now</span>

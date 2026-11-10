@@ -193,8 +193,8 @@ export function PrivacyPage({ language = "en" }: PrivacyPageProps) {
         </section>
 
         <div className="border-t border-border-warm pt-6 flex flex-wrap gap-4 text-sm">
-          <a className="text-primary underline" href={`${languagePrefix}/terms/`}>Terms and Conditions</a>
-          <a className="text-primary underline" href={`${languagePrefix}/contact/`}>Contact the travel desk</a>
+          <a className="text-primary underline" href="/terms-and-conditions/">Terms and Conditions</a>
+          <a className="text-primary underline" href="/en/contact/">Contact the travel desk</a>
         </div>
       </article>
     </main>

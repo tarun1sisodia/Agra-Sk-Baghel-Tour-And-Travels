@@ -90,6 +90,139 @@ function htmlToMarkdown(html: string, pageUrl: string): string {
     .join("\n");
 }
 
+function resolveLegacyRedirect(pathname: string): string | null {
+  const norm = pathname.toLowerCase();
+
+  // 1. Hindi URLs
+  if (norm.startsWith("/hi/") || norm === "/hi") {
+    if (norm === "/hi" || norm === "/hi/") return "/";
+    if (norm.includes("/faq")) return "/en/faq/";
+    if (norm.includes("/routes")) return "/en/routes/";
+    if (norm.includes("/fleet")) return "/en/fleet/";
+    if (norm.includes("/services")) return "/en/services/";
+    if (norm.includes("/about")) return "/en/about/";
+    if (norm.includes("/contact")) return "/en/contact/";
+    if (norm.includes("/privacy")) return "/privacy-policy/";
+    if (norm.includes("/terms")) return "/terms-and-conditions/";
+    if (norm.includes("taj-mahal-taxi-service")) return "/en/monuments/taj-mahal/";
+    if (norm.includes("tempo-traveller")) return "/en/vehicles/tempo-traveller/";
+    if (norm.includes("agra-se-delhi-taxi")) return "/en/agra-to-delhi-taxi/";
+    if (norm.includes("delhi-se-agra-taxi")) return "/en/delhi-to-agra-taxi/";
+    if (norm.includes("agra-se-jaipur-taxi") || norm.includes("delhi-se-jaipur-taxi")) return "/en/agra-to-jaipur-taxi/";
+    if (norm.includes("agra-se-gwalior-taxi")) return "/en/agra-to-gwalior-taxi/";
+    if (norm.includes("agra-se-lucknow-taxi")) return "/en/agra-to-lucknow-taxi/";
+    if (norm.includes("agra-se-mathura-taxi")) return "/en/agra-to-mathura-taxi/";
+    if (norm.startsWith("/hi/monuments/")) {
+      const slug = norm.replace("/hi/monuments/", "").replace(/\/$/, "");
+      return `/en/monuments/${slug}/`;
+    }
+    if (norm.startsWith("/hi/transfers/")) {
+      if (norm.includes("airport-noida")) return "/en/transfers/agra-to-noida-international-airport/";
+      if (norm.includes("delhi-igi")) return "/en/transfers/agra-to-delhi-airport/";
+      const slug = norm.replace("/hi/transfers/", "").replace(/\/$/, "");
+      return `/en/transfers/${slug}/`;
+    }
+    if (norm.startsWith("/hi/local-packages/")) {
+      if (norm.includes("knowledge-parak") || norm.includes("extended-city-tour")) return "/en/local-packages/agra-tour-for-international-tourists-full-day/";
+      const slug = norm.replace("/hi/local-packages/", "").replace(/\/$/, "");
+      return `/en/local-packages/${slug}/`;
+    }
+    if (norm.startsWith("/hi/packages/")) {
+      if (norm.includes("prem-mandir") || norm.includes("mathura-vrindavan")) return "/en/packages/same-day-agra-to-mathura-tour/";
+      if (norm.includes("taj-mahal-sunrise")) return "/en/packages/exclusive-tour-of-agra-for-1-day/";
+      if (norm.includes("agra-sightseeing") || norm.includes("agra-unhurried")) return "/en/packages/agra-same-day-sightseeing-tour/";
+      if (norm.includes("golden-triangle")) return "/en/packages/agra-to-delhi-tour/";
+      if (norm.includes("gatimaan-express")) return "/en/packages/exclusive-tour-of-agra-for-1-day/";
+      const slug = norm.replace("/hi/packages/", "").replace(/\/$/, "");
+      return `/en/packages/${slug}/`;
+    }
+    return "/";
+  }
+
+  // 2. Tempo traveller legacy routes
+  if (norm.includes("tempo-traveller") && !norm.startsWith("/en/vehicles/tempo-traveller")) {
+    return "/en/vehicles/tempo-traveller/";
+  }
+
+  // 3. Known package aliases
+  if (norm.includes("gatimaan-express-agra-tour") || norm.includes("taj-mahal-sunrise-tour-package-by-car")) {
+    return "/en/packages/exclusive-tour-of-agra-for-1-day/";
+  }
+  if (norm.includes("same-day-prem-mandir-tour")) {
+    return "/en/local-packages/agra-to-mathura-local-sightseeing/";
+  }
+  if (norm.includes("agra-sightseeing-taxi") || norm.includes("agra-local-sightseeing-taxi") || norm.includes("same-day-agra-tour-from-delhi")) {
+    return "/en/packages/agra-same-day-sightseeing-tour/";
+  }
+  if (norm.includes("best-places-to-visit-in-manali")) {
+    return "/en/packages/agra-to-manali-tour/";
+  }
+
+  // 4. Transfers & railway station
+  if (norm.includes("airport-noida")) {
+    return "/en/transfers/agra-to-noida-international-airport/";
+  }
+  if (norm.includes("agra-to-delhi-airport")) {
+    return "/en/transfers/agra-to-delhi-airport/";
+  }
+  if (norm.includes("agra-cantt-railway-station") || norm.includes("agra-cantt-station-transfer")) {
+    return "/en/routes/";
+  }
+
+  // 5. Canonical routes guard — do NOT redirect valid live routes!
+  const canonicalRoutes = [
+    "/en/agra-to-delhi-taxi/", "/en/delhi-to-agra-taxi/",
+    "/en/agra-to-jaipur-taxi/", "/en/jaipur-to-agra-taxi/",
+    "/en/agra-to-gwalior-taxi/", "/en/gwalior-to-agra-taxi/",
+    "/en/agra-to-lucknow-taxi/", "/en/lucknow-to-agra-taxi/",
+    "/en/agra-to-mathura-taxi/", "/en/mathura-to-agra-taxi/",
+    "/en/agra-to-ayodhya-taxi/", "/en/ayodhya-to-agra-taxi/",
+    "/en/agra-to-noida/", "/en/noida-to-agra-taxi/",
+    "/en/agra-to-gurugram/", "/en/gurugram-to-agra-taxi/",
+    "/en/agra-to-mathura/",
+    "/en/agra-to-jaipur/",
+    "/en/agra-to-lucknow/",
+    "/en/agra-to-ayodhya/",
+    "/en/agra-to-banaras/", "/en/banaras-to-agra-taxi/",
+    "/en/agra-to-prayagraj/", "/en/prayagraj-to-agra-taxi/",
+    "/en/agra-to-gwalior/",
+    "/en/agra-to-ajmer/", "/en/ajmer-to-agra-taxi/",
+    "/en/agra-to-udaipur/", "/en/udaipur-to-agra-taxi/",
+    "/en/agra-to-jaisalmer/", "/en/jaisalmer-to-agra-taxi/",
+    "/en/agra-to-haridwar/", "/en/haridwar-to-agra-taxi/",
+    "/en/agra-to-rishikesh/", "/en/rishikesh-to-agra-taxi/",
+    "/en/agra-to-dehradun/", "/en/dehradun-to-agra-taxi/",
+    "/en/agra-to-mussoorie/", "/en/mussoorie-to-agra-taxi/",
+  ];
+  const trailingNorm = norm.endsWith("/") ? norm : norm + "/";
+  if (canonicalRoutes.includes(trailingNorm)) {
+    return null; // Live route, leave untouched
+  }
+
+  // 6. Old micro-location routes
+  if (norm.includes("-taxi-services") || norm.includes("-taxi")) {
+    if (norm.includes("delhi-to") || (norm.includes("-to-agra-taxi") && norm.includes("delhi"))) return "/en/delhi-to-agra-taxi/";
+    if (norm.includes("delhi")) return "/en/agra-to-delhi-taxi/";
+    if (norm.includes("gurgaon-to") || norm.includes("gurugram-to")) return "/en/gurugram-to-agra-taxi/";
+    if (norm.includes("gurgaon") || norm.includes("gurugram")) return "/en/agra-to-gurugram/";
+    if (norm.includes("haridwar-to")) return "/en/haridwar-to-agra-taxi/";
+    if (norm.includes("haridwar")) return "/en/agra-to-haridwar/";
+    if (norm.includes("lucknow-to")) return "/en/lucknow-to-agra-taxi/";
+    if (norm.includes("lucknow")) return "/en/agra-to-lucknow-taxi/";
+    if (norm.includes("mathura-to")) return "/en/mathura-to-agra-taxi/";
+    if (norm.includes("mathura")) return "/en/agra-to-mathura-taxi/";
+    if (norm.includes("jaipur-to")) return "/en/jaipur-to-agra-taxi/";
+    if (norm.includes("jaipur")) return "/en/agra-to-jaipur-taxi/";
+    if (norm.includes("gwalior-to")) return "/en/gwalior-to-agra-taxi/";
+    if (norm.includes("gwalior")) return "/en/agra-to-gwalior-taxi/";
+    if (norm.includes("ayodhya-to")) return "/en/ayodhya-to-agra-taxi/";
+    if (norm.includes("ayodhya")) return "/en/agra-to-ayodhya-taxi/";
+    return "/en/routes/";
+  }
+
+  return null;
+}
+
 export async function onRequest(context: PagesContext): Promise<Response> {
   const { request, next } = context;
   const url = new URL(request.url);
@@ -99,6 +232,13 @@ export async function onRequest(context: PagesContext): Promise<Response> {
     const targetUrl = new URL(request.url);
     targetUrl.hostname = "agraskbagheltourandtravels.com";
     targetUrl.protocol = "https:";
+    return Response.redirect(targetUrl.toString(), 301);
+  }
+
+  // 2. Canonical Legacy Route & 404 Prevention Edge Interceptor
+  const legacyTarget = resolveLegacyRedirect(url.pathname);
+  if (legacyTarget) {
+    const targetUrl = new URL(legacyTarget, "https://agraskbagheltourandtravels.com");
     return Response.redirect(targetUrl.toString(), 301);
   }
 

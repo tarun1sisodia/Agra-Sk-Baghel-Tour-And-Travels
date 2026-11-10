@@ -593,6 +593,7 @@ export function TourPackageTemplate({ language = "en", pkg }: TourPackageTemplat
                 <a
                   className="w-full inline-flex items-center justify-center gap-2 bg-terracotta-deep text-white py-3.5 rounded-lg text-label-lg font-semibold hover:bg-terracotta-sunlit transition-all shadow-md text-center"
                   href={bookStep1Url}
+                  rel="nofollow"
                 >
                   <span className="material-symbols-outlined text-icon-20">calendar_month</span>
                   <span>Reserve This Package Now</span>

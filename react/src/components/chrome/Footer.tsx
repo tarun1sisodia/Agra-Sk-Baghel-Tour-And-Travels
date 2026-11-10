@@ -37,20 +37,20 @@ export interface FooterProps {
 
 export function Footer({ className = "" }: FooterProps) {
   const fleetLinks = [
-    { name: "Explore our vehicles", href: "/fleet" },
-    { name: "Vehicle comfort & capacity", href: "/fleet" },
-    { name: "Chauffeur-driven travel", href: "/services" },
+    { name: "Explore our vehicles", href: "/en/fleet/" },
+    { name: "Vehicle comfort & capacity", href: "/en/fleet/" },
+    { name: "Chauffeur-driven travel", href: "/en/services/" },
   ];
   const routeLinks = [
-    { name: "Plan an intercity journey", href: "/routes" },
-    { name: "Airport transfers", href: "/routes" },
-    { name: "Local Agra travel", href: "/routes" },
+    { name: "Plan an intercity journey", href: "/en/routes/" },
+    { name: "Airport transfers", href: "/en/routes/" },
+    { name: "Local Agra travel", href: "/en/routes/" },
   ];
   const tourLinks = [
     { name: "Explore sightseeing tours", href: "/en/packages/" },
     { name: "Monuments of Agra guides", href: "/en/monuments/" },
     { name: "Heritage experiences", href: "/en/packages/" },
-    { name: "Travel services & safety", href: "/services" },
+    { name: "Travel services & safety", href: "/en/services/" },
   ];
   return (
     <footer

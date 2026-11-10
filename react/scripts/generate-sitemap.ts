@@ -463,16 +463,17 @@ ${xmlUrls}
 
 export function generateRobotsTxt(): string {
   return `# Robots.txt — Agra SK Baghel Tour and Travels Agra
+# Content Signals Protocol: https://contentsignals.org/
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
 # Search engines and AI search/discovery bots: full access to public pages.
 User-agent: *
-Content-Signal: ai-train=no, search=yes, ai-input=yes
 Allow: /
-Disallow: /book.html
-Disallow: /book
-Disallow: /book/
-Disallow: /book*
 Disallow: /404.html
 Disallow: /design-guide/
+Disallow: /auth/
+Disallow: /my-bookings/
+Disallow: /payment/
 
 # --- AI crawler policies ---
 # Search & answer bots (may index content for search/answers): allowed via the

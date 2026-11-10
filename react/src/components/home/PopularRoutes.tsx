@@ -152,6 +152,7 @@ export function PopularRoutes() {
                 </div>
                 <a
                   href={bookUrl}
+                  rel="nofollow"
                   className="button button-primary pop-route-book"
                   id={`book-${route.id}`}
                   aria-label={`Book ${fromName} to ${toName} cab`}

@@ -359,6 +359,7 @@ export function BookingConfirmationPage() {
           <div className="mt-6 flex flex-col gap-3">
             <a
               href="/book.html"
+              rel="nofollow"
               className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-white shadow-sm hover:bg-terracotta-sunlit transition-colors text-center"
             >
               Start New Reservation

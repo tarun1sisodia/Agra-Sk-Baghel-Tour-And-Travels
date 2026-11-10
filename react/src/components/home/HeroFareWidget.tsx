@@ -229,6 +229,7 @@ export function HeroFareWidget() {
         {/* CTA */}
         <a
           href={buildBookingUrl()}
+          rel="nofollow"
           className="hfw-cta button button-primary"
           id="hfw-book-btn"
           aria-label={`Book ${TAB_LABELS[tab]} for ${showFare ? formatInr(fareTotal) : "calculated fare"}`}

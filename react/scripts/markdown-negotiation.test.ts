@@ -123,6 +123,30 @@ test("middleware handles Accept: text/markdown content negotiation & Link header
     "text/html; charset=utf-8",
     "Middleware must enforce charset=utf-8 on text/html responses"
   );
+
+  // 5. Legacy / dead route request -> returns 301 redirect to canonical route
+  const legacyReq = new Request("https://agraskbagheltourandtravels.com/en/agra-to-shakurbasti-delhi-taxi/", {
+    headers: { Accept: "text/html" },
+  });
+  const legacyRes = await onRequest({
+    request: legacyReq,
+    next: async () => new Response("Not Found", { status: 404 }),
+    env: {},
+  });
+  assert.equal(legacyRes.status, 301, "Legacy micro-location route must 301 redirect");
+  assert.equal(legacyRes.headers.get("Location"), "https://agraskbagheltourandtravels.com/en/agra-to-delhi-taxi/");
+
+  // 6. Hindi path request -> returns 301 redirect to canonical English route
+  const hindiReq = new Request("https://agraskbagheltourandtravels.com/hi/faq/", {
+    headers: { Accept: "text/html" },
+  });
+  const hindiRes = await onRequest({
+    request: hindiReq,
+    next: async () => new Response("Not Found", { status: 404 }),
+    env: {},
+  });
+  assert.equal(hindiRes.status, 301, "Hindi route must 301 redirect to canonical");
+  assert.equal(hindiRes.headers.get("Location"), "https://agraskbagheltourandtravels.com/en/faq/");
 });
 
 test("auth.md exists and meets Agent Registration specification", async () => {

@@ -217,6 +217,12 @@ export function getInitialTransferRoutes(): any[] {
   return Array.isArray(generatedPublishedTransferRoutes) ? (generatedPublishedTransferRoutes as any[]) : [];
 }
 
+export function getInitialTourPackages(): TourPackage[] {
+  return ((generatedPublishedTourPackages as any[]) || [])
+    .filter((item) => item && (item.slug || item.packageCode || item.package_code) && item.name)
+    .map(toDossierTourPackage);
+}
+
 export async function loadRoutesManifest(): Promise<Record<string, CompressedRoute>> {
   const manifest = await fetchCatalogManifest();
   if (manifest?.routes && Object.keys(manifest.routes).length > 0) {

@@ -449,6 +449,7 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
                   <a
                     className="inline-flex items-center justify-center gap-space-xs bg-terracotta-deep text-white px-6 py-3.5 rounded-lg text-label-lg font-label-lg shadow-md hover:bg-terracotta-sunlit transition-all duration-200 font-semibold"
                     href={bookingUrl}
+                    rel="nofollow"
                   >
                     <span className="material-symbols-outlined text-icon-20">calendar_month</span>
                     <span>Book This Route</span>
@@ -673,6 +674,7 @@ export function RouteTemplate({ language = "en", route, onSelectVehicle }: Route
             <a
               className="inline-flex items-center gap-1.5 bg-terracotta-deep text-white px-6 py-3 rounded text-label-lg font-semibold hover:bg-terracotta-sunlit transition-all shadow-sm"
               href={bookingUrl}
+              rel="nofollow"
             >
               <span className="material-symbols-outlined text-icon-20">calendar_month</span>
               <span>Reserve Now</span>

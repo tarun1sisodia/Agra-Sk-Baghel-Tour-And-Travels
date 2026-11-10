@@ -275,6 +275,7 @@ export function TransferDetailPage({ item }: TransferDetailPageProps) {
                 <a
                   className="w-full inline-flex items-center justify-center gap-2 bg-terracotta-deep text-white py-3.5 rounded-lg text-label-lg font-label-lg shadow-sm hover:bg-terracotta-sunlit transition-all text-center font-bold"
                   href={bookingUrl}
+                  rel="nofollow"
                 >
                   <span className="material-symbols-outlined text-icon-20">calendar_month</span>
                   <span>Book Transfer Online</span>
@@ -406,6 +407,7 @@ export function TransferDetailPage({ item }: TransferDetailPageProps) {
               <a
                 className="inline-flex items-center justify-center gap-2 bg-terracotta-deep text-white px-8 py-4 rounded-xl text-label-lg font-label-lg shadow-md hover:bg-terracotta-sunlit transition-all text-center font-bold"
                 href={bookingUrl}
+                rel="nofollow"
               >
                 <span className="material-symbols-outlined text-icon-20">directions_car</span>
                 <span>Book Transfer Now</span>
