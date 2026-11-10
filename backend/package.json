@@ -33,7 +33,7 @@
     "@fastify/compress": "^9.3.0",
     "@fastify/cors": "^11.1.0",
     "@fastify/helmet": "^13.0.2",
-    "@fastify/rate-limit": "^10.3.0",
+    "@fastify/rate-limit": "^11.2.2",
     "@pdfme/common": "^6.2.6",
     "@pdfme/generator": "^6.2.6",
     "@pdfme/schemas": "^6.2.6",
