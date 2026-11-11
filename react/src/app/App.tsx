@@ -95,7 +95,7 @@ export function getSeo(
         keywords: [customMeta.title, `${section.replace(/-/g, " ")}`, "Agra taxi", "Agra cab booking"],
       };
     }
-    const title = `${titleCaseSlug(section)} | SK Baghel Travels`.slice(0, 58);
+    const title = `${titleCaseSlug(section)} | Agra SK Baghel Tour & Travels`.slice(0, 58);
     return {
       title,
       description: `${title}. Verified drivers, transparent fare confirmation and easy phone or WhatsApp booking.`.slice(0, 155),
@@ -105,7 +105,7 @@ export function getSeo(
   }
   if (isBooking) {
     return {
-      title: "Book a Ride in Agra | SK Baghel Travels",
+      title: "Book a Ride in Agra | Agra SK Baghel Tour & Travels",
       description: "Compare vehicles and reserve verified outstation and local taxis in Agra with transparent fares and 28% advance deposit.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Agra taxi booking", "Agra cab reservation", "online taxi booking Agra"],
@@ -115,7 +115,7 @@ export function getSeo(
     const from = activeRoute.origin || (activeRoute.from ? activeRoute.from[0].toUpperCase() + activeRoute.from.slice(1) : "Agra");
     const to = activeRoute.destination || (activeRoute.to ? activeRoute.to[0].toUpperCase() + activeRoute.to.slice(1) : "Delhi");
     return {
-      title: `${from} to ${to} Taxi Fare | SK Baghel Travels`.slice(0, 58),
+      title: `${from} to ${to} Taxi Fare | Agra SK Baghel Tour & Travels`.slice(0, 58),
       description: `Book private taxi from ${from} to ${to} (${activeRoute.duration || "expressway"}). Verified chauffeurs, clean AC fleet, transparent fares from Agra.`.slice(0, 155),
       ogImage: "/assets/brand/og-banner.webp",
       keywords: [`${from} to ${to} taxi`, `${from} to ${to} cab fare`, "outstation taxi Agra", "expressway cab"],
@@ -163,7 +163,7 @@ export function getSeo(
 
   if (vehicle) {
     return {
-      title: `${vehicle.name} Hire in Agra | SK Baghel Travels`.slice(0, 58),
+      title: `${vehicle.name} Hire in Agra | Agra SK Baghel Tour & Travels`.slice(0, 58),
       description: `${vehicle.blurb} Compare seats (${vehicle.seats}), luggage (${vehicle.bags}), outstation rate from ₹${vehicle.perKm}/km.`.slice(0, 155),
       ogImage: vehicle.image,
       keywords: [vehicle.name, `${vehicle.name} Agra`, `${vehicle.name} rental`, "Agra taxi fleet", "outstation cab Agra"],
@@ -172,7 +172,7 @@ export function getSeo(
 
   if (tour) {
     return {
-      title: `${tour.name} | SK Baghel Travels`.slice(0, 58),
+      title: `${tour.name} | Agra SK Baghel Tour & Travels`.slice(0, 58),
       description: `${tour.blurb} 100% private sanitized AC cab, verified guide, transparent all-inclusive fares.`.slice(0, 155),
       ogImage: tour.image,
       keywords: [tour.name, `${tour.name} Agra`, "Taj Mahal private tour", "Agra tour package", "sightseeing cab Agra"],
@@ -184,7 +184,7 @@ export function getSeo(
     const to = route.to[0].toUpperCase() + route.to.slice(1);
     const routeMedia = getRouteDestinationImage(route.id, from, to);
     return {
-      title: `${from} to ${to} Taxi Fare | SK Baghel Travels`.slice(0, 58),
+      title: `${from} to ${to} Taxi Fare | Agra SK Baghel Tour & Travels`.slice(0, 58),
       description: `Book private taxi from ${from} to ${to} (${route.duration || "expressway"}). Verified chauffeurs, clean AC fleet, transparent fares.`.slice(0, 155),
       ogImage: routeMedia.src,
       keywords: [`${from} to ${to} taxi`, `${from} to ${to} cab fare`, "outstation taxi Agra", "expressway cab"],
@@ -218,7 +218,7 @@ export function getSeo(
 
   if (section === "services") {
     return {
-      title: "Tourist Taxi Services in Agra | Cabs | SK Baghel Travels",
+      title: "Tourist Taxi Services in Agra | Cabs | Agra SK Baghel Tour & Travels",
       description: "Professional tourist taxi services in Agra. Local sightseeing cabs, one-way outstation taxi drops, airport transfers & verified chauffeurs. Call 24x7.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Agra taxi services", "outstation cabs Agra", "local sightseeing Agra", "airport transfers Agra", "tempo traveller rental"],
@@ -254,7 +254,7 @@ export function getSeo(
 
   if (section === "fleet") {
     return {
-      title: "Taxi Hire & Fleet Booking in Agra | SK Baghel Travels",
+      title: "Taxi Hire & Fleet Booking in Agra | Agra SK Baghel Tour & Travels",
       description: "Hire verified taxis in Agra: Dzire, Ertiga, Innova Crysta & Tempo Travellers (9-26 seats). Transparent rates with commercial chauffeurs. Book 24x7.",
       ogImage: "/assets/fleet/innova.webp",
       keywords: ["innova crysta rental in agra", "tempo traveller booking agra", "9 12 16 seater tempo traveller agra", "ertiga taxi booking agra", "suv cab service agra"],
@@ -263,7 +263,7 @@ export function getSeo(
 
   if (section === "about") {
     return {
-      title: "About Us — Agra Taxi Desk | SK Baghel Travels",
+      title: "About Us — Agra Taxi Desk | Agra SK Baghel Tour & Travels",
       description: "Founded in Taj Ganj, Agra. Over 15 years of trusted chauffeur-driven outstation cabs, verified drivers, and transparent zero-commission heritage tours.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["About Agra SK Baghel Tour & Travels", "Agra travel desk", "Taj Ganj taxi service", "verified drivers Agra", "heritage tours"],
@@ -272,7 +272,7 @@ export function getSeo(
 
   if (section === "contact") {
     return {
-      title: "Contact Us — Agra Cabs 24x7 | SK Baghel Travels",
+      title: "Contact Us — Agra Cabs 24x7 | Agra SK Baghel Tour & Travels",
       description: "Get in touch with our 24×7 Taj Ganj dispatch desk for outstation cabs, sunrise Taj Mahal tours, and luxury group travel in Agra. Call +91 97628 17598.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Contact Agra SK Baghel Tour & Travels", "Agra taxi phone number", "Taj Ganj dispatch desk", "24x7 cab booking"],
@@ -281,7 +281,7 @@ export function getSeo(
 
   if (section === "faq") {
     return {
-      title: "Agra Taxi FAQs & Fare Rules | SK Baghel Travels",
+      title: "Agra Taxi FAQs & Fare Rules | Agra SK Baghel Tour & Travels",
       description: "Find clear answers about outstation taxi rules, 300 km/day minimums, Yamuna Expressway toll inclusions, night allowances, and our 24-hr refund policy.",
       ogImage: "/assets/brand/og-banner.webp",
       keywords: ["Agra taxi FAQ", "cab booking questions", "outstation 300km rule", "night allowance taxi", "cancellation refund policy"],
@@ -324,7 +324,7 @@ export function getSeo(
   }
 
   return {
-    title: `${titleCaseSlug(section)} | SK Baghel Travels`.slice(0, 58),
+    title: `${titleCaseSlug(section)} | Agra SK Baghel Tour & Travels`.slice(0, 58),
     description: "Agra taxi, outstation cabs, Tempo Travellers and private tours with transparent fares from Agra SK Baghel Tour & Travels.".slice(0, 155),
     ogImage: "/assets/brand/og-banner.webp",
   };
